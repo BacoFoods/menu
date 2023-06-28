@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option go_package = "pkg/menu";
+
+message MenuRequest {
+  string name = 1;
+  optional string description = 2;
+}
+
+message Menu {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+}
+
+message CompleteCategory {
+  
+}
+
+message CompleteMenu {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+
+  repeated CompleteCategory categories = 4;
+}
+
+
+service MenuService {
+  rpc Create(string, MenuRequest) returns (Menu);
+  rpc List(string) returns (repeated Menu);
+  rpc Get(string, int32) returns (CompleteMenu);
+  rpc Edit(string, int32, MenuRequest) returns (Menu);
+  rpc Delete(string, int32) returns (BasicResponse);
+
+  rpc AddCategory(string, int32)
+}

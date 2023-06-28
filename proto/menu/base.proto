@@ -1,0 +1,6 @@
+syntax = "proto3";
+option go_package = "pkg/menu";
+
+message BasicResponse {
+  string message = 1;
+}
