@@ -1,4 +1,20 @@
 basePath: /api/menu/v1
+definitions:
+  menu.Menu:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  shared.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
 info:
   contact:
     email: anderson.rodriguez@bacu.com
@@ -11,5 +27,178 @@ info:
   termsOfService: https://www.bacu.co/
   title: MENU-MS API Rest
   version: "1.0"
-paths: {}
+paths:
+  /menu:
+    get:
+      consumes:
+      - application/json
+      description: To find menu
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/menu.Menu'
+                message:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find menu
+      tags:
+      - Menu
+    patch:
+      consumes:
+      - application/json
+      description: To update a menu
+      parameters:
+      - description: menu request
+        in: body
+        name: menu
+        required: true
+        schema:
+          $ref: '#/definitions/menu.Menu'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/menu.Menu'
+                message:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update a menu
+      tags:
+      - Menu
+    post:
+      consumes:
+      - application/json
+      description: To create a menu
+      parameters:
+      - description: menu request
+        in: body
+        name: menu
+        required: true
+        schema:
+          $ref: '#/definitions/menu.Menu'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/menu.Menu'
+                message:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create a menu
+      tags:
+      - Menu
+  /menu/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a menu
+      parameters:
+      - description: menu id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/menu.Menu'
+                message:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To delete a menu
+      tags:
+      - Menu
+    get:
+      consumes:
+      - application/json
+      description: To get a menu
+      parameters:
+      - description: menu id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/menu.Menu'
+                message:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get a menu
+      tags:
+      - Menu
 swagger: "2.0"

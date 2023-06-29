@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-
 	// Healthcheck
 	healthcheckHandler := healthcheck.NewHandler()
 	healthcheckRoutes := healthcheck.NewRoutes(healthcheckHandler)
@@ -18,6 +17,7 @@ func main() {
 	// Swagger
 	swaggerRoutes := swagger.NewRoutes()
 
+	// Routes
 	routes := &router.RoutesGroup{
 		HealthCheck: healthcheckRoutes,
 		Swagger:     swaggerRoutes,

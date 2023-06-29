@@ -1,6 +1,7 @@
 package swagger
 
 import (
+	"github.com/BacoFoods/menu/pkg/menu"
 	_ "github.com/BacoFoods/menu/pkg/swagger/docs" //documentation
 
 	"github.com/gin-gonic/gin"
@@ -33,7 +34,7 @@ func NewRoutes() Routes {
 //go:generate go run github.com/swaggo/swag/cmd/swag@v1.8.4 init --parseDependency=true -o docs -g routes.go
 func (r *Routes) Register(group *gin.RouterGroup) {
 	// Next line is for swagger documentation
-	// _ = menu.Handler{}
+	_ = menu.Handler{}
 
 	group.GET("/swagger/*any", swaggerGin.WrapHandler(swaggerFiles.Handler))
 }
