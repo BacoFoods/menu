@@ -1,37 +1,57 @@
 syntax = "proto3";
 
-option go_package = "pkg/menu";
+import "base.proto";
+import "category.proto";
 
-message MenuRequest {
+message MenuCreateRequest {
   string name = 1;
   optional string description = 2;
+}
+
+message MenuListRequest {
+  string name = 1;
+  optional int32 page = 2;
+  optional int32 limit = 3;
+}
+
+message MenuGetRequest {
+  string name = 1;
+  int32 id = 2;
+}
+
+message MenuDeleteRequest {
+  int32 id = 1;
+}
+
+message MenuUpdateRequest {
+  int32 id = 1;
+  optional string name = 2;
+  optional string description = 3;
+}
+
+message AddCategoryRequest {
+  int32 menu_id = 1;
+  int32 category_id = 2;
+}
+
+message Menus {
+  repeated Menu menus = 1;
 }
 
 message Menu {
   int64 id = 1;
   string name = 2;
   string description = 3;
-}
-
-message CompleteCategory {
-  
-}
-
-message CompleteMenu {
-  int64 id = 1;
-  string name = 2;
-  string description = 3;
-
-  repeated CompleteCategory categories = 4;
+  repeated Category categories = 4;
 }
 
 
 service MenuService {
-  rpc Create(string, MenuRequest) returns (Menu);
-  rpc List(string) returns (repeated Menu);
-  rpc Get(string, int32) returns (CompleteMenu);
-  rpc Edit(string, int32, MenuRequest) returns (Menu);
-  rpc Delete(string, int32) returns (BasicResponse);
+  rpc Create(MenuCreateRequest) returns (Menu);
+  rpc List(MenuListRequest) returns (Menus);
+  rpc Get(MenuGetRequest) returns (Menu);
+  rpc Edit(MenuUpdateRequest) returns (Menu);
+  rpc Delete(MenuDeleteRequest) returns (BasicResponse);
 
-  rpc AddCategory(string, int32)
+  rpc AddCategory(AddCategoryRequest) returns (Menu);
 }
