@@ -1,6 +1,8 @@
 syntax = "proto3";
 
-import "base.proto";
+package menu;
+
+import "proto/menu/base.proto";
 
 message Categories {
   repeated Category categories = 1;

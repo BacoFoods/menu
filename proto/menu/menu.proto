@@ -1,7 +1,9 @@
 syntax = "proto3";
 
-import "base.proto";
-import "category.proto";
+go_package = menu;
+
+import "proto/menu/base.proto";
+import "proto/menu/category.proto";
 
 message MenuCreateRequest {
   string name = 1;

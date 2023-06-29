@@ -1,7 +1,9 @@
 syntax = "proto3";
 
-import "category.proto";
-import "base.proto";
+package menu;
+
+import "proto/menu/category.proto";
+import "proto/menu/base.proto";
 
 message Item {
   string name = 1;
