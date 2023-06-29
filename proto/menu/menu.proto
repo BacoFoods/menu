@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package menu;
+
 import "proto/menu/base.proto";
 import "proto/menu/category.proto";
 
