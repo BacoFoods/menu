@@ -1,0 +1,15 @@
+basePath: /api/menu/v1
+info:
+  contact:
+    email: anderson.rodriguez@bacu.com
+    name: Anderson Rodriguez
+    url: https://www.bacu.co/quienes-somos
+  description: Microservices for MENU.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://www.bacu.co/
+  title: MENU-MS API Rest
+  version: "1.0"
+paths: {}
+swagger: "2.0"

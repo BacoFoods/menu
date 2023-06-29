@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-package menu;
-option go_package = "pkg/menu/gen";
-
-message BasicResponse {
-  string message = 1;
-}

@@ -1,0 +1,20 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Microservices for MENU.",
+        "title": "MENU-MS API Rest",
+        "termsOfService": "https://www.bacu.co/",
+        "contact": {
+            "name": "Anderson Rodriguez",
+            "url": "https://www.bacu.co/quienes-somos",
+            "email": "anderson.rodriguez@bacu.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "basePath": "/api/menu/v1",
+    "paths": {}
+}

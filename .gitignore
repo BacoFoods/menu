@@ -1,1 +1,8 @@
+# IDE Intellij IDEA
 .idea/
+
+# App binary builds
+/cmd/go_menu
+
+# Dependency directories
+.DS_Store
