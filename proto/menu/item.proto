@@ -1,8 +1,8 @@
 syntax = "proto3";
 
 package menu;
+option go_package = "pkg/menu/gen";
 
-import "proto/menu/category.proto";
 import "proto/menu/base.proto";
 
 message Item {
