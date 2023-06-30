@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/category"
-	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/database"
 	"github.com/BacoFoods/menu/pkg/healthcheck"
 	"github.com/BacoFoods/menu/pkg/menu"
@@ -22,9 +21,7 @@ func main() {
 	gormFramework.MustMakeMigrations(
 		&menu.Menu{},
 		&menu.MenusCategories{},
-		&menu.MenusChannels{},
 		&category.Category{},
-		&channel.Channel{},
 	)
 
 	// Healthcheck

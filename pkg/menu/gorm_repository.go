@@ -7,12 +7,6 @@ func (b Menu) JoinTable(db gorm.DB) error {
 	if err != nil {
 		return err
 	}
-
-	err = db.SetupJoinTable(&Menu{}, "Channels", &MenusChannels{})
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
