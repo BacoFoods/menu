@@ -1,91 +1,151 @@
 package menu
 
 import (
-	_ "github.com/BacoFoods/menu/pkg/shared"
+	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
+
+const LogHandler string = "pkg/menu/handler"
 
 type Handler struct {
 	service Service
 }
 
 func NewHandler(service Service) *Handler {
-	return &Handler{
-		service,
-	}
+	return &Handler{service: service}
 }
 
-// Create to handle request for create a menu
+// Find to handle a request to find all menus
 // @Tags Menu
-// @Summary To create a menu
-// @Description To create a menu
-// @Param menu body Menu true "menu request"
+// @Summary To find menus
+// @Description To find menus
+// @Param name query string false "menu name"
 // @Accept json
 // @Produce json
-// @Success 200 {object} object{message=string,data=Menu}
+// @Success 200 {object} object{status=string,data=[]Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Router /menu [post]
-func (h *Handler) Create(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"message": "create menu"})
-}
-
-// Find to handle request for find menus
-// @Tags Menu
-// @Summary To find menu
-// @Description To find menu
-// @Accept json
-// @Produce json
-// @Success 200 {object} object{message=string,data=Menu}
-// @Failure 400 {object} shared.Response
-// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
 // @Router /menu [get]
-func (h *Handler) Find(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"message": "find menu"})
+func (h *Handler) Find(c *gin.Context) {
+	query := make(map[string]string)
+	name := c.Query("name")
+	if name != "" {
+		query["name"] = c.Query("name")
+	}
+	menus, err := h.service.Find(query)
+	if err != nil {
+		shared.LogError("error finding menus", LogHandler, "Find", err, menus)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingMenu))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(menus))
 }
 
-// Get to handle request for get a menu
+// Get to handle a request to get a menu
 // @Tags Menu
 // @Summary To get a menu
 // @Description To get a menu
+// @Param id path string true "menu id"
 // @Accept json
 // @Produce json
-// @Param id path string true "menu id"
-// @Success 200 {object} object{message=string,data=Menu}
+// @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
 // @Router /menu/{id} [get]
-func (h *Handler) Get(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"message": "get menu"})
+func (h *Handler) Get(c *gin.Context) {
+	menuID := c.Param("id")
+	menu, err := h.service.Get(menuID)
+	if err != nil {
+		shared.LogError("error getting menu", LogHandler, "Get", err, menu)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingMenu))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(menu))
 }
 
-// Update to handle request for update a menu
+// Create to handle a request to create a menu
+// @Tags Menu
+// @Summary To create a menu
+// @Description To create a menu
+// @Accept json
+// @Produce json
+// @Param menu body Menu true "menu"
+// @Success 200 {object} object{status=string,data=Menu}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /menu [post]
+func (h *Handler) Create(c *gin.Context) {
+	var requestBody Menu
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		shared.LogWarn("warning binding request body", LogHandler, "Create", err, requestBody)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	menu, err := h.service.Create(&requestBody)
+	if err != nil {
+		shared.LogError("error creating menu", LogHandler, "Create", err, requestBody)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingMenu))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(menu))
+}
+
+// Update to handle a request to update a menu
 // @Tags Menu
 // @Summary To update a menu
 // @Description To update a menu
-// @Param menu body Menu true "menu request"
 // @Accept json
 // @Produce json
-// @Success 200 {object} object{message=string,data=Menu}
+// @Param id path string true "menu id"
+// @Param menu body Menu true "menu"
+// @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Router /menu [patch]
-func (h *Handler) Update(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"message": "update menu"})
+// @Failure 403 {object} shared.Response
+// @Router /menu/{id} [patch]
+func (h *Handler) Update(c *gin.Context) {
+	var requestBody Menu
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		shared.LogWarn("warning binding request body", LogHandler, "Update", err, requestBody)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	menu, err := h.service.Update(&requestBody)
+	if err != nil {
+		shared.LogError("error updating menu", LogHandler, "Update", err, requestBody)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingMenu))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(menu))
 }
 
-// Delete to handle request for delete a menu
+// Delete to handle a request to delete a menu
 // @Tags Menu
 // @Summary To delete a menu
 // @Description To delete a menu
-// @Param id path string true "menu id"
 // @Accept json
 // @Produce json
-// @Success 200 {object} object{message=string,data=Menu}
+// @Param id path string true "menu id"
+// @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
 // @Router /menu/{id} [delete]
-func (h *Handler) Delete(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"message": "delete menu"})
+func (h *Handler) Delete(c *gin.Context) {
+	menuID := c.Param("id")
+	menu, err := h.service.Delete(menuID)
+	if err != nil {
+		shared.LogError("error deleting menu", LogHandler, "Delete", err, menu)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingMenu))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(menu))
 }

@@ -6,6 +6,15 @@ import (
 	"time"
 )
 
+const (
+	ErrorBadRequest      string = "error bad request"
+	ErrorCreatingProduct string = "error creating product"
+	ErrorFindingProduct  string = "error finding product"
+	ErrorGettingProduct  string = "error getting product"
+	ErrorUpdatingProduct string = "error updating product"
+	ErrorDeletingProduct string = "error deleting product"
+)
+
 type Product struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
@@ -20,4 +29,12 @@ type Product struct {
 	CreatedAt   *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time     `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+type Repository interface {
+	Create(*Product) (*Product, error)
+	Find(map[string]string) ([]Product, error)
+	Get(string) (*Product, error)
+	Update(*Product) (*Product, error)
+	Delete(string) (*Product, error)
 }

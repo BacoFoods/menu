@@ -6,6 +6,15 @@ import (
 	"time"
 )
 
+const (
+	ErrorBadRequest   string = "error bad request"
+	ErrorFindingMenu  string = "error finding menu"
+	ErrorGettingMenu  string = "error getting menu"
+	ErrorCreatingMenu string = "error creating menu"
+	ErrorUpdatingMenu string = "error updating menu"
+	ErrorDeletingMenu string = "error deleting menu"
+)
+
 type Menu struct {
 	ID          uint                `json:"id"`
 	Name        string              `json:"name"`
@@ -20,7 +29,7 @@ type Menu struct {
 
 type Repository interface {
 	Create(*Menu) (*Menu, error)
-	Find() ([]Menu, error)
+	Find(map[string]string) ([]Menu, error)
 	Get(string) (*Menu, error)
 	Update(*Menu) (*Menu, error)
 	Delete(string) (*Menu, error)

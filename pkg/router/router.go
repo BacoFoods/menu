@@ -2,9 +2,14 @@ package router
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/category"
+	"github.com/BacoFoods/menu/pkg/country"
+	"github.com/BacoFoods/menu/pkg/currency"
 	"github.com/BacoFoods/menu/pkg/healthcheck"
 	"github.com/BacoFoods/menu/pkg/menu"
+	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/swagger"
+	"github.com/BacoFoods/menu/pkg/taxes"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,7 +29,12 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.HealthCheck.Register(healthCheck)
 
 	private := router.Group(path)
-	routes.Menu.Register(private)
+	routes.Menu.RegisterRoutes(private)
+	routes.Category.RegisterRoutes(private)
+	routes.Product.RegisterRoutes(private)
+	routes.Taxes.RegisterRoutes(private)
+	routes.Country.RegisterRoutes(private)
+	routes.Currency.RegisterRoutes(private)
 
 	public := router.Group(fmt.Sprintf("%s/public", path))
 	routes.Swagger.Register(public)
@@ -37,4 +47,9 @@ type RoutesGroup struct {
 	HealthCheck healthcheck.Routes
 	Swagger     swagger.Routes
 	Menu        menu.Routes
+	Category    category.Routes
+	Product     product.Routes
+	Taxes       taxes.Routes
+	Country     country.Routes
+	Currency    currency.Routes
 }

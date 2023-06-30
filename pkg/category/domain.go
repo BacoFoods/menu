@@ -6,6 +6,15 @@ import (
 	"time"
 )
 
+const (
+	ErrorBadRequest       string = "error bad request"
+	ErrorFindingCategory  string = "error finding category"
+	ErrorGettingCategory  string = "error getting category"
+	ErrorCreatingCategory string = "error creating category"
+	ErrorUpdatingCategory string = "error updating category"
+	ErrorDeletingCategory string = "error deleting category"
+)
+
 type Category struct {
 	ID          uint              `json:"id"`
 	Image       string            `json:"image"`
@@ -21,4 +30,12 @@ type CategoriesProducts struct {
 	ID         uint `json:"id"`
 	CategoryID uint `json:"category_id" gorm:"primaryKey"`
 	ProductID  uint `json:"product_id" gorm:"primaryKey"`
+}
+
+type Repository interface {
+	Find(map[string]string) ([]Category, error)
+	Get(string) (*Category, error)
+	Create(*Category) (*Category, error)
+	Update(*Category) (*Category, error)
+	Delete(string) (*Category, error)
 }

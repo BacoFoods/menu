@@ -1,56 +1,72 @@
 package menu
 
-import "gorm.io/gorm"
+import (
+	"github.com/BacoFoods/menu/pkg/shared"
+	"gorm.io/gorm"
+)
 
-func (b Menu) JoinTable(db gorm.DB) error {
-	err := db.SetupJoinTable(&Menu{}, "Categories", &MenusCategories{})
-	if err != nil {
-		return err
-	}
-	return nil
-}
+const LogGormRepository string = "pkg/menu/repository"
 
 type GormRepository struct {
 	db *gorm.DB
 }
 
 func NewGormRepository(db *gorm.DB) *GormRepository {
-	return &GormRepository{db}
+	return &GormRepository{db: db}
 }
 
+// Create method for create a new menu in database
 func (r *GormRepository) Create(menu *Menu) (*Menu, error) {
-	if err := r.db.Create(menu).Error; err != nil {
+	if err := r.db.Save(menu).Error; err != nil {
+		shared.LogError("error creating menu", LogGormRepository, "Create", err, menu)
 		return nil, err
 	}
 	return menu, nil
 }
 
-func (r *GormRepository) Find() ([]Menu, error) {
+// Find method for find menus in database
+func (r *GormRepository) Find(filters map[string]string) ([]Menu, error) {
 	var menus []Menu
-	if err := r.db.Find(&menus).Error; err != nil {
+	if err := r.db.Find(&menus, filters).Error; err != nil {
+		shared.LogError("error getting menus", LogGormRepository, "Find", err, filters)
 		return nil, err
 	}
 	return menus, nil
 }
 
-func (r *GormRepository) Get(id string) (*Menu, error) {
+// Get method for get a menu in database
+func (r *GormRepository) Get(menuID string) (*Menu, error) {
 	var menu Menu
-	if err := r.db.First(&menu, id).Error; err != nil {
+	if err := r.db.First(&menu, menuID).Error; err != nil {
+		shared.LogError("error getting menu", LogGormRepository, "Get", err, menuID)
 		return nil, err
 	}
 	return &menu, nil
 }
 
+// Update method for update a menu in database
 func (r *GormRepository) Update(menu *Menu) (*Menu, error) {
-	if err := r.db.Save(menu).Error; err != nil {
+	var menuDB Menu
+	if err := r.db.First(&menuDB, menu.ID).Error; err != nil {
+		shared.LogError("error getting menu", LogGormRepository, "Update", err, menu)
 		return nil, err
 	}
-	return menu, nil
+	if err := r.db.Model(&menuDB).Updates(menu).Error; err != nil {
+		shared.LogError("error updating menu", LogGormRepository, "Update", err, menu)
+		return nil, err
+	}
+	return &menuDB, nil
 }
 
-func (r *GormRepository) Delete(id string) (*Menu, error) {
+// Delete method for delete a menu in database
+func (r *GormRepository) Delete(menuID string) (*Menu, error) {
 	var menu Menu
-	if err := r.db.Delete(&menu, id).Error; err != nil {
+	if err := r.db.First(&menu, menuID).Error; err != nil {
+		shared.LogError("error getting menu", LogGormRepository, "Delete", err, menuID)
+		return nil, err
+	}
+	if err := r.db.Delete(&menu).Error; err != nil {
+		shared.LogError("error deleting menu", LogGormRepository, "Delete", err, menu)
 		return nil, err
 	}
 	return &menu, nil

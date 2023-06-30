@@ -10,16 +10,35 @@ definitions:
         type: string
       name:
         type: string
+      products:
+        items:
+          $ref: '#/definitions/product.Product'
+        type: array
     type: object
-  channel.Channel:
+  country.Country:
     properties:
-      delivery_type:
+      currency:
+        $ref: '#/definitions/currency.Currency'
+      currency_id:
+        type: integer
+      id:
+        type: integer
+      iso_code:
         type: string
-      description:
+      name:
+        type: string
+      phone_code:
+        type: string
+    type: object
+  currency.Currency:
+    properties:
+      code:
         type: string
       id:
         type: integer
       name:
+        type: string
+      symbol:
         type: string
     type: object
   menu.Menu:
@@ -27,10 +46,6 @@ definitions:
       categories:
         items:
           $ref: '#/definitions/category.Category'
-        type: array
-      channels:
-        items:
-          $ref: '#/definitions/channel.Channel'
         type: array
       description:
         type: string
@@ -43,11 +58,49 @@ definitions:
       start_time:
         type: string
     type: object
+  product.Product:
+    properties:
+      description:
+        type: string
+      discount:
+        type: number
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sku:
+        type: string
+      tax:
+        $ref: '#/definitions/taxes.Tax'
+      tax_id:
+        type: integer
+      unit:
+        type: string
+    type: object
   shared.Response:
     properties:
       data: {}
       message:
         type: string
+    type: object
+  taxes.Tax:
+    properties:
+      country:
+        $ref: '#/definitions/country.Country'
+      country_id:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      percentage:
+        type: number
     type: object
 info:
   contact:
@@ -62,47 +115,593 @@ info:
   title: MENU-MS API Rest
   version: "1.0"
 paths:
+  /category:
+    get:
+      consumes:
+      - application/json
+      description: To find categories
+      parameters:
+      - description: category name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/category.Category'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find categories
+      tags:
+      - Category
+    post:
+      consumes:
+      - application/json
+      description: To create a category
+      parameters:
+      - description: category request
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/category.Category'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/category.Category'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create a category
+      tags:
+      - Category
+  /category/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a category
+      parameters:
+      - description: category id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/category.Category'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To delete a category
+      tags:
+      - Category
+    get:
+      consumes:
+      - application/json
+      description: To get a category
+      parameters:
+      - description: category id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/category.Category'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get a category
+      tags:
+      - Category
+    patch:
+      consumes:
+      - application/json
+      description: To update a category
+      parameters:
+      - description: category id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: category request
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/category.Category'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/category.Category'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update a category
+      tags:
+      - Category
+  /country:
+    get:
+      consumes:
+      - application/json
+      description: To find country
+      parameters:
+      - description: country code
+        in: query
+        name: code
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/country.Country'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find country
+      tags:
+      - Country
+    patch:
+      consumes:
+      - application/json
+      description: To update country plan
+      parameters:
+      - description: country to update
+        in: body
+        name: country
+        required: true
+        schema:
+          $ref: '#/definitions/country.Country'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/country.Country'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update country
+      tags:
+      - Country
+    post:
+      consumes:
+      - application/json
+      description: To create a country
+      parameters:
+      - description: country request
+        in: body
+        name: country
+        required: true
+        schema:
+          $ref: '#/definitions/country.Country'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/country.Country'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create a country
+      tags:
+      - Country
+  /country/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a country
+      parameters:
+      - description: countryID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/country.Country'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To delete a country
+      tags:
+      - Country
+    get:
+      consumes:
+      - application/json
+      description: To find country by id
+      parameters:
+      - description: country id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/country.Country'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find country by id
+      tags:
+      - Country
+  /currency:
+    get:
+      consumes:
+      - application/json
+      description: To find currency
+      parameters:
+      - description: currency code
+        in: query
+        name: code
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/currency.Currency'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find currency
+      tags:
+      - Currency
+    patch:
+      consumes:
+      - application/json
+      description: To update currency plan
+      parameters:
+      - description: currency to update
+        in: body
+        name: currency
+        required: true
+        schema:
+          $ref: '#/definitions/currency.Currency'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/currency.Currency'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update currency
+      tags:
+      - Currency
+    post:
+      consumes:
+      - application/json
+      description: To create a currency
+      parameters:
+      - description: currency request
+        in: body
+        name: currency
+        required: true
+        schema:
+          $ref: '#/definitions/currency.Currency'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/currency.Currency'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create a currency
+      tags:
+      - Currency
+  /currency/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a currency
+      parameters:
+      - description: currencyID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/currency.Currency'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To delete a currency
+      tags:
+      - Currency
+    get:
+      consumes:
+      - application/json
+      description: To find currency by id
+      parameters:
+      - description: currency id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/currency.Currency'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find currency by id
+      tags:
+      - Currency
   /menu:
     get:
       consumes:
       - application/json
-      description: To find menu
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/menu.Menu'
-                message:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      summary: To find menu
-      tags:
-      - Menu
-    patch:
-      consumes:
-      - application/json
-      description: To update a menu
+      description: To find menus
       parameters:
-      - description: menu request
-        in: body
-        name: menu
-        required: true
-        schema:
-          $ref: '#/definitions/menu.Menu'
+      - description: menu name
+        in: query
+        name: name
+        type: string
       produces:
       - application/json
       responses:
@@ -113,19 +712,25 @@ paths:
             - type: object
             - properties:
                 data:
-                  $ref: '#/definitions/menu.Menu'
-                message:
+                  items:
+                    $ref: '#/definitions/menu.Menu'
+                  type: array
+                status:
                   type: string
               type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
         "422":
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
-      summary: To update a menu
+      summary: To find menus
       tags:
       - Menu
     post:
@@ -133,7 +738,7 @@ paths:
       - application/json
       description: To create a menu
       parameters:
-      - description: menu request
+      - description: menu
         in: body
         name: menu
         required: true
@@ -150,11 +755,15 @@ paths:
             - properties:
                 data:
                   $ref: '#/definitions/menu.Menu'
-                message:
+                status:
                   type: string
               type: object
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -186,11 +795,15 @@ paths:
             - properties:
                 data:
                   $ref: '#/definitions/menu.Menu'
-                message:
+                status:
                   type: string
               type: object
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -221,7 +834,378 @@ paths:
             - properties:
                 data:
                   $ref: '#/definitions/menu.Menu'
-                message:
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get a menu
+      tags:
+      - Menu
+    patch:
+      consumes:
+      - application/json
+      description: To update a menu
+      parameters:
+      - description: menu id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: menu
+        in: body
+        name: menu
+        required: true
+        schema:
+          $ref: '#/definitions/menu.Menu'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/menu.Menu'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update a menu
+      tags:
+      - Menu
+  /product:
+    get:
+      consumes:
+      - application/json
+      description: To find products
+      parameters:
+      - description: product name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/product.Product'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find products
+      tags:
+      - Product
+    post:
+      consumes:
+      - application/json
+      description: To create a product
+      parameters:
+      - description: product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/product.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/product.Product'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create a product
+      tags:
+      - Product
+  /product/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/product.Product'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To delete a product
+      tags:
+      - Product
+    get:
+      consumes:
+      - application/json
+      description: To get a product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/product.Product'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get a product
+      tags:
+      - Product
+    patch:
+      consumes:
+      - application/json
+      description: To update a product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/product.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/product.Product'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update a product
+      tags:
+      - Product
+  /tax:
+    get:
+      consumes:
+      - application/json
+      description: To find tax
+      parameters:
+      - description: country id
+        in: query
+        name: country_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/taxes.Tax'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find tax
+      tags:
+      - Tax
+    patch:
+      consumes:
+      - application/json
+      description: To update tax plan
+      parameters:
+      - description: tax to update
+        in: body
+        name: tax
+        required: true
+        schema:
+          $ref: '#/definitions/taxes.Tax'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/taxes.Tax'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update tax
+      tags:
+      - Tax
+    post:
+      consumes:
+      - application/json
+      description: To create a tax
+      parameters:
+      - description: tax request
+        in: body
+        name: tax
+        required: true
+        schema:
+          $ref: '#/definitions/taxes.Tax'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/taxes.Tax'
+                status:
                   type: string
               type: object
         "400":
@@ -232,7 +1216,82 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
-      summary: To get a menu
+      summary: To create a tax
       tags:
-      - Menu
+      - Tax
+  /tax/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a tax
+      parameters:
+      - description: taxID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/taxes.Tax'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To delete a tax
+      tags:
+      - Tax
+    get:
+      consumes:
+      - application/json
+      description: To find tax by id
+      parameters:
+      - description: tax id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/taxes.Tax'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find tax by id
+      tags:
+      - Tax
 swagger: "2.0"
