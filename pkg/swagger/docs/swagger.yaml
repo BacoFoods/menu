@@ -1,12 +1,46 @@
 basePath: /api/menu/v1
 definitions:
-  menu.Menu:
+  category.Category:
     properties:
       description:
         type: string
       id:
         type: integer
+      image:
+        type: string
       name:
+        type: string
+    type: object
+  channel.Channel:
+    properties:
+      delivery_type:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  menu.Menu:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/category.Category'
+        type: array
+      channels:
+        items:
+          $ref: '#/definitions/channel.Channel'
+        type: array
+      description:
+        type: string
+      end_time:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      start_time:
         type: string
     type: object
   shared.Response:

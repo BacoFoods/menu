@@ -3,6 +3,7 @@ package router
 import (
 	"fmt"
 	"github.com/BacoFoods/menu/pkg/healthcheck"
+	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/swagger"
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +23,9 @@ func NewRouter(routes *RoutesGroup) Router {
 	healthCheck := router.Group(path)
 	routes.HealthCheck.Register(healthCheck)
 
+	private := router.Group(path)
+	routes.Menu.Register(private)
+
 	public := router.Group(fmt.Sprintf("%s/public", path))
 	routes.Swagger.Register(public)
 
@@ -32,4 +36,5 @@ func NewRouter(routes *RoutesGroup) Router {
 type RoutesGroup struct {
 	HealthCheck healthcheck.Routes
 	Swagger     swagger.Routes
+	Menu        menu.Routes
 }

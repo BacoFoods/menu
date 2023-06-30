@@ -13,6 +13,7 @@ const (
 // config is the struct that holds all the configuration
 type config struct {
 	AppConfig
+	DBConfig
 }
 
 // Config is the global variable that holds the configuration for parse the environment variables

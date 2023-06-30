@@ -311,7 +311,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "menu.Menu": {
+        "category.Category": {
             "type": "object",
             "properties": {
                 "description": {
@@ -320,7 +320,59 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "image": {
+                    "type": "string"
+                },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "channel.Channel": {
+            "type": "object",
+            "properties": {
+                "delivery_type": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "menu.Menu": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/category.Category"
+                    }
+                },
+                "channels": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/channel.Channel"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "start_time": {
                     "type": "string"
                 }
             }

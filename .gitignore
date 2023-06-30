@@ -6,3 +6,6 @@
 
 # Dependency directories
 .DS_Store
+
+# Env files
+.env

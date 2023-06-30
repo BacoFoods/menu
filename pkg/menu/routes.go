@@ -8,8 +8,8 @@ type Routes struct {
 }
 
 // NewRoutes creates a new instance of the Routes struct
-func NewRoutes(handler *Handler) *Routes {
-	return &Routes{
+func NewRoutes(handler *Handler) Routes {
+	return Routes{
 		handler: handler,
 	}
 }

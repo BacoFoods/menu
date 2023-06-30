@@ -6,10 +6,14 @@ import (
 	"net/http"
 )
 
-type Handler struct{}
+type Handler struct {
+	service Service
+}
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(service Service) *Handler {
+	return &Handler{
+		service,
+	}
 }
 
 // Create to handle request for create a menu
