@@ -3,11 +3,14 @@ package router
 import (
 	"fmt"
 	"github.com/BacoFoods/menu/pkg/category"
+	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/country"
 	"github.com/BacoFoods/menu/pkg/currency"
 	"github.com/BacoFoods/menu/pkg/healthcheck"
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/product"
+	"github.com/BacoFoods/menu/pkg/spot"
+	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/swagger"
 	"github.com/BacoFoods/menu/pkg/taxes"
 	"github.com/gin-gonic/gin"
@@ -22,12 +25,15 @@ type Router interface {
 func NewRouter(routes *RoutesGroup) Router {
 	path := "api/menu/v1"
 
+	// Setting middlewares
 	router := gin.Default()
 	router.Use(CORSMiddleware(), Authentication())
 
+	// Register health check route
 	healthCheck := router.Group(path)
 	routes.HealthCheck.Register(healthCheck)
 
+	// Register private routes
 	private := router.Group(path)
 	routes.Menu.RegisterRoutes(private)
 	routes.Category.RegisterRoutes(private)
@@ -35,7 +41,11 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Taxes.RegisterRoutes(private)
 	routes.Country.RegisterRoutes(private)
 	routes.Currency.RegisterRoutes(private)
+	routes.Store.RegisterRoutes(private)
+	routes.Spot.RegisterRoutes(private)
+	routes.Channel.RegisterRoutes(private)
 
+	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
 	routes.Swagger.Register(public)
 
@@ -52,4 +62,7 @@ type RoutesGroup struct {
 	Taxes       taxes.Routes
 	Country     country.Routes
 	Currency    currency.Routes
+	Store       store.Routes
+	Spot        spot.Routes
+	Channel     channel.Routes
 }

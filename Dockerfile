@@ -24,4 +24,3 @@ COPY entrypoint.sh .
 EXPOSE 3000
 ENTRYPOINT ["/bin/sh"]
 CMD ["entrypoint.sh"]
-

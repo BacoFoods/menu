@@ -1,7 +1,12 @@
 package swagger
 
 import (
+	"github.com/BacoFoods/menu/pkg/category"
+	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/menu"
+	"github.com/BacoFoods/menu/pkg/product"
+	"github.com/BacoFoods/menu/pkg/spot"
+	"github.com/BacoFoods/menu/pkg/store"
 	_ "github.com/BacoFoods/menu/pkg/swagger/docs" //documentation
 
 	"github.com/gin-gonic/gin"
@@ -35,6 +40,11 @@ func NewRoutes() Routes {
 func (r *Routes) Register(group *gin.RouterGroup) {
 	// Next line is for swagger documentation
 	_ = menu.Handler{}
+	_ = category.Handler{}
+	_ = product.Handler{}
+	_ = store.Handler{}
+	_ = spot.Handler{}
+	_ = channel.Handler{}
 
 	group.GET("/swagger/*any", swaggerGin.WrapHandler(swaggerFiles.Handler))
 }

@@ -5,68 +5,68 @@ import (
 	"gorm.io/gorm"
 )
 
-const LogGormRepository string = "pkg/category/repository"
+const LogDBRepository string = "pkg/category/db_repository"
 
-type GormRepository struct {
+type DBRepository struct {
 	db *gorm.DB
 }
 
-func NewGormRepository(db *gorm.DB) *GormRepository {
-	return &GormRepository{db: db}
+func NewDBRepository(db *gorm.DB) *DBRepository {
+	return &DBRepository{db: db}
 }
 
 // Create method for create a new category in database
-func (r *GormRepository) Create(category *Category) (*Category, error) {
+func (r *DBRepository) Create(category *Category) (*Category, error) {
 	if err := r.db.Save(category).Error; err != nil {
-		shared.LogError("error creating category", LogGormRepository, "Create", err, category)
+		shared.LogError("error creating category", LogDBRepository, "Create", err, category)
 		return nil, err
 	}
 	return category, nil
 }
 
 // Find method for find categories in database
-func (r *GormRepository) Find(filters map[string]string) ([]Category, error) {
+func (r *DBRepository) Find(filters map[string]string) ([]Category, error) {
 	var categories []Category
 	if err := r.db.Find(&categories, filters).Error; err != nil {
-		shared.LogError("error getting categories", LogGormRepository, "Find", err, filters)
+		shared.LogError("error getting categories", LogDBRepository, "Find", err, filters)
 		return nil, err
 	}
 	return categories, nil
 }
 
 // Get method for get a category in database
-func (r *GormRepository) Get(categoryID string) (*Category, error) {
+func (r *DBRepository) Get(categoryID string) (*Category, error) {
 	var category Category
 	if err := r.db.First(&category, categoryID).Error; err != nil {
-		shared.LogError("error getting category", LogGormRepository, "Get", err, categoryID)
+		shared.LogError("error getting category", LogDBRepository, "Get", err, categoryID)
 		return nil, err
 	}
 	return &category, nil
 }
 
 // Update method for update a category in database
-func (r *GormRepository) Update(category *Category) (*Category, error) {
+func (r *DBRepository) Update(category *Category) (*Category, error) {
 	var categoryDB Category
 	if err := r.db.First(&categoryDB, category.ID).Error; err != nil {
-		shared.LogError("error getting category", LogGormRepository, "Update", err, category)
+		shared.LogError("error getting category", LogDBRepository, "Update", err, category)
 		return nil, err
 	}
 	if err := r.db.Model(&categoryDB).Updates(category).Error; err != nil {
-		shared.LogError("error updating category", LogGormRepository, "Update", err, category)
+		shared.LogError("error updating category", LogDBRepository, "Update", err, category)
 		return nil, err
 	}
 	return &categoryDB, nil
 }
 
 // Delete method for delete a category in database
-func (r *GormRepository) Delete(categoryID string) (*Category, error) {
+func (r *DBRepository) Delete(categoryID string) (*Category, error) {
 	var category Category
 	if err := r.db.First(&category, categoryID).Error; err != nil {
-		shared.LogError("error getting category", LogGormRepository, "Delete", err, categoryID)
+		shared.LogError("error getting category", LogDBRepository, "Delete", err, categoryID)
 		return nil, err
 	}
 	if err := r.db.Delete(&category).Error; err != nil {
-		shared.LogError("error deleting category", LogGormRepository, "Delete", err, category)
+		shared.LogError("error deleting category", LogDBRepository, "Delete", err, category)
 		return nil, err
 	}
 	return &category, nil

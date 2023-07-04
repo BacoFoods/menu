@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/category"
+	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/country"
 	"github.com/BacoFoods/menu/pkg/currency"
 	"github.com/BacoFoods/menu/pkg/database"
@@ -11,6 +12,8 @@ import (
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/router"
+	"github.com/BacoFoods/menu/pkg/spot"
+	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/swagger"
 	"github.com/BacoFoods/menu/pkg/taxes"
 	"github.com/sirupsen/logrus"
@@ -41,40 +44,58 @@ func main() {
 	swaggerRoutes := swagger.NewRoutes()
 
 	// Menu
-	menuRepository := menu.NewGormRepository(gormDB)
+	menuRepository := menu.NewDBRepository(gormDB)
 	menuService := menu.NewService(menuRepository)
 	menuHandler := menu.NewHandler(menuService)
 	menuRoutes := menu.NewRoutes(menuHandler)
 
 	// Category
-	categoryRepository := category.NewGormRepository(gormDB)
+	categoryRepository := category.NewDBRepository(gormDB)
 	categoryService := category.NewService(categoryRepository)
 	categoryHandler := category.NewHandler(categoryService)
 	categoryRoutes := category.NewRoutes(categoryHandler)
 
 	// Product
-	productRepository := product.NewGormRepository(gormDB)
+	productRepository := product.NewDBRepository(gormDB)
 	productService := product.NewService(productRepository)
 	productHandler := product.NewHandler(productService)
 	productRoutes := product.NewRoutes(productHandler)
 
 	// Taxes
-	taxesRepository := taxes.NewGormRepository(gormDB)
+	taxesRepository := taxes.NewDBRepository(gormDB)
 	taxesService := taxes.NewService(taxesRepository)
 	taxesHandler := taxes.NewHandler(taxesService)
 	taxesRoutes := taxes.NewRoutes(taxesHandler)
 
 	// Country
-	countryRepository := country.NewGormRepository(gormDB)
+	countryRepository := country.NewDBRepository(gormDB)
 	countryService := country.NewService(countryRepository)
 	countryHandler := country.NewHandler(countryService)
 	countryRoutes := country.NewRoutes(countryHandler)
 
 	// Currency
-	currencyRepository := currency.NewGormRepository(gormDB)
+	currencyRepository := currency.NewDBRepository(gormDB)
 	currencyService := currency.NewService(currencyRepository)
 	currencyHandler := currency.NewHandler(currencyService)
 	currencyRoutes := currency.NewRoutes(currencyHandler)
+
+	// Store
+	storeRepository := store.NewDBRepository(gormDB)
+	storeService := store.NewService(storeRepository)
+	storeHandler := store.NewHandler(storeService)
+	storeRoutes := store.NewRoutes(storeHandler)
+
+	// Spot
+	spotRepository := spot.NewDBRepository(gormDB)
+	spotService := spot.NewService(spotRepository)
+	spotHandler := spot.NewHandler(spotService)
+	spotRoutes := spot.NewRoutes(spotHandler)
+
+	// Channel
+	channelRepository := channel.NewDBRepository(gormDB)
+	channelService := channel.NewService(channelRepository)
+	channelHandler := channel.NewHandler(channelService)
+	channelRoutes := channel.NewRoutes(channelHandler)
 
 	// Routes
 	routes := &router.RoutesGroup{
@@ -86,6 +107,9 @@ func main() {
 		Taxes:       taxesRoutes,
 		Country:     countryRoutes,
 		Currency:    currencyRoutes,
+		Store:       storeRoutes,
+		Spot:        spotRoutes,
+		Channel:     channelRoutes,
 	}
 
 	// Run server

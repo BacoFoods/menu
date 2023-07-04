@@ -22,6 +22,7 @@ type Menu struct {
 	Categories  []category.Category `json:"categories" gorm:"many2many:menus_categories"`
 	StartTime   *time.Time          `json:"start_time,omitempty"`
 	EndTime     *time.Time          `json:"end_time,omitempty"`
+	StoreID     *uint               `json:"store_id"`
 	CreatedAt   *time.Time          `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time          `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   gorm.DeletedAt      `json:"deleted_at,omitempty" swaggerignore:"true"`
