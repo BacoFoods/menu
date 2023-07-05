@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/BacoFoods/menu/internal"
+	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/country"
@@ -10,9 +11,9 @@ import (
 	"github.com/BacoFoods/menu/pkg/database"
 	"github.com/BacoFoods/menu/pkg/healthcheck"
 	"github.com/BacoFoods/menu/pkg/menu"
+	"github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/router"
-	"github.com/BacoFoods/menu/pkg/spot"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/swagger"
 	"github.com/BacoFoods/menu/pkg/taxes"
@@ -34,6 +35,10 @@ func main() {
 		&taxes.Tax{},
 		&country.Country{},
 		&currency.Currency{},
+		&brand.Brand{},
+		&store.Store{},
+		&channel.Channel{},
+		&overriders.Overriders{},
 	)
 
 	// Healthcheck
@@ -43,9 +48,15 @@ func main() {
 	// Swagger
 	swaggerRoutes := swagger.NewRoutes()
 
+	// Overriders
+	overridersRepository := overriders.NewDBRepository(gormDB)
+	overridersService := overriders.NewService(overridersRepository)
+	overridersHandler := overriders.NewHandler(overridersService)
+	overridersRoutes := overriders.NewRoutes(overridersHandler)
+
 	// Menu
 	menuRepository := menu.NewDBRepository(gormDB)
-	menuService := menu.NewService(menuRepository)
+	menuService := menu.NewService(menuRepository, overridersRepository)
 	menuHandler := menu.NewHandler(menuService)
 	menuRoutes := menu.NewRoutes(menuHandler)
 
@@ -79,17 +90,17 @@ func main() {
 	currencyHandler := currency.NewHandler(currencyService)
 	currencyRoutes := currency.NewRoutes(currencyHandler)
 
+	// Brand
+	brandRepository := brand.NewDBRepository(gormDB)
+	brandService := brand.NewService(brandRepository)
+	brandHandler := brand.NewHandler(brandService)
+	brandRoutes := brand.NewRoutes(brandHandler)
+
 	// Store
 	storeRepository := store.NewDBRepository(gormDB)
 	storeService := store.NewService(storeRepository)
 	storeHandler := store.NewHandler(storeService)
 	storeRoutes := store.NewRoutes(storeHandler)
-
-	// Spot
-	spotRepository := spot.NewDBRepository(gormDB)
-	spotService := spot.NewService(spotRepository)
-	spotHandler := spot.NewHandler(spotService)
-	spotRoutes := spot.NewRoutes(spotHandler)
 
 	// Channel
 	channelRepository := channel.NewDBRepository(gormDB)
@@ -104,11 +115,12 @@ func main() {
 		Menu:        menuRoutes,
 		Category:    categoryRoutes,
 		Product:     productRoutes,
+		Overriders:  overridersRoutes,
 		Taxes:       taxesRoutes,
 		Country:     countryRoutes,
 		Currency:    currencyRoutes,
+		Brand:       brandRoutes,
 		Store:       storeRoutes,
-		Spot:        spotRoutes,
 		Channel:     channelRoutes,
 	}
 

@@ -28,7 +28,7 @@ type Country struct {
 	ID         uint               `json:"id"`
 	Name       string             `json:"name"`
 	ISOCode    CountryISO         `json:"iso_code,omitempty"`
-	CurrencyID uint               `json:"currency_id"`
+	CurrencyID *uint              `json:"currency_id"`
 	Currency   *currency.Currency `json:"currency,omitempty" gorm:"foreignKey:CurrencyID"`
 	PhoneCode  string             `json:"phone_code,omitempty"`
 	CreatedAt  *time.Time         `json:"created_at,omitempty" swaggerignore:"true"`

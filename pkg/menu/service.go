@@ -1,5 +1,10 @@
 package menu
 
+import (
+	overridersEntity "github.com/BacoFoods/menu/pkg/overriders"
+	"github.com/BacoFoods/menu/pkg/product"
+)
+
 // Service is the interface that provides menu methods, used for dependency injection.
 type Service interface {
 	Find(map[string]string) ([]Menu, error)
@@ -7,16 +12,19 @@ type Service interface {
 	Create(*Menu) (*Menu, error)
 	Update(*Menu) (*Menu, error)
 	Delete(string) (*Menu, error)
+
+	GetByPlace(string, string, string) (*Menu, error)
 }
 
 // service is the default implementation of the Service interface for menu.
 type service struct {
 	repository Repository
+	overriders overridersEntity.Repository
 }
 
 // NewService creates a new instance of the service for menu, using the provided repository implementation.
-func NewService(repository Repository) service {
-	return service{repository}
+func NewService(repository Repository, overriders overridersEntity.Repository) service {
+	return service{repository, overriders}
 }
 
 // Find returns a list of menu objects filtering by query map.
@@ -43,4 +51,49 @@ func (s service) Update(menu *Menu) (*Menu, error) {
 // Delete deletes an existing menu object.
 func (s service) Delete(menuID string) (*Menu, error) {
 	return s.repository.Delete(menuID)
+}
+
+// GetByPlace returns a single menu object loading overriders by ID.
+func (s service) GetByPlace(place, placeID, menuID string) (*Menu, error) {
+	menuItems, err := s.repository.GetMenuItems(menuID)
+	if err != nil {
+		return nil, err
+	}
+
+	overriders, err := s.overriders.FindByPlace(place, placeID)
+	if err != nil {
+		return nil, err
+	}
+
+	var itemsByCategories map[uint][]product.Product
+	for _, item := range menuItems {
+		var prod product.Product
+		for _, overrider := range overriders {
+			if item.ID == *overrider.ProductID {
+				prod = product.Product{
+					ID:          item.ID,
+					Name:        item.Name,
+					Description: overrider.Description,
+					Image:       overrider.Image,
+					SKU:         item.SKU,
+					Price:       overrider.Price,
+					TaxID:       item.TaxID,
+					DiscountID:  item.DiscountID,
+					Unit:        item.Unit,
+				}
+			}
+		}
+		itemsByCategories[*item.CategoryID] = append(itemsByCategories[*item.CategoryID], prod)
+	}
+
+	menu, err := s.repository.Get(menuID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, category := range menu.Categories {
+		category.Products = itemsByCategories[category.ID]
+	}
+
+	return menu, nil
 }

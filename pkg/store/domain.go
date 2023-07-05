@@ -1,8 +1,9 @@
 package store
 
 import (
-	"github.com/BacoFoods/menu/pkg/menu"
-	"github.com/BacoFoods/menu/pkg/spot"
+	"github.com/BacoFoods/menu/pkg/channel"
+	"gorm.io/gorm"
+	"time"
 )
 
 const (
@@ -15,14 +16,18 @@ const (
 )
 
 type Store struct {
-	ID          uint        `json:"id"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Menus       []menu.Menu `json:"menus,omitempty" gorm:"foreignKey:StoreID"`
-	Spots       []spot.Spot `json:"spots,omitempty" gorm:"foreignKey:StoreID"`
-	CreatedAt   string      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt   string      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   string      `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID        uint              `json:"id"`
+	Name      string            `json:"name"`
+	BrandID   *uint             `json:"brand_id"`
+	Enabled   bool              `json:"enabled"`
+	Image     string            `json:"image,omitempty"`
+	Channels  []channel.Channel `json:"channels,omitempty" gorm:"foreignKey:StoreID"`
+	Latitude  float64           `json:"latitude,omitempty"`
+	Longitude float64           `json:"longitude,omitempty"`
+	Address   string            `json:"address,omitempty"`
+	CreatedAt *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type Repository interface {

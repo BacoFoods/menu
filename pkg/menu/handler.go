@@ -149,3 +149,30 @@ func (h *Handler) Delete(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(menu))
 }
+
+// GetByPlace to handle a request to get a menu by place and load overriders
+// @Tags Menu
+// @Summary To get a menu by place and load overriders
+// @Description To get a menu by place and load overriders
+// @Param place path string true "place"
+// @Param place_id path string true "place id"
+// @Param id path string true "menu id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=Menu}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /menu/{id}/{place}/{place_id} [get]
+func (h *Handler) GetByPlace(c *gin.Context) {
+	place := c.Param("place")
+	placeID := c.Param("place_id")
+	menuID := c.Param("id")
+	menu, err := h.service.GetByPlace(place, placeID, menuID)
+	if err != nil {
+		shared.LogError("error getting menu by place", LogHandler, "GetByPlace", err, menu)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingMenu))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(menu))
+}

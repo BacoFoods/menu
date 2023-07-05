@@ -71,3 +71,18 @@ func (r *DBRepository) Delete(menuID string) (*Menu, error) {
 	}
 	return &menu, nil
 }
+
+// GetMenuItems method for get menu items in database
+func (r *DBRepository) GetMenuItems(menuID string) ([]Item, error) {
+	var products []Item
+	if err := r.db.Debug().Table("products").
+		Select("mc.menu_id menu_id, cp.category_id category_id, products.* ").
+		Joins("left join categories_products cp on products.id = cp.product_id").
+		Joins("left join menus_categories mc on cp.category_id = mc.category_id").
+		Where("mc.menu_id = ?", menuID).
+		Find(&products).Error; err != nil {
+		shared.LogError("error getting menu items", LogDBRepository, "GetMenuItems", err, menuID)
+		return nil, err
+	}
+	return products, nil
+}

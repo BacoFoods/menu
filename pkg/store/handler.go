@@ -61,7 +61,7 @@ func (h Handler) Get(c *gin.Context) {
 	storeID := c.Param("id")
 	store, err := h.service.Get(storeID)
 	if err != nil {
-		shared.LogError("error getting store", LogHandler, "Get", err, store)
+		shared.LogError("error getting store", LogHandler, "Get", err, storeID)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingStore))
 		return
 	}
@@ -83,14 +83,14 @@ func (h Handler) Get(c *gin.Context) {
 func (h Handler) Create(c *gin.Context) {
 	var request Store
 	if err := c.ShouldBindJSON(&request); err != nil {
-		shared.LogWarn("warning binding request", LogHandler, "Create", err, request)
+		shared.LogError("error binding json", LogHandler, "Create", err, request)
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
 
 	store, err := h.service.Create(&request)
 	if err != nil {
-		shared.LogError("error creating store", LogHandler, "Create", err, store)
+		shared.LogError("error creating store", LogHandler, "Create", err, request)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingStore))
 		return
 	}
@@ -121,7 +121,7 @@ func (h Handler) Update(c *gin.Context) {
 
 	store, err := h.service.Update(&request)
 	if err != nil {
-		shared.LogError("error updating store", LogHandler, "Update", err, store)
+		shared.LogError("error updating store", LogHandler, "Update", err, request)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingStore))
 		return
 	}
@@ -145,7 +145,7 @@ func (h Handler) Delete(c *gin.Context) {
 	storeID := c.Param("id")
 	store, err := h.service.Delete(storeID)
 	if err != nil {
-		shared.LogError("error deleting store", LogHandler, "Delete", err, store)
+		shared.LogError("error deleting store", LogHandler, "Delete", err, storeID)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingStore))
 		return
 	}

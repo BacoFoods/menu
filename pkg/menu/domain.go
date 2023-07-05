@@ -2,6 +2,7 @@ package menu
 
 import (
 	"github.com/BacoFoods/menu/pkg/category"
+	"github.com/BacoFoods/menu/pkg/product"
 	"gorm.io/gorm"
 	"time"
 )
@@ -22,10 +23,15 @@ type Menu struct {
 	Categories  []category.Category `json:"categories" gorm:"many2many:menus_categories"`
 	StartTime   *time.Time          `json:"start_time,omitempty"`
 	EndTime     *time.Time          `json:"end_time,omitempty"`
-	StoreID     *uint               `json:"store_id"`
+	BrandID     *uint               `json:"brand_id"`
 	CreatedAt   *time.Time          `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time          `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   gorm.DeletedAt      `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+type Item struct {
+	product.Product
+	CategoryID *uint `json:"category_id"`
 }
 
 type Repository interface {
@@ -34,12 +40,14 @@ type Repository interface {
 	Get(string) (*Menu, error)
 	Update(*Menu) (*Menu, error)
 	Delete(string) (*Menu, error)
+
+	GetMenuItems(string) ([]Item, error)
 }
 
 type MenusCategories struct {
 	ID         uint           `json:"id"`
-	MenuID     uint           `json:"menu_id" gorm:"primaryKey"`
-	CategoryID uint           `json:"category_id" gorm:"primaryKey"`
+	MenuID     *uint          `json:"menu_id" gorm:"primaryKey"`
+	CategoryID *uint          `json:"category_id" gorm:"primaryKey"`
 	Enable     bool           `json:"enable,omitempty"`
 	StartTime  *time.Time     `json:"start_time,omitempty"`
 	EndTime    *time.Time     `json:"end_time,omitempty"`

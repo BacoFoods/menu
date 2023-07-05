@@ -16,4 +16,6 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 	router.POST("/menu", r.handler.Create)
 	router.PATCH("/menu/:id", r.handler.Update)
 	router.DELETE("/menu/:id", r.handler.Delete)
+
+	router.GET("/menu/:id/:place/:place_id/", r.handler.GetByPlace)
 }

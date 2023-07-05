@@ -15,14 +15,15 @@ const (
 )
 
 type Channel struct {
-	ID        uint            `json:"id"`
-	Name      string          `json:"name"`
-	ShortName string          `json:"short_name"`
-	Enabled   bool            `json:"enabled"`
-	SpotID    *uint           `json:"spot_id,omitempty"`
-	CreatedAt *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID           uint            `json:"id"`
+	Name         string          `json:"name"`
+	ShortName    string          `json:"short_name"`
+	Enabled      bool            `json:"enabled"`
+	StoreID      *uint           `json:"store_id,omitempty"`
+	ShippingCost float64         `json:"shipping_cost,omitempty"`
+	CreatedAt    *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt    *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt    *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type Repository interface {

@@ -27,9 +27,9 @@ type Category struct {
 }
 
 type CategoriesProducts struct {
-	ID         uint `json:"id"`
-	CategoryID uint `json:"category_id" gorm:"primaryKey"`
-	ProductID  uint `json:"product_id" gorm:"primaryKey"`
+	ID         uint  `json:"id"`
+	CategoryID *uint `json:"category_id" gorm:"primaryKey"`
+	ProductID  *uint `json:"product_id" gorm:"primaryKey"`
 }
 
 type Repository interface {

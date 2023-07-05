@@ -1,5 +1,22 @@
 basePath: /api/menu/v1
 definitions:
+  brand.Brand:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      menus:
+        items:
+          $ref: '#/definitions/menu.Menu'
+        type: array
+      name:
+        type: string
+      stores:
+        items:
+          $ref: '#/definitions/store.Store'
+        type: array
+    type: object
   category.Category:
     properties:
       description:
@@ -23,9 +40,11 @@ definitions:
         type: integer
       name:
         type: string
+      shipping_cost:
+        type: number
       short_name:
         type: string
-      spot_id:
+      store_id:
         type: integer
     type: object
   country.Country:
@@ -54,6 +73,19 @@ definitions:
       symbol:
         type: string
     type: object
+  discount.Discount:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      percentage:
+        type: number
+      terms:
+        type: string
+    type: object
   menu.Menu:
     properties:
       categories:
@@ -73,14 +105,43 @@ definitions:
       store_id:
         type: integer
     type: object
+  overriders.Overriders:
+    properties:
+      description:
+        type: string
+      discount:
+        $ref: '#/definitions/discount.Discount'
+      discount_id:
+        type: integer
+      enable:
+        type: boolean
+      id:
+        type: integer
+      image:
+        type: string
+      name:
+        type: string
+      place:
+        type: string
+      place_id:
+        type: integer
+      price:
+        type: number
+      product:
+        $ref: '#/definitions/product.Product'
+      product_id:
+        type: integer
+    type: object
   product.Product:
     properties:
       description:
         type: string
       discount:
-        type: number
+        $ref: '#/definitions/discount.Discount'
+      discount_id:
+        type: integer
       id:
-        type: string
+        type: integer
       image:
         type: string
       name:
@@ -102,8 +163,10 @@ definitions:
       message:
         type: string
     type: object
-  spot.Spot:
+  store.Store:
     properties:
+      address:
+        type: string
       channels:
         items:
           $ref: '#/definitions/channel.Channel'
@@ -112,27 +175,16 @@ definitions:
         type: boolean
       id:
         type: integer
+      image:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
       name:
         type: string
       store_id:
         type: integer
-    type: object
-  store.Store:
-    properties:
-      description:
-        type: string
-      id:
-        type: integer
-      menus:
-        items:
-          $ref: '#/definitions/menu.Menu'
-        type: array
-      name:
-        type: string
-      spots:
-        items:
-          $ref: '#/definitions/spot.Spot'
-        type: array
     type: object
   taxes.Tax:
     properties:
@@ -162,6 +214,211 @@ info:
   title: MENU-MS API Rest
   version: "1.0"
 paths:
+  /brand:
+    get:
+      consumes:
+      - application/json
+      description: To find stores
+      parameters:
+      - description: brand name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/brand.Brand'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find stores
+      tags:
+      - Brand
+    post:
+      consumes:
+      - application/json
+      description: To create a brand
+      parameters:
+      - description: brand
+        in: body
+        name: brand
+        required: true
+        schema:
+          $ref: '#/definitions/brand.Brand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/brand.Brand'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create a brand
+      tags:
+      - Brand
+  /brand/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a brand
+      parameters:
+      - description: brand id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/brand.Brand'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To delete a brand
+      tags:
+      - Brand
+    get:
+      consumes:
+      - application/json
+      description: To get a brand
+      parameters:
+      - description: brand id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/brand.Brand'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get a brand
+      tags:
+      - Brand
+    patch:
+      consumes:
+      - application/json
+      description: To update a brand
+      parameters:
+      - description: brand id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: brand
+        in: body
+        name: brand
+        required: true
+        schema:
+          $ref: '#/definitions/brand.Brand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/brand.Brand'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update a brand
+      tags:
+      - Brand
   /category:
     get:
       consumes:
@@ -944,6 +1201,193 @@ paths:
       summary: To find currency by id
       tags:
       - Currency
+  /discount:
+    get:
+      consumes:
+      - application/json
+      description: To find discount
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/discount.Discount'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find discount
+      tags:
+      - Discount
+    patch:
+      consumes:
+      - application/json
+      description: To update discount plan
+      parameters:
+      - description: discount to update
+        in: body
+        name: discount
+        required: true
+        schema:
+          $ref: '#/definitions/discount.Discount'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/discount.Discount'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update discount
+      tags:
+      - Discount
+    post:
+      consumes:
+      - application/json
+      description: To create a discount
+      parameters:
+      - description: discount request
+        in: body
+        name: discount
+        required: true
+        schema:
+          $ref: '#/definitions/discount.Discount'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/discount.Discount'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create a discount
+      tags:
+      - Discount
+  /discount/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a discount
+      parameters:
+      - description: discountID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/discount.Discount'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To delete a discount
+      tags:
+      - Discount
+    get:
+      consumes:
+      - application/json
+      description: To find discount by id
+      parameters:
+      - description: discount id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/discount.Discount'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find discount by id
+      tags:
+      - Discount
   /menu:
     get:
       consumes:
@@ -1149,6 +1593,261 @@ paths:
       summary: To update a menu
       tags:
       - Menu
+  /menu/{id}/{place}/{place_id}:
+    get:
+      consumes:
+      - application/json
+      description: To get a menu by place and load overriders
+      parameters:
+      - description: place
+        in: path
+        name: place
+        required: true
+        type: string
+      - description: place id
+        in: path
+        name: place_id
+        required: true
+        type: string
+      - description: menu id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/menu.Menu'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get a menu by place and load overriders
+      tags:
+      - Menu
+  /overriders:
+    get:
+      consumes:
+      - application/json
+      description: To find overriders
+      parameters:
+      - description: overriders name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/overriders.Overriders'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find overriders
+      tags:
+      - Overriders
+    post:
+      consumes:
+      - application/json
+      description: To create an overriders
+      parameters:
+      - description: overriders
+        in: body
+        name: overriders
+        required: true
+        schema:
+          $ref: '#/definitions/overriders.Overriders'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/overriders.Overriders'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create an overriders
+      tags:
+      - Overriders
+  /overriders/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete an overriders
+      parameters:
+      - description: overriders id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/overriders.Overriders'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To delete an overriders
+      tags:
+      - Overriders
+    get:
+      consumes:
+      - application/json
+      description: To get an overriders
+      parameters:
+      - description: overriders id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/overriders.Overriders'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get an overriders
+      tags:
+      - Overriders
+    patch:
+      consumes:
+      - application/json
+      description: To update an overriders
+      parameters:
+      - description: overriders id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: overriders
+        in: body
+        name: overriders
+        required: true
+        schema:
+          $ref: '#/definitions/overriders.Overriders'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/overriders.Overriders'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update an overriders
+      tags:
+      - Overriders
   /product:
     get:
       consumes:
@@ -1354,211 +2053,6 @@ paths:
       summary: To update a product
       tags:
       - Product
-  /spot:
-    get:
-      consumes:
-      - application/json
-      description: To find spots
-      parameters:
-      - description: spot name
-        in: query
-        name: name
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/spot.Spot'
-                  type: array
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      summary: To find spots
-      tags:
-      - Spot
-    post:
-      consumes:
-      - application/json
-      description: To create a spot
-      parameters:
-      - description: spot
-        in: body
-        name: spot
-        required: true
-        schema:
-          $ref: '#/definitions/spot.Spot'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/spot.Spot'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      summary: To create a spot
-      tags:
-      - Spot
-  /spot/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: To delete a spot
-      parameters:
-      - description: spot id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/spot.Spot'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      summary: To delete a spot
-      tags:
-      - Spot
-    get:
-      consumes:
-      - application/json
-      description: To get a spot
-      parameters:
-      - description: spot id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/spot.Spot'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      summary: To get a spot
-      tags:
-      - Spot
-    patch:
-      consumes:
-      - application/json
-      description: To update a spot
-      parameters:
-      - description: spot id
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: spot
-        in: body
-        name: spot
-        required: true
-        schema:
-          $ref: '#/definitions/spot.Spot'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/spot.Spot'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      summary: To update a spot
-      tags:
-      - Spot
   /store:
     get:
       consumes:

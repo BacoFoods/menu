@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const LogDBRepository = "pkg/store/db_repository"
+const LogDBRepository string = "pkg/store/db_repository"
 
 type DBRepository struct {
 	db *gorm.DB
@@ -21,48 +21,40 @@ func (r *DBRepository) Create(store *Store) (*Store, error) {
 		shared.LogError("error creating store", LogDBRepository, "Create", err, store)
 		return nil, err
 	}
-
 	return store, nil
 }
 
 // Find method for find stores in database
 func (r *DBRepository) Find(filters map[string]string) ([]Store, error) {
 	var stores []Store
-
 	if err := r.db.Find(&stores, filters).Error; err != nil {
 		shared.LogError("error getting stores", LogDBRepository, "Find", err, filters)
 		return nil, err
 	}
-
 	return stores, nil
 }
 
 // Get method for get a store in database
 func (r *DBRepository) Get(storeID string) (*Store, error) {
 	var store Store
-
 	if err := r.db.First(&store, storeID).Error; err != nil {
 		shared.LogError("error getting store", LogDBRepository, "Get", err, storeID)
 		return nil, err
 	}
-
 	return &store, nil
 }
 
 // Update method for update a store in database
 func (r *DBRepository) Update(store *Store) (*Store, error) {
 	var storeDB Store
-
 	if err := r.db.First(&storeDB, store.ID).Error; err != nil {
 		shared.LogError("error getting store", LogDBRepository, "Update", err, store)
 		return nil, err
 	}
-
 	if err := r.db.Model(&storeDB).Updates(store).Error; err != nil {
 		shared.LogError("error updating store", LogDBRepository, "Update", err, store)
 		return nil, err
 	}
-
 	return &storeDB, nil
 }
 

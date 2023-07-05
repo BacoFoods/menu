@@ -2,14 +2,15 @@ package router
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/country"
 	"github.com/BacoFoods/menu/pkg/currency"
 	"github.com/BacoFoods/menu/pkg/healthcheck"
 	"github.com/BacoFoods/menu/pkg/menu"
+	"github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/product"
-	"github.com/BacoFoods/menu/pkg/spot"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/swagger"
 	"github.com/BacoFoods/menu/pkg/taxes"
@@ -41,8 +42,8 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Taxes.RegisterRoutes(private)
 	routes.Country.RegisterRoutes(private)
 	routes.Currency.RegisterRoutes(private)
+	routes.Brand.RegisterRoutes(private)
 	routes.Store.RegisterRoutes(private)
-	routes.Spot.RegisterRoutes(private)
 	routes.Channel.RegisterRoutes(private)
 
 	// Register public routes
@@ -59,10 +60,11 @@ type RoutesGroup struct {
 	Menu        menu.Routes
 	Category    category.Routes
 	Product     product.Routes
+	Overriders  overriders.Routes
 	Taxes       taxes.Routes
 	Country     country.Routes
 	Currency    currency.Routes
+	Brand       brand.Routes
 	Store       store.Routes
-	Spot        spot.Routes
 	Channel     channel.Routes
 }
