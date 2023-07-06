@@ -20,6 +20,7 @@ type Category struct {
 	Image       string            `json:"image"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
+	Enable      bool              `json:"enable"`
 	Products    []product.Product `json:"products" gorm:"many2many:categories_products"`
 	CreatedAt   *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`

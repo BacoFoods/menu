@@ -7,10 +7,12 @@ import (
 
 const LogDBRepository string = "pkg/menu/db_repository"
 
+// DBRepository struct for database repository
 type DBRepository struct {
 	db *gorm.DB
 }
 
+// NewDBRepository method for create a new instance of DBRepository
 func NewDBRepository(db *gorm.DB) *DBRepository {
 	return &DBRepository{db: db}
 }

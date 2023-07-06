@@ -69,7 +69,7 @@ func (s service) GetByPlace(place, placeID, menuID string) (*Menu, error) {
 	for _, item := range menuItems {
 		var prod product.Product
 		for _, overrider := range overriders {
-			if item.ID == *overrider.ProductID {
+			if item.ID == *overrider.ProductID && IsAllowOverride(item, overrider) {
 				prod = product.Product{
 					ID:          item.ID,
 					Name:        item.Name,
