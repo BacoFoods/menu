@@ -27,7 +27,7 @@ const docTemplate = `{
     "paths": {
         "/brand": {
             "get": {
-                "description": "To find stores",
+                "description": "To find brands",
                 "consumes": [
                     "application/json"
                 ],
@@ -37,7 +37,7 @@ const docTemplate = `{
                 "tags": [
                     "Brand"
                 ],
-                "summary": "To find stores",
+                "summary": "To find brands",
                 "parameters": [
                     {
                         "type": "string",
@@ -110,7 +110,22 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/brand.Brand"
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 ],
@@ -3688,6 +3703,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "enable": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3791,14 +3809,14 @@ const docTemplate = `{
         "menu.Menu": {
             "type": "object",
             "properties": {
-                "categories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/category.Category"
-                    }
+                "brand_id": {
+                    "type": "integer"
                 },
                 "description": {
                     "type": "string"
+                },
+                "enable": {
+                    "type": "boolean"
                 },
                 "end_time": {
                     "type": "string"
@@ -3811,9 +3829,6 @@ const docTemplate = `{
                 },
                 "start_time": {
                     "type": "string"
-                },
-                "store_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -3911,6 +3926,9 @@ const docTemplate = `{
                 "address": {
                     "type": "string"
                 },
+                "brand_id": {
+                    "type": "integer"
+                },
                 "channels": {
                     "type": "array",
                     "items": {
@@ -3934,9 +3952,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "store_id": {
-                    "type": "integer"
                 }
             }
         },

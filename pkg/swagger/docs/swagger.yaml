@@ -21,6 +21,8 @@ definitions:
     properties:
       description:
         type: string
+      enable:
+        type: boolean
       id:
         type: integer
       image:
@@ -88,12 +90,12 @@ definitions:
     type: object
   menu.Menu:
     properties:
-      categories:
-        items:
-          $ref: '#/definitions/category.Category'
-        type: array
+      brand_id:
+        type: integer
       description:
         type: string
+      enable:
+        type: boolean
       end_time:
         type: string
       id:
@@ -102,8 +104,6 @@ definitions:
         type: string
       start_time:
         type: string
-      store_id:
-        type: integer
     type: object
   overriders.Overriders:
     properties:
@@ -167,6 +167,8 @@ definitions:
     properties:
       address:
         type: string
+      brand_id:
+        type: integer
       channels:
         items:
           $ref: '#/definitions/channel.Channel'
@@ -183,8 +185,6 @@ definitions:
         type: number
       name:
         type: string
-      store_id:
-        type: integer
     type: object
   taxes.Tax:
     properties:
@@ -218,7 +218,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: To find stores
+      description: To find brands
       parameters:
       - description: brand name
         in: query
@@ -252,7 +252,7 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
-      summary: To find stores
+      summary: To find brands
       tags:
       - Brand
     post:
@@ -265,7 +265,14 @@ paths:
         name: brand
         required: true
         schema:
-          $ref: '#/definitions/brand.Brand'
+          allOf:
+          - type: object
+          - properties:
+              description:
+                type: string
+              name:
+                type: string
+            type: object
       produces:
       - application/json
       responses:

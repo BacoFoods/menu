@@ -74,7 +74,7 @@ func (h Handler) Get(c *gin.Context) {
 // @Description To create a brand
 // @Accept json
 // @Produce json
-// @Param brand body Brand true "brand"
+// @Param brand body object{description=string,name=string} true "brand"
 // @Success 200 {object} object{status=string,data=Brand}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response

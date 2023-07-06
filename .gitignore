@@ -2,7 +2,7 @@
 .idea/
 
 # App binary builds
-/cmd/go_menu
+/cmd/go_menu*
 
 # Dependency directories
 .DS_Store

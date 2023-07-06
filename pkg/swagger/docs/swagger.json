@@ -19,7 +19,7 @@
     "paths": {
         "/brand": {
             "get": {
-                "description": "To find stores",
+                "description": "To find brands",
                 "consumes": [
                     "application/json"
                 ],
@@ -29,7 +29,7 @@
                 "tags": [
                     "Brand"
                 ],
-                "summary": "To find stores",
+                "summary": "To find brands",
                 "parameters": [
                     {
                         "type": "string",
@@ -102,7 +102,22 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/brand.Brand"
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 ],
@@ -3680,6 +3695,9 @@
                 "description": {
                     "type": "string"
                 },
+                "enable": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3783,14 +3801,14 @@
         "menu.Menu": {
             "type": "object",
             "properties": {
-                "categories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/category.Category"
-                    }
+                "brand_id": {
+                    "type": "integer"
                 },
                 "description": {
                     "type": "string"
+                },
+                "enable": {
+                    "type": "boolean"
                 },
                 "end_time": {
                     "type": "string"
@@ -3803,9 +3821,6 @@
                 },
                 "start_time": {
                     "type": "string"
-                },
-                "store_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -3903,6 +3918,9 @@
                 "address": {
                     "type": "string"
                 },
+                "brand_id": {
+                    "type": "integer"
+                },
                 "channels": {
                     "type": "array",
                     "items": {
@@ -3926,9 +3944,6 @@
                 },
                 "name": {
                     "type": "string"
-                },
-                "store_id": {
-                    "type": "integer"
                 }
             }
         },

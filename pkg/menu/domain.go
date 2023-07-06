@@ -55,8 +55,8 @@ type MenusCategories struct {
 
 type Item struct {
 	product.Product
-	CategoryID *uint  `json:"category_id"`
-	Overrider  string `json:"overrider"`
+	CategoryID    *uint  `json:"category_id"`
+	OverriderName string `json:"overrider"`
 }
 
 var precedence = map[string]int{
@@ -66,5 +66,5 @@ var precedence = map[string]int{
 }
 
 func IsAllowOverride(item Item, overrider overriders.Overriders) bool {
-	return precedence[item.Overrider] < precedence[overrider.Name]
+	return precedence[item.OverriderName] < precedence[overrider.Name]
 }
