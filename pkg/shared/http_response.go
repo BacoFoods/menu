@@ -17,6 +17,6 @@ func SuccessResponse(data any) Response {
 // ErrorResponse to handle error response
 func ErrorResponse(err string) Response {
 	return Response{
-		Message: "error",
+		Message: err,
 	}
 }

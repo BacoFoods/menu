@@ -1,6 +1,7 @@
 package menu
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 )
@@ -72,6 +73,41 @@ func (r *DBRepository) Delete(menuID string) (*Menu, error) {
 		return nil, err
 	}
 	return &menu, nil
+}
+
+// FindByPlace method for find menus by place
+func (r *DBRepository) FindByPlace(place, placeID string) ([]Menu, error) {
+	var menus []Menu
+
+	// Getting brandID from placeID
+	brandID := "0"
+	switch place {
+	case "brand":
+		brandID = placeID
+
+	case "store":
+		if err := r.db.Select("brand_id").Table("stores").Where("id = ?", placeID).Scan(&brandID).Error; err != nil {
+			shared.LogError("error getting brand_id", LogDBRepository, "FindByPlace", err, place, placeID)
+			return nil, err
+		}
+
+	case "channel":
+		if err := r.db.Select("brand_id").Table("channels").Where("id = ?", placeID).Scan(&brandID).Error; err != nil {
+			shared.LogError("error getting brand_id", LogDBRepository, "FindByPlace", err, place, placeID)
+			return nil, err
+		}
+
+	default:
+		return nil, fmt.Errorf(ErrorFindingByPlace)
+	}
+
+	// Getting Menu by brandID
+	if err := r.db.Find(&menus, "brand_id = ?", brandID).Error; err != nil {
+		shared.LogError("error getting menus", LogDBRepository, "FindByPlace", err, brandID, place, placeID)
+		return nil, err
+	}
+
+	return menus, nil
 }
 
 // GetMenuItems method for get menu items in database

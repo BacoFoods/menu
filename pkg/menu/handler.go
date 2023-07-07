@@ -21,6 +21,7 @@ func NewHandler(service Service) *Handler {
 // @Summary To find menus
 // @Description To find menus
 // @Param name query string false "menu name"
+// @Param brand-id query string false "brand id"
 // @Accept json
 // @Produce json
 // @Success 200 {object} object{status=string,data=[]Menu}
@@ -30,16 +31,24 @@ func NewHandler(service Service) *Handler {
 // @Router /menu [get]
 func (h *Handler) Find(c *gin.Context) {
 	query := make(map[string]string)
+
 	name := c.Query("name")
 	if name != "" {
-		query["name"] = c.Query("name")
+		query["name"] = name
 	}
+
+	brandID := c.Query("brand-id")
+	if brandID != "" {
+		query["brand_id"] = brandID
+	}
+
 	menus, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error finding menus", LogHandler, "Find", err, menus)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingMenu))
 		return
 	}
+
 	c.JSON(http.StatusOK, shared.SuccessResponse(menus))
 }
 
@@ -150,29 +159,57 @@ func (h *Handler) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(menu))
 }
 
+// ListByPlace to handle a request to list menus by place
+// @Tags Menu
+// @Summary To list menus by place
+// @Description To list menus by place
+// @Param place path string true "place"
+// @Param place-id path string true "place id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=[]Menu}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /menu/place/{place}/{place-id}/list [get]
+func (h *Handler) ListByPlace(c *gin.Context) {
+	place := c.Param("place")
+	placeID := c.Param("place-id")
+	menus, err := h.service.FindByPlace(place, placeID)
+	if err != nil {
+		shared.LogError("error finding menus", LogHandler, "FindByPlace", err, menus)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingByPlace))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(menus))
+}
+
 // GetByPlace to handle a request to get a menu by place and load overriders
 // @Tags Menu
 // @Summary To get a menu by place and load overriders
 // @Description To get a menu by place and load overriders
 // @Param place path string true "place"
-// @Param place_id path string true "place id"
-// @Param id path string true "menu id"
+// @Param place-id path string true "place id"
+// @Param menu-id path string true "menu id"
 // @Accept json
 // @Produce json
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
-// @Router /menu/{id}/{place}/{place_id} [get]
+// @Router /menu/place/{place}/{place-id}/menu-id/{menu-id} [get]
 func (h *Handler) GetByPlace(c *gin.Context) {
 	place := c.Param("place")
-	placeID := c.Param("place_id")
-	menuID := c.Param("id")
+	placeID := c.Param("place-id")
+	menuID := c.Param("menu-id")
+
 	menu, err := h.service.GetByPlace(place, placeID, menuID)
+
 	if err != nil {
 		shared.LogError("error getting menu by place", LogHandler, "GetByPlace", err, menu)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingMenu))
 		return
 	}
+
 	c.JSON(http.StatusOK, shared.SuccessResponse(menu))
 }

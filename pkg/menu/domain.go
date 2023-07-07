@@ -9,12 +9,13 @@ import (
 )
 
 const (
-	ErrorBadRequest   string = "error bad request"
-	ErrorFindingMenu  string = "error finding menu"
-	ErrorGettingMenu  string = "error getting menu"
-	ErrorCreatingMenu string = "error creating menu"
-	ErrorUpdatingMenu string = "error updating menu"
-	ErrorDeletingMenu string = "error deleting menu"
+	ErrorBadRequest     string = "error bad request"
+	ErrorFindingMenu    string = "error finding menu"
+	ErrorFindingByPlace string = "error finding menu by place"
+	ErrorGettingMenu    string = "error getting menu"
+	ErrorCreatingMenu   string = "error creating menu"
+	ErrorUpdatingMenu   string = "error updating menu"
+	ErrorDeletingMenu   string = "error deleting menu"
 )
 
 type Repository interface {
@@ -24,6 +25,7 @@ type Repository interface {
 	Update(*Menu) (*Menu, error)
 	Delete(string) (*Menu, error)
 
+	FindByPlace(string, string) ([]Menu, error)
 	GetMenuItems(string) ([]Item, error)
 }
 
@@ -35,7 +37,7 @@ type Menu struct {
 	StartTime   *time.Time          `json:"start_time,omitempty"`
 	EndTime     *time.Time          `json:"end_time,omitempty"`
 	BrandID     *uint               `json:"brand_id"`
-	Enable      bool                `json:"enable,omitempty"`
+	Enable      bool                `json:"enable"`
 	CreatedAt   *time.Time          `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time          `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   gorm.DeletedAt      `json:"deleted_at,omitempty" swaggerignore:"true"`
@@ -67,4 +69,46 @@ var precedence = map[string]int{
 
 func IsAllowOverride(item Item, overrider overriders.Overriders) bool {
 	return precedence[item.OverriderName] < precedence[overrider.Name]
+}
+
+func OverrideProducts(items []Item, overriders []overriders.Overriders) map[uint][]product.Product {
+	itemsByCategories := make(map[uint][]product.Product, 0)
+
+	for _, item := range items {
+		var prod product.Product
+
+		if len(overriders) == 0 {
+			prod = product.Product{
+				ID:          item.ID,
+				Name:        item.Name,
+				Description: item.Description,
+				Image:       item.Image,
+				SKU:         item.SKU,
+				Price:       item.Price,
+				TaxID:       item.TaxID,
+				DiscountID:  item.DiscountID,
+				Unit:        item.Unit,
+			}
+		} else {
+			for _, overrider := range overriders {
+				if item.ID == *overrider.ProductID && IsAllowOverride(item, overrider) {
+					prod = product.Product{
+						ID:          item.ID,
+						Name:        item.Name,
+						Description: overrider.Description,
+						Image:       overrider.Image,
+						SKU:         item.SKU,
+						Price:       overrider.Price,
+						TaxID:       item.TaxID,
+						DiscountID:  item.DiscountID,
+						Unit:        item.Unit,
+					}
+				}
+			}
+		}
+
+		itemsByCategories[*item.CategoryID] = append(itemsByCategories[*item.CategoryID], prod)
+	}
+
+	return itemsByCategories
 }

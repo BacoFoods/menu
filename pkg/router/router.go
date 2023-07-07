@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
@@ -45,6 +46,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Brand.RegisterRoutes(private)
 	routes.Store.RegisterRoutes(private)
 	routes.Channel.RegisterRoutes(private)
+	routes.Availability.RegisterRoutes(private)
 
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
@@ -55,16 +57,17 @@ func NewRouter(routes *RoutesGroup) Router {
 
 // RoutesGroup for unify all routes
 type RoutesGroup struct {
-	HealthCheck healthcheck.Routes
-	Swagger     swagger.Routes
-	Menu        menu.Routes
-	Category    category.Routes
-	Product     product.Routes
-	Overriders  overriders.Routes
-	Taxes       taxes.Routes
-	Country     country.Routes
-	Currency    currency.Routes
-	Brand       brand.Routes
-	Store       store.Routes
-	Channel     channel.Routes
+	HealthCheck  healthcheck.Routes
+	Swagger      swagger.Routes
+	Menu         menu.Routes
+	Category     category.Routes
+	Product      product.Routes
+	Overriders   overriders.Routes
+	Taxes        taxes.Routes
+	Country      country.Routes
+	Currency     currency.Routes
+	Brand        brand.Routes
+	Store        store.Routes
+	Channel      channel.Routes
+	Availability availability.Routes
 }

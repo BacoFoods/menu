@@ -1,6 +1,7 @@
 package swagger
 
 import (
+	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
@@ -47,6 +48,7 @@ func (r *Routes) Register(group *gin.RouterGroup) {
 	_ = brand.Handler{}
 	_ = store.Handler{}
 	_ = channel.Handler{}
+	_ = availability.Availability{}
 
 	group.GET("/swagger/*any", swaggerGin.WrapHandler(swaggerFiles.Handler))
 }

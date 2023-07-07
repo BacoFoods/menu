@@ -3,6 +3,8 @@ package overriders
 import (
 	"github.com/BacoFoods/menu/pkg/discount"
 	"github.com/BacoFoods/menu/pkg/product"
+	"gorm.io/gorm"
+	"time"
 )
 
 const (
@@ -27,6 +29,9 @@ type Overriders struct {
 	Enable      bool               `json:"enable"`
 	DiscountID  *uint              `json:"discount_id"`
 	Discount    *discount.Discount `json:"discount" gorm:"foreignKey:DiscountID"`
+	CreatedAt   *time.Time         `json:"created_at"`
+	UpdatedAt   *time.Time         `json:"updated_at"`
+	DeletedAt   *gorm.DeletedAt    `json:"deleted_at"`
 }
 
 type Repository interface {

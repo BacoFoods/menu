@@ -1,5 +1,10 @@
 basePath: /api/menu/v1
 definitions:
+  availability.EnableRequest:
+    properties:
+      enable:
+        type: boolean
+    type: object
   brand.Brand:
     properties:
       description:
@@ -88,10 +93,22 @@ definitions:
       terms:
         type: string
     type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
   menu.Menu:
     properties:
       brand_id:
         type: integer
+      categories:
+        items:
+          $ref: '#/definitions/category.Category'
+        type: array
       description:
         type: string
       enable:
@@ -107,6 +124,10 @@ definitions:
     type: object
   overriders.Overriders:
     properties:
+      created_at:
+        type: string
+      deleted_at:
+        $ref: '#/definitions/gorm.DeletedAt'
       description:
         type: string
       discount:
@@ -131,6 +152,8 @@ definitions:
         $ref: '#/definitions/product.Product'
       product_id:
         type: integer
+      updated_at:
+        type: string
     type: object
   product.Product:
     properties:
@@ -214,6 +237,58 @@ info:
   title: MENU-MS API Rest
   version: "1.0"
 paths:
+  /availability/{entity}/{entity-id}/{place}/{place-id}:
+    post:
+      description: Enable menu
+      parameters:
+      - description: Entity
+        in: path
+        name: entity
+        required: true
+        type: string
+      - description: Entity ID
+        in: path
+        name: entity-id
+        required: true
+        type: string
+      - description: Place
+        in: path
+        name: place
+        required: true
+        type: string
+      - description: Place ID
+        in: path
+        name: place-id
+        required: true
+        type: string
+      - description: Enable
+        in: body
+        name: enable
+        required: true
+        schema:
+          $ref: '#/definitions/availability.EnableRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Enable menu
+      tags:
+      - Availability
   /brand:
     get:
       consumes:
@@ -1405,6 +1480,10 @@ paths:
         in: query
         name: name
         type: string
+      - description: brand id
+        in: query
+        name: brand-id
+        type: string
       produces:
       - application/json
       responses:
@@ -1600,7 +1679,54 @@ paths:
       summary: To update a menu
       tags:
       - Menu
-  /menu/{id}/{place}/{place_id}:
+  /menu/place/{place}/{place-id}/list:
+    get:
+      consumes:
+      - application/json
+      description: To list menus by place
+      parameters:
+      - description: place
+        in: path
+        name: place
+        required: true
+        type: string
+      - description: place id
+        in: path
+        name: place-id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/menu.Menu'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To list menus by place
+      tags:
+      - Menu
+  /menu/place/{place}/{place-id}/menu-id/{menu-id}:
     get:
       consumes:
       - application/json
@@ -1613,12 +1739,12 @@ paths:
         type: string
       - description: place id
         in: path
-        name: place_id
+        name: place-id
         required: true
         type: string
       - description: menu id
         in: path
-        name: id
+        name: menu-id
         required: true
         type: string
       produces:
@@ -2069,6 +2195,10 @@ paths:
       - description: store name
         in: query
         name: name
+        type: string
+      - description: brand id
+        in: query
+        name: brand-id
         type: string
       produces:
       - application/json

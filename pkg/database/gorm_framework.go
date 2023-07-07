@@ -19,11 +19,15 @@ type GormFramework struct {
 	db       *gorm.DB
 }
 
-func MustNewGormFramework() *GormFramework {
-	logrus.Debugf("Connecting to database: %s", escapeDSN())
+func MustNewGormFramework(customDSN string) *GormFramework {
+	if customDSN == "" {
+		customDSN = dsn()
+	}
+
+	logrus.Debugf("Connecting to database: %s", escapeDSN(customDSN))
 	db, err := gorm.Open(gormpostgres.Open(dsn()), &gorm.Config{})
 	if err != nil {
-		logrus.Fatalf("error connecting to database: %s", escapeDSN())
+		logrus.Fatalf("error connecting to database: %s", escapeDSN(customDSN))
 		return nil
 	}
 	return &GormFramework{
@@ -73,9 +77,12 @@ func dsn() string {
 	)
 }
 
-func escapeDSN() string {
+func escapeDSN(customDSN string) string {
+	if customDSN == "" {
+		customDSN = dsn()
+	}
 	return strings.ReplaceAll(
-		dsn(),
+		customDSN,
 		internal.Config.DBConfig.Password,
 		"***",
 	)

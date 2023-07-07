@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/BacoFoods/menu/internal"
+	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
@@ -22,7 +23,7 @@ import (
 
 func main() {
 	// Database
-	gormFramework := database.MustNewGormFramework()
+	gormFramework := database.MustNewGormFramework("")
 	gormDB := gormFramework.GetDBClient()
 
 	// DB Migrations
@@ -39,6 +40,7 @@ func main() {
 		&store.Store{},
 		&channel.Channel{},
 		&overriders.Overriders{},
+		&availability.Availability{},
 	)
 
 	// Healthcheck
@@ -54,9 +56,15 @@ func main() {
 	overridersHandler := overriders.NewHandler(overridersService)
 	overridersRoutes := overriders.NewRoutes(overridersHandler)
 
+	// Availability
+	availabilityRepository := availability.NewDBRepository(gormDB)
+	availabilityService := availability.NewService(availabilityRepository)
+	availabilityHandler := availability.NewHandler(availabilityService)
+	availabilityRoutes := availability.NewRoutes(availabilityHandler)
+
 	// Menu
 	menuRepository := menu.NewDBRepository(gormDB)
-	menuService := menu.NewService(menuRepository, overridersRepository)
+	menuService := menu.NewService(menuRepository, overridersRepository, availabilityRepository)
 	menuHandler := menu.NewHandler(menuService)
 	menuRoutes := menu.NewRoutes(menuHandler)
 
@@ -110,18 +118,19 @@ func main() {
 
 	// Routes
 	routes := &router.RoutesGroup{
-		HealthCheck: healthcheckRoutes,
-		Swagger:     swaggerRoutes,
-		Menu:        menuRoutes,
-		Category:    categoryRoutes,
-		Product:     productRoutes,
-		Overriders:  overridersRoutes,
-		Taxes:       taxesRoutes,
-		Country:     countryRoutes,
-		Currency:    currencyRoutes,
-		Brand:       brandRoutes,
-		Store:       storeRoutes,
-		Channel:     channelRoutes,
+		HealthCheck:  healthcheckRoutes,
+		Swagger:      swaggerRoutes,
+		Menu:         menuRoutes,
+		Category:     categoryRoutes,
+		Product:      productRoutes,
+		Overriders:   overridersRoutes,
+		Taxes:        taxesRoutes,
+		Country:      countryRoutes,
+		Currency:     currencyRoutes,
+		Brand:        brandRoutes,
+		Store:        storeRoutes,
+		Channel:      channelRoutes,
+		Availability: availabilityRoutes,
 	}
 
 	// Run server

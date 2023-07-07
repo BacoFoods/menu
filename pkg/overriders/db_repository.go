@@ -61,23 +61,28 @@ func (r *DBRepository) Update(overrider *Overriders) (*Overriders, error) {
 // Delete method for delete an overrider in database
 func (r *DBRepository) Delete(overriderID string) (*Overriders, error) {
 	var overrider Overriders
+
 	if err := r.db.First(&overrider, overriderID).Error; err != nil {
 		shared.LogError("error getting overrider", LogDBRepository, "Delete", err, overriderID)
 		return nil, err
 	}
+
 	if err := r.db.Delete(&overrider).Error; err != nil {
 		shared.LogError("error deleting overrider", LogDBRepository, "Delete", err, overriderID)
 		return nil, err
 	}
+
 	return &overrider, nil
 }
 
 // FindByPlace method for find overriders in database
 func (r *DBRepository) FindByPlace(place, placeID string) ([]Overriders, error) {
 	var overriders []Overriders
+
 	if err := r.db.Where("place = ? AND place_id = ?", place, placeID).Find(&overriders).Error; err != nil {
 		shared.LogError("error getting overriders", LogDBRepository, "FindByPlace", err, place, placeID)
 		return nil, err
 	}
+
 	return overriders, nil
 }
