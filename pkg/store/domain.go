@@ -21,7 +21,7 @@ type Store struct {
 	BrandID   *uint             `json:"brand_id"`
 	Enabled   bool              `json:"enabled"`
 	Image     string            `json:"image,omitempty"`
-	Channels  []channel.Channel `json:"channels,omitempty" gorm:"foreignKey:StoreID"`
+	Channels  []channel.Channel `json:"channels,omitempty" gorm:"many2many:store_channels;"`
 	Latitude  float64           `json:"latitude,omitempty"`
 	Longitude float64           `json:"longitude,omitempty"`
 	Address   string            `json:"address,omitempty"`
@@ -36,4 +36,5 @@ type Repository interface {
 	Get(string) (*Store, error)
 	Update(*Store) (*Store, error)
 	Delete(string) (*Store, error)
+	FindByStores(storeIDs []string) ([]Store, error)
 }

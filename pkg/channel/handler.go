@@ -21,6 +21,7 @@ func NewHandler(service Service) *Handler {
 // @Summary To find channels
 // @Description To find channels
 // @Param name query string false "channel name"
+// @Param store-id query string false "store id"
 // @Accept json
 // @Produce json
 // @Success 200 {object} object{status=string,data=[]Channel}
@@ -30,10 +31,17 @@ func NewHandler(service Service) *Handler {
 // @Router /channel [get]
 func (h *Handler) Find(c *gin.Context) {
 	query := make(map[string]string)
+
 	name := c.Query("name")
 	if name != "" {
-		query["name"] = c.Query("name")
+		query["name"] = name
 	}
+
+	storeID := c.Query("store-id")
+	if storeID != "" {
+		query["store_id"] = storeID
+	}
+
 	channels, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error finding channels", LogHandler, "Find", err, channels)

@@ -9,13 +9,14 @@ import (
 )
 
 const (
-	ErrorBadRequest     string = "error bad request"
-	ErrorFindingMenu    string = "error finding menu"
-	ErrorFindingByPlace string = "error finding menu by place"
-	ErrorGettingMenu    string = "error getting menu"
-	ErrorCreatingMenu   string = "error creating menu"
-	ErrorUpdatingMenu   string = "error updating menu"
-	ErrorDeletingMenu   string = "error deleting menu"
+	ErrorBadRequest           string = "error bad request"
+	ErrorFindingMenu          string = "error finding menu"
+	ErrorFindingByPlace       string = "error finding menu by place"
+	ErrorGettingMenu          string = "error getting menu"
+	ErrorCreatingMenu         string = "error creating menu"
+	ErrorUpdatingMenu         string = "error updating menu"
+	ErrorDeletingMenu         string = "error deleting menu"
+	ErrorUpdatingAvailability string = "error updating availability"
 )
 
 type Repository interface {

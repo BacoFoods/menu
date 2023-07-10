@@ -56,9 +56,15 @@ func main() {
 	overridersHandler := overriders.NewHandler(overridersService)
 	overridersRoutes := overriders.NewRoutes(overridersHandler)
 
+	// Store
+	storeRepository := store.NewDBRepository(gormDB)
+	storeService := store.NewService(storeRepository)
+	storeHandler := store.NewHandler(storeService)
+	storeRoutes := store.NewRoutes(storeHandler)
+
 	// Availability
 	availabilityRepository := availability.NewDBRepository(gormDB)
-	availabilityService := availability.NewService(availabilityRepository)
+	availabilityService := availability.NewService(availabilityRepository, storeRepository)
 	availabilityHandler := availability.NewHandler(availabilityService)
 	availabilityRoutes := availability.NewRoutes(availabilityHandler)
 
@@ -103,12 +109,6 @@ func main() {
 	brandService := brand.NewService(brandRepository)
 	brandHandler := brand.NewHandler(brandService)
 	brandRoutes := brand.NewRoutes(brandHandler)
-
-	// Store
-	storeRepository := store.NewDBRepository(gormDB)
-	storeService := store.NewService(storeRepository)
-	storeHandler := store.NewHandler(storeService)
-	storeRoutes := store.NewRoutes(storeHandler)
 
 	// Channel
 	channelRepository := channel.NewDBRepository(gormDB)

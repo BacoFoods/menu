@@ -1,12 +1,24 @@
 package menu
 
 import (
+	availabilityPkg "github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 const LogHandler string = "pkg/menu/handler"
+
+type RequestMenuCreate struct {
+	Name     string `json:"name" binding:"required"`
+	BrandID  uint   `json:"brand_id" binding:"required"`
+	Place    string `json:"place" binding:"required"`
+	PlaceIDs []uint `json:"place_id" binding:"required"`
+}
+
+type RequestMenuAvailability struct {
+	PlaceIDs map[uint]bool `json:"places" binding:"required"`
+}
 
 type Handler struct {
 	service Service
@@ -81,23 +93,23 @@ func (h *Handler) Get(c *gin.Context) {
 // @Description To create a menu
 // @Accept json
 // @Produce json
-// @Param menu body Menu true "menu"
+// @Param menu body RequestMenuCreate true "menu"
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
 // @Router /menu [post]
 func (h *Handler) Create(c *gin.Context) {
-	var requestBody Menu
-	if err := c.ShouldBindJSON(&requestBody); err != nil {
-		shared.LogWarn("warning binding request body", LogHandler, "Create", err, requestBody)
+	var body RequestMenuCreate
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogWarn("warning binding request body", LogHandler, "Create", err, body)
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
 
-	menu, err := h.service.Create(&requestBody)
+	menu, err := h.service.Create(body.Name, body.BrandID, body.Place, body.PlaceIDs)
 	if err != nil {
-		shared.LogError("error creating menu", LogHandler, "Create", err, requestBody)
+		shared.LogError("error creating menu", LogHandler, "Create", err, body)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingMenu))
 		return
 	}
@@ -212,4 +224,43 @@ func (h *Handler) GetByPlace(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(menu))
+}
+
+// UpdateAvailability to handle a request to update availability of a menu
+// @Tags Menu
+// @Summary To update availability of a menu
+// @Description To update availability of a menu
+// @Param menu-id path string true "menu id"
+// @Param place path string true "place"
+// @Param availability body RequestMenuAvailability true "availability"
+// @Accept json
+// @Produce json
+// @Success 200 {object} shared.Response
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /menu/:id/availability/ [put]
+func (h *Handler) UpdateAvailability(c *gin.Context) {
+	place, err := availabilityPkg.GetPlace(c.Param("place"))
+	if err != nil {
+		shared.LogWarn("warning getting place", LogHandler, "UpdateAvailability", err, place)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	var body RequestMenuAvailability
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogWarn("warning binding request body", LogHandler, "UpdateAvailability", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	menuID := c.Param("id")
+	if _, err := h.service.UpdateAvailability(menuID, string(place), body.PlaceIDs); err != nil {
+		shared.LogError("error updating availability", LogHandler, "UpdateAvailability", err, body)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingAvailability))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(nil))
 }

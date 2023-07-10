@@ -3,6 +3,7 @@ package menu_test
 import (
 	"fmt"
 	"github.com/BacoFoods/menu/internal"
+	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
@@ -17,13 +18,13 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"gorm.io/gorm"
-	"time"
 )
 
-var _ = Describe("Service", func() {
+var _ = Describe("Service Menu", func() {
 	var (
-		db          *gorm.DB
-		menuService menu.Service
+		db                     *gorm.DB
+		menuService            menu.Service
+		availabilityRepository availability.Repository
 	)
 
 	BeforeSuite(func() {
@@ -57,33 +58,61 @@ var _ = Describe("Service", func() {
 		// Service Implementation
 		menuRepository := menu.NewDBRepository(db)
 		overriderRepository := overriders.NewDBRepository(db)
-		menuService = menu.NewService(menuRepository, overriderRepository)
+		availabilityRepository = availability.NewDBRepository(db)
+		menuService = menu.NewService(menuRepository, overriderRepository, availabilityRepository)
 	})
 
 	AfterSuite(func() {
 		TruncateMenu(db)
+		TruncateAvailability(db)
 	})
 
-	Describe("Get By Store", func() {
+	Describe("Create Menu", func() {
+		var brandID uint
+		var stores []uint
 		BeforeEach(func() {
-			// Create Menu
-			time := time.Now()
-			menu, err := menuService.Create(&menu.Menu{
-				Name:        "Test Menu",
-				Description: "Test description menu",
-				StartTime:   &time,
-				EndTime:     &time,
-				Enable:      false,
+			brandID = uint(1)
+			stores = []uint{101, 102, 103}
+		})
+
+		Context("When the menu is created", func() {
+			It("Should return a menu object", func() {
+				menu, err := menuService.Create("Menu 1", brandID, string(availability.PlaceStore), stores)
+				Expect(err).To(BeNil())
+				Expect(menu).NotTo(BeNil())
+				Expect(menu.Name).To(Equal("Menu 1"))
+				Expect(menu.BrandID).To(Equal(&brandID))
+				Expect(menu.Enable).To(Equal(true))
 			})
-			Expect(err).To(BeNil())
-			Expect(menu).NotTo(BeNil())
+
+			It("Creates a store availability for each store", func() {
+				menu, err := menuService.Create("Menu 2", brandID, string(availability.PlaceStore), stores)
+				Expect(err).To(BeNil())
+				Expect(menu).NotTo(BeNil())
+
+				availabilities, err := availabilityRepository.FindPlacesByEntity(availability.EntityMenu, menu.ID, string(availability.PlaceStore))
+				Expect(err).To(BeNil())
+				Expect(availabilities).NotTo(BeNil())
+				Expect(availabilities).To(HaveLen(len(stores)))
+
+				storesAvailable := make([]uint, 0)
+				for _, availability := range availabilities {
+					storesAvailable = append(storesAvailable, *availability.PlaceID)
+				}
+				Expect(storesAvailable).To(ContainElements(stores))
+			})
 		})
 	})
-
 })
 
 func TruncateMenu(db *gorm.DB) {
-	if err := db.Model(&menu.Menu{}).Delete(&menu.Menu{}).Error; err != nil {
+	if err := db.Model(&menu.Menu{}).Exec("TRUNCATE TABLE menus CASCADE").Error; err != nil {
+		Expect(err).To(BeNil())
+	}
+}
+
+func TruncateAvailability(db *gorm.DB) {
+	if err := db.Model(&availability.Availability{}).Exec("TRUNCATE TABLE availabilities CASCADE").Error; err != nil {
 		Expect(err).To(BeNil())
 	}
 }

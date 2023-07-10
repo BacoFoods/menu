@@ -73,3 +73,13 @@ func (r *DBRepository) Delete(storeID string) (*Store, error) {
 
 	return &store, nil
 }
+
+// FindByStores method for find stores in database by storeIDs
+func (r *DBRepository) FindByStores(storeIDs []string) ([]Store, error) {
+	var stores []Store
+	if err := r.db.Find(&stores, storeIDs).Error; err != nil {
+		shared.LogError("error getting stores", LogDBRepository, "FindByStores", err, storeIDs)
+		return nil, err
+	}
+	return stores, nil
+}

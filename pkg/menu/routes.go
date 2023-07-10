@@ -19,4 +19,6 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 
 	router.GET("/menu/place/:place/:place-id/list", r.handler.ListByPlace)
 	router.GET("/menu/place/:place/:place-id/menu-id/:menu-id", r.handler.GetByPlace)
+
+	router.PUT("menu/:id/place/:place/availability", r.handler.UpdateAvailability)
 }

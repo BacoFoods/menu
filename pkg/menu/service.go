@@ -3,18 +3,24 @@ package menu
 import (
 	availabilityPkg "github.com/BacoFoods/menu/pkg/availability"
 	overridersPkg "github.com/BacoFoods/menu/pkg/overriders"
+	"github.com/BacoFoods/menu/pkg/shared"
+)
+
+const (
+	LogService string = "pkg/menu/service"
 )
 
 // Service is the interface that provides menu methods, used for dependency injection.
 type Service interface {
 	Find(map[string]string) ([]Menu, error)
 	Get(string) (*Menu, error)
-	Create(*Menu) (*Menu, error)
+	Create(name string, brandID uint, place string, stores []uint) (*Menu, error)
 	Update(*Menu) (*Menu, error)
 	Delete(string) (*Menu, error)
 
 	FindByPlace(string, string) ([]Menu, error)
 	GetByPlace(string, string, string) (*Menu, error)
+	UpdateAvailability(menuID, place string, placeIDs map[uint]bool) (*Menu, error)
 }
 
 // service is the default implementation of the Service interface for menu.
@@ -42,8 +48,37 @@ func (s service) Get(menuID string) (*Menu, error) {
 }
 
 // Create creates a new menu object.
-func (s service) Create(menu *Menu) (*Menu, error) {
-	return s.repository.Create(menu)
+func (s service) Create(name string, brandID uint, placeName string, placeIds []uint) (*Menu, error) {
+	menu := &Menu{
+		Name:    name,
+		BrandID: &brandID,
+		Enable:  true,
+	}
+
+	menu, err := s.repository.Create(menu)
+	if err != nil {
+		return nil, err
+	}
+
+	place, err := availabilityPkg.GetPlace(placeName)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, placeId := range placeIds {
+		if err := s.availability.EnableEntity(
+			availabilityPkg.EntityMenu,
+			place,
+			menu.ID,
+			placeId,
+			true,
+		); err != nil {
+			shared.LogError("error enabling menu", LogService, "Create", err, name, place, brandID, placeId)
+			return nil, err
+		}
+	}
+
+	return menu, nil
 }
 
 // Update updates an existing menu object only the fields that are present in the provided object.
@@ -68,7 +103,12 @@ func (s service) FindByPlace(place, placeID string) ([]Menu, error) {
 		return []Menu{}, nil
 	}
 
-	availabilities, err := s.availability.FindEntityByPlace(availabilityPkg.EntityMenu, place, placeID)
+	placeName, err := availabilityPkg.GetPlace(place)
+	if err != nil {
+		return []Menu{}, err
+	}
+
+	availabilities, err := s.availability.FindEntityByPlace(availabilityPkg.EntityMenu, placeName, placeID)
 	if err != nil {
 		return []Menu{}, err
 	}
@@ -115,6 +155,36 @@ func (s service) GetByPlace(place, placeID, menuID string) (*Menu, error) {
 
 	for _, category := range menu.Categories {
 		category.Products = productsByCategory[category.ID]
+	}
+
+	return menu, nil
+}
+
+// UpdateAvailability updates the availability of a menu.
+func (s service) UpdateAvailability(menuID string, placeName string, placeIDs map[uint]bool) (*Menu, error) {
+	place, err := availabilityPkg.GetPlace(placeName)
+	if err != nil {
+		return nil, err
+	}
+
+	menu, err := s.repository.Get(menuID)
+	if err != nil {
+		return nil, err
+	}
+
+	availabilities, err := s.availability.FindPlacesByEntity(availabilityPkg.EntityMenu, menu.ID, placeName)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, availability := range availabilities {
+		enable, ok := placeIDs[*availability.PlaceID]
+		if ok {
+			availability.Enable = enable
+			if err := s.availability.EnableEntity(availabilityPkg.EntityMenu, place, menu.ID, *availability.PlaceID, enable); err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	return menu, nil

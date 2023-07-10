@@ -5,6 +5,18 @@ definitions:
       enable:
         type: boolean
     type: object
+  availability.ResponsePlaces:
+    properties:
+      entity:
+        type: string
+      entity_id:
+        type: integer
+      place:
+        type: string
+      places:
+        items: {}
+        type: array
+    type: object
   brand.Brand:
     properties:
       description:
@@ -51,8 +63,6 @@ definitions:
         type: number
       short_name:
         type: string
-      store_id:
-        type: integer
     type: object
   country.Country:
     properties:
@@ -121,6 +131,33 @@ definitions:
         type: string
       start_time:
         type: string
+    type: object
+  menu.RequestMenuAvailability:
+    properties:
+      places:
+        additionalProperties:
+          type: boolean
+        type: object
+    required:
+    - places
+    type: object
+  menu.RequestMenuCreate:
+    properties:
+      brand_id:
+        type: integer
+      name:
+        type: string
+      place:
+        type: string
+      place_id:
+        items:
+          type: integer
+        type: array
+    required:
+    - brand_id
+    - name
+    - place
+    - place_id
     type: object
   overriders.Overriders:
     properties:
@@ -237,7 +274,102 @@ info:
   title: MENU-MS API Rest
   version: "1.0"
 paths:
+  /availability/{entity}/{entity-id}/{place}:
+    get:
+      consumes:
+      - application/json
+      description: Find availability for entity and place
+      parameters:
+      - description: Entity
+        in: path
+        name: entity
+        required: true
+        type: string
+      - description: Entity ID
+        in: path
+        name: entity-id
+        required: true
+        type: string
+      - description: Place
+        in: path
+        name: place
+        required: true
+        type: string
+      - description: Place ID
+        in: path
+        name: place-id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/availability.ResponsePlaces'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Find availability for entity and place
+      tags:
+      - Availability
   /availability/{entity}/{entity-id}/{place}/{place-id}:
+    get:
+      consumes:
+      - application/json
+      description: Get availability for entity and place
+      parameters:
+      - description: Entity
+        in: path
+        name: entity
+        required: true
+        type: string
+      - description: Entity ID
+        in: path
+        name: entity-id
+        required: true
+        type: string
+      - description: Place
+        in: path
+        name: place
+        required: true
+        type: string
+      - description: Place ID
+        in: path
+        name: place-id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/availability.ResponsePlaces'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Get availability for entity and place
+      tags:
+      - Availability
     post:
       description: Enable menu
       parameters:
@@ -287,6 +419,56 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: Enable menu
+      tags:
+      - Availability
+  /availability/entities:
+    get:
+      description: Find all entities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Find all entities
+      tags:
+      - Availability
+  /availability/places:
+    get:
+      description: Find all places
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Find all places
       tags:
       - Availability
   /brand:
@@ -703,6 +885,10 @@ paths:
       - description: channel name
         in: query
         name: name
+        type: string
+      - description: store id
+        in: query
+        name: store-id
         type: string
       produces:
       - application/json
@@ -1525,7 +1711,7 @@ paths:
         name: menu
         required: true
         schema:
-          $ref: '#/definitions/menu.Menu'
+          $ref: '#/definitions/menu.RequestMenuCreate'
       produces:
       - application/json
       responses:
@@ -1553,6 +1739,50 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To create a menu
+      tags:
+      - Menu
+  /menu/:id/availability/:
+    put:
+      consumes:
+      - application/json
+      description: To update availability of a menu
+      parameters:
+      - description: menu id
+        in: path
+        name: menu-id
+        required: true
+        type: string
+      - description: place
+        in: path
+        name: place
+        required: true
+        type: string
+      - description: availability
+        in: body
+        name: availability
+        required: true
+        schema:
+          $ref: '#/definitions/menu.RequestMenuAvailability'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update availability of a menu
       tags:
       - Menu
   /menu/{id}:
