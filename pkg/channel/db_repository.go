@@ -74,3 +74,15 @@ func (r *DBRepository) Delete(channelID string) (*Channel, error) {
 
 	return &channel, nil
 }
+
+// FindByIDs method for find channels by ids in database
+func (r *DBRepository) FindByIDs(channelIDs []string) ([]Channel, error) {
+	var channels []Channel
+
+	if err := r.db.Find(&channels, channelIDs).Error; err != nil {
+		shared.LogError("error getting channels", LogDBRepository, "FindByIDs", err, channelIDs)
+		return nil, err
+	}
+
+	return channels, nil
+}

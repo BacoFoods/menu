@@ -16,4 +16,6 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 	router.POST("/store", r.handler.Create)
 	router.PATCH("/store/:id", r.handler.Update)
 	router.DELETE("/store/:id", r.handler.Delete)
+
+	router.PATCH("/store/:id/channel/:channelID", r.handler.AddChannel)
 }

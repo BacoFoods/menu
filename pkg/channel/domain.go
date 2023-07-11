@@ -31,4 +31,6 @@ type Repository interface {
 	Get(string) (*Channel, error)
 	Update(*Channel) (*Channel, error)
 	Delete(string) (*Channel, error)
+
+	FindByIDs([]string) ([]Channel, error)
 }

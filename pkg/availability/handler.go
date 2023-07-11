@@ -30,8 +30,8 @@ func NewHandler(service Service) *Handler {
 }
 
 // EnableEntity to handle a request to enable a menu or category
-// @Summary Enable menu
-// @Description Enable menu
+// @Summary Enable menu or category
+// @Description Enable menu or category
 // @Tags Availability
 // @Produce json
 // @Param entity path string true "Entity"
@@ -128,7 +128,6 @@ func (h *Handler) FindPlaces(c *gin.Context) {
 // @Param entity path string true "Entity"
 // @Param entity-id path string true "Entity ID"
 // @Param place path string true "Place"
-// @Param place-id path string true "Place ID"
 // @Success 200 {object} ResponsePlaces
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response

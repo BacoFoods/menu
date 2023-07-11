@@ -135,9 +135,17 @@ definitions:
   menu.RequestMenuAvailability:
     properties:
       places:
-        additionalProperties:
-          type: boolean
-        type: object
+        items:
+          properties:
+            enable:
+              type: boolean
+            id:
+              type: integer
+          required:
+          - enable
+          - id
+          type: object
+        type: array
     required:
     - places
     type: object
@@ -295,11 +303,6 @@ paths:
         name: place
         required: true
         type: string
-      - description: Place ID
-        in: path
-        name: place-id
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -371,7 +374,7 @@ paths:
       tags:
       - Availability
     post:
-      description: Enable menu
+      description: Enable menu or category
       parameters:
       - description: Entity
         in: path
@@ -418,7 +421,7 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
-      summary: Enable menu
+      summary: Enable menu or category
       tags:
       - Availability
   /availability/entities:
@@ -1741,50 +1744,6 @@ paths:
       summary: To create a menu
       tags:
       - Menu
-  /menu/:id/availability/:
-    put:
-      consumes:
-      - application/json
-      description: To update availability of a menu
-      parameters:
-      - description: menu id
-        in: path
-        name: menu-id
-        required: true
-        type: string
-      - description: place
-        in: path
-        name: place
-        required: true
-        type: string
-      - description: availability
-        in: body
-        name: availability
-        required: true
-        schema:
-          $ref: '#/definitions/menu.RequestMenuAvailability'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      summary: To update availability of a menu
-      tags:
-      - Menu
   /menu/{id}:
     delete:
       consumes:
@@ -1907,6 +1866,88 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To update a menu
+      tags:
+      - Menu
+  /menu/{id}/place/{place}/availability:
+    put:
+      consumes:
+      - application/json
+      description: To update availability of a menu
+      parameters:
+      - description: menu id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: place
+        in: path
+        name: place
+        required: true
+        type: string
+      - description: availability
+        in: body
+        name: availability
+        required: true
+        schema:
+          $ref: '#/definitions/menu.RequestMenuAvailability'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update availability of a menu
+      tags:
+      - Menu
+  /menu/{id}/store/{storeID}/channels:
+    get:
+      consumes:
+      - application/json
+      description: To find channels
+      parameters:
+      - description: menu id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: store id
+        in: path
+        name: storeID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find channels
       tags:
       - Menu
   /menu/place/{place}/{place-id}/list:
@@ -2471,7 +2512,24 @@ paths:
         name: store
         required: true
         schema:
-          $ref: '#/definitions/store.Store'
+          allOf:
+          - type: object
+          - properties:
+              address:
+                type: string
+              brand_id:
+                type: integer
+              enabled:
+                type: boolean
+              image:
+                type: string
+              latitude:
+                type: number
+              longitude:
+                type: number
+              name:
+                type: string
+            type: object
       produces:
       - application/json
       responses:
@@ -2623,6 +2681,51 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To update a store
+      tags:
+      - Store
+  /store/{id}/channel/{channelID}:
+    patch:
+      consumes:
+      - application/json
+      description: To add a channel to a store
+      parameters:
+      - description: store id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: channel id
+        in: path
+        name: channelID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/store.Store'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To add a channel to a store
       tags:
       - Store
   /tax:

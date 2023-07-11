@@ -1,8 +1,10 @@
 package store
 
 import (
+	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const LogDBRepository string = "pkg/store/db_repository"
@@ -17,7 +19,7 @@ func NewDBRepository(db *gorm.DB) *DBRepository {
 
 // Create method for create a new store in database
 func (r *DBRepository) Create(store *Store) (*Store, error) {
-	if err := r.db.Save(store).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).Save(store).Error; err != nil {
 		shared.LogError("error creating store", LogDBRepository, "Create", err, store)
 		return nil, err
 	}
@@ -27,7 +29,7 @@ func (r *DBRepository) Create(store *Store) (*Store, error) {
 // Find method for find stores in database
 func (r *DBRepository) Find(filters map[string]string) ([]Store, error) {
 	var stores []Store
-	if err := r.db.Find(&stores, filters).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).Find(&stores, filters).Error; err != nil {
 		shared.LogError("error getting stores", LogDBRepository, "Find", err, filters)
 		return nil, err
 	}
@@ -37,7 +39,7 @@ func (r *DBRepository) Find(filters map[string]string) ([]Store, error) {
 // Get method for get a store in database
 func (r *DBRepository) Get(storeID string) (*Store, error) {
 	var store Store
-	if err := r.db.First(&store, storeID).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).First(&store, storeID).Error; err != nil {
 		shared.LogError("error getting store", LogDBRepository, "Get", err, storeID)
 		return nil, err
 	}
@@ -47,7 +49,7 @@ func (r *DBRepository) Get(storeID string) (*Store, error) {
 // Update method for update a store in database
 func (r *DBRepository) Update(store *Store) (*Store, error) {
 	var storeDB Store
-	if err := r.db.First(&storeDB, store.ID).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).First(&storeDB, store.ID).Error; err != nil {
 		shared.LogError("error getting store", LogDBRepository, "Update", err, store)
 		return nil, err
 	}
@@ -74,12 +76,28 @@ func (r *DBRepository) Delete(storeID string) (*Store, error) {
 	return &store, nil
 }
 
-// FindByStores method for find stores in database by storeIDs
-func (r *DBRepository) FindByStores(storeIDs []string) ([]Store, error) {
+// FindByIDs method for find stores in database by storeIDs
+func (r *DBRepository) FindByIDs(storeIDs []string) ([]Store, error) {
 	var stores []Store
-	if err := r.db.Find(&stores, storeIDs).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).Find(&stores, storeIDs).Error; err != nil {
 		shared.LogError("error getting stores", LogDBRepository, "FindByStores", err, storeIDs)
 		return nil, err
 	}
 	return stores, nil
+}
+
+// AddChannel method for add a channel in store
+func (r *DBRepository) AddChannel(storeID string, channel *channel.Channel) (*Store, error) {
+	var store Store
+	if err := r.db.Preload(clause.Associations).First(&store, storeID).Error; err != nil {
+		shared.LogError("error getting store", LogDBRepository, "AddChannel", err, storeID)
+		return nil, err
+	}
+
+	if err := r.db.Model(&store).Association("Channels").Append(channel); err != nil {
+		shared.LogError("error adding channel to store", LogDBRepository, "AddChannel", err, storeID)
+		return nil, err
+	}
+
+	return &store, nil
 }

@@ -1,5 +1,7 @@
 package store
 
+import channelPkg "github.com/BacoFoods/menu/pkg/channel"
+
 // Service to handle business logic for the store service
 type Service interface {
 	Find(map[string]string) ([]Store, error)
@@ -7,16 +9,18 @@ type Service interface {
 	Create(*Store) (*Store, error)
 	Update(*Store) (*Store, error)
 	Delete(string) (*Store, error)
+	AddChannel(storeID, channelID string) (*Store, error)
 }
 
 // service is the default implementation of the Service interface for store.
 type service struct {
 	repository Repository
+	channel    channelPkg.Repository
 }
 
 // NewService creates a new instance of the service for store, using the provided repository implementation.
-func NewService(repository Repository) service {
-	return service{repository}
+func NewService(repository Repository, channel channelPkg.Repository) service {
+	return service{repository, channel}
 }
 
 // Find returns a list of store objects filtering by query map.
@@ -43,4 +47,14 @@ func (s service) Update(store *Store) (*Store, error) {
 // Delete deletes an existing store object.
 func (s service) Delete(storeID string) (*Store, error) {
 	return s.repository.Delete(storeID)
+}
+
+// AddChannel adds a channel to a store.
+func (s service) AddChannel(storeID, channelID string) (*Store, error) {
+	channel, err := s.channel.Get(channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.repository.AddChannel(storeID, channel)
 }

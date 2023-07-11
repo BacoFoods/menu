@@ -135,13 +135,6 @@ const docTemplate = `{
                         "name": "place",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Place ID",
-                        "name": "place-id",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -243,14 +236,14 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Enable menu",
+                "description": "Enable menu or category",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Availability"
                 ],
-                "summary": "Enable menu",
+                "summary": "Enable menu or category",
                 "parameters": [
                     {
                         "type": "string",
@@ -2386,72 +2379,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/menu/:id/availability/": {
-            "put": {
-                "description": "To update availability of a menu",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Menu"
-                ],
-                "summary": "To update availability of a menu",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "menu id",
-                        "name": "menu-id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "place",
-                        "name": "place",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "availability",
-                        "name": "availability",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/menu.RequestMenuAvailability"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/menu/place/{place}/{place-id}/list": {
             "get": {
                 "description": "To list menus by place",
@@ -2783,6 +2710,129 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/menu/{id}/place/{place}/availability": {
+            "put": {
+                "description": "To update availability of a menu",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "To update availability of a menu",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "menu id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "place",
+                        "name": "place",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "availability",
+                        "name": "availability",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/menu.RequestMenuAvailability"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/menu/{id}/store/{storeID}/channels": {
+            "get": {
+                "description": "To find channels",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "To find channels",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "menu id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "store id",
+                        "name": "storeID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
                         }
                     },
                     "400": {
@@ -3561,7 +3611,37 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/store.Store"
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "address": {
+                                            "type": "string"
+                                        },
+                                        "brand_id": {
+                                            "type": "integer"
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "image": {
+                                            "type": "string"
+                                        },
+                                        "latitude": {
+                                            "type": "number"
+                                        },
+                                        "longitude": {
+                                            "type": "number"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 ],
@@ -3763,6 +3843,78 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/store.Store"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/store.Store"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/store/{id}/channel/{channelID}": {
+            "patch": {
+                "description": "To add a channel to a store",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Store"
+                ],
+                "summary": "To add a channel to a store",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "store id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "channel id",
+                        "name": "channelID",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -4332,9 +4484,21 @@ const docTemplate = `{
             ],
             "properties": {
                 "places": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "boolean"
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "enable",
+                            "id"
+                        ],
+                        "properties": {
+                            "enable": {
+                                "type": "boolean"
+                            },
+                            "id": {
+                                "type": "integer"
+                            }
+                        }
                     }
                 }
             }

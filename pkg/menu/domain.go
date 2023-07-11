@@ -17,6 +17,7 @@ const (
 	ErrorUpdatingMenu         string = "error updating menu"
 	ErrorDeletingMenu         string = "error deleting menu"
 	ErrorUpdatingAvailability string = "error updating availability"
+	ErrorFindingChannels      string = "error finding channels"
 )
 
 type Repository interface {

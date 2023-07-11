@@ -56,7 +56,17 @@ func GetPlace(place string) (Place, error) {
 	switch place {
 	case "store":
 		return PlaceStore, nil
+	case "channel":
+		return PlaceChannel, nil
 	default:
 		return "", fmt.Errorf(ErrorPlaceNotFound)
 	}
+}
+
+func MapAvailabilityByPlace(availabilities []Availability) map[uint]Availability {
+	m := make(map[uint]Availability)
+	for _, availability := range availabilities {
+		m[*availability.PlaceID] = availability
+	}
+	return m
 }

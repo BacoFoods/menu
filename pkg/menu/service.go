@@ -4,6 +4,8 @@ import (
 	availabilityPkg "github.com/BacoFoods/menu/pkg/availability"
 	overridersPkg "github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/shared"
+	storePkg "github.com/BacoFoods/menu/pkg/store"
+	"strconv"
 )
 
 const (
@@ -20,7 +22,10 @@ type Service interface {
 
 	FindByPlace(string, string) ([]Menu, error)
 	GetByPlace(string, string, string) (*Menu, error)
+
 	UpdateAvailability(menuID, place string, placeIDs map[uint]bool) (*Menu, error)
+
+	FindChannels(menuID, storeID string) ([]any, error)
 }
 
 // service is the default implementation of the Service interface for menu.
@@ -28,13 +33,15 @@ type service struct {
 	repository   Repository
 	overriders   overridersPkg.Repository
 	availability availabilityPkg.Repository
+	store        storePkg.Repository
 }
 
 // NewService creates a new instance of the service for menu, using the provided repository implementation.
 func NewService(repository Repository,
 	overriders overridersPkg.Repository,
-	availability availabilityPkg.Repository) service {
-	return service{repository, overriders, availability}
+	availability availabilityPkg.Repository,
+	store storePkg.Repository) service {
+	return service{repository, overriders, availability, store}
 }
 
 // Find returns a list of menu objects filtering by query map.
@@ -188,4 +195,52 @@ func (s service) UpdateAvailability(menuID string, placeName string, placeIDs ma
 	}
 
 	return menu, nil
+}
+
+// FindChannels returns a list of channels available for a menu.
+func (s service) FindChannels(menuID, storeID string) ([]any, error) {
+	store, err := s.store.Get(storeID)
+	if err != nil {
+		return nil, err
+	}
+
+	menuId, err := strconv.ParseUint(menuID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	availabilities, err := s.availability.FindPlacesByEntity(availabilityPkg.EntityMenu, uint(menuId), string(availabilityPkg.PlaceChannel))
+	if err != nil {
+		return nil, err
+	}
+
+	availabilityByPlace := availabilityPkg.MapAvailabilityByPlace(availabilities)
+
+	menuChannels := make([]any, 0)
+	for _, channel := range store.Channels {
+		availability, ok := availabilityByPlace[channel.ID]
+		if ok {
+			menuChannels = append(menuChannels, struct {
+				ID     uint   `json:"id"`
+				Enable bool   `json:"enable"`
+				Name   string `json:"name"`
+			}{
+				ID:     channel.ID,
+				Enable: availability.Enable,
+				Name:   channel.Name,
+			})
+		} else {
+			menuChannels = append(menuChannels, struct {
+				ID     uint   `json:"id"`
+				Enable bool   `json:"enable"`
+				Name   string `json:"name"`
+			}{
+				ID:     channel.ID,
+				Enable: false,
+				Name:   channel.Name,
+			})
+		}
+	}
+
+	return menuChannels, nil
 }

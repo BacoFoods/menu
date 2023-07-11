@@ -2,6 +2,7 @@ package availability
 
 import (
 	"fmt"
+	channelPkg "github.com/BacoFoods/menu/pkg/channel"
 	storePkg "github.com/BacoFoods/menu/pkg/store"
 )
 
@@ -16,10 +17,11 @@ type Service interface {
 type service struct {
 	repository Repository
 	store      storePkg.Repository
+	channel    channelPkg.Repository
 }
 
-func NewService(repository Repository, store storePkg.Repository) service {
-	return service{repository, store}
+func NewService(repository Repository, store storePkg.Repository, channel channelPkg.Repository) service {
+	return service{repository, store, channel}
 }
 
 func (s service) EnableEntity(entity Entity, place Place, entityID, placeID uint, enable bool) error {
@@ -54,26 +56,39 @@ func (s service) Find(entity Entity, place Place, entityID uint) ([]any, error) 
 	}
 
 	placeIDs := make([]string, 0)
+	availabilityStates := make(map[uint]bool)
 	for _, availability := range availabilities {
+		availabilityStates[*availability.PlaceID] = availability.Enable
 		placeIDs = append(placeIDs, fmt.Sprintf("%v", *availability.PlaceID))
 	}
 
 	var values []any
 	switch place {
 	case PlaceStore:
-		stores, err := s.store.FindByStores(placeIDs)
+		stores, err := s.store.FindByIDs(placeIDs)
 		if err != nil {
 			return nil, err
 		}
 
 		for _, element := range stores {
+			element.Enabled = availabilityStates[element.ID]
 			values = append(values, element)
 		}
 
 		return values, nil
+	case PlaceChannel:
+		channels, err := s.channel.FindByIDs(placeIDs)
+		if err != nil {
+			return nil, err
+		}
 
+		for _, element := range channels {
+			element.Enabled = availabilityStates[element.ID]
+			values = append(values, element)
+		}
+
+		return values, nil
 	default:
 		return nil, fmt.Errorf("place %s not supported", place)
-
 	}
 }

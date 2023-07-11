@@ -8,6 +8,16 @@ import (
 
 const LogHandler = "pkg/store/handler"
 
+type RequestStoreCreate struct {
+	Name      string  `json:"name"`
+	BrandID   *uint   `json:"brand_id"`
+	Enabled   bool    `json:"enabled"`
+	Image     string  `json:"image,omitempty"`
+	Latitude  float64 `json:"latitude,omitempty"`
+	Longitude float64 `json:"longitude,omitempty"`
+	Address   string  `json:"address,omitempty"`
+}
+
 // Handler to handle requests to the store service
 type Handler struct {
 	service Service
@@ -68,12 +78,14 @@ func (h Handler) Find(c *gin.Context) {
 // @Router /store/{id} [get]
 func (h Handler) Get(c *gin.Context) {
 	storeID := c.Param("id")
+
 	store, err := h.service.Get(storeID)
 	if err != nil {
 		shared.LogError("error getting store", LogHandler, "Get", err, storeID)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingStore))
 		return
 	}
+
 	c.JSON(http.StatusOK, shared.SuccessResponse(store))
 }
 
@@ -83,7 +95,7 @@ func (h Handler) Get(c *gin.Context) {
 // @Description To create a store
 // @Accept json
 // @Produce json
-// @Param store body Store true "store"
+// @Param store body object{name=string,brand_id=integer,enabled=boolean,image=string,latitude=number,longitude=number,address=string} true "store"
 // @Success 200 {object} object{status=string,data=Store}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -158,5 +170,32 @@ func (h Handler) Delete(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingStore))
 		return
 	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(store))
+}
+
+// AddChannel to handle a request to add a channel to a store
+// @Tags Store
+// @Summary To add a channel to a store
+// @Description To add a channel to a store
+// @Accept json
+// @Produce json
+// @Param id path string true "store id"
+// @Param channelID path string true "channel id"
+// @Success 200 {object} object{status=string,data=Store}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /store/{id}/channel/{channelID} [patch]
+func (h Handler) AddChannel(c *gin.Context) {
+	storeID := c.Param("id")
+	channelID := c.Param("channelID")
+
+	store, err := h.service.AddChannel(storeID, channelID)
+	if err != nil {
+		shared.LogError("error adding channel to store", LogHandler, "AddChannel", err, storeID, channelID)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAddingChannel))
+		return
+	}
+
 	c.JSON(http.StatusOK, shared.SuccessResponse(store))
 }

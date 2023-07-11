@@ -17,7 +17,10 @@ type RequestMenuCreate struct {
 }
 
 type RequestMenuAvailability struct {
-	PlaceIDs map[uint]bool `json:"places" binding:"required"`
+	Places []struct {
+		ID     uint `json:"id" binding:"required"`
+		Enable bool `json:"enable" binding:"required"`
+	} `json:"places" binding:"required"`
 }
 
 type Handler struct {
@@ -230,7 +233,7 @@ func (h *Handler) GetByPlace(c *gin.Context) {
 // @Tags Menu
 // @Summary To update availability of a menu
 // @Description To update availability of a menu
-// @Param menu-id path string true "menu id"
+// @Param id path string true "menu id"
 // @Param place path string true "place"
 // @Param availability body RequestMenuAvailability true "availability"
 // @Accept json
@@ -239,8 +242,10 @@ func (h *Handler) GetByPlace(c *gin.Context) {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
-// @Router /menu/:id/availability/ [put]
+// @Router /menu/{id}/place/{place}/availability [put]
 func (h *Handler) UpdateAvailability(c *gin.Context) {
+	menuID := c.Param("id")
+
 	place, err := availabilityPkg.GetPlace(c.Param("place"))
 	if err != nil {
 		shared.LogWarn("warning getting place", LogHandler, "UpdateAvailability", err, place)
@@ -255,12 +260,43 @@ func (h *Handler) UpdateAvailability(c *gin.Context) {
 		return
 	}
 
-	menuID := c.Param("id")
-	if _, err := h.service.UpdateAvailability(menuID, string(place), body.PlaceIDs); err != nil {
+	placeIDs := make(map[uint]bool)
+	for _, place := range body.Places {
+		placeIDs[place.ID] = place.Enable
+	}
+
+	if _, err := h.service.UpdateAvailability(menuID, string(place), placeIDs); err != nil {
 		shared.LogError("error updating availability", LogHandler, "UpdateAvailability", err, body)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingAvailability))
 		return
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(nil))
+}
+
+// FindChannels to handle a request to find channels
+// @Tags Menu
+// @Summary To find channels
+// @Description To find channels
+// @Param id path string true "menu id"
+// @Param storeID path string true "store id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} shared.Response
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /menu/{id}/store/{storeID}/channels [get]
+func (h *Handler) FindChannels(c *gin.Context) {
+	menuID := c.Param("id")
+	storeID := c.Param("storeID")
+
+	channels, err := h.service.FindChannels(menuID, storeID)
+	if err != nil {
+		shared.LogError("error finding channels", LogHandler, "FindChannels", err, channels)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingChannels))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(channels))
 }

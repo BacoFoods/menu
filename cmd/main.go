@@ -56,21 +56,27 @@ func main() {
 	overridersHandler := overriders.NewHandler(overridersService)
 	overridersRoutes := overriders.NewRoutes(overridersHandler)
 
+	// Channel
+	channelRepository := channel.NewDBRepository(gormDB)
+	channelService := channel.NewService(channelRepository)
+	channelHandler := channel.NewHandler(channelService)
+	channelRoutes := channel.NewRoutes(channelHandler)
+
 	// Store
 	storeRepository := store.NewDBRepository(gormDB)
-	storeService := store.NewService(storeRepository)
+	storeService := store.NewService(storeRepository, channelRepository)
 	storeHandler := store.NewHandler(storeService)
 	storeRoutes := store.NewRoutes(storeHandler)
 
 	// Availability
 	availabilityRepository := availability.NewDBRepository(gormDB)
-	availabilityService := availability.NewService(availabilityRepository, storeRepository)
+	availabilityService := availability.NewService(availabilityRepository, storeRepository, channelRepository)
 	availabilityHandler := availability.NewHandler(availabilityService)
 	availabilityRoutes := availability.NewRoutes(availabilityHandler)
 
 	// Menu
 	menuRepository := menu.NewDBRepository(gormDB)
-	menuService := menu.NewService(menuRepository, overridersRepository, availabilityRepository)
+	menuService := menu.NewService(menuRepository, overridersRepository, availabilityRepository, storeRepository)
 	menuHandler := menu.NewHandler(menuService)
 	menuRoutes := menu.NewRoutes(menuHandler)
 
@@ -109,12 +115,6 @@ func main() {
 	brandService := brand.NewService(brandRepository)
 	brandHandler := brand.NewHandler(brandService)
 	brandRoutes := brand.NewRoutes(brandHandler)
-
-	// Channel
-	channelRepository := channel.NewDBRepository(gormDB)
-	channelService := channel.NewService(channelRepository)
-	channelHandler := channel.NewHandler(channelService)
-	channelRoutes := channel.NewRoutes(channelHandler)
 
 	// Routes
 	routes := &router.RoutesGroup{
