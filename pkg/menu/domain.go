@@ -18,6 +18,8 @@ const (
 	ErrorDeletingMenu         string = "error deleting menu"
 	ErrorUpdatingAvailability string = "error updating availability"
 	ErrorFindingChannels      string = "error finding channels"
+	ErrorAddingCategory       string = "error adding category"
+	ErrorMenuWrongBrand       string = "error adding category to menu wrong brand"
 )
 
 type Repository interface {
@@ -26,9 +28,9 @@ type Repository interface {
 	Get(string) (*Menu, error)
 	Update(*Menu) (*Menu, error)
 	Delete(string) (*Menu, error)
-
 	FindByPlace(string, string) ([]Menu, error)
 	GetMenuItems(string) ([]Item, error)
+	AddCategory(menuID string, category *category.Category) (*Menu, error)
 }
 
 type Menu struct {
@@ -55,6 +57,15 @@ type MenusCategories struct {
 	CreatedAt  *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt  *time.Time     `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt  gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+// JoinTable this function allows to generate a many2many relation between entities
+// this function is called by migration to associate the tables to this relation
+// please take a look to MenusCategories struct, this struct is used
+// to generate the table menus_categories with more fields like enable, start_time, end_time, etc.
+// More information in gorm docs: https://gorm.io/docs/many_to_many.html#Customize-JoinTable
+func (b Menu) JoinTable(db gorm.DB) error {
+	return db.SetupJoinTable(&Menu{}, "Categories", &MenusCategories{})
 }
 
 type Item struct {

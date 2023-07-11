@@ -59,7 +59,9 @@ var _ = Describe("Service Menu", func() {
 		menuRepository := menu.NewDBRepository(db)
 		overriderRepository := overriders.NewDBRepository(db)
 		availabilityRepository = availability.NewDBRepository(db)
-		menuService = menu.NewService(menuRepository, overriderRepository, availabilityRepository)
+		storeRepository := store.NewDBRepository(db)
+		categoryRepository := category.NewDBRepository(db)
+		menuService = menu.NewService(menuRepository, overriderRepository, availabilityRepository, storeRepository, categoryRepository)
 	})
 
 	AfterSuite(func() {

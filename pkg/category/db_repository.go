@@ -71,3 +71,18 @@ func (r *DBRepository) Delete(categoryID string) (*Category, error) {
 	}
 	return &category, nil
 }
+
+// GetMenusByCategory method for get menus by category in database
+func (r *DBRepository) GetMenusByCategory(categoryID string) ([]MenusCategory, error) {
+	var menusCategory []MenusCategory
+	if err := r.db.Table("menus").
+		Select("menus.id id, menus.name name, menus.enable enable").
+		Joins("left join menus_categories mc on menus.id = mc.menu_id").
+		Where("mc.category_id = ?", categoryID).
+		Find(&menusCategory).Error; err != nil {
+		shared.LogError("error getting menus by category", LogDBRepository, "GetMenusByCategory", err, categoryID)
+		return nil, err
+	}
+
+	return menusCategory, nil
+}

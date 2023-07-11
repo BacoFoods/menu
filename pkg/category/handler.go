@@ -143,3 +143,27 @@ func (h *Handler) Delete(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(category))
 }
+
+// GetMenus to handle a request to get menus from a category
+// @Tags Category
+// @Summary To get menus from a category
+// @Description To get menus from a category
+// @Param id path string true "category id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} shared.Response
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /category/{id}/menus [get]
+func (h *Handler) GetMenus(c *gin.Context) {
+	categoryID := c.Param("id")
+
+	menus, err := h.service.GetMenus(categoryID)
+	if err != nil {
+		shared.LogError("error getting menus from category", LogHandler, "GetMenus", err, menus)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingMenus))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(menus))
+}

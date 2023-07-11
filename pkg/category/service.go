@@ -6,6 +6,7 @@ type Service interface {
 	Create(*Category) (*Category, error)
 	Update(*Category) (*Category, error)
 	Delete(string) (*Category, error)
+	GetMenus(categoryID string) ([]MenusCategory, error)
 }
 
 type service struct {
@@ -34,4 +35,8 @@ func (s service) Update(category *Category) (*Category, error) {
 
 func (s service) Delete(categoryID string) (*Category, error) {
 	return s.repository.Delete(categoryID)
+}
+
+func (s service) GetMenus(categoryID string) ([]MenusCategory, error) {
+	return s.repository.GetMenusByCategory(categoryID)
 }

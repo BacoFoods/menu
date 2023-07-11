@@ -13,6 +13,7 @@ func NewRoutes(handler *Handler) Routes {
 func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 	router.GET("/category", r.handler.Find)
 	router.GET("/category/:id", r.handler.Get)
+	router.GET("/category/:id/menus", r.handler.GetMenus)
 	router.POST("/category", r.handler.Create)
 	router.PATCH("/category/:id", r.handler.Update)
 	router.DELETE("/category/:id", r.handler.Delete)

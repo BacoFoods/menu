@@ -36,6 +36,8 @@ definitions:
     type: object
   category.Category:
     properties:
+      brand_id:
+        type: integer
       description:
         type: string
       enable:
@@ -46,10 +48,8 @@ definitions:
         type: string
       name:
         type: string
-      products:
-        items:
-          $ref: '#/definitions/product.Product'
-        type: array
+    required:
+    - brand_id
     type: object
   channel.Channel:
     properties:
@@ -877,6 +877,35 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To update a category
+      tags:
+      - Category
+  /category/{id}/menus:
+    get:
+      consumes:
+      - application/json
+      description: To get menus from a category
+      parameters:
+      - description: category id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get menus from a category
       tags:
       - Category
   /channel:
@@ -1866,6 +1895,44 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To update a menu
+      tags:
+      - Menu
+  /menu/{id}/category/{categoryID}:
+    patch:
+      consumes:
+      - application/json
+      description: To add a category to a menu
+      parameters:
+      - description: menu id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: category id
+        in: path
+        name: categoryID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To add a category to a menu
       tags:
       - Menu
   /menu/{id}/place/{place}/availability:

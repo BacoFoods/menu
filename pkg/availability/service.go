@@ -39,10 +39,16 @@ func (s service) FindPlaces() []Place {
 func (s service) Get(entity Entity, place Place, entityID, placeID uint) (any, error) {
 	switch place {
 	case PlaceStore:
-		store, err := s.store.Get(fmt.Sprintf("%v", placeID))
+		availability, err := s.repository.Get(entity, place, entityID, placeID)
 		if err != nil {
 			return nil, err
 		}
+
+		store, err := s.store.Get(fmt.Sprintf("%v", *availability.PlaceID))
+		if err != nil {
+			return nil, err
+		}
+
 		return store, nil
 	default:
 		return nil, fmt.Errorf("place %s not supported", place)

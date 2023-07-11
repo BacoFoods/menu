@@ -2,8 +2,10 @@ package menu
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const LogDBRepository string = "pkg/menu/db_repository"
@@ -30,7 +32,8 @@ func (r *DBRepository) Create(menu *Menu) (*Menu, error) {
 // Find method for find menus in database
 func (r *DBRepository) Find(filters map[string]string) ([]Menu, error) {
 	var menus []Menu
-	if err := r.db.Find(&menus, filters).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).
+		Find(&menus, filters).Error; err != nil {
 		shared.LogError("error getting menus", LogDBRepository, "Find", err, filters)
 		return nil, err
 	}
@@ -40,7 +43,8 @@ func (r *DBRepository) Find(filters map[string]string) ([]Menu, error) {
 // Get method for get a menu in database
 func (r *DBRepository) Get(menuID string) (*Menu, error) {
 	var menu Menu
-	if err := r.db.First(&menu, menuID).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).
+		First(&menu, menuID).Error; err != nil {
 		shared.LogError("error getting menu", LogDBRepository, "Get", err, menuID)
 		return nil, err
 	}
@@ -102,7 +106,7 @@ func (r *DBRepository) FindByPlace(place, placeID string) ([]Menu, error) {
 	}
 
 	// Getting Menu by brandID
-	if err := r.db.Find(&menus, "brand_id = ?", brandID).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).Find(&menus, "brand_id = ?", brandID).Error; err != nil {
 		shared.LogError("error getting menus", LogDBRepository, "FindByPlace", err, brandID, place, placeID)
 		return nil, err
 	}
@@ -113,7 +117,7 @@ func (r *DBRepository) FindByPlace(place, placeID string) ([]Menu, error) {
 // GetMenuItems method for get menu items in database
 func (r *DBRepository) GetMenuItems(menuID string) ([]Item, error) {
 	var products []Item
-	if err := r.db.Debug().Table("products").
+	if err := r.db.Table("products").
 		Select("mc.menu_id menu_id, cp.category_id category_id, products.* ").
 		Joins("left join categories_products cp on products.id = cp.product_id").
 		Joins("left join menus_categories mc on cp.category_id = mc.category_id").
@@ -123,4 +127,26 @@ func (r *DBRepository) GetMenuItems(menuID string) ([]Item, error) {
 		return nil, err
 	}
 	return products, nil
+}
+
+// AddCategory method for add a category to menu
+func (r *DBRepository) AddCategory(menuID string, category *category.Category) (*Menu, error) {
+	var menu Menu
+	if err := r.db.Preload(clause.Associations).First(&menu, menuID).Error; err != nil {
+		shared.LogError("error getting menu", LogDBRepository, "AddCategory", err, menuID, category)
+		return nil, err
+	}
+
+	if menu.BrandID != category.BrandID {
+		err := fmt.Errorf(ErrorMenuWrongBrand)
+		shared.LogError("error adding category to menu", LogDBRepository, "AddCategory", err, menuID, category)
+		return nil, err
+	}
+
+	if err := r.db.Model(&menu).Association("Categories").Append(category); err != nil {
+		shared.LogError("error adding category to menu", LogDBRepository, "AddCategory", err, menuID, category)
+		return nil, err
+	}
+
+	return &menu, nil
 }

@@ -2,6 +2,7 @@ package menu
 
 import (
 	availabilityPkg "github.com/BacoFoods/menu/pkg/availability"
+	"github.com/BacoFoods/menu/pkg/category"
 	overridersPkg "github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/shared"
 	storePkg "github.com/BacoFoods/menu/pkg/store"
@@ -19,13 +20,11 @@ type Service interface {
 	Create(name string, brandID uint, place string, stores []uint) (*Menu, error)
 	Update(*Menu) (*Menu, error)
 	Delete(string) (*Menu, error)
-
 	FindByPlace(string, string) ([]Menu, error)
 	GetByPlace(string, string, string) (*Menu, error)
-
 	UpdateAvailability(menuID, place string, placeIDs map[uint]bool) (*Menu, error)
-
 	FindChannels(menuID, storeID string) ([]any, error)
+	AddCategory(menuID, categoryID string) (*Menu, error)
 }
 
 // service is the default implementation of the Service interface for menu.
@@ -34,14 +33,16 @@ type service struct {
 	overriders   overridersPkg.Repository
 	availability availabilityPkg.Repository
 	store        storePkg.Repository
+	category     category.Repository
 }
 
 // NewService creates a new instance of the service for menu, using the provided repository implementation.
 func NewService(repository Repository,
 	overriders overridersPkg.Repository,
 	availability availabilityPkg.Repository,
-	store storePkg.Repository) service {
-	return service{repository, overriders, availability, store}
+	store storePkg.Repository,
+	category category.Repository) service {
+	return service{repository, overriders, availability, store, category}
 }
 
 // Find returns a list of menu objects filtering by query map.
@@ -243,4 +244,14 @@ func (s service) FindChannels(menuID, storeID string) ([]any, error) {
 	}
 
 	return menuChannels, nil
+}
+
+// AddCategory adds a category to a menu.
+func (s service) AddCategory(menuID, categoryID string) (*Menu, error) {
+	cat, err := s.category.Get(categoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.repository.AddCategory(menuID, cat)
 }

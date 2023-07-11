@@ -74,17 +74,17 @@ func main() {
 	availabilityHandler := availability.NewHandler(availabilityService)
 	availabilityRoutes := availability.NewRoutes(availabilityHandler)
 
-	// Menu
-	menuRepository := menu.NewDBRepository(gormDB)
-	menuService := menu.NewService(menuRepository, overridersRepository, availabilityRepository, storeRepository)
-	menuHandler := menu.NewHandler(menuService)
-	menuRoutes := menu.NewRoutes(menuHandler)
-
 	// Category
 	categoryRepository := category.NewDBRepository(gormDB)
 	categoryService := category.NewService(categoryRepository)
 	categoryHandler := category.NewHandler(categoryService)
 	categoryRoutes := category.NewRoutes(categoryHandler)
+
+	// Menu
+	menuRepository := menu.NewDBRepository(gormDB)
+	menuService := menu.NewService(menuRepository, overridersRepository, availabilityRepository, storeRepository, categoryRepository)
+	menuHandler := menu.NewHandler(menuService)
+	menuRoutes := menu.NewRoutes(menuHandler)
 
 	// Product
 	productRepository := product.NewDBRepository(gormDB)

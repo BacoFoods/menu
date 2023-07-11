@@ -972,6 +972,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/category/{id}/menus": {
+            "get": {
+                "description": "To get menus from a category",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Category"
+                ],
+                "summary": "To get menus from a category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "category id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/channel": {
             "get": {
                 "description": "To find channels",
@@ -2733,6 +2777,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/menu/{id}/category/{categoryID}": {
+            "patch": {
+                "description": "To add a category to a menu",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "To add a category to a menu",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "menu id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "category id",
+                        "name": "categoryID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/menu/{id}/place/{place}/availability": {
             "put": {
                 "description": "To update availability of a menu",
@@ -4329,7 +4430,13 @@ const docTemplate = `{
         },
         "category.Category": {
             "type": "object",
+            "required": [
+                "brand_id"
+            ],
             "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -4344,12 +4451,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "products": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/product.Product"
-                    }
                 }
             }
         },

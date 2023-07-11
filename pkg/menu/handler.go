@@ -300,3 +300,30 @@ func (h *Handler) FindChannels(c *gin.Context) {
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(channels))
 }
+
+// AddCategory to handle a request to add a category to a menu
+// @Tags Menu
+// @Summary To add a category to a menu
+// @Description To add a category to a menu
+// @Param id path string true "menu id"
+// @Param categoryID path string true "category id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} shared.Response
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /menu/{id}/category/{categoryID} [patch]
+func (h *Handler) AddCategory(c *gin.Context) {
+	menuID := c.Param("id")
+	categoryID := c.Param("categoryID")
+
+	menu, err := h.service.AddCategory(menuID, categoryID)
+	if err != nil {
+		shared.LogError("error adding category", LogHandler, "AddCategory", err, nil)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAddingCategory))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(menu))
+}

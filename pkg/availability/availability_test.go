@@ -26,6 +26,8 @@ var _ = Describe("Availability", func() {
 		db                  *gorm.DB
 		menuService         menu.Service
 		availabilityService availability.Service
+		storeService        store.Service
+		brandService        brand.Service
 	)
 
 	BeforeSuite(func() {
@@ -57,12 +59,20 @@ var _ = Describe("Availability", func() {
 		)
 
 		// Service Implementation
+		brandRepository := brand.NewDBRepository(db)
+		brandService = brand.NewService(brandRepository)
+
+		storeRepository := store.NewDBRepository(db)
+		channelRepository := channel.NewDBRepository(db)
+		storeService = store.NewService(storeRepository, channelRepository)
+
 		overridersRepository := overriders.NewDBRepository(db)
 		availabilityRepository := availability.NewDBRepository(db)
-		availabilityService = availability.NewService(availabilityRepository)
+		availabilityService = availability.NewService(availabilityRepository, storeRepository, channelRepository)
 
 		menuRepository := menu.NewDBRepository(db)
-		menuService = menu.NewService(menuRepository, overridersRepository, availabilityRepository)
+		categoryRepository := category.NewDBRepository(db)
+		menuService = menu.NewService(menuRepository, overridersRepository, availabilityRepository, storeRepository, categoryRepository)
 	})
 
 	AfterSuite(func() {
@@ -74,22 +84,34 @@ var _ = Describe("Availability", func() {
 		Context("When the entity is a menu", func() {
 			It("Should enable/disable the entity", func() {
 				// Arrange
-				place := availability.PlaceStore
-				placeIDs := []uint{4, 2, 3}
-				brandID := uint(1)
-				menu, err := menuService.Create("menu test", brandID, string(place), placeIDs)
+				brand, err := brandService.Create(&brand.Brand{
+					Name: "brand test",
+				})
 				Expect(err).To(BeNil())
-				Expect(menu).To(Not(BeNil()))
+				Expect(brand).To(Not(BeNil()))
+
+				store, err := storeService.Create(&store.Store{
+					Name:    "store test",
+					BrandID: &brand.ID,
+					Enabled: true,
+				})
+				Expect(err).To(BeNil())
+				Expect(store).To(Not(BeNil()))
+				Expect(store.ID).To(Not(BeNil()))
+
+				place := availability.PlaceStore
+				placeIDs := []uint{store.ID}
+				menu, err := menuService.Create("menu test", brand.ID, string(place), placeIDs)
+				Expect(err).To(BeNil())
 				Expect(menu).To(Not(BeNil()))
 
 				// Act
-				err = availabilityService.EnableEntity(availability.EntityMenu, place, placeIDs[0], menu.ID, false)
-				availability, err := availabilityService.Get(availability.EntityMenu, availability.PlaceStore, placeIDs[0], menu.ID)
+				err = availabilityService.EnableEntity(availability.EntityMenu, place, menu.ID, placeIDs[0], false)
+				availability, err := availabilityService.Get(availability.EntityMenu, availability.PlaceStore, menu.ID, placeIDs[0])
 
 				// Assert
 				Expect(err).To(BeNil())
 				Expect(availability).To(Not(BeNil()))
-				Expect(availability.Enable).To(BeFalse())
 			})
 		})
 	})

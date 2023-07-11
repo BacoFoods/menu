@@ -56,8 +56,9 @@ var _ = Describe("Store Service", func() {
 		)
 
 		// Service Implementation
+		channelRepository := channel.NewDBRepository(db)
 		storeRepository := store.NewDBRepository(db)
-		storeService = store.NewService(storeRepository)
+		storeService = store.NewService(storeRepository, channelRepository)
 
 		// Brand Implementation
 		brandRepository := brand.NewDBRepository(db)
