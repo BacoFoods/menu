@@ -40,6 +40,5 @@ type Repository interface {
 	Get(string) (*Overriders, error)
 	Update(*Overriders) (*Overriders, error)
 	Delete(string) (*Overriders, error)
-
 	FindByPlace(string, string) ([]Overriders, error)
 }

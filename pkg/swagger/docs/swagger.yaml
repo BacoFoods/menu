@@ -51,6 +51,13 @@ definitions:
     required:
     - brand_id
     type: object
+  category.RequestAddProduct:
+    properties:
+      products:
+        items:
+          type: string
+        type: array
+    type: object
   channel.Channel:
     properties:
       enabled:
@@ -202,10 +209,10 @@ definitions:
     type: object
   product.Product:
     properties:
+      brand_id:
+        type: integer
       description:
         type: string
-      discount:
-        $ref: '#/definitions/discount.Discount'
       discount_id:
         type: integer
       id:
@@ -218,12 +225,12 @@ definitions:
         type: number
       sku:
         type: string
-      tax:
-        $ref: '#/definitions/taxes.Tax'
       tax_id:
         type: integer
       unit:
         type: string
+    required:
+    - brand_id
     type: object
   shared.Response:
     properties:
@@ -696,6 +703,10 @@ paths:
         in: query
         name: name
         type: string
+      - description: category brand
+        in: query
+        name: brandID
+        type: string
       produces:
       - application/json
       responses:
@@ -879,7 +890,7 @@ paths:
       summary: To update a category
       tags:
       - Category
-  /category/{id}/menus:
+  /category/{id}/menu:
     get:
       consumes:
       - application/json
@@ -906,6 +917,83 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To get menus from a category
+      tags:
+      - Category
+  /category/{id}/product/{productID}/remove:
+    patch:
+      consumes:
+      - application/json
+      description: To remove a product from a category
+      parameters:
+      - description: category id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: product id
+        in: path
+        name: productID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To remove a product from a category
+      tags:
+      - Category
+  /category/{id}/product/add:
+    patch:
+      consumes:
+      - application/json
+      description: To add a product to a category
+      parameters:
+      - description: category id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: products request
+        in: body
+        name: products
+        required: true
+        schema:
+          $ref: '#/definitions/category.RequestAddProduct'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To add a product to a category
       tags:
       - Category
   /channel:
@@ -2329,6 +2417,10 @@ paths:
         in: query
         name: name
         type: string
+      - description: brand id
+        in: query
+        name: brand-id
+        type: string
       produces:
       - application/json
       responses:
@@ -2460,7 +2552,9 @@ paths:
             - type: object
             - properties:
                 data:
-                  $ref: '#/definitions/product.Product'
+                  items:
+                    $ref: '#/definitions/product.Product'
+                  type: array
                 status:
                   type: string
               type: object

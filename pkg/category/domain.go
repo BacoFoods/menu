@@ -14,6 +14,8 @@ const (
 	ErrorUpdatingCategory string = "error updating category"
 	ErrorDeletingCategory string = "error deleting category"
 	ErrorGettingMenus     string = "error getting menus from category id"
+	ErrorAddingProduct    string = "error adding product to category"
+	ErrorRemovingProduct  string = "error removing product from category"
 )
 
 type Category struct {
@@ -29,12 +31,6 @@ type Category struct {
 	DeletedAt   gorm.DeletedAt    `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
-type CategoriesProducts struct {
-	ID         uint  `json:"id"`
-	CategoryID *uint `json:"category_id" gorm:"primaryKey"`
-	ProductID  *uint `json:"product_id" gorm:"primaryKey"`
-}
-
 type MenusCategory struct {
 	ID     uint   `json:"id"`
 	Name   string `json:"name"`
@@ -48,4 +44,6 @@ type Repository interface {
 	Update(*Category) (*Category, error)
 	Delete(string) (*Category, error)
 	GetMenusByCategory(categoryID string) ([]MenusCategory, error)
+	AddProduct(products []product.Product, categoryID string) (*Category, error)
+	RemoveProduct(categoryID, productID uint) (*Category, error)
 }

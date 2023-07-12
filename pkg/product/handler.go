@@ -21,6 +21,7 @@ func NewHandler(service Service) *Handler {
 // @Summary To find products
 // @Description To find products
 // @Param name query string false "product name"
+// @Param brand-id query string false "brand id"
 // @Accept json
 // @Produce json
 // @Success 200 {object} object{status=string,data=[]Product}
@@ -30,10 +31,17 @@ func NewHandler(service Service) *Handler {
 // @Router /product [get]
 func (h *Handler) Find(c *gin.Context) {
 	query := make(map[string]string)
+
 	name := c.Query("name")
 	if name != "" {
 		query["name"] = c.Query("name")
 	}
+
+	brandID := c.Query("brand-id")
+	if brandID != "" {
+		query["brand_id"] = brandID
+	}
+
 	products, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error finding products", LogHandler, "Find", err, products)
@@ -50,20 +58,21 @@ func (h *Handler) Find(c *gin.Context) {
 // @Param id path string true "product id"
 // @Accept json
 // @Produce json
-// @Success 200 {object} object{status=string,data=Product}
+// @Success 200 {object} object{status=string,data=[]Product}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
 // @Router /product/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	productID := c.Param("id")
-	product, err := h.service.Get(productID)
+	productIDs := []string{productID}
+	products, err := h.service.Get(productIDs)
 	if err != nil {
-		shared.LogError("error getting product", LogHandler, "Get", err, product)
+		shared.LogError("error getting product", LogHandler, "Get", err, products)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingProduct))
 		return
 	}
-	c.JSON(http.StatusOK, shared.SuccessResponse(product))
+	c.JSON(http.StatusOK, shared.SuccessResponse(products))
 }
 
 // Create to handle a request to create a product

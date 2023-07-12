@@ -2,7 +2,7 @@ package menu
 
 import (
 	availabilityPkg "github.com/BacoFoods/menu/pkg/availability"
-	"github.com/BacoFoods/menu/pkg/category"
+	categoryPkg "github.com/BacoFoods/menu/pkg/category"
 	overridersPkg "github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/shared"
 	storePkg "github.com/BacoFoods/menu/pkg/store"
@@ -33,7 +33,7 @@ type service struct {
 	overriders   overridersPkg.Repository
 	availability availabilityPkg.Repository
 	store        storePkg.Repository
-	category     category.Repository
+	category     categoryPkg.Repository
 }
 
 // NewService creates a new instance of the service for menu, using the provided repository implementation.
@@ -41,7 +41,7 @@ func NewService(repository Repository,
 	overriders overridersPkg.Repository,
 	availability availabilityPkg.Repository,
 	store storePkg.Repository,
-	category category.Repository) service {
+	category categoryPkg.Repository) service {
 	return service{repository, overriders, availability, store, category}
 }
 
@@ -161,9 +161,12 @@ func (s service) GetByPlace(place, placeID, menuID string) (*Menu, error) {
 		return nil, err
 	}
 
+	var categories []categoryPkg.Category
 	for _, category := range menu.Categories {
 		category.Products = productsByCategory[category.ID]
+		categories = append(categories, category)
 	}
+	menu.Categories = categories
 
 	return menu, nil
 }

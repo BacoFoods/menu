@@ -2,7 +2,7 @@ package product
 
 type Service interface {
 	Find(map[string]string) ([]Product, error)
-	Get(string) (*Product, error)
+	Get(productID []string) ([]Product, error)
 	Create(*Product) (*Product, error)
 	Update(*Product) (*Product, error)
 	Delete(string) (*Product, error)
@@ -20,7 +20,7 @@ func (s service) Find(filter map[string]string) ([]Product, error) {
 	return s.repository.Find(filter)
 }
 
-func (s service) Get(productID string) (*Product, error) {
+func (s service) Get(productID []string) ([]Product, error) {
 	return s.repository.Get(productID)
 }
 

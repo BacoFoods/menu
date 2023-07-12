@@ -31,7 +31,6 @@ func main() {
 		&menu.Menu{},
 		&menu.MenusCategories{},
 		&category.Category{},
-		&category.CategoriesProducts{},
 		&product.Product{},
 		&taxes.Tax{},
 		&country.Country{},
@@ -74,9 +73,15 @@ func main() {
 	availabilityHandler := availability.NewHandler(availabilityService)
 	availabilityRoutes := availability.NewRoutes(availabilityHandler)
 
+	// Product
+	productRepository := product.NewDBRepository(gormDB)
+	productService := product.NewService(productRepository)
+	productHandler := product.NewHandler(productService)
+	productRoutes := product.NewRoutes(productHandler)
+
 	// Category
 	categoryRepository := category.NewDBRepository(gormDB)
-	categoryService := category.NewService(categoryRepository)
+	categoryService := category.NewService(categoryRepository, productRepository)
 	categoryHandler := category.NewHandler(categoryService)
 	categoryRoutes := category.NewRoutes(categoryHandler)
 
@@ -85,12 +90,6 @@ func main() {
 	menuService := menu.NewService(menuRepository, overridersRepository, availabilityRepository, storeRepository, categoryRepository)
 	menuHandler := menu.NewHandler(menuService)
 	menuRoutes := menu.NewRoutes(menuHandler)
-
-	// Product
-	productRepository := product.NewDBRepository(gormDB)
-	productService := product.NewService(productRepository)
-	productHandler := product.NewHandler(productService)
-	productRoutes := product.NewRoutes(productHandler)
 
 	// Taxes
 	taxesRepository := taxes.NewDBRepository(gormDB)

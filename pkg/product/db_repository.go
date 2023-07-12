@@ -35,13 +35,13 @@ func (r *DBRepository) Find(filters map[string]string) ([]Product, error) {
 }
 
 // Get method for get a product in database
-func (r *DBRepository) Get(productID string) (*Product, error) {
-	var product Product
-	if err := r.db.First(&product, productID).Error; err != nil {
+func (r *DBRepository) Get(productID []string) ([]Product, error) {
+	var product []Product
+	if err := r.db.Find(&product, productID).Error; err != nil {
 		shared.LogError("error getting product", LogDBRepository, "Get", err, productID)
 		return nil, err
 	}
-	return &product, nil
+	return product, nil
 }
 
 // Update method for update a product in database

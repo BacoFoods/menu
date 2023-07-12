@@ -133,18 +133,18 @@ func (r *DBRepository) GetMenuItems(menuID string) ([]Item, error) {
 func (r *DBRepository) AddCategory(menuID string, category *category.Category) (*Menu, error) {
 	var menu Menu
 	if err := r.db.Preload(clause.Associations).First(&menu, menuID).Error; err != nil {
-		shared.LogError("error getting menu", LogDBRepository, "AddCategory", err, menuID, category)
+		shared.LogError("error getting menu", LogDBRepository, "AddCategory", err, menuID, *category)
 		return nil, err
 	}
 
-	if menu.BrandID != category.BrandID {
+	if *menu.BrandID != *category.BrandID {
 		err := fmt.Errorf(ErrorMenuWrongBrand)
-		shared.LogError("error adding category to menu", LogDBRepository, "AddCategory", err, menuID, category)
+		shared.LogError("error adding category to menu", LogDBRepository, "AddCategory", err, menuID, *category)
 		return nil, err
 	}
 
 	if err := r.db.Model(&menu).Association("Categories").Append(category); err != nil {
-		shared.LogError("error adding category to menu", LogDBRepository, "AddCategory", err, menuID, category)
+		shared.LogError("error adding category to menu", LogDBRepository, "AddCategory", err, menuID, *category)
 		return nil, err
 	}
 

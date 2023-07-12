@@ -4,9 +4,14 @@ import (
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 const LogHandler string = "pkg/category/handler"
+
+type RequestAddProduct struct {
+	Products []string `json:"products"`
+}
 
 type Handler struct {
 	service Service
@@ -21,6 +26,7 @@ func NewHandler(service Service) *Handler {
 // @Summary To find categories
 // @Description To find categories
 // @Param name query string false "category name"
+// @Param brandID query string false "category brand"
 // @Accept json
 // @Produce json
 // @Success 200 {object} object{status=string,data=[]Category}
@@ -30,10 +36,17 @@ func NewHandler(service Service) *Handler {
 // @Router /category [get]
 func (h *Handler) Find(c *gin.Context) {
 	query := make(map[string]string)
+
 	name := c.Query("name")
 	if name != "" {
 		query["name"] = c.Query("name")
 	}
+
+	brandID := c.Query("brandID")
+	if brandID != "" {
+		query["brand_id"] = brandID
+	}
+
 	categories, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error finding categories", LogHandler, "Find", err, categories)
@@ -154,7 +167,7 @@ func (h *Handler) Delete(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Router /category/{id}/menus [get]
+// @Router /category/{id}/menu [get]
 func (h *Handler) GetMenus(c *gin.Context) {
 	categoryID := c.Param("id")
 
@@ -166,4 +179,74 @@ func (h *Handler) GetMenus(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(menus))
+}
+
+// AddProduct to handle a request to add a product to a category
+// @Tags Category
+// @Summary To add a product to a category
+// @Description To add a product to a category
+// @Param id path string true "category id"
+// @Param products body RequestAddProduct true "products request"
+// @Accept json
+// @Produce json
+// @Success 200 {object} shared.Response
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /category/{id}/product/add [patch]
+func (h *Handler) AddProduct(c *gin.Context) {
+	categoryID := c.Param("id")
+	var body RequestAddProduct
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogWarn("warning binding request fail", LogHandler, "AddProduct", err)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	category, err := h.service.AddProduct(body.Products, categoryID)
+	if err != nil {
+		shared.LogError("error adding product to category", LogHandler, "AddProduct", err, category)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAddingProduct))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(category))
+}
+
+// RemoveProduct to handle a request to remove a product from a category
+// @Tags Category
+// @Summary To remove a product from a category
+// @Description To remove a product from a category
+// @Param id path integer true "category id"
+// @Param productID path integer true "product id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} shared.Response
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /category/{id}/product/{productID}/remove [patch]
+func (h *Handler) RemoveProduct(c *gin.Context) {
+	categoryID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		shared.LogWarn("warning parsing category id fail", LogHandler, "RemoveProduct", err)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	productID, err := strconv.ParseUint(c.Param("productID"), 10, 64)
+	if err != nil {
+		shared.LogWarn("warning parsing product id fail", LogHandler, "RemoveProduct", err)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	category, err := h.service.RemoveProduct(uint(categoryID), uint(productID))
+	if err != nil {
+		shared.LogError("error removing product from category", LogHandler, "RemoveProduct", err, category)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorRemovingProduct))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(category))
 }

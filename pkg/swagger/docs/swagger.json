@@ -669,6 +669,12 @@
                         "description": "category name",
                         "name": "name",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "category brand",
+                        "name": "brandID",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -964,7 +970,7 @@
                 }
             }
         },
-        "/category/{id}/menus": {
+        "/category/{id}/menu": {
             "get": {
                 "description": "To get menus from a category",
                 "consumes": [
@@ -995,6 +1001,122 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/category/{id}/product/add": {
+            "patch": {
+                "description": "To add a product to a category",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Category"
+                ],
+                "summary": "To add a product to a category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "category id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "products request",
+                        "name": "products",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/category.RequestAddProduct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/category/{id}/product/{productID}/remove": {
+            "patch": {
+                "description": "To remove a product from a category",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Category"
+                ],
+                "summary": "To remove a product from a category",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "category id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "product id",
+                        "name": "productID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -3300,6 +3422,12 @@
                         "description": "product name",
                         "name": "name",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "brand id",
+                        "name": "brand-id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3447,7 +3575,10 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/product.Product"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/product.Product"
+                                            }
                                         },
                                         "status": {
                                             "type": "string"
@@ -4446,6 +4577,17 @@
                 }
             }
         },
+        "category.RequestAddProduct": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "channel.Channel": {
             "type": "object",
             "properties": {
@@ -4674,12 +4816,15 @@
         },
         "product.Product": {
             "type": "object",
+            "required": [
+                "brand_id"
+            ],
             "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
                 "description": {
                     "type": "string"
-                },
-                "discount": {
-                    "$ref": "#/definitions/discount.Discount"
                 },
                 "discount_id": {
                     "type": "integer"
@@ -4698,9 +4843,6 @@
                 },
                 "sku": {
                     "type": "string"
-                },
-                "tax": {
-                    "$ref": "#/definitions/taxes.Tax"
                 },
                 "tax_id": {
                     "type": "integer"
