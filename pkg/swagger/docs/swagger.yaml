@@ -5,18 +5,6 @@ definitions:
       enable:
         type: boolean
     type: object
-  availability.ResponsePlaces:
-    properties:
-      entity:
-        type: string
-      entity_id:
-        type: integer
-      place:
-        type: string
-      places:
-        items: {}
-        type: array
-    type: object
   brand.Brand:
     properties:
       description:
@@ -207,6 +195,21 @@ definitions:
       updated_at:
         type: string
     type: object
+  product.Modifier:
+    properties:
+      brand_id:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      name:
+        type: string
+    required:
+    - brand_id
+    type: object
   product.Product:
     properties:
       brand_id:
@@ -219,6 +222,10 @@ definitions:
         type: integer
       image:
         type: string
+      modifiers:
+        items:
+          $ref: '#/definitions/product.Modifier'
+        type: array
       name:
         type: string
       price:
@@ -316,7 +323,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/availability.ResponsePlaces'
+            $ref: '#/definitions/shared.Response'
         "400":
           description: Bad Request
           schema:
@@ -364,7 +371,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/availability.ResponsePlaces'
+            $ref: '#/definitions/shared.Response'
         "400":
           description: Bad Request
           schema:
@@ -380,7 +387,7 @@ paths:
       summary: Get availability for entity and place
       tags:
       - Availability
-    post:
+    put:
       description: Enable menu or category
       parameters:
       - description: Entity
@@ -2202,6 +2209,178 @@ paths:
       summary: To get a menu by place and load overriders
       tags:
       - Menu
+  /modifier:
+    get:
+      consumes:
+      - application/json
+      description: To find modifiers
+      parameters:
+      - description: modifier name
+        in: query
+        name: name
+        type: string
+      - description: brand id
+        in: query
+        name: brand-id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/product.Modifier'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find modifiers
+      tags:
+      - Modifiers
+    post:
+      consumes:
+      - application/json
+      description: To create a modifier
+      parameters:
+      - description: modifier
+        in: body
+        name: modifier
+        required: true
+        schema:
+          $ref: '#/definitions/product.Modifier'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/product.Modifier'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create a modifier
+      tags:
+      - Modifiers
+  /modifier/{id}/product/{productID}:
+    delete:
+      consumes:
+      - application/json
+      description: To remove a product from a modifier
+      parameters:
+      - description: modifier id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: product id
+        in: path
+        name: productID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/product.Modifier'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To remove a product from a modifier
+      tags:
+      - Modifiers
+    post:
+      consumes:
+      - application/json
+      description: To add a product to a modifier
+      parameters:
+      - description: modifier id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: product id
+        in: path
+        name: productID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/product.Modifier'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To add a product to a modifier
+      tags:
+      - Modifiers
   /overriders:
     get:
       consumes:
@@ -2552,9 +2731,7 @@ paths:
             - type: object
             - properties:
                 data:
-                  items:
-                    $ref: '#/definitions/product.Product'
-                  type: array
+                  $ref: '#/definitions/product.Product'
                 status:
                   type: string
               type: object
@@ -2616,6 +2793,95 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To update a product
+      tags:
+      - Product
+  /product/{id}/modifier/{modifierID}:
+    delete:
+      consumes:
+      - application/json
+      description: To remove a modifier from a product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: modifier id
+        in: path
+        name: modifierID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/product.Product'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To remove a modifier from a product
+      tags:
+      - Product
+    post:
+      consumes:
+      - application/json
+      description: To add a modifier to a product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: modifier id
+        in: path
+        name: modifierID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/product.Product'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To add a modifier to a product
       tags:
       - Product
   /store:

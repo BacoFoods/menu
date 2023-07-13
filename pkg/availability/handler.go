@@ -43,7 +43,7 @@ func NewHandler(service Service) *Handler {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
-// @Router /availability/{entity}/{entity-id}/{place}/{place-id} [post]
+// @Router /availability/{entity}/{entity-id}/{place}/{place-id} [put]
 func (h *Handler) EnableEntity(c *gin.Context) {
 	entity, err := GetEntity(c.Param("entity"))
 	if err != nil {
@@ -128,7 +128,7 @@ func (h *Handler) FindPlaces(c *gin.Context) {
 // @Param entity path string true "Entity"
 // @Param entity-id path string true "Entity ID"
 // @Param place path string true "Place"
-// @Success 200 {object} ResponsePlaces
+// @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
@@ -180,7 +180,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Param entity-id path string true "Entity ID"
 // @Param place path string true "Place"
 // @Param place-id path string true "Place ID"
-// @Success 200 {object} ResponsePlaces
+// @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response

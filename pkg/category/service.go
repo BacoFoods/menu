@@ -49,7 +49,7 @@ func (s service) GetMenus(categoryID string) ([]MenusCategory, error) {
 }
 
 func (s service) AddProduct(productIDs []string, categoryID string) (*Category, error) {
-	products, err := s.product.Get(productIDs)
+	products, err := s.product.GetByIDs(productIDs)
 	if err != nil {
 		return nil, err
 	}

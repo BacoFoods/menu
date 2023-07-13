@@ -8,12 +8,19 @@ import (
 )
 
 const (
-	ErrorBadRequest      string = "error bad request"
-	ErrorCreatingProduct string = "error creating product"
-	ErrorFindingProduct  string = "error finding product"
-	ErrorGettingProduct  string = "error getting product"
-	ErrorUpdatingProduct string = "error updating product"
-	ErrorDeletingProduct string = "error deleting product"
+	ErrorBadRequest       string = "error bad request"
+	ErrorCreatingProduct  string = "error creating product"
+	ErrorFindingProduct   string = "error finding product"
+	ErrorGettingProduct   string = "error getting product"
+	ErrorUpdatingProduct  string = "error updating product"
+	ErrorDeletingProduct  string = "error deleting product"
+	ErrorAddingModifier   string = "error adding modifier"
+	ErrorRemovingModifier string = "error removing modifier"
+
+	ErrorModifierCreation        string = "error creating modifier"
+	ErrorModifierAddingProduct   string = "error adding product to modifier"
+	ErrorModifierRemovingProduct string = "error removing product from modifier"
+	ErrorModifierGetting         string = "error getting modifiers"
 )
 
 type Product struct {
@@ -29,15 +36,37 @@ type Product struct {
 	Discount    *discount.Discount `json:"discount" gorm:"foreignKey:DiscountID" swaggerignore:"true"`
 	Unit        string             `json:"unit"`
 	BrandID     *uint              `json:"brand_id" binding:"required"`
+	Modifiers   []Modifier         `json:"modifiers" gorm:"many2many:product_modifiers;"`
 	CreatedAt   *time.Time         `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time         `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   gorm.DeletedAt     `json:"deleted_at,omitempty" swaggerignore:"true"`
+	DeletedAt   *gorm.DeletedAt    `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+type Modifier struct {
+	ID          uint            `json:"id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	Image       string          `json:"image"`
+	Products    []Product       `json:"products" swaggerignore:"true" gorm:"many2many:modifier_products;"`
+	BrandID     *uint           `json:"brand_id" binding:"required"`
+	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type Repository interface {
 	Create(*Product) (*Product, error)
 	Find(map[string]string) ([]Product, error)
-	Get(productID []string) ([]Product, error)
+	Get(productID string) (*Product, error)
+	GetByIDs(productIDs []string) ([]Product, error)
 	Update(*Product) (*Product, error)
 	Delete(string) (*Product, error)
+	AddModifier(product *Product, modifier *Modifier) (*Product, error)
+	RemoveModifier(product *Product, modifier *Modifier) (*Product, error)
+
+	ModifierCreate(*Modifier) (*Modifier, error)
+	ModifierGet(modifierID string) (*Modifier, error)
+	ModifierFind(map[string]string) ([]Modifier, error)
+	ModifierAddProduct(product *Product, modifier *Modifier) (*Modifier, error)
+	ModifierRemoveProduct(product *Product, modifier *Modifier) (*Modifier, error)
 }

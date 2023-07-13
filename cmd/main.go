@@ -32,6 +32,7 @@ func main() {
 		&menu.MenusCategories{},
 		&category.Category{},
 		&product.Product{},
+		&product.Modifier{},
 		&taxes.Tax{},
 		&country.Country{},
 		&currency.Currency{},
