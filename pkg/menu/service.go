@@ -130,8 +130,8 @@ func (s service) FindByPlace(place, placeID string) ([]Menu, error) {
 		for _, availability := range availabilities {
 			if menu.ID == *availability.EntityID {
 				menu.Enable = availability.Enable
+				menuList = append(menuList, menu)
 			}
-			menuList = append(menuList, menu)
 		}
 	}
 
