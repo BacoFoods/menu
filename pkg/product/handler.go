@@ -212,6 +212,39 @@ func (h *Handler) RemoveModifier(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(product))
 }
 
+// GetOverridersByField to handle a request to get overriders for a product
+// @Tags Product
+// @Summary To get overriders for a product
+// @Description To get overriders for a product
+// @Accept json
+// @Produce json
+// @Param id path string true "product id"
+// @Param field query string true "field"
+// @Success 200 {object} shared.Response
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /product/{id}/overrider [get]
+func (h *Handler) GetOverridersByField(c *gin.Context) {
+	productID := c.Param("id")
+
+	field, ok := Entities[c.Query("field")]
+	if !ok {
+		shared.LogWarn("warning getting overriders for product", LogHandler, "GetOverridersByField", nil, productID, c.Query("field"))
+		c.JSON(http.StatusOK, shared.SuccessResponse([]Overrider{}))
+		return
+	}
+
+	overriders, err := h.service.GetOverriders(productID, field.Code)
+	if err != nil {
+		shared.LogError("error getting overriders for product", LogHandler, "GetOverriders", err, productID, field)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse("Error getting overriders for product"))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(overriders))
+}
+
 // Modifiers
 
 // ModifierFind to handle a request to find modifiers

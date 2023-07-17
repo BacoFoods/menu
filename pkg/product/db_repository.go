@@ -1,6 +1,7 @@
 package product
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -107,6 +108,22 @@ func (r *DBRepository) RemoveModifier(product *Product, modifier *Modifier) (*Pr
 	}
 
 	return product, nil
+}
+
+// GetOverriders method for get overriders in product
+func (r *DBRepository) GetOverriders(productID, field string) ([]Overrider, error) {
+	var overriders []Overrider
+
+	if err := r.db.Table("overriders as o").
+		Select(fmt.Sprintf("o.id as id, c.name as place_name, o.%s as field_value", field)).
+		Joins("left join channels c on o.place_id = c.id").
+		Where("o.product_id = ?", productID).
+		Scan(&overriders).Error; err != nil {
+		shared.LogError("error getting overriders", LogDBRepository, "GetOverriders", err)
+		return nil, err
+	}
+
+	return overriders, nil
 }
 
 // ModifierCreate method for create a new modifier in database

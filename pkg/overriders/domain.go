@@ -34,6 +34,18 @@ type Overriders struct {
 	DeletedAt   *gorm.DeletedAt    `json:"deleted_at"`
 }
 
+type ProductOverrider struct {
+	ID                 uint   `json:"id"`
+	Place              string `json:"place"`
+	PlaceID            *uint  `json:"place_id"`
+	PlaceName          string `json:"place_name"`
+	ProductID          *uint  `json:"product_id"`
+	ProductName        string `json:"product_name"`
+	ProductDescription string `json:"product_description"`
+	ProductImage       string `json:"product_image"`
+	ProductPrice       string `json:"product_price"`
+}
+
 type Repository interface {
 	Create(*Overriders) (*Overriders, error)
 	Find(map[string]string) ([]Overriders, error)

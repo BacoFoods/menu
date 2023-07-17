@@ -2884,6 +2884,44 @@ paths:
       summary: To add a modifier to a product
       tags:
       - Product
+  /product/{id}/overrider:
+    get:
+      consumes:
+      - application/json
+      description: To get overriders for a product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: field
+        in: query
+        name: field
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get overriders for a product
+      tags:
+      - Product
   /store:
     get:
       consumes:

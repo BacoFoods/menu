@@ -63,10 +63,39 @@ type Repository interface {
 	Delete(string) (*Product, error)
 	AddModifier(product *Product, modifier *Modifier) (*Product, error)
 	RemoveModifier(product *Product, modifier *Modifier) (*Product, error)
+	GetOverriders(productID, field string) ([]Overrider, error)
 
 	ModifierCreate(*Modifier) (*Modifier, error)
 	ModifierGet(modifierID string) (*Modifier, error)
 	ModifierFind(map[string]string) ([]Modifier, error)
 	ModifierAddProduct(product *Product, modifier *Modifier) (*Modifier, error)
 	ModifierRemoveProduct(product *Product, modifier *Modifier) (*Modifier, error)
+}
+
+type Entity struct {
+	Code  string
+	Label string
+}
+
+var Entities map[string]Entity = map[string]Entity{
+	"name": {
+		Code:  "name",
+		Label: "Nombre",
+	},
+	"description": {
+		Code:  "description",
+		Label: "Descripción",
+	},
+	"image": {
+		Code:  "image",
+		Label: "Imagen",
+	},
+	"price": {
+		Code:  "price",
+		Label: "Precio",
+	},
+	"enable": {
+		Code:  "enable",
+		Label: "Habilitado",
+	},
 }

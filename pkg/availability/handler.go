@@ -188,28 +188,28 @@ func (h *Handler) Find(c *gin.Context) {
 func (h *Handler) Get(c *gin.Context) {
 	entity, err := GetEntity(c.Param("entity"))
 	if err != nil {
-		shared.LogWarn("warning getting entity", LogHandler, "Get", err, entity)
+		shared.LogWarn("warning getting entity", LogHandler, "Get", err, c.Param("entity"))
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
 
 	place, err := GetPlace(c.Param("place"))
 	if err != nil {
-		shared.LogWarn("warning getting place", LogHandler, "Get", err, entity, place)
+		shared.LogWarn("warning getting place", LogHandler, "Get", err, c.Param("place"))
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
 
 	entityID, err := strconv.ParseUint(c.Param("entity-id"), 10, 64)
 	if err != nil {
-		shared.LogWarn("warning parsing entity id", LogHandler, "Get", err, entity, entityID)
+		shared.LogWarn("warning parsing entity id", LogHandler, "Get", err, c.Param("entity-id"))
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
 
 	placeID, err := strconv.ParseUint(c.Param("place-id"), 10, 64)
 	if err != nil {
-		shared.LogWarn("warning parsing place id", LogHandler, "Get", err, entity, entityID, place, placeID)
+		shared.LogWarn("warning parsing place id", LogHandler, "Get", err, c.Param("place-id"))
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
