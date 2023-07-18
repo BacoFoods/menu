@@ -126,6 +126,32 @@ func (r *DBRepository) GetOverriders(productID, field string) ([]Overrider, erro
 	return overriders, nil
 }
 
+// GetOverriderIDs method for get overrider ids in product
+func (r *DBRepository) GetOverriderIDs(productID string) ([]uint, error) {
+	var overriderIDs []uint
+
+	if err := r.db.Table("overriders").
+		Distinct().
+		Pluck("id", &overriderIDs).
+		Where("product_id = ?", productID).Error; err != nil {
+		shared.LogError("error getting overriders ids", LogDBRepository, "GetOverriderIDs", err)
+		return nil, err
+	}
+
+	return overriderIDs, nil
+}
+
+// UpdateOverriders method for update overriders in product
+func (r *DBRepository) UpdateOverriders(ids []uint, field string, value any) error {
+	if err := r.db.Table("overriders").
+		Where("id in (?)", ids).
+		Update(field, value).Error; err != nil {
+		shared.LogError("error updating overriders", LogDBRepository, "UpdateOverriders", err)
+		return err
+	}
+	return nil
+}
+
 // ModifierCreate method for create a new modifier in database
 func (r *DBRepository) ModifierCreate(modifier *Modifier) (*Modifier, error) {
 	if err := r.db.Save(modifier).Error; err != nil {

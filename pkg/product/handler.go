@@ -8,6 +8,11 @@ import (
 
 const LogHandler string = "pkg/product/handler"
 
+type RequestUpdateOverriders struct {
+	Field string `json:"field"`
+	Value string `json:"value"`
+}
+
 type Handler struct {
 	service Service
 }
@@ -243,6 +248,47 @@ func (h *Handler) GetOverridersByField(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(overriders))
+}
+
+// UpdateAllOverriders to handle a request to update all overriders for a product
+// @Tags Product
+// @Summary To update all overriders for a product
+// @Description To update all overriders for a product
+// @Accept json
+// @Produce json
+// @Param id path string true "product id"
+// @Param request body RequestUpdateOverriders true "request"
+// @Success 200 {object} object{status=string,data=Product}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /product/{id}/overrider/update-all [patch]
+func (h *Handler) UpdateAllOverriders(c *gin.Context) {
+	productID := c.Param("id")
+
+	var request RequestUpdateOverriders
+	if err := c.ShouldBindJSON(&request); err != nil {
+		shared.LogError("error updating all overriders for product", LogHandler, "UpdateAllOverriders", err, productID, request)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse("Error updating all overriders for product"))
+		return
+	}
+
+	if _, ok := Entities[request.Field]; !ok {
+		shared.LogWarn("warning updating all overriders for product", LogHandler, "UpdateAllOverriders", nil, productID, request)
+		c.JSON(http.StatusOK, shared.SuccessResponse(ErrorBadRequest))
+		return
+	}
+
+	value := TransformValue(request.Field, request.Value)
+
+	err := h.service.UpdateAllOverriders(productID, request.Field, value)
+	if err != nil {
+		shared.LogError("error updating all overriders for product", LogHandler, "UpdateAllOverriders", err, productID, request)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse("Error updating all overriders for product"))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(err))
 }
 
 // Modifiers

@@ -98,14 +98,6 @@ definitions:
       terms:
         type: string
     type: object
-  gorm.DeletedAt:
-    properties:
-      time:
-        type: string
-      valid:
-        description: Valid is true if Time is not NULL
-        type: boolean
-    type: object
   menu.Menu:
     properties:
       brand_id:
@@ -164,14 +156,8 @@ definitions:
     type: object
   overriders.Overriders:
     properties:
-      created_at:
-        type: string
-      deleted_at:
-        $ref: '#/definitions/gorm.DeletedAt'
       description:
         type: string
-      discount:
-        $ref: '#/definitions/discount.Discount'
       discount_id:
         type: integer
       enable:
@@ -188,12 +174,8 @@ definitions:
         type: integer
       price:
         type: number
-      product:
-        $ref: '#/definitions/product.Product'
       product_id:
         type: integer
-      updated_at:
-        type: string
     type: object
   product.Modifier:
     properties:
@@ -238,6 +220,13 @@ definitions:
         type: string
     required:
     - brand_id
+    type: object
+  product.RequestUpdateOverriders:
+    properties:
+      field:
+        type: string
+      value:
+        type: string
     type: object
   shared.Response:
     properties:
@@ -2920,6 +2909,52 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To get overriders for a product
+      tags:
+      - Product
+  /product/{id}/overrider/update-all:
+    patch:
+      consumes:
+      - application/json
+      description: To update all overriders for a product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/product.RequestUpdateOverriders'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/product.Product'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update all overriders for a product
       tags:
       - Product
   /store:

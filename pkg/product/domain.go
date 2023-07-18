@@ -2,8 +2,10 @@ package product
 
 import (
 	"github.com/BacoFoods/menu/pkg/discount"
+	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/BacoFoods/menu/pkg/taxes"
 	"gorm.io/gorm"
+	"strconv"
 	"time"
 )
 
@@ -21,6 +23,8 @@ const (
 	ErrorModifierAddingProduct   string = "error adding product to modifier"
 	ErrorModifierRemovingProduct string = "error removing product from modifier"
 	ErrorModifierGetting         string = "error getting modifiers"
+
+	LogDomain string = "pkg/product/domain"
 )
 
 type Product struct {
@@ -64,6 +68,8 @@ type Repository interface {
 	AddModifier(product *Product, modifier *Modifier) (*Product, error)
 	RemoveModifier(product *Product, modifier *Modifier) (*Product, error)
 	GetOverriders(productID, field string) ([]Overrider, error)
+	GetOverriderIDs(productID string) ([]uint, error)
+	UpdateOverriders(ids []uint, field string, value any) error
 
 	ModifierCreate(*Modifier) (*Modifier, error)
 	ModifierGet(modifierID string) (*Modifier, error)
@@ -98,4 +104,24 @@ var Entities map[string]Entity = map[string]Entity{
 		Code:  "enable",
 		Label: "Habilitado",
 	},
+}
+
+func TransformValue(entity string, value string) any {
+	switch entity {
+	case "price":
+		price, err := strconv.ParseFloat(value, 32)
+		if err != nil {
+			shared.LogError("error parsing price", LogDomain, "TransformValue", err)
+			return nil
+		}
+		return price
+	case "enable":
+		enable, err := strconv.ParseBool(value)
+		if err != nil {
+			shared.LogError("error parsing enable", LogDomain, "TransformValue", err)
+			return nil
+		}
+		return enable
+	}
+	return nil
 }

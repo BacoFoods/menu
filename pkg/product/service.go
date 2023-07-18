@@ -9,6 +9,7 @@ type Service interface {
 	AddModifier(productID, modifierID string) (*Product, error)
 	RemoveModifier(productID, modifierID string) (*Product, error)
 	GetOverriders(productID, field string) ([]Overrider, error)
+	UpdateAllOverriders(productID, field string, value any) error
 
 	ModifierFind(map[string]string) ([]Modifier, error)
 	ModifierCreate(*Modifier) (*Modifier, error)
@@ -110,4 +111,13 @@ func (s service) ModifierRemoveProduct(productID, modifierID string) (*Modifier,
 	}
 
 	return s.repository.ModifierRemoveProduct(product, modifier)
+}
+
+func (s service) UpdateAllOverriders(productID, field string, value any) error {
+	overridersIDs, err := s.repository.GetOverriderIDs(productID)
+	if err != nil {
+		return err
+	}
+
+	return s.repository.UpdateOverriders(overridersIDs, field, value)
 }

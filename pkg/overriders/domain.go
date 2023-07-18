@@ -19,7 +19,7 @@ const (
 type Overriders struct {
 	ID          uint               `json:"id"`
 	ProductID   *uint              `json:"product_id"`
-	Product     *product.Product   `json:"product,omitempty" gorm:"foreignKey:ProductID"`
+	Product     *product.Product   `json:"product,omitempty" gorm:"foreignKey:ProductID" swaggerignore:"true"`
 	Place       string             `json:"place"`
 	PlaceID     *uint              `json:"place_id"`
 	Name        string             `json:"name"`
@@ -28,22 +28,10 @@ type Overriders struct {
 	Price       float32            `json:"price" gorm:"precision:18;scale:2"`
 	Enable      bool               `json:"enable"`
 	DiscountID  *uint              `json:"discount_id"`
-	Discount    *discount.Discount `json:"discount" gorm:"foreignKey:DiscountID"`
-	CreatedAt   *time.Time         `json:"created_at"`
-	UpdatedAt   *time.Time         `json:"updated_at"`
-	DeletedAt   *gorm.DeletedAt    `json:"deleted_at"`
-}
-
-type ProductOverrider struct {
-	ID                 uint   `json:"id"`
-	Place              string `json:"place"`
-	PlaceID            *uint  `json:"place_id"`
-	PlaceName          string `json:"place_name"`
-	ProductID          *uint  `json:"product_id"`
-	ProductName        string `json:"product_name"`
-	ProductDescription string `json:"product_description"`
-	ProductImage       string `json:"product_image"`
-	ProductPrice       string `json:"product_price"`
+	Discount    *discount.Discount `json:"discount" gorm:"foreignKey:DiscountID" swaggerignore:"true"`
+	CreatedAt   *time.Time         `json:"created_at" swaggerignore:"true"`
+	UpdatedAt   *time.Time         `json:"updated_at" swaggerignore:"true"`
+	DeletedAt   *gorm.DeletedAt    `json:"deleted_at" swaggerignore:"true"`
 }
 
 type Repository interface {
