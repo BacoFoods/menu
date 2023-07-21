@@ -14,7 +14,9 @@ import (
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/swagger"
+	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/BacoFoods/menu/pkg/taxes"
+	"github.com/BacoFoods/menu/pkg/zones"
 	"github.com/gin-gonic/gin"
 )
 
@@ -45,6 +47,8 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Currency.RegisterRoutes(private)
 	routes.Brand.RegisterRoutes(private)
 	routes.Store.RegisterRoutes(private)
+	routes.Zone.RegisterRoutes(private)
+	routes.Table.RegisterRoutes(private)
 	routes.Channel.RegisterRoutes(private)
 	routes.Availability.RegisterRoutes(private)
 
@@ -68,6 +72,8 @@ type RoutesGroup struct {
 	Currency     currency.Routes
 	Brand        brand.Routes
 	Store        store.Routes
+	Zone         zones.Routes
+	Table        tables.Routes
 	Channel      channel.Routes
 	Availability availability.Routes
 }

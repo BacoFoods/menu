@@ -17,7 +17,9 @@ import (
 	"github.com/BacoFoods/menu/pkg/router"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/swagger"
+	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/BacoFoods/menu/pkg/taxes"
+	"github.com/BacoFoods/menu/pkg/zones"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,6 +40,8 @@ func main() {
 		&currency.Currency{},
 		&brand.Brand{},
 		&store.Store{},
+		&zones.Zone{},
+		&tables.Table{},
 		&channel.Channel{},
 		&overriders.Overriders{},
 		&availability.Availability{},
@@ -67,6 +71,18 @@ func main() {
 	storeService := store.NewService(storeRepository, channelRepository)
 	storeHandler := store.NewHandler(storeService)
 	storeRoutes := store.NewRoutes(storeHandler)
+
+	// Zone
+	zoneRepository := zones.NewDBRepository(gormDB)
+	zoneService := zones.NewService(zoneRepository)
+	zoneHandler := zones.NewHandler(zoneService)
+	zoneRoutes := zones.NewRoutes(zoneHandler)
+
+	// Tables
+	tablesRepository := tables.NewDBRepository(gormDB)
+	tablesService := tables.NewService(tablesRepository)
+	tablesHandler := tables.NewHandler(tablesService)
+	tablesRoutes := tables.NewRoutes(tablesHandler)
 
 	// Availability
 	availabilityRepository := availability.NewDBRepository(gormDB)
@@ -129,6 +145,8 @@ func main() {
 		Currency:     currencyRoutes,
 		Brand:        brandRoutes,
 		Store:        storeRoutes,
+		Zone:         zoneRoutes,
+		Table:        tablesRoutes,
 		Channel:      channelRoutes,
 		Availability: availabilityRoutes,
 	}

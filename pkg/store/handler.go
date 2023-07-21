@@ -199,3 +199,55 @@ func (h Handler) AddChannel(c *gin.Context) {
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(store))
 }
+
+// FindZonesByStore to handle a request to get zones by store
+// @Tags Store
+// @Summary To get zones by store
+// @Description To get zones by store
+// @Accept json
+// @Produce json
+// @Param id path string true "store id"
+// @Success 200 {object} shared.Response
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /store/{id}/zones [get]
+func (h Handler) FindZonesByStore(c *gin.Context) {
+	storeID := c.Param("id")
+
+	zones, err := h.service.FindZonesByStore(storeID)
+	if err != nil {
+		shared.LogError("error getting zones by store", LogHandler, "GetZonesByStore", err, storeID)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorZonesGettingByStoreID))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(zones))
+}
+
+// GetZoneByStore to handle a request to get tables by store
+// @Tags Store
+// @Summary To get tables by store
+// @Description To get tables by store
+// @Accept json
+// @Produce json
+// @Param id path string true "store id"
+// @Param zoneID path string true "zone id"
+// @Success 200 {object} shared.Response
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /store/{id}/zones/{zoneID} [get]
+func (h Handler) GetZoneByStore(c *gin.Context) {
+	storeID := c.Param("id")
+	zoneID := c.Param("zoneID")
+
+	zone, err := h.service.GetZoneByStore(storeID, zoneID)
+	if err != nil {
+		shared.LogError("error getting zone by store", LogHandler, "GetZoneByStore", err, storeID, zoneID)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorZonesGettingByStoreID))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(zone))
+}
