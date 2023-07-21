@@ -240,10 +240,6 @@ definitions:
         type: string
       brand_id:
         type: integer
-      channels:
-        items:
-          $ref: '#/definitions/channel.Channel'
-        type: array
       enabled:
         type: boolean
       id:
@@ -256,6 +252,31 @@ definitions:
         type: number
       name:
         type: string
+    type: object
+  tables.Table:
+    properties:
+      display_id:
+        type: string
+      display_name:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      number:
+        type: integer
+      order_id:
+        type: integer
+      xlocation:
+        type: number
+      ylocation:
+        type: number
+      zone_id:
+        type: integer
+    required:
+    - display_id
+    - display_name
+    - number
     type: object
   taxes.Tax:
     properties:
@@ -271,6 +292,25 @@ definitions:
         type: string
       percentage:
         type: number
+    type: object
+  zones.RequestAddTable:
+    properties:
+      tables:
+        items:
+          type: integer
+        type: array
+    required:
+    - tables
+    type: object
+  zones.RequestZoneCreate:
+    properties:
+      name:
+        type: string
+      store_id:
+        type: integer
+    required:
+    - name
+    - store_id
     type: object
 info:
   contact:
@@ -3228,6 +3268,243 @@ paths:
       summary: To add a channel to a store
       tags:
       - Store
+  /store/{id}/zones:
+    get:
+      consumes:
+      - application/json
+      description: To get zones by store
+      parameters:
+      - description: store id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get zones by store
+      tags:
+      - Store
+  /store/{id}/zones/{zoneID}:
+    get:
+      consumes:
+      - application/json
+      description: To get tables by store
+      parameters:
+      - description: store id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: zone id
+        in: path
+        name: zoneID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get tables by store
+      tags:
+      - Store
+  /tables:
+    get:
+      consumes:
+      - application/json
+      description: Find tables
+      parameters:
+      - description: table name
+        in: query
+        name: name
+        type: string
+      - description: zone id
+        in: query
+        name: zoneID
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Find tables
+      tags:
+      - Tables
+    post:
+      consumes:
+      - application/json
+      description: Create table
+      parameters:
+      - description: table
+        in: body
+        name: table
+        required: true
+        schema:
+          $ref: '#/definitions/tables.Table'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Create table
+      tags:
+      - Tables
+  /tables/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete table
+      parameters:
+      - description: table id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Delete table
+      tags:
+      - Tables
+    get:
+      consumes:
+      - application/json
+      description: Get tables
+      parameters:
+      - description: table id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Get tables
+      tags:
+      - Tables
+    patch:
+      consumes:
+      - application/json
+      description: Update table
+      parameters:
+      - description: table id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Update table
+      tags:
+      - Tables
   /tax:
     get:
       consumes:
@@ -3420,4 +3697,215 @@ paths:
       summary: To find tax by id
       tags:
       - Tax
+  /zone:
+    get:
+      consumes:
+      - application/json
+      description: To find zones
+      parameters:
+      - description: Name
+        in: query
+        name: name
+        type: string
+      - description: Store ID
+        in: query
+        name: storeID
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find zones
+      tags:
+      - Zones
+    post:
+      consumes:
+      - application/json
+      description: To create a zone
+      parameters:
+      - description: Zone
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/zones.RequestZoneCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create a zone
+      tags:
+      - Zones
+  /zone/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a zone
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To delete a zone
+      tags:
+      - Zones
+    get:
+      consumes:
+      - application/json
+      description: To get a zone
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get a zone
+      tags:
+      - Zones
+    patch:
+      consumes:
+      - application/json
+      description: To update a zone
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Zone
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/zones.RequestZoneCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update a zone
+      tags:
+      - Zones
+  /zone/{id}/tables:
+    post:
+      consumes:
+      - application/json
+      description: To add tables to a zone
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Add Table
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/zones.RequestAddTable'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To add tables to a zone
+      tags:
+      - Zones
 swagger: "2.0"

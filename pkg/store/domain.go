@@ -2,18 +2,20 @@ package store
 
 import (
 	"github.com/BacoFoods/menu/pkg/channel"
+	"github.com/BacoFoods/menu/pkg/zones"
 	"gorm.io/gorm"
 	"time"
 )
 
 const (
-	ErrorCreatingStore = "error creating store"
-	ErrorGettingStore  = "error getting store"
-	ErrorUpdatingStore = "error updating store"
-	ErrorDeletingStore = "error deleting store"
-	ErrorFindingStore  = "error finding store"
-	ErrorBadRequest    = "error bad request"
-	ErrorAddingChannel = "error adding channel"
+	ErrorCreatingStore         = "error creating store"
+	ErrorGettingStore          = "error getting store"
+	ErrorUpdatingStore         = "error updating store"
+	ErrorDeletingStore         = "error deleting store"
+	ErrorFindingStore          = "error finding store"
+	ErrorBadRequest            = "error bad request"
+	ErrorAddingChannel         = "error adding channel"
+	ErrorZonesGettingByStoreID = "error getting zones by store id"
 )
 
 type Store struct {
@@ -22,7 +24,7 @@ type Store struct {
 	BrandID   *uint             `json:"brand_id"`
 	Enabled   bool              `json:"enabled"`
 	Image     string            `json:"image"`
-	Channels  []channel.Channel `json:"channels,omitempty" gorm:"many2many:store_channels;"`
+	Channels  []channel.Channel `json:"channels,omitempty" gorm:"many2many:store_channels;" swaggerignore:"true"`
 	Latitude  float64           `json:"latitude"`
 	Longitude float64           `json:"longitude"`
 	Address   string            `json:"address"`
@@ -39,4 +41,7 @@ type Repository interface {
 	Delete(string) (*Store, error)
 	FindByIDs(storeIDs []string) ([]Store, error)
 	AddChannel(storeID string, channel *channel.Channel) (*Store, error)
+
+	FindZonesByStore(storeID string) ([]zones.Zone, error)
+	GetZoneByStore(storeID, zoneID string) (*zones.Zone, error)
 }

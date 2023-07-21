@@ -10,6 +10,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/store"
 	_ "github.com/BacoFoods/menu/pkg/swagger/docs" //documentation
+	"github.com/BacoFoods/menu/pkg/zones"
 
 	"github.com/gin-gonic/gin"
 
@@ -47,6 +48,7 @@ func (r *Routes) Register(group *gin.RouterGroup) {
 	_ = overriders.Handler{}
 	_ = brand.Handler{}
 	_ = store.Handler{}
+	_ = zones.Handler{}
 	_ = channel.Handler{}
 	_ = availability.Availability{}
 

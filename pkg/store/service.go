@@ -1,6 +1,10 @@
 package store
 
-import channelPkg "github.com/BacoFoods/menu/pkg/channel"
+import (
+	channelPkg "github.com/BacoFoods/menu/pkg/channel"
+
+	"github.com/BacoFoods/menu/pkg/zones"
+)
 
 // Service to handle business logic for the store service
 type Service interface {
@@ -10,6 +14,9 @@ type Service interface {
 	Update(*Store) (*Store, error)
 	Delete(string) (*Store, error)
 	AddChannel(storeID, channelID string) (*Store, error)
+
+	FindZonesByStore(storeID string) ([]zones.Zone, error)
+	GetZoneByStore(storeID, zoneID string) (*zones.Zone, error)
 }
 
 // service is the default implementation of the Service interface for store.
@@ -57,4 +64,14 @@ func (s service) AddChannel(storeID, channelID string) (*Store, error) {
 	}
 
 	return s.repository.AddChannel(storeID, channel)
+}
+
+// FindZonesByStore returns a list of zones by store id.
+func (s service) FindZonesByStore(storeID string) ([]zones.Zone, error) {
+	return s.repository.FindZonesByStore(storeID)
+}
+
+// GetZoneByStore returns a single zone by store id and zone id.
+func (s service) GetZoneByStore(storeID, zoneID string) (*zones.Zone, error) {
+	return s.repository.GetZoneByStore(storeID, zoneID)
 }
