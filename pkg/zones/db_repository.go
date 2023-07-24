@@ -1,6 +1,7 @@
 package zones
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	tablesPKG "github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
@@ -42,9 +43,9 @@ func (r *DBRepository) GetZone(zoneID string) (*Zone, error) {
 // Create method for create a zone in database
 func (r *DBRepository) Create(zone *Zone) (*Zone, error) {
 	if err := r.db.Save(zone).Error; err != nil {
+		shared.LogError("Error creating zone", LogDBRepository, "Create", nil, *zone)
 		return nil, err
 	}
-	shared.LogError("Error creating zone", LogDBRepository, "Create", nil, *zone)
 	return zone, nil
 }
 
@@ -80,23 +81,44 @@ func (r *DBRepository) Delete(zoneID string) error {
 	return nil
 }
 
-// AddTablesToZone method for add tables to zone in database
-func (r *DBRepository) AddTablesToZone(zoneID string, tables []uint) error {
-	var zone Zone
-
-	if err := r.db.First(&zone, zoneID).Error; err != nil {
-		shared.LogError("Error finding zone", LogDBRepository, "AddTablesToZone", err, zoneID)
-		return err
-	}
-
+// AddTables method for add tables to zone in database
+func (r *DBRepository) AddTables(zone *Zone, tables []uint) error {
 	var tablesDB []tablesPKG.Table
 	if err := r.db.Find(&tablesDB, tables).Error; err != nil {
-		shared.LogError("Error finding tables", LogDBRepository, "AddTablesToZone", err, tables)
+		shared.LogError("Error finding tables", LogDBRepository, "AddTables", err, tables)
 		return err
 	}
 
-	if err := r.db.Model(&zone).Association("Tables").Append(tablesDB); err != nil {
-		shared.LogError("Error adding tables to zone", LogDBRepository, "AddTablesToZone", err, zoneID)
+	if len(tablesDB) == 0 {
+		err := fmt.Errorf("some of tables:%v does not exist", tables)
+		shared.LogError("Error finding tables", LogDBRepository, "RemoveTables", err, tables)
+		return err
+	}
+
+	if err := r.db.Model(zone).Association("Tables").Append(tablesDB); err != nil {
+		shared.LogError("Error adding tables to zone", LogDBRepository, "AddTables", err, *zone, tables)
+		return err
+	}
+
+	return nil
+}
+
+// RemoveTables method for remove tables to zone in database
+func (r *DBRepository) RemoveTables(zone *Zone, tables []uint) error {
+	var tablesDB []tablesPKG.Table
+	if err := r.db.Where("zone_id = ?", *zone.ID).Find(&tablesDB, tables).Error; err != nil {
+		shared.LogError("Error finding tables", LogDBRepository, "RemoveTables", err, tables)
+		return err
+	}
+
+	if len(tablesDB) == 0 {
+		err := fmt.Errorf("some of tables:%v does not exist", tables)
+		shared.LogError("Error finding tables", LogDBRepository, "RemoveTables", err, tables)
+		return err
+	}
+
+	if err := r.db.Model(zone).Association("Tables").Delete(tablesDB); err != nil {
+		shared.LogError("Error deleting tables from zone", LogDBRepository, "RemoveTables", err, *zone, tables)
 		return err
 	}
 

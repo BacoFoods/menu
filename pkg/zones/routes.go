@@ -17,5 +17,6 @@ func (r *Routes) RegisterRoutes(router *gin.RouterGroup) {
 	router.PATCH("/zone/:id", r.handler.Update)
 	router.DELETE("/zone/:id", r.handler.Delete)
 
-	router.POST("/zone/:id/tables", r.handler.AddTablesToZone)
+	router.PATCH("/zone/:id/tables/add", r.handler.AddTables)
+	router.PATCH("/zone/:id/tables/remove", r.handler.RemoveTables)
 }

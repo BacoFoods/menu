@@ -12,10 +12,11 @@ const (
 type Service interface {
 	Find(filters map[string]any) ([]Zone, error)
 	Get(zoneID string) (*Zone, error)
-	Create(zone *Zone) (*Zone, error)
+	Create(zone *Zone, tableNumber, tableAmount int) (*Zone, error)
 	Update(zonID string, zone *Zone) (*Zone, error)
 	Delete(zoneID string) error
-	AddTablesToZone(zoneID string, tables []uint) error
+	AddTables(zoneID string, tables []uint) error
+	RemoveTables(zoneID string, tables []uint) error
 }
 
 type service struct {
@@ -34,7 +35,8 @@ func (s service) Get(zoneID string) (*Zone, error) {
 	return s.repository.GetZone(zoneID)
 }
 
-func (s service) Create(zone *Zone) (*Zone, error) {
+func (s service) Create(zone *Zone, tableNumber, tableAmount int) (*Zone, error) {
+	SetTables(zone, tableNumber, tableAmount)
 	return s.repository.Create(zone)
 }
 
@@ -46,7 +48,7 @@ func (s service) Delete(zoneID string) error {
 	return s.repository.Delete(zoneID)
 }
 
-func (s service) AddTablesToZone(zoneID string, tables []uint) error {
+func (s service) AddTables(zoneID string, tables []uint) error {
 	zone, err := s.repository.GetZone(zoneID)
 	if err != nil {
 		return err
@@ -58,5 +60,20 @@ func (s service) AddTablesToZone(zoneID string, tables []uint) error {
 		return err
 	}
 
-	return s.repository.AddTablesToZone(zoneID, tables)
+	return s.repository.AddTables(zone, tables)
+}
+
+func (s service) RemoveTables(zoneID string, tables []uint) error {
+	zone, err := s.repository.GetZone(zoneID)
+	if err != nil {
+		return err
+	}
+
+	if zone == nil {
+		err := fmt.Errorf(ErrorZoneNotFound)
+		shared.LogError("error finding zone", LogService, "RemoveTablesFromZone", err, zoneID)
+		return err
+	}
+
+	return s.repository.RemoveTables(zone, tables)
 }

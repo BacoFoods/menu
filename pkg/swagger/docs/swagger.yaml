@@ -308,6 +308,10 @@ definitions:
         type: string
       store_id:
         type: integer
+      table_amount:
+        type: integer
+      table_number:
+        type: integer
     required:
     - name
     - store_id
@@ -3869,13 +3873,13 @@ paths:
       summary: To update a zone
       tags:
       - Zones
-  /zone/{id}/tables:
-    post:
+  /zone/{id}/tables/add:
+    patch:
       consumes:
       - application/json
       description: To add tables to a zone
       parameters:
-      - description: ID
+      - description: Zone ID
         in: path
         name: id
         required: true
@@ -3906,6 +3910,45 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To add tables to a zone
+      tags:
+      - Zones
+  /zone/{id}/tables/remove:
+    patch:
+      consumes:
+      - application/json
+      description: To remove tables from a zone
+      parameters:
+      - description: Zone ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Remove Table
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/zones.RequestAddTable'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To remove tables from a zone
       tags:
       - Zones
 swagger: "2.0"

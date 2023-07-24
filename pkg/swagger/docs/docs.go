@@ -5670,8 +5670,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/zone/{id}/tables": {
-            "post": {
+        "/zone/{id}/tables/add": {
+            "patch": {
                 "description": "To add tables to a zone",
                 "consumes": [
                     "application/json"
@@ -5686,13 +5686,72 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID",
+                        "description": "Zone ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "description": "Add Table",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/zones.RequestAddTable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/zone/{id}/tables/remove": {
+            "patch": {
+                "description": "To remove tables from a zone",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Zones"
+                ],
+                "summary": "To remove tables from a zone",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Zone ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Remove Table",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -6202,6 +6261,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "store_id": {
+                    "type": "integer"
+                },
+                "table_amount": {
+                    "type": "integer"
+                },
+                "table_number": {
                     "type": "integer"
                 }
             }
