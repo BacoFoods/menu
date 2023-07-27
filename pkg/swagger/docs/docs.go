@@ -674,14 +674,20 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "category name",
+                        "description": "category by name",
                         "name": "name",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "category brand",
+                        "description": "category by brand",
                         "name": "brandID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "category by product",
+                        "name": "productID",
                         "in": "query"
                     }
                 ],
@@ -1022,7 +1028,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/category/{id}/product/add": {
+        "/category/{id}/product/{productID}/add": {
             "patch": {
                 "description": "To add a product to a category",
                 "consumes": [
@@ -1044,13 +1050,11 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "products request",
-                        "name": "products",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/category.RequestAddProduct"
-                        }
+                        "type": "string",
+                        "description": "product id",
+                        "name": "productID",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2899,7 +2903,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/menu/{id}/category/{categoryID}": {
+        "/menu/{id}/category/{categoryID}/add": {
             "patch": {
                 "description": "To add a category to a menu",
                 "consumes": [
@@ -2932,7 +2936,94 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/menu.Menu"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
                             "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/menu/{id}/category/{categoryID}/remove": {
+            "patch": {
+                "description": "To remove a category from a menu",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "To remove a category from a menu",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "menu id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "category id",
+                        "name": "categoryID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/menu.Menu"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -3055,7 +3146,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/shared.Response"
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/menu.Menu"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -4026,6 +4132,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/product/{id}/category": {
+            "get": {
+                "description": "To get categories for a product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "To get categories for a product",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "product id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/product/{id}/modifier/{modifierID}": {
             "post": {
                 "description": "To add a modifier to a product",
@@ -4765,7 +4921,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/shared.Response"
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -4816,6 +4990,76 @@ const docTemplate = `{
                         "name": "zoneID",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/surcharges": {
+            "get": {
+                "description": "Find surcharges",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Surcharge"
+                ],
+                "summary": "Find surcharges",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Brand ID",
+                        "name": "brandID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name",
+                        "name": "name",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -4877,7 +5121,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/shared.Response"
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/tables.Table"
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -4927,7 +5189,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/shared.Response"
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/tables.Table"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -4977,7 +5254,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/shared.Response"
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/tables.Table"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -5073,7 +5365,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/shared.Response"
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/tables.Table"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -5441,7 +5748,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/shared.Response"
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/zones.Zone"
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -5491,7 +5816,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/shared.Response"
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/zones.Zone"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -5541,7 +5881,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/shared.Response"
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/zones.Zone"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -5646,7 +6001,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/shared.Response"
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/zones.Zone"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -5833,6 +6203,9 @@ const docTemplate = `{
                 "brand_id": {
                     "type": "integer"
                 },
+                "color": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -5847,17 +6220,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                }
-            }
-        },
-        "category.RequestAddProduct": {
-            "type": "object",
-            "properties": {
-                "products": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                },
+                "sort_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -6066,6 +6431,9 @@ const docTemplate = `{
                 "brand_id"
             ],
             "properties": {
+                "apply_price": {
+                    "type": "number"
+                },
                 "brand_id": {
                     "type": "integer"
                 },
@@ -6091,6 +6459,9 @@ const docTemplate = `{
             "properties": {
                 "brand_id": {
                     "type": "integer"
+                },
+                "color": {
+                    "type": "string"
                 },
                 "description": {
                     "type": "string"
@@ -6268,6 +6639,26 @@ const docTemplate = `{
                 },
                 "table_number": {
                     "type": "integer"
+                }
+            }
+        },
+        "zones.Zone": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "tables": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tables.Table"
+                    }
                 }
             }
         }

@@ -90,14 +90,20 @@ func (r *DBRepository) GetMenusByCategory(categoryID string) ([]MenusCategory, e
 }
 
 // AddProduct method for add product to category in database
-func (r *DBRepository) AddProduct(products []product.Product, categoryID string) (*Category, error) {
+func (r *DBRepository) AddProduct(categoryID, productID uint) (*Category, error) {
 	var category Category
 	if err := r.db.First(&category, categoryID).Error; err != nil {
 		shared.LogError("error getting category", LogDBRepository, "AddProduct", err, categoryID)
 		return nil, err
 	}
 
-	if err := r.db.Model(&category).Association("Products").Append(products); err != nil {
+	var productDB product.Product
+	if err := r.db.First(&productDB, productID).Error; err != nil {
+		shared.LogError("error getting product", LogDBRepository, "AddProduct", err, productID)
+		return nil, err
+	}
+
+	if err := r.db.Model(&category).Association("Products").Append(&productDB); err != nil {
 		shared.LogError("error adding products to category", LogDBRepository, "AddProduct", err, category)
 		return nil, err
 	}
@@ -106,7 +112,7 @@ func (r *DBRepository) AddProduct(products []product.Product, categoryID string)
 }
 
 // RemoveProduct method for remove product to category in database
-func (r *DBRepository) RemoveProduct(productID, categoryID uint) (*Category, error) {
+func (r *DBRepository) RemoveProduct(categoryID, productID uint) (*Category, error) {
 	var category Category
 	if err := r.db.First(&category, categoryID).Error; err != nil {
 		shared.LogError("error getting category", LogDBRepository, "RemoveProduct", err, categoryID)

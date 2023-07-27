@@ -282,7 +282,7 @@ func (h *Handler) UpdateAvailability(c *gin.Context) {
 // @Param storeID path string true "store id"
 // @Accept json
 // @Produce json
-// @Success 200 {object} shared.Response
+// @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
@@ -309,11 +309,11 @@ func (h *Handler) FindChannels(c *gin.Context) {
 // @Param categoryID path string true "category id"
 // @Accept json
 // @Produce json
-// @Success 200 {object} shared.Response
+// @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
-// @Router /menu/{id}/category/{categoryID} [patch]
+// @Router /menu/{id}/category/{categoryID}/add [patch]
 func (h *Handler) AddCategory(c *gin.Context) {
 	menuID := c.Param("id")
 	categoryID := c.Param("categoryID")
@@ -322,6 +322,33 @@ func (h *Handler) AddCategory(c *gin.Context) {
 	if err != nil {
 		shared.LogError("error adding category", LogHandler, "AddCategory", err, nil)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAddingCategory))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(menu))
+}
+
+// RemoveCategory to handle a request to remove a category from a menu
+// @Tags Menu
+// @Summary To remove a category from a menu
+// @Description To remove a category from a menu
+// @Param id path string true "menu id"
+// @Param categoryID path string true "category id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=Menu}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /menu/{id}/category/{categoryID}/remove [patch]
+func (h *Handler) RemoveCategory(c *gin.Context) {
+	menuID := c.Param("id")
+	categoryID := c.Param("categoryID")
+
+	menu, err := h.service.RemoveCategory(menuID, categoryID)
+	if err != nil {
+		shared.LogError("error removing category", LogHandler, "RemoveCategory", err, nil)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorRemovingCategory))
 		return
 	}
 

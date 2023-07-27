@@ -25,7 +25,7 @@ func NewHandler(service Service) *Handler {
 // @Param id path string true "table id"
 // @Accept json
 // @Produce json
-// @Success 200 {object} shared.Response
+// @Success 200 {object} object{status=string,data=Table}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
@@ -51,7 +51,7 @@ func (h Handler) Get(ctx *gin.Context) {
 // @Param zoneID query int false "zone id"
 // @Accept json
 // @Produce json
-// @Success 200 {object} shared.Response
+// @Success 200 {object} object{status=string,data=[]Table}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
@@ -86,7 +86,7 @@ func (h Handler) Find(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param table body Table true "table"
-// @Success 200 {object} shared.Response
+// @Success 200 {object} object{status=string,data=Table}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
@@ -116,7 +116,7 @@ func (h Handler) Create(ctx *gin.Context) {
 // @Param id path string true "table id"
 // @Accept json
 // @Produce json
-// @Success 200 {object} shared.Response
+// @Success 200 {object} object{status=string,data=Table}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response

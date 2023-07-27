@@ -9,10 +9,6 @@ import (
 
 const LogHandler string = "pkg/category/handler"
 
-type RequestAddProduct struct {
-	Products []string `json:"products"`
-}
-
 type Handler struct {
 	service Service
 }
@@ -25,8 +21,9 @@ func NewHandler(service Service) *Handler {
 // @Tags Category
 // @Summary To find categories
 // @Description To find categories
-// @Param name query string false "category name"
-// @Param brandID query string false "category brand"
+// @Param name query string false "category by name"
+// @Param brandID query string false "category by brand"
+// @Param productID query string false "category by product"
 // @Accept json
 // @Produce json
 // @Success 200 {object} object{status=string,data=[]Category}
@@ -45,6 +42,11 @@ func (h *Handler) Find(c *gin.Context) {
 	brandID := c.Query("brandID")
 	if brandID != "" {
 		query["brand_id"] = brandID
+	}
+
+	productID := c.Query("productID")
+	if productID != "" {
+		query["product_id"] = productID
 	}
 
 	categories, err := h.service.Find(query)
@@ -186,24 +188,30 @@ func (h *Handler) GetMenus(c *gin.Context) {
 // @Summary To add a product to a category
 // @Description To add a product to a category
 // @Param id path string true "category id"
-// @Param products body RequestAddProduct true "products request"
+// @Param productID path string true "product id"
 // @Accept json
 // @Produce json
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
-// @Router /category/{id}/product/add [patch]
+// @Router /category/{id}/product/{productID}/add [patch]
 func (h *Handler) AddProduct(c *gin.Context) {
-	categoryID := c.Param("id")
-	var body RequestAddProduct
-	if err := c.ShouldBindJSON(&body); err != nil {
-		shared.LogWarn("warning binding request fail", LogHandler, "AddProduct", err)
+	categoryID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		shared.LogWarn("warning parsing category id fail", LogHandler, "AddProduct", err)
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
 
-	category, err := h.service.AddProduct(body.Products, categoryID)
+	productID, err := strconv.ParseUint(c.Param("productID"), 10, 64)
+	if err != nil {
+		shared.LogWarn("warning parsing product id fail", LogHandler, "AddProduct", err)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	category, err := h.service.AddProduct(uint(categoryID), uint(productID))
 	if err != nil {
 		shared.LogError("error adding product to category", LogHandler, "AddProduct", err, category)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAddingProduct))

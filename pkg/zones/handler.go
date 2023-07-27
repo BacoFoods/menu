@@ -41,7 +41,7 @@ func NewHandler(service Service) *Handler {
 // @Produce json
 // @Param name query string false "Name"
 // @Param storeID query int false "Store ID"
-// @Success 200 {object} shared.Response
+// @Success 200 {object} object{status=string,data=[]Zone}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
@@ -75,7 +75,7 @@ func (h Handler) Find(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "ID"
-// @Success 200 {object} shared.Response
+// @Success 200 {object} object{status=string,data=Zone}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
@@ -98,7 +98,7 @@ func (h Handler) Get(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body RequestZoneCreate true "Zone"
-// @Success 200 {object} shared.Response
+// @Success 200 {object} object{status=string,data=Zone}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
@@ -134,7 +134,7 @@ func (h Handler) Create(c *gin.Context) {
 // @Produce json
 // @Param id path int true "ID"
 // @Param request body RequestZoneCreate true "Zone"
-// @Success 200 {object} shared.Response
+// @Success 200 {object} object{status=string,data=Zone}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response

@@ -10,7 +10,7 @@ func NewRoutes(handler *Handler) Routes {
 	return Routes{handler}
 }
 
-func (r Routes) Register(private *gin.RouterGroup) {
+func (r Routes) RegisterRoutes(private *gin.RouterGroup) {
 	private.POST("/discount", r.handler.Create)
 	private.GET("/discount", r.handler.Find)
 	private.GET("/discount/:id", r.handler.Get)

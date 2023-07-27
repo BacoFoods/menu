@@ -150,3 +150,25 @@ func (r *DBRepository) AddCategory(menuID string, category *category.Category) (
 
 	return &menu, nil
 }
+
+// RemoveCategory method for remove a category from menu
+func (r *DBRepository) RemoveCategory(menuID string, category *category.Category) (*Menu, error) {
+	var menu Menu
+	if err := r.db.Preload(clause.Associations).First(&menu, menuID).Error; err != nil {
+		shared.LogError("error getting menu", LogDBRepository, "RemoveCategory", err, menuID, *category)
+		return nil, err
+	}
+
+	if *menu.BrandID != *category.BrandID {
+		err := fmt.Errorf(ErrorMenuWrongBrand)
+		shared.LogError("error removing category from menu", LogDBRepository, "RemoveCategory", err, menuID, *category)
+		return nil, err
+	}
+
+	if err := r.db.Model(&menu).Association("Categories").Delete(category); err != nil {
+		shared.LogError("error removing category from menu", LogDBRepository, "RemoveCategory", err, menuID, *category)
+		return nil, err
+	}
+
+	return &menu, nil
+}

@@ -47,6 +47,8 @@ func GetEntity(entity string) (Entity, error) {
 	switch entity {
 	case "menu":
 		return EntityMenu, nil
+	case "category":
+		return EntityCategory, nil
 	default:
 		return "", fmt.Errorf(ErrorEntityNotFound)
 	}

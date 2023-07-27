@@ -5,10 +5,12 @@ import (
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
+	"github.com/BacoFoods/menu/pkg/discount"
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/store"
+	"github.com/BacoFoods/menu/pkg/surcharge"
 	_ "github.com/BacoFoods/menu/pkg/swagger/docs" //documentation
 	"github.com/BacoFoods/menu/pkg/zones"
 
@@ -45,12 +47,14 @@ func (r *Routes) Register(group *gin.RouterGroup) {
 	_ = menu.Handler{}
 	_ = category.Handler{}
 	_ = product.Handler{}
+	_ = discount.Handler{}
+	_ = surcharge.Handler{}
 	_ = overriders.Handler{}
 	_ = brand.Handler{}
 	_ = store.Handler{}
 	_ = zones.Handler{}
 	_ = channel.Handler{}
-	_ = availability.Availability{}
+	_ = availability.Handler{}
 
 	group.GET("/swagger/*any", swaggerGin.WrapHandler(swaggerFiles.Handler))
 }

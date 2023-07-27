@@ -25,6 +25,8 @@ type Category struct {
 	BrandID     *uint             `json:"brand_id" binding:"required"`
 	Description string            `json:"description"`
 	Enable      bool              `json:"enable"`
+	Color       string            `json:"color"`
+	SortID      int               `json:"sort_id"`
 	Products    []product.Product `json:"products" gorm:"many2many:categories_products" swaggerignore:"true"`
 	CreatedAt   *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
@@ -44,6 +46,6 @@ type Repository interface {
 	Update(*Category) (*Category, error)
 	Delete(string) (*Category, error)
 	GetMenusByCategory(categoryID string) ([]MenusCategory, error)
-	AddProduct(products []product.Product, categoryID string) (*Category, error)
+	AddProduct(categoryID, productID uint) (*Category, error)
 	RemoveProduct(categoryID, productID uint) (*Category, error)
 }

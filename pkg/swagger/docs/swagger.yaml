@@ -26,6 +26,8 @@ definitions:
     properties:
       brand_id:
         type: integer
+      color:
+        type: string
       description:
         type: string
       enable:
@@ -36,15 +38,10 @@ definitions:
         type: string
       name:
         type: string
+      sort_id:
+        type: integer
     required:
     - brand_id
-    type: object
-  category.RequestAddProduct:
-    properties:
-      products:
-        items:
-          type: string
-        type: array
     type: object
   channel.Channel:
     properties:
@@ -179,6 +176,8 @@ definitions:
     type: object
   product.Modifier:
     properties:
+      apply_price:
+        type: number
       brand_id:
         type: integer
       description:
@@ -196,6 +195,8 @@ definitions:
     properties:
       brand_id:
         type: integer
+      color:
+        type: string
       description:
         type: string
       discount_id:
@@ -315,6 +316,19 @@ definitions:
     required:
     - name
     - store_id
+    type: object
+  zones.Zone:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      store_id:
+        type: integer
+      tables:
+        items:
+          $ref: '#/definitions/tables.Table'
+        type: array
     type: object
 info:
   contact:
@@ -739,13 +753,17 @@ paths:
       - application/json
       description: To find categories
       parameters:
-      - description: category name
+      - description: category by name
         in: query
         name: name
         type: string
-      - description: category brand
+      - description: category by brand
         in: query
         name: brandID
+        type: string
+      - description: category by product
+        in: query
+        name: productID
         type: string
       produces:
       - application/json
@@ -959,6 +977,44 @@ paths:
       summary: To get menus from a category
       tags:
       - Category
+  /category/{id}/product/{productID}/add:
+    patch:
+      consumes:
+      - application/json
+      description: To add a product to a category
+      parameters:
+      - description: category id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: product id
+        in: path
+        name: productID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To add a product to a category
+      tags:
+      - Category
   /category/{id}/product/{productID}/remove:
     patch:
       consumes:
@@ -995,45 +1051,6 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To remove a product from a category
-      tags:
-      - Category
-  /category/{id}/product/add:
-    patch:
-      consumes:
-      - application/json
-      description: To add a product to a category
-      parameters:
-      - description: category id
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: products request
-        in: body
-        name: products
-        required: true
-        schema:
-          $ref: '#/definitions/category.RequestAddProduct'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      summary: To add a product to a category
       tags:
       - Category
   /channel:
@@ -2025,7 +2042,7 @@ paths:
       summary: To update a menu
       tags:
       - Menu
-  /menu/{id}/category/{categoryID}:
+  /menu/{id}/category/{categoryID}/add:
     patch:
       consumes:
       - application/json
@@ -2047,7 +2064,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/shared.Response'
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/menu.Menu'
+                status:
+                  type: string
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -2061,6 +2085,51 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To add a category to a menu
+      tags:
+      - Menu
+  /menu/{id}/category/{categoryID}/remove:
+    patch:
+      consumes:
+      - application/json
+      description: To remove a category from a menu
+      parameters:
+      - description: menu id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: category id
+        in: path
+        name: categoryID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/menu.Menu'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To remove a category from a menu
       tags:
       - Menu
   /menu/{id}/place/{place}/availability:
@@ -2129,7 +2198,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/shared.Response'
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/menu.Menu'
+                status:
+                  type: string
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -2828,6 +2904,39 @@ paths:
       summary: To update a product
       tags:
       - Product
+  /product/{id}/category:
+    get:
+      consumes:
+      - application/json
+      description: To get categories for a product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get categories for a product
+      tags:
+      - Product
   /product/{id}/modifier/{modifierID}:
     delete:
       consumes:
@@ -3289,7 +3398,16 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/shared.Response'
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    type: object
+                  type: array
+                status:
+                  type: string
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -3327,7 +3445,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/shared.Response'
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  type: object
+                status:
+                  type: string
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -3343,6 +3468,42 @@ paths:
       summary: To get tables by store
       tags:
       - Store
+  /surcharges:
+    get:
+      consumes:
+      - application/json
+      description: Find surcharges
+      parameters:
+      - description: Brand ID
+        in: query
+        name: brandID
+        type: string
+      - description: Name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Find surcharges
+      tags:
+      - Surcharge
   /tables:
     get:
       consumes:
@@ -3363,7 +3524,16 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/shared.Response'
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/tables.Table'
+                  type: array
+                status:
+                  type: string
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -3396,7 +3566,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/shared.Response'
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/tables.Table'
+                status:
+                  type: string
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -3461,7 +3638,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/shared.Response'
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/tables.Table'
+                status:
+                  type: string
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -3493,7 +3677,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/shared.Response'
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/tables.Table'
+                status:
+                  type: string
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -3721,7 +3912,16 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/shared.Response'
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/zones.Zone'
+                  type: array
+                status:
+                  type: string
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -3754,7 +3954,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/shared.Response'
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/zones.Zone'
+                status:
+                  type: string
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -3819,7 +4026,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/shared.Response'
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/zones.Zone'
+                status:
+                  type: string
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -3857,7 +4071,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/shared.Response'
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/zones.Zone'
+                status:
+                  type: string
+              type: object
         "400":
           description: Bad Request
           schema:

@@ -18,6 +18,7 @@ const (
 	ErrorDeletingProduct  string = "error deleting product"
 	ErrorAddingModifier   string = "error adding modifier"
 	ErrorRemovingModifier string = "error removing modifier"
+	ErrorGettingCategory  string = "error getting category"
 
 	ErrorModifierCreation        string = "error creating modifier"
 	ErrorModifierAddingProduct   string = "error adding product to modifier"
@@ -40,6 +41,7 @@ type Product struct {
 	Discount    *discount.Discount `json:"discount" gorm:"foreignKey:DiscountID" swaggerignore:"true"`
 	Unit        string             `json:"unit"`
 	BrandID     *uint              `json:"brand_id" binding:"required"`
+	Color       string             `json:"color"`
 	Modifiers   []Modifier         `json:"modifiers" gorm:"many2many:product_modifiers;"`
 	CreatedAt   *time.Time         `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time         `json:"updated_at,omitempty" swaggerignore:"true"`
@@ -51,6 +53,7 @@ type Modifier struct {
 	Name        string          `json:"name"`
 	Description string          `json:"description"`
 	Image       string          `json:"image"`
+	ApplyPrice  float32         `json:"apply_price" gorm:"precision:18;scale:2"`
 	Products    []Product       `json:"products" swaggerignore:"true" gorm:"many2many:modifier_products;"`
 	BrandID     *uint           `json:"brand_id" binding:"required"`
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
@@ -70,6 +73,7 @@ type Repository interface {
 	GetOverriders(productID, field string) ([]Overrider, error)
 	GetOverriderIDs(productID string) ([]uint, error)
 	UpdateOverriders(ids []uint, field string, value any) error
+	GetCategory(productID string) ([]CategoryDTO, error)
 
 	ModifierCreate(*Modifier) (*Modifier, error)
 	ModifierGet(modifierID string) (*Modifier, error)

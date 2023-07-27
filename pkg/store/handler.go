@@ -207,7 +207,7 @@ func (h Handler) AddChannel(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "store id"
-// @Success 200 {object} shared.Response
+// @Success 200 {object} object{status=string,data=[]object{}}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
@@ -233,7 +233,7 @@ func (h Handler) FindZonesByStore(c *gin.Context) {
 // @Produce json
 // @Param id path string true "store id"
 // @Param zoneID path string true "zone id"
-// @Success 200 {object} shared.Response
+// @Success 200 {object} object{status=string,data=object{}}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response

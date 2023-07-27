@@ -21,6 +21,7 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 	router.DELETE("/product/:id/modifier/:modifierID", r.handler.RemoveModifier)
 	router.GET("/product/:id/overrider", r.handler.GetOverridersByField)
 	router.PATCH("/product/:id/overrider/update-all", r.handler.UpdateAllOverriders)
+	router.GET("/product/:id/category", r.handler.GetCategories)
 
 	// Modifiers
 	router.GET("/modifier", r.handler.ModifierFind)

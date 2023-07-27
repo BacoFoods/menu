@@ -203,3 +203,18 @@ func (r *DBRepository) ModifierRemoveProduct(product *Product, modifier *Modifie
 
 	return modifier, nil
 }
+
+// GetCategory method for get categories by product id
+func (r *DBRepository) GetCategory(productID string) ([]CategoryDTO, error) {
+	var categories []CategoryDTO
+	if err := r.db.Table("categories as c").
+		Select("c.id as id, c.name as name").
+		Joins("left join categories_products pc on c.id = pc.category_id").
+		Where("pc.product_id = ?", productID).
+		Scan(&categories).Error; err != nil {
+		shared.LogError("error getting categories", LogDBRepository, "GetCategory", err)
+		return nil, err
+	}
+
+	return categories, nil
+}

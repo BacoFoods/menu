@@ -27,7 +27,7 @@ type Discount struct {
 
 type RepositoryI interface {
 	Create(*Discount) (*Discount, error)
-	Find(map[string]string) ([]Discount, error)
+	Find(filters map[string]string) ([]Discount, error)
 	Get(string) (*Discount, error)
 	Update(Discount) (*Discount, error)
 	Delete(string) (*Discount, error)

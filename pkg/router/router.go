@@ -8,11 +8,13 @@ import (
 	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/country"
 	"github.com/BacoFoods/menu/pkg/currency"
+	"github.com/BacoFoods/menu/pkg/discount"
 	"github.com/BacoFoods/menu/pkg/healthcheck"
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/store"
+	"github.com/BacoFoods/menu/pkg/surcharge"
 	"github.com/BacoFoods/menu/pkg/swagger"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/BacoFoods/menu/pkg/taxes"
@@ -39,18 +41,21 @@ func NewRouter(routes *RoutesGroup) Router {
 
 	// Register private routes
 	private := router.Group(path)
-	routes.Menu.RegisterRoutes(private)
+	routes.Availability.RegisterRoutes(private)
+	routes.Brand.RegisterRoutes(private)
 	routes.Category.RegisterRoutes(private)
-	routes.Product.RegisterRoutes(private)
-	routes.Taxes.RegisterRoutes(private)
+	routes.Channel.RegisterRoutes(private)
 	routes.Country.RegisterRoutes(private)
 	routes.Currency.RegisterRoutes(private)
-	routes.Brand.RegisterRoutes(private)
+	routes.Discount.RegisterRoutes(private)
+	routes.Overriders.RegisterRoutes(private)
+	routes.Menu.RegisterRoutes(private)
+	routes.Product.RegisterRoutes(private)
 	routes.Store.RegisterRoutes(private)
-	routes.Zone.RegisterRoutes(private)
+	routes.Surcharge.RegisterRoutes(private)
+	routes.Taxes.RegisterRoutes(private)
 	routes.Table.RegisterRoutes(private)
-	routes.Channel.RegisterRoutes(private)
-	routes.Availability.RegisterRoutes(private)
+	routes.Zone.RegisterRoutes(private)
 
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
@@ -61,19 +66,21 @@ func NewRouter(routes *RoutesGroup) Router {
 
 // RoutesGroup for unify all routes
 type RoutesGroup struct {
-	HealthCheck  healthcheck.Routes
-	Swagger      swagger.Routes
-	Menu         menu.Routes
+	Availability availability.Routes
+	Brand        brand.Routes
 	Category     category.Routes
-	Product      product.Routes
-	Overriders   overriders.Routes
-	Taxes        taxes.Routes
+	Channel      channel.Routes
 	Country      country.Routes
 	Currency     currency.Routes
-	Brand        brand.Routes
+	Discount     discount.Routes
+	HealthCheck  healthcheck.Routes
+	Menu         menu.Routes
+	Overriders   overriders.Routes
+	Product      product.Routes
 	Store        store.Routes
-	Zone         zones.Routes
+	Surcharge    surcharge.Routes
+	Swagger      swagger.Routes
 	Table        tables.Routes
-	Channel      channel.Routes
-	Availability availability.Routes
+	Taxes        taxes.Routes
+	Zone         zones.Routes
 }

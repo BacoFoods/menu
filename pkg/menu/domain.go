@@ -19,6 +19,7 @@ const (
 	ErrorUpdatingAvailability string = "error updating availability"
 	ErrorFindingChannels      string = "error finding channels"
 	ErrorAddingCategory       string = "error adding category"
+	ErrorRemovingCategory     string = "error removing category"
 	ErrorMenuWrongBrand       string = "error adding category to menu wrong brand"
 )
 
@@ -31,6 +32,7 @@ type Repository interface {
 	FindByPlace(string, string) ([]Menu, error)
 	GetMenuItems(string) ([]Item, error)
 	AddCategory(menuID string, category *category.Category) (*Menu, error)
+	RemoveCategory(menuID string, category *category.Category) (*Menu, error)
 }
 
 type Menu struct {

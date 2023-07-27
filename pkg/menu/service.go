@@ -25,6 +25,7 @@ type Service interface {
 	UpdateAvailability(menuID, place string, placeIDs map[uint]bool) (*Menu, error)
 	FindChannels(menuID, storeID string) ([]any, error)
 	AddCategory(menuID, categoryID string) (*Menu, error)
+	RemoveCategory(menuID, categoryID string) (*Menu, error)
 }
 
 // service is the default implementation of the Service interface for menu.
@@ -257,4 +258,14 @@ func (s service) AddCategory(menuID, categoryID string) (*Menu, error) {
 	}
 
 	return s.repository.AddCategory(menuID, cat)
+}
+
+// RemoveCategory removes a category from a menu.
+func (s service) RemoveCategory(menuID, categoryID string) (*Menu, error) {
+	cat, err := s.category.Get(categoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.repository.RemoveCategory(menuID, cat)
 }

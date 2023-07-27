@@ -10,12 +10,14 @@ import (
 	"github.com/BacoFoods/menu/pkg/country"
 	"github.com/BacoFoods/menu/pkg/currency"
 	"github.com/BacoFoods/menu/pkg/database"
+	"github.com/BacoFoods/menu/pkg/discount"
 	"github.com/BacoFoods/menu/pkg/healthcheck"
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/router"
 	"github.com/BacoFoods/menu/pkg/store"
+	"github.com/BacoFoods/menu/pkg/surcharge"
 	"github.com/BacoFoods/menu/pkg/swagger"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/BacoFoods/menu/pkg/taxes"
@@ -33,6 +35,8 @@ func main() {
 		&menu.Menu{},
 		&menu.MenusCategories{},
 		&category.Category{},
+		&discount.Discount{},
+		&surcharge.Surcharge{},
 		&product.Product{},
 		&product.Modifier{},
 		&taxes.Tax{},
@@ -96,6 +100,18 @@ func main() {
 	productHandler := product.NewHandler(productService)
 	productRoutes := product.NewRoutes(productHandler)
 
+	// Surcharge
+	surchargeRepository := surcharge.NewDBRepository(gormDB)
+	surchargeService := surcharge.NewService(surchargeRepository)
+	surchargeHandler := surcharge.NewHandler(surchargeService)
+	surchargeRoutes := surcharge.NewRoutes(surchargeHandler)
+
+	// Discount
+	discountRepository := discount.NewDBRepository(gormDB)
+	discountService := discount.NewService(discountRepository)
+	discountHandler := discount.NewHandler(discountService)
+	discountRoutes := discount.NewRoutes(discountHandler)
+
 	// Category
 	categoryRepository := category.NewDBRepository(gormDB)
 	categoryService := category.NewService(categoryRepository, productRepository)
@@ -139,6 +155,8 @@ func main() {
 		Menu:         menuRoutes,
 		Category:     categoryRoutes,
 		Product:      productRoutes,
+		Surcharge:    surchargeRoutes,
+		Discount:     discountRoutes,
 		Overriders:   overridersRoutes,
 		Taxes:        taxesRoutes,
 		Country:      countryRoutes,

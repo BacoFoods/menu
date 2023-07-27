@@ -291,6 +291,31 @@ func (h *Handler) UpdateAllOverriders(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(err))
 }
 
+// GetCategories to handle a request to get categories for a product
+// @Tags Product
+// @Summary To get categories for a product
+// @Description To get categories for a product
+// @Accept json
+// @Produce json
+// @Param id path string true "product id"
+// @Success 200 {object} shared.Response
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /product/{id}/category [get]
+func (h *Handler) GetCategories(c *gin.Context) {
+	productID := c.Param("id")
+
+	categories, err := h.service.GetCategory(productID)
+	if err != nil {
+		shared.LogError("error getting categories for product", LogHandler, "GetCategories", err, productID)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingCategory))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(categories))
+}
+
 // Modifiers
 
 // ModifierFind to handle a request to find modifiers
