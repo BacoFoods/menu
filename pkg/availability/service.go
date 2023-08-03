@@ -2,12 +2,14 @@ package availability
 
 import (
 	"fmt"
+
 	channelPkg "github.com/BacoFoods/menu/pkg/channel"
 	storePkg "github.com/BacoFoods/menu/pkg/store"
 )
 
 type Service interface {
 	EnableEntity(entity Entity, place Place, entityID, placeID uint, enable bool) error
+	RemoveEntity(entity Entity, place Place, entityID, placeID uint) error
 	FindEntities() []Entity
 	FindPlaces() []Place
 	Get(entity Entity, place Place, entityID, placeID uint) (any, error)
@@ -26,6 +28,10 @@ func NewService(repository Repository, store storePkg.Repository, channel channe
 
 func (s service) EnableEntity(entity Entity, place Place, entityID, placeID uint, enable bool) error {
 	return s.repository.EnableEntity(entity, place, entityID, placeID, enable)
+}
+
+func (s service) RemoveEntity(entity Entity, place Place, entityID, placeID uint) error {
+	return s.repository.RemoveEntity(entity, place, entityID, placeID)
 }
 
 func (s service) FindEntities() []Entity {

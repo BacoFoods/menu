@@ -1,6 +1,8 @@
 package availability
 
 import (
+	"log"
+
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 )
@@ -34,7 +36,17 @@ func (r *DBRepository) EnableEntity(entity Entity, place Place, entityID, placeI
 		return err
 	}
 
+	log.Println(availabilityDB)
+
 	return nil
+}
+
+func (r *DBRepository) RemoveEntity(entity Entity, place Place, entityID, placeID uint) error {
+	var availabilityDB Availability
+
+	err := r.db.Model(&availabilityDB).Where("entity = ? AND entity_id = ? AND place = ? AND place_id = ?", entity, entityID, place, placeID).Delete(nil).Error
+
+	return err
 }
 
 func (r *DBRepository) FindEntityByPlace(entity Entity, place Place, placeID string) ([]Availability, error) {

@@ -2,6 +2,7 @@ package availability_test
 
 import (
 	"fmt"
+
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/category"
@@ -47,7 +48,6 @@ var _ = Describe("Availability", func() {
 			&menu.Menu{},
 			&menu.MenusCategories{},
 			&category.Category{},
-			&category.CategoriesProducts{},
 			&product.Product{},
 			&taxes.Tax{},
 			&country.Country{},
@@ -56,6 +56,7 @@ var _ = Describe("Availability", func() {
 			&store.Store{},
 			&channel.Channel{},
 			&overriders.Overriders{},
+			&availability.Availability{},
 		)
 
 		// Service Implementation
@@ -80,28 +81,95 @@ var _ = Describe("Availability", func() {
 		TruncateMenu(db)
 	})
 
+	BeforeEach(func() {
+		TruncateAvailability(db)
+		TruncateMenu(db)
+	})
+
+	var (
+		myBrand *brand.Brand
+		myStore *store.Store
+	)
+
+	BeforeEach(func() {
+		var err error
+		myBrand, err = brandService.Create(&brand.Brand{
+			Name: "brand test",
+		})
+		Expect(err).To(BeNil())
+		Expect(myBrand).To(Not(BeNil()))
+
+		myStore, err = storeService.Create(&store.Store{
+			Name:    "store test",
+			BrandID: &myBrand.ID,
+			Enabled: true,
+		})
+		Expect(err).To(BeNil())
+		Expect(myStore).To(Not(BeNil()))
+		Expect(myStore.ID).To(Not(BeNil()))
+	})
+
+	Describe("Remove Entity", func() {
+		Context("Entity doesnt exists", func() {
+			It("Should not return error", func() {
+				// Arrange
+				place := availability.PlaceStore
+				placeID := myStore.ID
+				entityID := uint(10)
+
+				// Act
+				err := availabilityService.RemoveEntity(availability.EntityMenu, place, entityID, placeID)
+
+				// Assert
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Context("Entity exists", func() {
+			var (
+				place    = availability.PlaceStore
+				placeID  uint
+				entityID = uint(11)
+			)
+
+			BeforeEach(func() {
+				placeID = myStore.ID
+				err := availabilityService.EnableEntity(availability.EntityMenu, place, entityID, placeID, true)
+				Expect(err).To(BeNil())
+
+				av, err := availabilityService.Get(availability.EntityMenu, place, entityID, placeID)
+				Expect(err).To(BeNil())
+				Expect(av).ToNot(BeNil())
+			})
+
+			It("Should not return error", func() {
+				// Act
+				err := availabilityService.RemoveEntity(availability.EntityMenu, place, entityID, placeID)
+
+				// Assert
+				Expect(err).To(BeNil())
+			})
+
+			It("Should remove the entity", func() {
+				// Act
+				err := availabilityService.RemoveEntity(availability.EntityMenu, place, entityID, placeID)
+
+				// Assert
+				Expect(err).To(BeNil())
+
+				_, err = availabilityService.Get(availability.EntityMenu, place, entityID, placeID)
+				Expect(err).To(Equal(gorm.ErrRecordNotFound))
+			})
+		})
+	})
+
 	Describe("Enable/Disable Entity", func() {
 		Context("When the entity is a menu", func() {
 			It("Should enable/disable the entity", func() {
 				// Arrange
-				brand, err := brandService.Create(&brand.Brand{
-					Name: "brand test",
-				})
-				Expect(err).To(BeNil())
-				Expect(brand).To(Not(BeNil()))
-
-				store, err := storeService.Create(&store.Store{
-					Name:    "store test",
-					BrandID: &brand.ID,
-					Enabled: true,
-				})
-				Expect(err).To(BeNil())
-				Expect(store).To(Not(BeNil()))
-				Expect(store.ID).To(Not(BeNil()))
-
 				place := availability.PlaceStore
-				placeIDs := []uint{store.ID}
-				menu, err := menuService.Create("menu test", brand.ID, string(place), placeIDs)
+				placeIDs := []uint{myStore.ID}
+				menu, err := menuService.Create("menu test", myBrand.ID, string(place), placeIDs)
 				Expect(err).To(BeNil())
 				Expect(menu).To(Not(BeNil()))
 

@@ -2,10 +2,11 @@ package availability
 
 import (
 	"fmt"
-	"github.com/BacoFoods/menu/pkg/shared"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	"github.com/BacoFoods/menu/pkg/shared"
+	"github.com/gin-gonic/gin"
 )
 
 const LogHandler string = "pkg/availability/handler"
@@ -27,6 +28,58 @@ type Handler struct {
 
 func NewHandler(service Service) *Handler {
 	return &Handler{service}
+}
+
+// RemoveEntity to handle a request to remove a menu or category
+// @Summary Remove menu or category
+// @Description Remove menu or category
+// @Tags Availability
+// @Produce json
+// @Param entity path string true "Entity"
+// @Param entity-id path string true "Entity ID"
+// @Param place path string true "Place"
+// @Param place-id path string true "Place ID"
+// @Success 200 {object} shared.Response
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /availability/{entity}/{entity-id}/{place}/{place-id} [delete]
+func (h *Handler) RemoveEntity(c *gin.Context) {
+	entity, err := GetEntity(c.Param("entity"))
+	if err != nil {
+		shared.LogWarn("warning getting entity", LogHandler, "RemoveEntity", err, entity)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	place, err := GetPlace(c.Param("place"))
+	if err != nil {
+		shared.LogWarn("warning getting place", LogHandler, "RemoveEntity", err, entity, place)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	entityID, err := strconv.ParseUint(c.Param("entity-id"), 10, 64)
+	if err != nil {
+		shared.LogWarn("warning parsing entity id", LogHandler, "RemoveEntity", err, entity, entityID)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	placeID, err := strconv.ParseUint(c.Param("place-id"), 10, 64)
+	if err != nil {
+		shared.LogWarn("warning parsing place id", LogHandler, "RemoveEntity", err, entity, entityID, place, placeID)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	if err := h.service.RemoveEntity(entity, place, uint(entityID), uint(placeID)); err != nil {
+		shared.LogError("error removing entity", LogHandler, "RemoveEntity", err, entity, entityID, place, placeID)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorEnablingEntity))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(fmt.Sprintf("%v: %v in %v: %v", entity, entityID, place, placeID)))
 }
 
 // EnableEntity to handle a request to enable a menu or category

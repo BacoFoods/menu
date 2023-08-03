@@ -2,8 +2,9 @@ package availability
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Entity string
@@ -37,6 +38,7 @@ type Availability struct {
 
 type Repository interface {
 	EnableEntity(entity Entity, place Place, entityID, placeID uint, enable bool) error
+	RemoveEntity(entity Entity, place Place, entityID, placeID uint) error
 	FindEntityByPlace(entity Entity, place Place, placeID string) ([]Availability, error)
 	FindPlacesByEntity(entity Entity, entityID uint, place string) ([]Availability, error)
 	Get(entity Entity, place Place, entityID, placeID uint) (Availability, error)
