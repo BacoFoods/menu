@@ -2,6 +2,7 @@ package menu
 
 import (
 	"fmt"
+
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
@@ -106,7 +107,9 @@ func (r *DBRepository) FindByPlace(place, placeID string) ([]Menu, error) {
 	}
 
 	// Getting Menu by brandID
-	if err := r.db.Preload(clause.Associations).Find(&menus, "brand_id = ?", brandID).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).
+		Preload("Categories.Products.Modifiers").
+		Find(&menus, "brand_id = ?", brandID).Error; err != nil {
 		shared.LogError("error getting menus", LogDBRepository, "FindByPlace", err, brandID, place, placeID)
 		return nil, err
 	}
