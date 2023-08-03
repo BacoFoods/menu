@@ -108,7 +108,7 @@ func (r *DBRepository) FindByPlace(place, placeID string) ([]Menu, error) {
 
 	// Getting Menu by brandID
 	if err := r.db.Preload(clause.Associations).
-		Preload("Categories.Products.Modifiers").
+		Preload("Categories.Products.Modifiers.Products").
 		Find(&menus, "brand_id = ?", brandID).Error; err != nil {
 		shared.LogError("error getting menus", LogDBRepository, "FindByPlace", err, brandID, place, placeID)
 		return nil, err
