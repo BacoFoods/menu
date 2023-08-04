@@ -1,12 +1,13 @@
 package menu
 
 import (
+	"strconv"
+
 	availabilityPkg "github.com/BacoFoods/menu/pkg/availability"
 	categoryPkg "github.com/BacoFoods/menu/pkg/category"
 	overridersPkg "github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/shared"
 	storePkg "github.com/BacoFoods/menu/pkg/store"
-	"strconv"
 )
 
 const (
@@ -129,7 +130,7 @@ func (s service) FindByPlace(place, placeID string) ([]Menu, error) {
 	var menuList []Menu
 	for _, menu := range menus {
 		for _, availability := range availabilities {
-			if menu.ID == *availability.EntityID {
+			if availability.EntityID != nil && menu.ID == *availability.EntityID {
 				menu.Enable = availability.Enable
 				menuList = append(menuList, menu)
 			}

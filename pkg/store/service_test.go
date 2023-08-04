@@ -2,6 +2,7 @@ package store_test
 
 import (
 	"fmt"
+
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/category"
@@ -44,7 +45,6 @@ var _ = Describe("Store Service", func() {
 			&menu.Menu{},
 			&menu.MenusCategories{},
 			&category.Category{},
-			&category.CategoriesProducts{},
 			&product.Product{},
 			&taxes.Tax{},
 			&country.Country{},
