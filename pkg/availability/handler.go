@@ -75,7 +75,7 @@ func (h *Handler) RemoveEntity(c *gin.Context) {
 
 	if err := h.service.RemoveEntity(entity, place, uint(entityID), uint(placeID)); err != nil {
 		shared.LogError("error removing entity", LogHandler, "RemoveEntity", err, entity, entityID, place, placeID)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorEnablingEntity))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorRemovingEntity))
 		return
 	}
 

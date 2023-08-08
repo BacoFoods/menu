@@ -12,6 +12,7 @@ type Place string
 
 const (
 	ErrorEnablingEntity      = "error enabling entity"
+	ErrorRemovingEntity      = "error removing entity"
 	ErrorBadRequest          = "error bad request"
 	ErrorEntityNotFound      = "error entity not found"
 	ErrorPlaceNotFound       = "error place not found"
