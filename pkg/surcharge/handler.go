@@ -24,7 +24,7 @@ func NewHandler(service Service) *Handler {
 // @Param name query string false "Name"
 // @Accept json
 // @Produce json
-// @Success 200 {object} shared.Response
+// @Success 200 {object} object{status=string,data=[]Surcharge}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
@@ -50,4 +50,117 @@ func (h *Handler) Find(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(surcharges))
+}
+
+// Get surcharge
+// @Tags Surcharge
+// @Summary Get surcharge
+// @Description Get surcharge
+// @Param id path string true "Surcharge ID"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=Surcharge}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /surcharges/{id} [get]
+func (h *Handler) Get(c *gin.Context) {
+	id := c.Param("id")
+
+	surcharge, err := h.service.Get(id)
+	if err != nil {
+		shared.LogError("error getting surcharge", LogHandler, "Get", err, id)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(surcharge))
+}
+
+// Create surcharge
+// @Tags Surcharge
+// @Summary Create surcharge
+// @Description Create surcharge
+// @Accept json
+// @Produce json
+// @Param surcharge body Surcharge true "Surcharge"
+// @Success 200 {object} object{status=string,data=Surcharge}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /surcharges [post]
+func (h *Handler) Create(c *gin.Context) {
+	var surcharge Surcharge
+	if err := c.ShouldBindJSON(&surcharge); err != nil {
+		shared.LogError("error binding surcharge", LogHandler, "Create", err, surcharge)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	newSurcharge, err := h.service.Create(&surcharge)
+	if err != nil {
+		shared.LogError("error creating surcharge", LogHandler, "Create", err, surcharge)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(newSurcharge))
+}
+
+// Update surcharge
+// @Tags Surcharge
+// @Summary Update surcharge
+// @Description Update surcharge
+// @Accept json
+// @Produce json
+// @Param id path string true "Surcharge ID"
+// @Param surcharge body Surcharge true "Surcharge"
+// @Success 200 {object} object{status=string,data=Surcharge}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /surcharges/{id} [patch]
+func (h *Handler) Update(c *gin.Context) {
+	id := c.Param("id")
+
+	var surcharge Surcharge
+	if err := c.ShouldBindJSON(&surcharge); err != nil {
+		shared.LogError("error binding surcharge", LogHandler, "Update", err, surcharge)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	newSurcharge, err := h.service.Update(id, &surcharge)
+	if err != nil {
+		shared.LogError("error updating surcharge", LogHandler, "Update", err, surcharge)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(newSurcharge))
+}
+
+// Delete surcharge
+// @Tags Surcharge
+// @Summary Delete surcharge
+// @Description Delete surcharge
+// @Param id path string true "Surcharge ID"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=Surcharge}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /surcharges/{id} [delete]
+func (h *Handler) Delete(c *gin.Context) {
+	id := c.Param("id")
+
+	surcharge, err := h.service.Delete(id)
+	if err != nil {
+		shared.LogError("error deleting surcharge", LogHandler, "Delete", err, id)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(surcharge))
 }

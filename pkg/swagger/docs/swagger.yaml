@@ -94,6 +94,10 @@ definitions:
         type: number
       terms:
         type: string
+      type:
+        type: string
+      value:
+        type: number
     type: object
   menu.Menu:
     properties:
@@ -253,6 +257,23 @@ definitions:
         type: number
       name:
         type: string
+    type: object
+  surcharge.Surcharge:
+    properties:
+      active:
+        type: boolean
+      amount:
+        type: number
+      brand_id:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      percentage:
+        type: number
     type: object
   tables.Table:
     properties:
@@ -3488,7 +3509,16 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/shared.Response'
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/surcharge.Surcharge'
+                  type: array
+                status:
+                  type: string
+              type: object
         "400":
           description: Bad Request
           schema:
@@ -3502,6 +3532,170 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: Find surcharges
+      tags:
+      - Surcharge
+    post:
+      consumes:
+      - application/json
+      description: Create surcharge
+      parameters:
+      - description: Surcharge
+        in: body
+        name: surcharge
+        required: true
+        schema:
+          $ref: '#/definitions/surcharge.Surcharge'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/surcharge.Surcharge'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Create surcharge
+      tags:
+      - Surcharge
+  /surcharges/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete surcharge
+      parameters:
+      - description: Surcharge ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/surcharge.Surcharge'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Delete surcharge
+      tags:
+      - Surcharge
+    get:
+      consumes:
+      - application/json
+      description: Get surcharge
+      parameters:
+      - description: Surcharge ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/surcharge.Surcharge'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Get surcharge
+      tags:
+      - Surcharge
+    patch:
+      consumes:
+      - application/json
+      description: Update surcharge
+      parameters:
+      - description: Surcharge ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Surcharge
+        in: body
+        name: surcharge
+        required: true
+        schema:
+          $ref: '#/definitions/surcharge.Surcharge'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/surcharge.Surcharge'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Update surcharge
       tags:
       - Surcharge
   /tables:

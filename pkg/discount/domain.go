@@ -12,12 +12,19 @@ const (
 	ErrorUpdatingDiscount string = "error updating discount"
 	ErrorDeletingDiscount string = "error deleting discount"
 	ErrorFindingDiscount  string = "error finding discount"
+
+	DiscountTypePercentage DiscountType = "percentage"
+	DiscountTypeValue      DiscountType = "value"
 )
+
+type DiscountType string
 
 type Discount struct {
 	ID          uint           `json:"id,omitempty"`
 	Name        string         `json:"name,omitempty"`
+	Type        DiscountType   `json:"type"`
 	Percentage  float32        `json:"percentage,omitempty"`
+	Value       float32        `json:"value,omitempty"`
 	Description string         `json:"description,omitempty"`
 	Terms       string         `json:"terms,omitempty"`
 	CreatedAt   *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`

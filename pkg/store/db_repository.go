@@ -106,19 +106,23 @@ func (r *DBRepository) AddChannel(storeID string, channel *channel.Channel) (*St
 // FindZonesByStore method for get zones by store
 func (r *DBRepository) FindZonesByStore(storeID string) ([]zones.Zone, error) {
 	var zoneList []zones.Zone
+
 	if err := r.db.Preload(clause.Associations).Where("store_id = ?", storeID).Find(&zoneList).Error; err != nil {
 		shared.LogError("error getting zones", LogDBRepository, "GetZonesByStore", err, storeID)
 		return nil, err
 	}
+
 	return zoneList, nil
 }
 
 // GetZoneByStore method for get zone by store
 func (r *DBRepository) GetZoneByStore(storeID, zoneID string) (*zones.Zone, error) {
 	var zone zones.Zone
+
 	if err := r.db.Preload(clause.Associations).Where("store_id = ? AND id = ?", storeID, zoneID).First(&zone).Error; err != nil {
 		shared.LogError("error getting zone", LogDBRepository, "GetZoneByStore", err, storeID, zoneID)
 		return nil, err
 	}
+
 	return &zone, nil
 }

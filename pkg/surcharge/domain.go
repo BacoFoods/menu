@@ -20,4 +20,8 @@ type Surcharge struct {
 
 type Repository interface {
 	Find(filters map[string]string) ([]Surcharge, error)
+	Get(id string) (*Surcharge, error)
+	Create(surcharge *Surcharge) (*Surcharge, error)
+	Update(id string, surcharge *Surcharge) (*Surcharge, error)
+	Delete(id string) (*Surcharge, error)
 }
