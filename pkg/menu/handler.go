@@ -219,7 +219,6 @@ func (h *Handler) GetByPlace(c *gin.Context) {
 	menuID := c.Param("menu-id")
 
 	menu, err := h.service.GetByPlace(place, placeID, menuID)
-
 	if err != nil {
 		shared.LogError("error getting menu by place", LogHandler, "GetByPlace", err, menu)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingMenu))
