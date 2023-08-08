@@ -408,6 +408,51 @@ paths:
       tags:
       - Availability
   /availability/{entity}/{entity-id}/{place}/{place-id}:
+    delete:
+      description: Remove menu or category
+      parameters:
+      - description: Entity
+        in: path
+        name: entity
+        required: true
+        type: string
+      - description: Entity ID
+        in: path
+        name: entity-id
+        required: true
+        type: string
+      - description: Place
+        in: path
+        name: place
+        required: true
+        type: string
+      - description: Place ID
+        in: path
+        name: place-id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Remove menu or category
+      tags:
+      - Availability
     get:
       consumes:
       - application/json
