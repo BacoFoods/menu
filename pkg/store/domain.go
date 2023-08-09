@@ -20,6 +20,7 @@ const (
 
 type Store struct {
 	ID        uint              `json:"id"`
+	Code      string            `json:"code"`
 	Name      string            `json:"name"`
 	BrandID   *uint             `json:"brand_id"`
 	Enabled   bool              `json:"enabled"`

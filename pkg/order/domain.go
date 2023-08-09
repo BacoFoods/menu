@@ -16,7 +16,7 @@ type Order struct {
 	ChannelID   *uint                 `json:"channel_id"`
 	TableID     *uint                 `json:"table_id"`
 	Comments    string                `json:"comments"`
-	Detail      []OrderDetail         `json:"items"`
+	Detail      []Detail              `json:"items"`
 	Discounts   []discount.Discount   `json:"discounts"`
 	Surcharges  []surcharge.Surcharge `json:"surcharges"`
 	CookingTime int                   `json:"cooking_time"`
@@ -27,7 +27,7 @@ type Order struct {
 	DeletedAt   *gorm.DeletedAt       `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
-type OrderDetail struct {
+type Detail struct {
 	OrderID         *uint           `json:"order_id"`
 	ProductID       *uint           `json:"product_id"`
 	Quantity        int             `json:"quantity"`

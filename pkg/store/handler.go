@@ -34,6 +34,7 @@ func NewHandler(service Service) *Handler {
 // @Description To find stores
 // @Param name query string false "store name"
 // @Param brand-id query string false "brand id"
+// @Param code query string false "store code"
 // @Accept json
 // @Produce json
 // @Success 200 {object} object{status=string,data=[]Store}
@@ -52,6 +53,11 @@ func (h Handler) Find(c *gin.Context) {
 	brandID := c.Query("brand-id")
 	if brandID != "" {
 		query["brand_id"] = brandID
+	}
+
+	code := c.Query("code")
+	if code != "" {
+		query["code"] = code
 	}
 
 	stores, err := h.service.Find(query)
