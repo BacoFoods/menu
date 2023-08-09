@@ -50,15 +50,14 @@ type Menu struct {
 }
 
 type MenusCategories struct {
-	ID         uint           `json:"id"`
-	MenuID     *uint          `json:"menu_id" gorm:"primaryKey"`
-	CategoryID *uint          `json:"category_id" gorm:"primaryKey"`
-	Enable     bool           `json:"enable,omitempty"`
-	StartTime  *time.Time     `json:"start_time,omitempty"`
-	EndTime    *time.Time     `json:"end_time,omitempty"`
-	CreatedAt  *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt  *time.Time     `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt  gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	MenuID     *uint      `json:"menu_id" gorm:"primaryKey"`
+	CategoryID *uint      `json:"category_id" gorm:"primaryKey"`
+	Enable     bool       `json:"enable,omitempty"`
+	StartTime  *time.Time `json:"start_time,omitempty"`
+	EndTime    *time.Time `json:"end_time,omitempty"`
+	CreatedAt  *time.Time `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt  *time.Time `json:"updated_at,omitempty" swaggerignore:"true"`
+	// DeletedAt  gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 // JoinTable this function allows to generate a many2many relation between entities
