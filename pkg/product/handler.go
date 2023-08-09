@@ -4,6 +4,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 const LogHandler string = "pkg/product/handler"
@@ -436,4 +437,43 @@ func (h *Handler) ModifierRemoveProduct(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(modifier))
+}
+
+// ModifierUpdate to handle a request to update a modifier
+// @Tags Modifiers
+// @Summary To update a modifier
+// @Description To update a modifier
+// @Accept json
+// @Produce json
+// @Param id path string true "modifier id"
+// @Param modifier body ModifierDTO true "modifier"
+// @Success 200 {object} object{status=string,data=Modifier}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /modifier/{id} [patch]
+func (h *Handler) ModifierUpdate(c *gin.Context) {
+	modifierID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		shared.LogError("error parsing modifier id", LogHandler, "ModifierUpdate", err, modifierID)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	var body ModifierDTO
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "ModifierUpdate", err, body)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	modifier := body.ToModifier()
+	modifier.ID = uint(modifierID)
+	modifierUpdated, err := h.service.ModifierUpdate(&modifier)
+	if err != nil {
+		shared.LogError("error updating modifier", LogHandler, "ModifierUpdate", err, modifier)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorModifierUpdate))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(modifierUpdated))
 }

@@ -17,6 +17,8 @@ func NewDBRepository(db *gorm.DB) *DBRepository {
 	return &DBRepository{db: db}
 }
 
+// Product methods
+
 // Create method for create a new product in database
 func (r *DBRepository) Create(product *Product) (*Product, error) {
 	if err := r.db.Save(product).Error; err != nil {
@@ -67,10 +69,12 @@ func (r *DBRepository) Update(product *Product) (*Product, error) {
 		shared.LogError("error getting product", LogDBRepository, "Update", err, product)
 		return nil, err
 	}
+
 	if err := r.db.Model(&productDB).Updates(product).Error; err != nil {
 		shared.LogError("error updating product", LogDBRepository, "Update", err, product)
 		return nil, err
 	}
+
 	return &productDB, nil
 }
 
@@ -152,6 +156,23 @@ func (r *DBRepository) UpdateOverriders(ids []uint, field string, value any) err
 	return nil
 }
 
+// GetCategory method for get categories by product id
+func (r *DBRepository) GetCategory(productID string) ([]CategoryDTO, error) {
+	var categories []CategoryDTO
+	if err := r.db.Table("categories as c").
+		Select("c.id as id, c.name as name").
+		Joins("left join categories_products pc on c.id = pc.category_id").
+		Where("pc.product_id = ?", productID).
+		Scan(&categories).Error; err != nil {
+		shared.LogError("error getting categories", LogDBRepository, "GetCategory", err)
+		return nil, err
+	}
+
+	return categories, nil
+}
+
+// Modifier methods
+
 // ModifierCreate method for create a new modifier in database
 func (r *DBRepository) ModifierCreate(modifier *Modifier) (*Modifier, error) {
 	if err := r.db.Save(modifier).Error; err != nil {
@@ -204,17 +225,18 @@ func (r *DBRepository) ModifierRemoveProduct(product *Product, modifier *Modifie
 	return modifier, nil
 }
 
-// GetCategory method for get categories by product id
-func (r *DBRepository) GetCategory(productID string) ([]CategoryDTO, error) {
-	var categories []CategoryDTO
-	if err := r.db.Table("categories as c").
-		Select("c.id as id, c.name as name").
-		Joins("left join categories_products pc on c.id = pc.category_id").
-		Where("pc.product_id = ?", productID).
-		Scan(&categories).Error; err != nil {
-		shared.LogError("error getting categories", LogDBRepository, "GetCategory", err)
+// ModifierUpdate method for update a modifier in database
+func (r *DBRepository) ModifierUpdate(modifier *Modifier) (*Modifier, error) {
+	var modifierDB Modifier
+	if err := r.db.First(&modifierDB, modifier.ID).Error; err != nil {
+		shared.LogError("error getting modifier", LogDBRepository, "UpdateModifier", err, *modifier)
 		return nil, err
 	}
 
-	return categories, nil
+	if err := r.db.Model(&modifierDB).Updates(modifier).Error; err != nil {
+		shared.LogError("error updating modifier", LogDBRepository, "UpdateModifier", err, *modifier)
+		return nil, err
+	}
+
+	return &modifierDB, nil
 }

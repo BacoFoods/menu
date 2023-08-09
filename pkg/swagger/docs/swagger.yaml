@@ -184,6 +184,8 @@ definitions:
         type: number
       brand_id:
         type: integer
+      category:
+        type: string
       description:
         type: string
       id:
@@ -194,6 +196,19 @@ definitions:
         type: string
     required:
     - brand_id
+    type: object
+  product.ModifierDTO:
+    properties:
+      apply_price:
+        type: number
+      category:
+        type: string
+      description:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
     type: object
   product.Product:
     properties:
@@ -2465,6 +2480,48 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To create a modifier
+      tags:
+      - Modifiers
+  /modifier/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: To update a modifier
+      parameters:
+      - description: modifier id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: modifier
+        in: body
+        name: modifier
+        required: true
+        schema:
+          $ref: '#/definitions/product.ModifierDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/product.Modifier'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update a modifier
       tags:
       - Modifiers
   /modifier/{id}/product/{productID}:

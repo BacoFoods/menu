@@ -16,6 +16,7 @@ type Service interface {
 	ModifierCreate(*Modifier) (*Modifier, error)
 	ModifierAddProduct(productID, modifierID string) (*Modifier, error)
 	ModifierRemoveProduct(productID, modifierID string) (*Modifier, error)
+	ModifierUpdate(*Modifier) (*Modifier, error)
 }
 
 type service struct {
@@ -125,4 +126,8 @@ func (s service) UpdateAllOverriders(productID, field string, value any) error {
 	}
 
 	return s.repository.UpdateOverriders(overridersIDs, field, value)
+}
+
+func (s service) ModifierUpdate(modifier *Modifier) (*Modifier, error) {
+	return s.repository.ModifierUpdate(modifier)
 }

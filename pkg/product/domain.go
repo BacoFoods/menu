@@ -24,6 +24,7 @@ const (
 	ErrorModifierAddingProduct   string = "error adding product to modifier"
 	ErrorModifierRemovingProduct string = "error removing product from modifier"
 	ErrorModifierGetting         string = "error getting modifiers"
+	ErrorModifierUpdate          string = "error updating modifier"
 
 	LogDomain string = "pkg/product/domain"
 )
@@ -54,12 +55,15 @@ type Modifier struct {
 	Description string          `json:"description"`
 	Image       string          `json:"image"`
 	ApplyPrice  float32         `json:"apply_price" gorm:"precision:18;scale:2"`
+	Category    Category        `json:"category"`
 	Products    []Product       `json:"products" swaggerignore:"true" gorm:"many2many:modifier_products;"`
 	BrandID     *uint           `json:"brand_id" binding:"required"`
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
+
+type Category string
 
 type Repository interface {
 	Create(*Product) (*Product, error)
@@ -80,6 +84,7 @@ type Repository interface {
 	ModifierFind(map[string]string) ([]Modifier, error)
 	ModifierAddProduct(product *Product, modifier *Modifier) (*Modifier, error)
 	ModifierRemoveProduct(product *Product, modifier *Modifier) (*Modifier, error)
+	ModifierUpdate(*Modifier) (*Modifier, error)
 }
 
 type Entity struct {

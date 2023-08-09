@@ -27,5 +27,6 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 	router.GET("/modifier", r.handler.ModifierFind)
 	router.POST("/modifier", r.handler.ModifierCreate)
 	router.POST("/modifier/:id/product/:productID", r.handler.ModifierAddProduct)
+	router.PATCH("/modifier/:id", r.handler.ModifierUpdate)
 	router.DELETE("/modifier/:id/product/:productID", r.handler.ModifierRemoveProduct)
 }
