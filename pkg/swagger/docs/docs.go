@@ -4481,6 +4481,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "example": "price, enable",
                         "description": "field",
                         "name": "field",
                         "in": "query",

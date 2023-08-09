@@ -3161,6 +3161,7 @@ paths:
         required: true
         type: string
       - description: field
+        example: price, enable
         in: query
         name: field
         required: true

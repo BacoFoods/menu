@@ -225,7 +225,7 @@ func (h *Handler) RemoveModifier(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "product id"
-// @Param field query string true "field"
+// @Param field query string true "field" example(price, enable)
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
