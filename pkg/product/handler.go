@@ -429,7 +429,7 @@ func (h *Handler) ModifierRemoveProduct(c *gin.Context) {
 	modifierID := c.Param("id")
 	productID := c.Param("productID")
 
-	modifier, err := h.service.ModifierRemoveProduct(modifierID, productID)
+	modifier, err := h.service.ModifierRemoveProduct(productID, modifierID)
 	if err != nil {
 		shared.LogError("error removing product from modifier", LogHandler, "ModifierRemoveProduct", err, modifier)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorModifierRemovingProduct))
