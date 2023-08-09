@@ -2,7 +2,9 @@ package product
 
 type Overrider struct {
 	ID         string `json:"id"`
+	ProductID  uint   `json:"product_id"`
 	PlaceName  string `json:"place_name"`
+	PlaceID    uint   `json:"place_id"`
 	FieldValue string `json:"field_value"`
 }
 

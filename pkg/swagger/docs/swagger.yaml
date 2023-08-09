@@ -244,8 +244,10 @@ definitions:
   product.RequestUpdateOverriders:
     properties:
       field:
+        example: price
         type: string
       value:
+        example: "10000"
         type: string
     type: object
   shared.Response:
@@ -3161,11 +3163,11 @@ paths:
         required: true
         type: string
       - description: field
-        example: price, enable
         in: query
         name: field
         required: true
         type: string
+        x-example: price
       produces:
       - application/json
       responses:

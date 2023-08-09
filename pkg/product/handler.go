@@ -10,8 +10,8 @@ import (
 const LogHandler string = "pkg/product/handler"
 
 type RequestUpdateOverriders struct {
-	Field string `json:"field"`
-	Value string `json:"value"`
+	Field string `json:"field" example:"price"`
+	Value string `json:"value" example:"10000"`
 }
 
 type Handler struct {
@@ -225,7 +225,7 @@ func (h *Handler) RemoveModifier(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "product id"
-// @Param field query string true "field" example(price, enable)
+// @Param field query string true "field" extensions(x-example=price)
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response

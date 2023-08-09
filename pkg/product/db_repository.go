@@ -119,7 +119,7 @@ func (r *DBRepository) GetOverriders(productID, field string) ([]Overrider, erro
 	var overriders []Overrider
 
 	if err := r.db.Table("overriders as o").
-		Select(fmt.Sprintf("o.id as id, c.name as place_name, o.%s as field_value", field)).
+		Select(fmt.Sprintf("o.id as id, o.product_id as product_id, c.name as place_name, c.id as place_id, o.%s as field_value", field)).
 		Joins("left join channels c on o.place_id = c.id").
 		Where("o.product_id = ?", productID).
 		Scan(&overriders).Error; err != nil {

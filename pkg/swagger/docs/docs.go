@@ -4481,7 +4481,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "example": "price, enable",
+                        "x-example": "price",
                         "description": "field",
                         "name": "field",
                         "in": "query",
@@ -6949,10 +6949,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "field": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "price"
                 },
                 "value": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "10000"
                 }
             }
         },
