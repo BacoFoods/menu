@@ -1233,6 +1233,12 @@ const docTemplate = `{
                         "description": "store id",
                         "name": "store-id",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "brand id",
+                        "name": "brand-id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3596,6 +3602,73 @@ const docTemplate = `{
                 }
             }
         },
+        "/order": {
+            "post": {
+                "description": "To create an order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To create an order",
+                "parameters": [
+                    {
+                        "description": "Order",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.OrderTDP"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/order.Order"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/overriders": {
             "get": {
                 "description": "To find overriders",
@@ -4614,6 +4687,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "brand id",
                         "name": "brand-id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "store code",
+                        "name": "code",
                         "in": "query"
                     }
                 ],
@@ -6646,7 +6725,13 @@ const docTemplate = `{
         },
         "channel.Channel": {
             "type": "object",
+            "required": [
+                "brand_id"
+            ],
             "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
                 "enabled": {
                     "type": "boolean"
                 },
@@ -6707,6 +6792,12 @@ const docTemplate = `{
         "discount.Discount": {
             "type": "object",
             "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "channel_id": {
+                    "type": "integer"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -6719,6 +6810,9 @@ const docTemplate = `{
                 "percentage": {
                     "type": "number"
                 },
+                "store_id": {
+                    "type": "integer"
+                },
                 "terms": {
                     "type": "string"
                 },
@@ -6727,6 +6821,17 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "number"
+                }
+            }
+        },
+        "invoice.Invoice": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "order_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -6811,6 +6916,307 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                }
+            }
+        },
+        "order.Order": {
+            "type": "object",
+            "required": [
+                "brand_id",
+                "channel_id",
+                "store_id"
+            ],
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "channel_id": {
+                    "type": "integer"
+                },
+                "comments": {
+                    "type": "string"
+                },
+                "cooking_time": {
+                    "type": "integer"
+                },
+                "current_status": {
+                    "type": "string"
+                },
+                "discounts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.OrderDiscount"
+                    }
+                },
+                "external_code": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "invoice": {
+                    "$ref": "#/definitions/invoice.Invoice"
+                },
+                "invoice_id": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.OrderItem"
+                    }
+                },
+                "order_type": {
+                    "type": "string"
+                },
+                "seats": {
+                    "type": "integer"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "surcharges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.OrderSurcharge"
+                    }
+                },
+                "table": {
+                    "$ref": "#/definitions/tables.Table"
+                },
+                "table_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "order.OrderDetailTDP": {
+            "type": "object",
+            "required": [
+                "product_id",
+                "quantity"
+            ],
+            "properties": {
+                "comments": {
+                    "type": "string"
+                },
+                "course": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "order.OrderDiscount": {
+            "type": "object",
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "channel_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "integer"
+                },
+                "percentage": {
+                    "type": "number"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "terms": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "order.OrderItem": {
+            "type": "object",
+            "properties": {
+                "comments": {
+                    "type": "string"
+                },
+                "course": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "discount_reason": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "modifiers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.OrderModifier"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product": {
+                    "$ref": "#/definitions/product.Product"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "surcharge": {
+                    "type": "number"
+                },
+                "surcharge_reason": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "order.OrderModifier": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "comments": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order_item_id": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "sku": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "order.OrderSurcharge": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "amount": {
+                    "type": "number"
+                },
+                "brand_id": {
+                    "type": "integer"
+                },
+                "channel_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "integer"
+                },
+                "percentage": {
+                    "type": "number"
+                },
+                "store_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "order.OrderTDP": {
+            "type": "object",
+            "required": [
+                "brand_id",
+                "channel_id",
+                "store_id"
+            ],
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "channel_id": {
+                    "type": "integer"
+                },
+                "comments": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.OrderDetailTDP"
+                    }
+                },
+                "order_type": {
+                    "type": "string"
+                },
+                "seats": {
+                    "type": "integer"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "table_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -6976,6 +7382,9 @@ const docTemplate = `{
                 "brand_id": {
                     "type": "integer"
                 },
+                "code": {
+                    "type": "string"
+                },
                 "enabled": {
                     "type": "boolean"
                 },
@@ -7008,6 +7417,9 @@ const docTemplate = `{
                 "brand_id": {
                     "type": "integer"
                 },
+                "channel_id": {
+                    "type": "integer"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -7019,6 +7431,9 @@ const docTemplate = `{
                 },
                 "percentage": {
                     "type": "number"
+                },
+                "store_id": {
+                    "type": "integer"
                 }
             }
         },

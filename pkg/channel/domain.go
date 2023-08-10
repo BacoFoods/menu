@@ -19,7 +19,8 @@ type Channel struct {
 	Name         string          `json:"name"`
 	ShortName    string          `json:"short_name"`
 	Enabled      bool            `json:"enabled"`
-	ShippingCost float64         `json:"shipping_cost,omitempty"`
+	ShippingCost float64         `json:"shipping_cost,omitempty" gorm:"precision:18;scale:2"`
+	BrandID      *uint           `json:"brand_id" binding:"required"`
 	CreatedAt    *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt    *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt    *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`

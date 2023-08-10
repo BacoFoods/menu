@@ -23,10 +23,13 @@ type Discount struct {
 	ID          uint           `json:"id,omitempty"`
 	Name        string         `json:"name,omitempty"`
 	Type        DiscountType   `json:"type"`
-	Percentage  float32        `json:"percentage,omitempty"`
-	Value       float32        `json:"value,omitempty"`
+	Percentage  float32        `json:"percentage,omitempty" gorm:"precision:18;scale:2"`
+	Value       float32        `json:"value,omitempty" gorm:"precision:18;scale:2"`
 	Description string         `json:"description,omitempty"`
 	Terms       string         `json:"terms,omitempty"`
+	ChannelID   *uint          `json:"channel_id,omitempty"`
+	StoreID     *uint          `json:"store_id,omitempty"`
+	BrandID     *uint          `json:"brand_id,omitempty"`
 	CreatedAt   *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time     `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`

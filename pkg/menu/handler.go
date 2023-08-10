@@ -199,7 +199,7 @@ func (h *Handler) ListByPlace(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(menus))
 }
 
-// GetByPlace to handle a request to get a menu by place and load overriders
+// GetByPlace to handle a request to get a menu by place and load overriders and availabilities
 // @Tags Menu
 // @Summary To get a menu by place and load overriders
 // @Description To get a menu by place and load overriders

@@ -17,7 +17,7 @@ type ModifierDTO struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	Image       string   `json:"image"`
-	ApplyPrice  float32  `json:"apply_price"`
+	ApplyPrice  float32  `json:"apply_price" gorm:"precision:18;scale:2"`
 	Category    Category `json:"category"`
 }
 

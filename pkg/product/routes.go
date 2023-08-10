@@ -7,7 +7,7 @@ type Routes struct {
 }
 
 func NewRoutes(handler *Handler) Routes {
-	return Routes{handler: handler}
+	return Routes{handler}
 }
 
 func (r Routes) RegisterRoutes(router *gin.RouterGroup) {

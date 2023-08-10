@@ -45,6 +45,8 @@ definitions:
     type: object
   channel.Channel:
     properties:
+      brand_id:
+        type: integer
       enabled:
         type: boolean
       id:
@@ -55,6 +57,8 @@ definitions:
         type: number
       short_name:
         type: string
+    required:
+    - brand_id
     type: object
   country.Country:
     properties:
@@ -84,6 +88,10 @@ definitions:
     type: object
   discount.Discount:
     properties:
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
       description:
         type: string
       id:
@@ -92,12 +100,21 @@ definitions:
         type: string
       percentage:
         type: number
+      store_id:
+        type: integer
       terms:
         type: string
       type:
         type: string
       value:
         type: number
+    type: object
+  invoice.Invoice:
+    properties:
+      id:
+        type: integer
+      order_id:
+        type: integer
     type: object
   menu.Menu:
     properties:
@@ -154,6 +171,206 @@ definitions:
     - name
     - place
     - place_id
+    type: object
+  order.Order:
+    properties:
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
+      comments:
+        type: string
+      cooking_time:
+        type: integer
+      current_status:
+        type: string
+      discounts:
+        items:
+          $ref: '#/definitions/order.OrderDiscount'
+        type: array
+      external_code:
+        type: string
+      id:
+        type: integer
+      invoice:
+        $ref: '#/definitions/invoice.Invoice'
+      invoice_id:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/order.OrderItem'
+        type: array
+      order_type:
+        type: string
+      seats:
+        type: integer
+      store_id:
+        type: integer
+      surcharges:
+        items:
+          $ref: '#/definitions/order.OrderSurcharge'
+        type: array
+      table:
+        $ref: '#/definitions/tables.Table'
+      table_id:
+        type: integer
+    required:
+    - brand_id
+    - channel_id
+    - store_id
+    type: object
+  order.OrderDetailTDP:
+    properties:
+      comments:
+        type: string
+      course:
+        type: string
+      product_id:
+        type: integer
+      quantity:
+        type: integer
+    required:
+    - product_id
+    - quantity
+    type: object
+  order.OrderDiscount:
+    properties:
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      order_id:
+        type: integer
+      percentage:
+        type: number
+      store_id:
+        type: integer
+      terms:
+        type: string
+      type:
+        type: string
+      value:
+        type: number
+    type: object
+  order.OrderItem:
+    properties:
+      comments:
+        type: string
+      course:
+        type: string
+      description:
+        type: string
+      discount:
+        type: number
+      discount_reason:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      modifiers:
+        items:
+          $ref: '#/definitions/order.OrderModifier'
+        type: array
+      name:
+        type: string
+      order_id:
+        type: integer
+      price:
+        type: number
+      product:
+        $ref: '#/definitions/product.Product'
+      product_id:
+        type: integer
+      quantity:
+        type: integer
+      sku:
+        type: string
+      surcharge:
+        type: number
+      surcharge_reason:
+        type: string
+      unit:
+        type: string
+    type: object
+  order.OrderModifier:
+    properties:
+      category:
+        type: string
+      comments:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      name:
+        type: string
+      order_item_id:
+        type: integer
+      price:
+        type: number
+      product_id:
+        type: integer
+      sku:
+        type: string
+      unit:
+        type: string
+    type: object
+  order.OrderSurcharge:
+    properties:
+      active:
+        type: boolean
+      amount:
+        type: number
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      order_id:
+        type: integer
+      percentage:
+        type: number
+      store_id:
+        type: integer
+    type: object
+  order.OrderTDP:
+    properties:
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
+      comments:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/order.OrderDetailTDP'
+        type: array
+      order_type:
+        type: string
+      seats:
+        type: integer
+      store_id:
+        type: integer
+      table_id:
+        type: integer
+    required:
+    - brand_id
+    - channel_id
+    - store_id
     type: object
   overriders.Overriders:
     properties:
@@ -262,6 +479,8 @@ definitions:
         type: string
       brand_id:
         type: integer
+      code:
+        type: string
       enabled:
         type: boolean
       id:
@@ -283,6 +502,8 @@ definitions:
         type: number
       brand_id:
         type: integer
+      channel_id:
+        type: integer
       description:
         type: string
       id:
@@ -291,6 +512,8 @@ definitions:
         type: string
       percentage:
         type: number
+      store_id:
+        type: integer
     type: object
   tables.Table:
     properties:
@@ -1149,6 +1372,10 @@ paths:
       - description: store id
         in: query
         name: store-id
+        type: string
+      - description: brand id
+        in: query
+        name: brand-id
         type: string
       produces:
       - application/json
@@ -2615,6 +2842,47 @@ paths:
       summary: To add a product to a modifier
       tags:
       - Modifiers
+  /order:
+    post:
+      consumes:
+      - application/json
+      description: To create an order
+      parameters:
+      - description: Order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/order.OrderTDP'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create an order
+      tags:
+      - Order
   /overriders:
     get:
       consumes:
@@ -3249,6 +3517,10 @@ paths:
       - description: brand id
         in: query
         name: brand-id
+        type: string
+      - description: store code
+        in: query
+        name: code
         type: string
       produces:
       - application/json

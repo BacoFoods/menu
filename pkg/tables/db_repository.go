@@ -1,6 +1,7 @@
 package tables
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 )
@@ -74,4 +75,28 @@ func (r DBRepository) Delete(id string) error {
 	}
 
 	return nil
+}
+
+func (r DBRepository) SetOrder(tableID, orderID *uint) (*Table, error) {
+	var table Table
+	if err := r.db.First(&table, tableID).Error; err != nil {
+		shared.LogError(ErrorTableUpdating, LogRepository, "SetOrder", err, *tableID, *orderID)
+		return nil, err
+	}
+
+	if table.OrderID != nil && table.OrderID == orderID {
+		return &table, nil
+	}
+
+	if table.OrderID != nil && table.OrderID != orderID {
+		shared.LogError(ErrorTableHasOrder, LogRepository, "SetOrder", nil, *tableID, *orderID)
+		return nil, fmt.Errorf(ErrorTableHasOrder)
+	}
+
+	if err := r.db.Model(&table).Update("order_id", orderID).Error; err != nil {
+		shared.LogError(ErrorTableUpdating, LogRepository, "SetOrder", err, *tableID, *orderID)
+		return nil, err
+	}
+
+	return &table, nil
 }

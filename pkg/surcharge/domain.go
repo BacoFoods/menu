@@ -6,13 +6,15 @@ import (
 )
 
 type Surcharge struct {
-	ID          *uint           `json:"id"`
+	ID          uint            `json:"id"`
 	Name        string          `json:"name"`
 	Description string          `json:"description"`
-	Percentage  float64         `json:"percentage"`
-	Amount      float64         `json:"amount"`
+	Percentage  float64         `json:"percentage" gorm:"precision:18;scale:2"`
+	Amount      float64         `json:"amount" gorm:"precision:18;scale:2"`
 	Active      bool            `json:"active"`
-	BrandID     uint            `json:"brand_id"`
+	ChannelID   *uint           `json:"channel_id,omitempty"`
+	StoreID     *uint           `json:"store_id,omitempty"`
+	BrandID     *uint           `json:"brand_id,omitempty"`
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`

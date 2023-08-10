@@ -12,10 +12,11 @@ const (
 	ErrorTableCreating = "error creating table"
 	ErrorTableGetting  = "error getting table"
 	ErrorTableFinding  = "error finding table"
+	ErrorTableHasOrder = "error table already has an order"
 )
 
 type Table struct {
-	ID          *uint           `json:"id,omitempty"`
+	ID          uint            `json:"id,omitempty"`
 	DisplayID   string          `json:"display_id" binding:"required"`
 	DisplayName string          `json:"display_name" binding:"required"`
 	Number      int             `json:"number" binding:"required"`
@@ -35,4 +36,5 @@ type Repository interface {
 	Create(table *Table) (*Table, error)
 	Update(id string, table *Table) (*Table, error)
 	Delete(id string) error
+	SetOrder(tableID, orderID *uint) (*Table, error)
 }

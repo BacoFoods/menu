@@ -12,7 +12,9 @@ import (
 	"github.com/BacoFoods/menu/pkg/database"
 	"github.com/BacoFoods/menu/pkg/discount"
 	"github.com/BacoFoods/menu/pkg/healthcheck"
+	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/menu"
+	"github.com/BacoFoods/menu/pkg/order"
 	"github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/router"
@@ -49,6 +51,14 @@ func main() {
 		&channel.Channel{},
 		&overriders.Overriders{},
 		&availability.Availability{},
+		&order.Order{},
+		&order.OrderItem{},
+		&order.OrderModifier{},
+		&order.OrderType{},
+		&order.OrderStatus{},
+		&order.OrderDiscount{},
+		&order.OrderSurcharge{},
+		&invoice.Invoice{},
 	)
 
 	// Healthcheck
@@ -148,6 +158,12 @@ func main() {
 	brandHandler := brand.NewHandler(brandService)
 	brandRoutes := brand.NewRoutes(brandHandler)
 
+	// Order
+	orderRepository := order.NewDBRepository(gormDB)
+	orderService := order.NewService(orderRepository, tablesRepository)
+	orderHandler := order.NewHandler(orderService)
+	orderRoutes := order.NewRoutes(orderHandler)
+
 	// Routes
 	routes := &router.RoutesGroup{
 		HealthCheck:  healthcheckRoutes,
@@ -167,6 +183,7 @@ func main() {
 		Table:        tablesRoutes,
 		Channel:      channelRoutes,
 		Availability: availabilityRoutes,
+		Order:        orderRoutes,
 	}
 
 	// Run server

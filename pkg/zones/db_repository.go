@@ -106,7 +106,7 @@ func (r *DBRepository) AddTables(zone *Zone, tables []uint) error {
 // RemoveTables method for remove tables to zone in database
 func (r *DBRepository) RemoveTables(zone *Zone, tables []uint) error {
 	var tablesDB []tablesPKG.Table
-	if err := r.db.Where("zone_id = ?", *zone.ID).Find(&tablesDB, tables).Error; err != nil {
+	if err := r.db.Where("zone_id = ?", zone.ID).Find(&tablesDB, tables).Error; err != nil {
 		shared.LogError("Error finding tables", LogDBRepository, "RemoveTables", err, tables)
 		return err
 	}

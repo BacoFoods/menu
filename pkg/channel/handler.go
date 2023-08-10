@@ -22,6 +22,7 @@ func NewHandler(service Service) *Handler {
 // @Description To find channels
 // @Param name query string false "channel name"
 // @Param store-id query string false "store id"
+// @Param brand-id query string false "brand id"
 // @Accept json
 // @Produce json
 // @Success 200 {object} object{status=string,data=[]Channel}
@@ -40,6 +41,11 @@ func (h *Handler) Find(c *gin.Context) {
 	storeID := c.Query("store-id")
 	if storeID != "" {
 		query["store_id"] = storeID
+	}
+
+	brandID := c.Query("brand-id")
+	if brandID != "" {
+		query["brand_id"] = brandID
 	}
 
 	channels, err := h.service.Find(query)

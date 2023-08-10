@@ -17,7 +17,7 @@ const (
 )
 
 type Zone struct {
-	ID      *uint          `json:"id"`
+	ID      uint           `json:"id"`
 	Name    string         `json:"name"`
 	Tables  []tables.Table `json:"tables" gorm:"foreignKey:ZoneID"`
 	StoreID *uint          `json:"store_id"`
