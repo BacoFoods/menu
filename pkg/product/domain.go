@@ -26,6 +26,12 @@ const (
 	ErrorModifierGetting         string = "error getting modifiers"
 	ErrorModifierUpdate          string = "error updating modifier"
 
+	ErrorOverriderCreating string = "error creating overriders"
+	ErrorOverriderFinding  string = "error finding overriders"
+	ErrorOverriderGetting  string = "error getting overriders"
+	ErrorOverriderUpdating string = "error updating overriders"
+	ErrorOverriderDeleting string = "error deleting overriders"
+
 	LogDomain string = "pkg/product/domain"
 )
 
@@ -63,6 +69,24 @@ type Modifier struct {
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
+type Overrider struct {
+	ID          uint               `json:"id"`
+	ProductID   *uint              `json:"product_id"`
+	Product     *Product           `json:"product,omitempty" gorm:"foreignKey:ProductID" swaggerignore:"true"`
+	Place       string             `json:"place"`
+	PlaceID     *uint              `json:"place_id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Image       string             `json:"image"`
+	Price       float64            `json:"price" gorm:"precision:18;scale:2"`
+	Enable      bool               `json:"enable"`
+	DiscountID  *uint              `json:"discount_id"`
+	Discount    *discount.Discount `json:"discount" gorm:"foreignKey:DiscountID" swaggerignore:"true"`
+	CreatedAt   *time.Time         `json:"created_at" swaggerignore:"true"`
+	UpdatedAt   *time.Time         `json:"updated_at" swaggerignore:"true"`
+	DeletedAt   *gorm.DeletedAt    `json:"deleted_at" swaggerignore:"true"`
+}
+
 type Category string
 
 type Repository interface {
@@ -74,7 +98,7 @@ type Repository interface {
 	Delete(string) (*Product, error)
 	AddModifier(product *Product, modifier *Modifier) (*Product, error)
 	RemoveModifier(product *Product, modifier *Modifier) (*Product, error)
-	GetOverriders(productID, field string) ([]Overrider, error)
+	GetOverriders(productID, field string) ([]OverriderDTO, error)
 	GetOverriderIDs(productID string) ([]uint, error)
 	UpdateOverriders(ids []uint, field string, value any) error
 	GetCategory(productID string) ([]CategoryDTO, error)
@@ -85,6 +109,14 @@ type Repository interface {
 	ModifierAddProduct(product *Product, modifier *Modifier) (*Modifier, error)
 	ModifierRemoveProduct(product *Product, modifier *Modifier) (*Modifier, error)
 	ModifierUpdate(*Modifier) (*Modifier, error)
+
+	OverriderCreate(*Overrider) (*Overrider, error)
+	OverriderCreateAll([]Overrider) error
+	OverriderFind(map[string]string) ([]Overrider, error)
+	OverriderGet(string) (*Overrider, error)
+	OverriderUpdate(*Overrider) (*Overrider, error)
+	OverriderDelete(string) (*Overrider, error)
+	OverriderFindByPlace(string, string) ([]Overrider, error)
 }
 
 type Entity struct {

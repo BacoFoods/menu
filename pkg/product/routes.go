@@ -10,23 +10,30 @@ func NewRoutes(handler *Handler) Routes {
 	return Routes{handler}
 }
 
-func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
+func (r Routes) RegisterRoutes(private *gin.RouterGroup) {
 	// Products
-	router.GET("/product", r.handler.Find)
-	router.GET("/product/:id", r.handler.Get)
-	router.POST("/product", r.handler.Create)
-	router.PATCH("/product/:id", r.handler.Update)
-	router.DELETE("/product/:id", r.handler.Delete)
-	router.POST("/product/:id/modifier/:modifierID", r.handler.AddModifier)
-	router.DELETE("/product/:id/modifier/:modifierID", r.handler.RemoveModifier)
-	router.GET("/product/:id/overrider", r.handler.GetOverridersByField)
-	router.PATCH("/product/:id/overrider/update-all", r.handler.UpdateAllOverriders)
-	router.GET("/product/:id/category", r.handler.GetCategories)
+	private.GET("/product", r.handler.Find)
+	private.GET("/product/:id", r.handler.Get)
+	private.POST("/product", r.handler.Create)
+	private.PATCH("/product/:id", r.handler.Update)
+	private.DELETE("/product/:id", r.handler.Delete)
+	private.POST("/product/:id/modifier/:modifierID", r.handler.AddModifier)
+	private.DELETE("/product/:id/modifier/:modifierID", r.handler.RemoveModifier)
+	private.GET("/product/:id/overrider", r.handler.GetOverridersByField)
+	private.PATCH("/product/:id/overrider/update-all", r.handler.UpdateAllOverriders)
+	private.GET("/product/:id/category", r.handler.GetCategories)
 
 	// Modifiers
-	router.GET("/modifier", r.handler.ModifierFind)
-	router.POST("/modifier", r.handler.ModifierCreate)
-	router.POST("/modifier/:id/product/:productID", r.handler.ModifierAddProduct)
-	router.PATCH("/modifier/:id", r.handler.ModifierUpdate)
-	router.DELETE("/modifier/:id/product/:productID", r.handler.ModifierRemoveProduct)
+	private.GET("/modifier", r.handler.ModifierFind)
+	private.POST("/modifier", r.handler.ModifierCreate)
+	private.POST("/modifier/:id/product/:productID", r.handler.ModifierAddProduct)
+	private.PATCH("/modifier/:id", r.handler.ModifierUpdate)
+	private.DELETE("/modifier/:id/product/:productID", r.handler.ModifierRemoveProduct)
+
+	// Overriders
+	private.GET("/overrider", r.handler.OverriderFind)
+	private.GET("/overrider/:id", r.handler.OverriderGet)
+	private.POST("/overrider", r.handler.OverriderCreate)
+	private.PATCH("/overrider/:id", r.handler.OverriderUpdate)
+	private.DELETE("/overrider/:id", r.handler.OverriderDelete)
 }

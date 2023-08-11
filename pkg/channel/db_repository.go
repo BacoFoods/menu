@@ -31,6 +31,7 @@ func (r *DBRepository) Find(filters map[string]string) ([]Channel, error) {
 		shared.LogError("error getting channels", LogDBRepository, "Find", err, filters)
 		return nil, err
 	}
+
 	return channels, nil
 }
 

@@ -22,6 +22,8 @@ func NewHandler(service Service) *Handler {
 	return &Handler{service: service}
 }
 
+// Product
+
 // Find to handle a request to find all products
 // @Tags Product
 // @Summary To find products
@@ -85,7 +87,10 @@ func (h *Handler) Get(c *gin.Context) {
 // Create to handle a request to create a product
 // @Tags Product
 // @Summary To create a product
-// @Description To create a product
+// @Description This endpoint creates a product and makes an association with all store channels to this product to allow
+//
+//	the product to be available in all channels by default with ove
+//
 // @Accept json
 // @Produce json
 // @Param product body Product true "product"
@@ -225,7 +230,7 @@ func (h *Handler) RemoveModifier(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "product id"
-// @Param field query string true "field" extensions(x-example=price)
+// @Param field query string false "field" extensions(x-example=price)
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -476,4 +481,146 @@ func (h *Handler) ModifierUpdate(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(modifierUpdated))
+}
+
+// Overriders
+
+// OverriderFind to handle a request to find all overriders
+// @Tags Overrider
+// @Summary To find overrider
+// @Description To find overrider
+// @Param name query string false "overrider name"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=[]Overrider}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /overrider [get]
+func (h *Handler) OverriderFind(c *gin.Context) {
+	query := make(map[string]string)
+	name := c.Query("name")
+	if name != "" {
+		query["name"] = c.Query("name")
+	}
+
+	overriders, err := h.service.OverriderFind(query)
+	if err != nil {
+		shared.LogError("error finding overriders", LogHandler, "OverriderFind", err, overriders)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOverriderFinding))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(overriders))
+}
+
+// OverriderGet to handle a request to get an overrider
+// @Tags Overrider
+// @Summary To get an overrider
+// @Description To get an overrider
+// @Param id path string true "overrider id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=Overrider}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /overrider/{id} [get]
+func (h *Handler) OverriderGet(c *gin.Context) {
+	overriderID := c.Param("id")
+
+	overrider, err := h.service.OverriderGet(overriderID)
+	if err != nil {
+		shared.LogError("error getting overrider", LogHandler, "OverriderGet", err, overrider)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOverriderGetting))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(overrider))
+}
+
+// OverriderCreate to handle a request to create an overrider
+// @Tags Overrider
+// @Summary To create an overrider
+// @Description To create an overrider
+// @Accept json
+// @Produce json
+// @Param overriders body Overrider true "overrider"
+// @Success 200 {object} object{status=string,data=Overrider}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /overrider [post]
+func (h *Handler) OverriderCreate(c *gin.Context) {
+	var request Overrider
+	if err := c.ShouldBindJSON(&request); err != nil {
+		shared.LogWarn("warning binding overrider", LogHandler, "OverriderCreate", err, request)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	overrider, err := h.service.OverriderCreate(&request)
+	if err != nil {
+		shared.LogError("error creating overrider", LogHandler, "OverriderCreate", err, request)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOverriderCreating))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(overrider))
+}
+
+// OverriderUpdate to handle a request to update an overrider
+// @Tags Overrider
+// @Summary To update an overrider
+// @Description To update an overrider
+// @Accept json
+// @Produce json
+// @Param id path string true "overrider id"
+// @Param overriders body Overrider true "overrider"
+// @Success 200 {object} object{status=string,data=Overrider}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /overrider/{id} [patch]
+func (h *Handler) OverriderUpdate(c *gin.Context) {
+	var request Overrider
+	if err := c.ShouldBindJSON(&request); err != nil {
+		shared.LogWarn("warning binding overrider", LogHandler, "OverriderUpdate", err, request)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	overrider, err := h.service.OverriderUpdate(&request)
+	if err != nil {
+		shared.LogError("error updating overrider", LogHandler, "Update", err, request)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOverriderUpdating))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(overrider))
+}
+
+// OverriderDelete to handle a request to delete an overrider
+// @Tags Overrider
+// @Summary To delete an overrider
+// @Description To delete an overrider
+// @Param id path string true "overrider id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=Overrider}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /overrider/{id} [delete]
+func (h *Handler) OverriderDelete(c *gin.Context) {
+	overriderID := c.Param("id")
+
+	overrider, err := h.service.Delete(overriderID)
+	if err != nil {
+		shared.LogError("error deleting overrider", LogHandler, "OverriderDelete", err, overrider)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOverriderDeleting))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(overrider))
 }

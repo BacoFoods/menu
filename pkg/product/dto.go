@@ -1,6 +1,6 @@
 package product
 
-type Overrider struct {
+type OverriderDTO struct {
 	ID         string `json:"id"`
 	ProductID  uint   `json:"product_id"`
 	PlaceName  string `json:"place_name"`

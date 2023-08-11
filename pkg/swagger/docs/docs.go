@@ -3669,9 +3669,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/overriders": {
+        "/overrider": {
             "get": {
-                "description": "To find overriders",
+                "description": "To find overrider",
                 "consumes": [
                     "application/json"
                 ],
@@ -3679,13 +3679,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Overriders"
+                    "Overrider"
                 ],
-                "summary": "To find overriders",
+                "summary": "To find overrider",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "overriders name",
+                        "description": "overrider name",
                         "name": "name",
                         "in": "query"
                     }
@@ -3704,7 +3704,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/overriders.Overriders"
+                                                "$ref": "#/definitions/product.Overrider"
                                             }
                                         },
                                         "status": {
@@ -3736,7 +3736,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "To create an overriders",
+                "description": "To create an overrider",
                 "consumes": [
                     "application/json"
                 ],
@@ -3744,17 +3744,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Overriders"
+                    "Overrider"
                 ],
-                "summary": "To create an overriders",
+                "summary": "To create an overrider",
                 "parameters": [
                     {
-                        "description": "overriders",
+                        "description": "overrider",
                         "name": "overriders",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/overriders.Overriders"
+                            "$ref": "#/definitions/product.Overrider"
                         }
                     }
                 ],
@@ -3770,7 +3770,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/overriders.Overriders"
+                                            "$ref": "#/definitions/product.Overrider"
                                         },
                                         "status": {
                                             "type": "string"
@@ -3801,9 +3801,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/overriders/{id}": {
+        "/overrider/{id}": {
             "get": {
-                "description": "To get an overriders",
+                "description": "To get an overrider",
                 "consumes": [
                     "application/json"
                 ],
@@ -3811,13 +3811,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Overriders"
+                    "Overrider"
                 ],
-                "summary": "To get an overriders",
+                "summary": "To get an overrider",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "overriders id",
+                        "description": "overrider id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -3835,7 +3835,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/overriders.Overriders"
+                                            "$ref": "#/definitions/product.Overrider"
                                         },
                                         "status": {
                                             "type": "string"
@@ -3866,7 +3866,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "To delete an overriders",
+                "description": "To delete an overrider",
                 "consumes": [
                     "application/json"
                 ],
@@ -3874,13 +3874,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Overriders"
+                    "Overrider"
                 ],
-                "summary": "To delete an overriders",
+                "summary": "To delete an overrider",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "overriders id",
+                        "description": "overrider id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -3898,7 +3898,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/overriders.Overriders"
+                                            "$ref": "#/definitions/product.Overrider"
                                         },
                                         "status": {
                                             "type": "string"
@@ -3929,7 +3929,7 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "description": "To update an overriders",
+                "description": "To update an overrider",
                 "consumes": [
                     "application/json"
                 ],
@@ -3937,24 +3937,24 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Overriders"
+                    "Overrider"
                 ],
-                "summary": "To update an overriders",
+                "summary": "To update an overrider",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "overriders id",
+                        "description": "overrider id",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "overriders",
+                        "description": "overrider",
                         "name": "overriders",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/overriders.Overriders"
+                            "$ref": "#/definitions/product.Overrider"
                         }
                     }
                 ],
@@ -3970,7 +3970,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/overriders.Overriders"
+                                            "$ref": "#/definitions/product.Overrider"
                                         },
                                         "status": {
                                             "type": "string"
@@ -4074,7 +4074,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "To create a product",
+                "description": "This endpoint creates a product and makes an association with all store channels to this product to allow",
                 "consumes": [
                     "application/json"
                 ],
@@ -7087,9 +7087,6 @@ const docTemplate = `{
                 "price": {
                     "type": "number"
                 },
-                "product": {
-                    "$ref": "#/definitions/product.Product"
-                },
                 "product_id": {
                     "type": "integer"
                 },
@@ -7220,41 +7217,6 @@ const docTemplate = `{
                 }
             }
         },
-        "overriders.Overriders": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "discount_id": {
-                    "type": "integer"
-                },
-                "enable": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "place": {
-                    "type": "string"
-                },
-                "place_id": {
-                    "type": "integer"
-                },
-                "price": {
-                    "type": "number"
-                },
-                "product_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "product.Modifier": {
             "type": "object",
             "required": [
@@ -7301,6 +7263,41 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "product.Overrider": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount_id": {
+                    "type": "integer"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "place": {
+                    "type": "string"
+                },
+                "place_id": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_id": {
+                    "type": "integer"
                 }
             }
         },

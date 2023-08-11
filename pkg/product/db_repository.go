@@ -17,7 +17,7 @@ func NewDBRepository(db *gorm.DB) *DBRepository {
 	return &DBRepository{db: db}
 }
 
-// Product methods
+// Product
 
 // Create method for create a new product in database
 func (r *DBRepository) Create(product *Product) (*Product, error) {
@@ -115,8 +115,8 @@ func (r *DBRepository) RemoveModifier(product *Product, modifier *Modifier) (*Pr
 }
 
 // GetOverriders method for get overriders in product
-func (r *DBRepository) GetOverriders(productID, field string) ([]Overrider, error) {
-	var overriders []Overrider
+func (r *DBRepository) GetOverriders(productID, field string) ([]OverriderDTO, error) {
+	var overriders []OverriderDTO
 
 	if err := r.db.Table("overriders as o").
 		Select(fmt.Sprintf("o.id as id, o.product_id as product_id, c.name as place_name, c.id as place_id, o.%s as field_value", field)).
@@ -171,7 +171,7 @@ func (r *DBRepository) GetCategory(productID string) ([]CategoryDTO, error) {
 	return categories, nil
 }
 
-// Modifier methods
+// Modifier
 
 // ModifierCreate method for create a new modifier in database
 func (r *DBRepository) ModifierCreate(modifier *Modifier) (*Modifier, error) {
@@ -239,4 +239,93 @@ func (r *DBRepository) ModifierUpdate(modifier *Modifier) (*Modifier, error) {
 	}
 
 	return &modifierDB, nil
+}
+
+// Overrider
+
+// OverriderCreate method for create a new overrider in database
+func (r *DBRepository) OverriderCreate(overrider *Overrider) (*Overrider, error) {
+	if err := r.db.Save(overrider).Error; err != nil {
+		shared.LogError("error creating overrider", LogDBRepository, "Create", err, overrider)
+		return nil, err
+	}
+
+	return overrider, nil
+}
+
+// OverriderCreateAll method for create a new overrider in database
+func (r *DBRepository) OverriderCreateAll(overrider []Overrider) error {
+	if err := r.db.Create(&overrider).Error; err != nil {
+		shared.LogError("error creating overriders in batch", LogDBRepository, "CreateAll", err, overrider)
+		return err
+	}
+
+	return nil
+}
+
+// OverriderFind method for find overriders in database
+func (r *DBRepository) OverriderFind(filters map[string]string) ([]Overrider, error) {
+	var overrider []Overrider
+	if err := r.db.Find(&overrider, filters).Error; err != nil {
+		shared.LogError("error getting overriders", LogDBRepository, "Find", err, filters)
+		return nil, err
+	}
+
+	return overrider, nil
+}
+
+// OverriderGet method for get an overrider in database
+func (r *DBRepository) OverriderGet(overriderID string) (*Overrider, error) {
+	var overrider Overrider
+	if err := r.db.First(&overrider, overriderID).Error; err != nil {
+		shared.LogError("error getting overrider", LogDBRepository, "Get", err, overriderID)
+		return nil, err
+	}
+
+	return &overrider, nil
+}
+
+// OverriderUpdate method for update an overrider in database
+func (r *DBRepository) OverriderUpdate(overrider *Overrider) (*Overrider, error) {
+	var overriderDB Overrider
+	if err := r.db.First(&overriderDB, overrider.ID).Error; err != nil {
+		shared.LogError("error getting overrider", LogDBRepository, "Update", err, overrider)
+		return nil, err
+	}
+
+	if err := r.db.Model(&overriderDB).Updates(overrider).Error; err != nil {
+		shared.LogError("error updating overrider", LogDBRepository, "Update", err, overrider)
+		return nil, err
+	}
+
+	return &overriderDB, nil
+}
+
+// OverriderDelete method for delete an overrider in database
+func (r *DBRepository) OverriderDelete(overriderID string) (*Overrider, error) {
+	var overrider Overrider
+
+	if err := r.db.First(&overrider, overriderID).Error; err != nil {
+		shared.LogError("error getting overrider", LogDBRepository, "Delete", err, overriderID)
+		return nil, err
+	}
+
+	if err := r.db.Delete(&overrider).Error; err != nil {
+		shared.LogError("error deleting overrider", LogDBRepository, "Delete", err, overriderID)
+		return nil, err
+	}
+
+	return &overrider, nil
+}
+
+// OverriderFindByPlace method for find overriders in database
+func (r *DBRepository) OverriderFindByPlace(place, placeID string) ([]Overrider, error) {
+	var overrider []Overrider
+
+	if err := r.db.Where("place = ? AND place_id = ?", place, placeID).Find(&overrider).Error; err != nil {
+		shared.LogError("error getting overrider", LogDBRepository, "FindByPlace", err, place, placeID)
+		return nil, err
+	}
+
+	return overrider, nil
 }

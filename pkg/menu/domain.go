@@ -2,7 +2,6 @@ package menu
 
 import (
 	"github.com/BacoFoods/menu/pkg/category"
-	"github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/product"
 	"gorm.io/gorm"
 	"time"
@@ -81,11 +80,11 @@ var precedence = map[string]int{
 	"channel": 1,
 }
 
-func IsAllowOverride(item Item, overrider overriders.Overriders) bool {
+func IsAllowOverride(item Item, overrider product.Overrider) bool {
 	return precedence[item.OverriderName] < precedence[overrider.Name]
 }
 
-func OverrideProducts(items []Item, overriders []overriders.Overriders) map[uint][]product.Product {
+func OverrideProducts(items []Item, overriders []product.Overrider) map[uint][]product.Product {
 	itemsByCategories := make(map[uint][]product.Product, 0)
 
 	for _, item := range items {

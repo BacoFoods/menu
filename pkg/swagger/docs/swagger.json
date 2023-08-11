@@ -3661,9 +3661,9 @@
                 }
             }
         },
-        "/overriders": {
+        "/overrider": {
             "get": {
-                "description": "To find overriders",
+                "description": "To find overrider",
                 "consumes": [
                     "application/json"
                 ],
@@ -3671,13 +3671,13 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Overriders"
+                    "Overrider"
                 ],
-                "summary": "To find overriders",
+                "summary": "To find overrider",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "overriders name",
+                        "description": "overrider name",
                         "name": "name",
                         "in": "query"
                     }
@@ -3696,7 +3696,7 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/overriders.Overriders"
+                                                "$ref": "#/definitions/product.Overrider"
                                             }
                                         },
                                         "status": {
@@ -3728,7 +3728,7 @@
                 }
             },
             "post": {
-                "description": "To create an overriders",
+                "description": "To create an overrider",
                 "consumes": [
                     "application/json"
                 ],
@@ -3736,17 +3736,17 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Overriders"
+                    "Overrider"
                 ],
-                "summary": "To create an overriders",
+                "summary": "To create an overrider",
                 "parameters": [
                     {
-                        "description": "overriders",
+                        "description": "overrider",
                         "name": "overriders",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/overriders.Overriders"
+                            "$ref": "#/definitions/product.Overrider"
                         }
                     }
                 ],
@@ -3762,7 +3762,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/overriders.Overriders"
+                                            "$ref": "#/definitions/product.Overrider"
                                         },
                                         "status": {
                                             "type": "string"
@@ -3793,9 +3793,9 @@
                 }
             }
         },
-        "/overriders/{id}": {
+        "/overrider/{id}": {
             "get": {
-                "description": "To get an overriders",
+                "description": "To get an overrider",
                 "consumes": [
                     "application/json"
                 ],
@@ -3803,13 +3803,13 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Overriders"
+                    "Overrider"
                 ],
-                "summary": "To get an overriders",
+                "summary": "To get an overrider",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "overriders id",
+                        "description": "overrider id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -3827,7 +3827,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/overriders.Overriders"
+                                            "$ref": "#/definitions/product.Overrider"
                                         },
                                         "status": {
                                             "type": "string"
@@ -3858,7 +3858,7 @@
                 }
             },
             "delete": {
-                "description": "To delete an overriders",
+                "description": "To delete an overrider",
                 "consumes": [
                     "application/json"
                 ],
@@ -3866,13 +3866,13 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Overriders"
+                    "Overrider"
                 ],
-                "summary": "To delete an overriders",
+                "summary": "To delete an overrider",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "overriders id",
+                        "description": "overrider id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -3890,7 +3890,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/overriders.Overriders"
+                                            "$ref": "#/definitions/product.Overrider"
                                         },
                                         "status": {
                                             "type": "string"
@@ -3921,7 +3921,7 @@
                 }
             },
             "patch": {
-                "description": "To update an overriders",
+                "description": "To update an overrider",
                 "consumes": [
                     "application/json"
                 ],
@@ -3929,24 +3929,24 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Overriders"
+                    "Overrider"
                 ],
-                "summary": "To update an overriders",
+                "summary": "To update an overrider",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "overriders id",
+                        "description": "overrider id",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "overriders",
+                        "description": "overrider",
                         "name": "overriders",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/overriders.Overriders"
+                            "$ref": "#/definitions/product.Overrider"
                         }
                     }
                 ],
@@ -3962,7 +3962,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/overriders.Overriders"
+                                            "$ref": "#/definitions/product.Overrider"
                                         },
                                         "status": {
                                             "type": "string"
@@ -4066,7 +4066,7 @@
                 }
             },
             "post": {
-                "description": "To create a product",
+                "description": "This endpoint creates a product and makes an association with all store channels to this product to allow",
                 "consumes": [
                     "application/json"
                 ],
@@ -7079,9 +7079,6 @@
                 "price": {
                     "type": "number"
                 },
-                "product": {
-                    "$ref": "#/definitions/product.Product"
-                },
                 "product_id": {
                     "type": "integer"
                 },
@@ -7212,41 +7209,6 @@
                 }
             }
         },
-        "overriders.Overriders": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "discount_id": {
-                    "type": "integer"
-                },
-                "enable": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "place": {
-                    "type": "string"
-                },
-                "place_id": {
-                    "type": "integer"
-                },
-                "price": {
-                    "type": "number"
-                },
-                "product_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "product.Modifier": {
             "type": "object",
             "required": [
@@ -7293,6 +7255,41 @@
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "product.Overrider": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "discount_id": {
+                    "type": "integer"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "place": {
+                    "type": "string"
+                },
+                "place_id": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_id": {
+                    "type": "integer"
                 }
             }
         },

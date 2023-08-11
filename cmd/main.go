@@ -15,7 +15,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/order"
-	"github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/router"
 	"github.com/BacoFoods/menu/pkg/store"
@@ -41,6 +40,7 @@ func main() {
 		&surcharge.Surcharge{},
 		&product.Product{},
 		&product.Modifier{},
+		&product.Overrider{},
 		&taxes.Tax{},
 		&country.Country{},
 		&currency.Currency{},
@@ -49,7 +49,6 @@ func main() {
 		&zones.Zone{},
 		&tables.Table{},
 		&channel.Channel{},
-		&overriders.Overriders{},
 		&availability.Availability{},
 		&order.Order{},
 		&order.OrderItem{},
@@ -67,12 +66,6 @@ func main() {
 
 	// Swagger
 	swaggerRoutes := swagger.NewRoutes()
-
-	// Overriders
-	overridersRepository := overriders.NewDBRepository(gormDB)
-	overridersService := overriders.NewService(overridersRepository)
-	overridersHandler := overriders.NewHandler(overridersService)
-	overridersRoutes := overriders.NewRoutes(overridersHandler)
 
 	// Channel
 	channelRepository := channel.NewDBRepository(gormDB)
@@ -106,7 +99,7 @@ func main() {
 
 	// Product
 	productRepository := product.NewDBRepository(gormDB)
-	productService := product.NewService(productRepository)
+	productService := product.NewService(productRepository, channelRepository)
 	productHandler := product.NewHandler(productService)
 	productRoutes := product.NewRoutes(productHandler)
 
@@ -130,7 +123,7 @@ func main() {
 
 	// Menu
 	menuRepository := menu.NewDBRepository(gormDB)
-	menuService := menu.NewService(menuRepository, overridersRepository, availabilityRepository, storeRepository, categoryRepository)
+	menuService := menu.NewService(menuRepository, productRepository, availabilityRepository, storeRepository, categoryRepository)
 	menuHandler := menu.NewHandler(menuService)
 	menuRoutes := menu.NewRoutes(menuHandler)
 
@@ -173,7 +166,6 @@ func main() {
 		Product:      productRoutes,
 		Surcharge:    surchargeRoutes,
 		Discount:     discountRoutes,
-		Overriders:   overridersRoutes,
 		Taxes:        taxesRoutes,
 		Country:      countryRoutes,
 		Currency:     currencyRoutes,

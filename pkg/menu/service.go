@@ -1,11 +1,11 @@
 package menu
 
 import (
+	productPkg "github.com/BacoFoods/menu/pkg/product"
 	"strconv"
 
 	availabilityPkg "github.com/BacoFoods/menu/pkg/availability"
 	categoryPkg "github.com/BacoFoods/menu/pkg/category"
-	overridersPkg "github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/shared"
 	storePkg "github.com/BacoFoods/menu/pkg/store"
 )
@@ -32,7 +32,7 @@ type Service interface {
 // service is the default implementation of the Service interface for menu.
 type service struct {
 	repository   Repository
-	overriders   overridersPkg.Repository
+	product      productPkg.Repository
 	availability availabilityPkg.Repository
 	store        storePkg.Repository
 	category     categoryPkg.Repository
@@ -40,11 +40,11 @@ type service struct {
 
 // NewService creates a new instance of the service for menu, using the provided repository implementation.
 func NewService(repository Repository,
-	overriders overridersPkg.Repository,
+	product productPkg.Repository,
 	availability availabilityPkg.Repository,
 	store storePkg.Repository,
 	category categoryPkg.Repository) service {
-	return service{repository, overriders, availability, store, category}
+	return service{repository, product, availability, store, category}
 }
 
 // Find returns a list of menu objects filtering by query map.
@@ -151,7 +151,7 @@ func (s service) GetByPlace(place, placeID, menuID string) (*Menu, error) {
 		return nil, nil
 	}
 
-	overriders, err := s.overriders.FindByPlace(place, placeID)
+	overriders, err := s.product.OverriderFindByPlace(place, placeID)
 	if err != nil {
 		return nil, err
 	}

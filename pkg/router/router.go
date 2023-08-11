@@ -12,7 +12,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/healthcheck"
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/order"
-	"github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
@@ -51,7 +50,6 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Discount.RegisterRoutes(private)
 	routes.Menu.RegisterRoutes(private)
 	routes.Order.RegisterRoutes(private)
-	routes.Overriders.RegisterRoutes(private)
 	routes.Product.RegisterRoutes(private)
 	routes.Store.RegisterRoutes(private)
 	routes.Surcharge.RegisterRoutes(private)
@@ -77,7 +75,6 @@ type RoutesGroup struct {
 	Discount     discount.Routes
 	HealthCheck  healthcheck.Routes
 	Menu         menu.Routes
-	Overriders   overriders.Routes
 	Order        order.Routes
 	Product      product.Routes
 	Store        store.Routes
