@@ -25,7 +25,7 @@ type Overriders struct {
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Image       string             `json:"image"`
-	Price       float32            `json:"price" gorm:"precision:18;scale:2"`
+	Price       float64            `json:"price" gorm:"precision:18;scale:2"`
 	Enable      bool               `json:"enable"`
 	DiscountID  *uint              `json:"discount_id"`
 	Discount    *discount.Discount `json:"discount" gorm:"foreignKey:DiscountID" swaggerignore:"true"`

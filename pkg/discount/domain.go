@@ -23,8 +23,8 @@ type Discount struct {
 	ID          uint           `json:"id,omitempty"`
 	Name        string         `json:"name,omitempty"`
 	Type        DiscountType   `json:"type"`
-	Percentage  float32        `json:"percentage,omitempty" gorm:"precision:18;scale:2"`
-	Value       float32        `json:"value,omitempty" gorm:"precision:18;scale:2"`
+	Percentage  float64        `json:"percentage,omitempty" gorm:"precision:18;scale:2"`
+	Value       float64        `json:"value,omitempty" gorm:"precision:18;scale:2"`
 	Description string         `json:"description,omitempty"`
 	Terms       string         `json:"terms,omitempty"`
 	ChannelID   *uint          `json:"channel_id,omitempty"`

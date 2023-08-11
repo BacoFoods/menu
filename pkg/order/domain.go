@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/tables"
@@ -37,11 +38,39 @@ type Order struct {
 	DeletedAt     *gorm.DeletedAt  `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
+func (o *Order) GetProductIDs() []string {
+	ids := make([]string, len(o.Items))
+	for i, item := range o.Items {
+		ids[i] = fmt.Sprintf("%d", *item.ProductID)
+	}
+	return ids
+}
+
+func (o *Order) SetItems(products []product.Product) {
+	productsMap := make(map[string]product.Product)
+	for _, p := range products {
+		productsMap[fmt.Sprintf("%d", p.ID)] = p
+	}
+
+	items := make([]OrderItem, 0)
+	for _, item := range o.Items {
+		if p, ok := productsMap[fmt.Sprintf("%d", *item.ProductID)]; ok {
+			item.Name = p.Name
+			item.Description = p.Description
+			item.Image = p.Image
+			item.SKU = p.SKU
+			item.Price = p.Price
+			item.Unit = p.Unit
+			items = append(items, item)
+		}
+	}
+	o.Items = items
+}
+
 type OrderItem struct {
 	ID              uint            `json:"id" gorm:"primaryKey"`
 	OrderID         *uint           `json:"order_id"`
 	ProductID       *uint           `json:"product_id"`
-	Product         product.Product `json:"product"`
 	Name            string          `json:"name"`
 	Description     string          `json:"description"`
 	Image           string          `json:"image"`
@@ -59,6 +88,27 @@ type OrderItem struct {
 	CreatedAt       *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt       *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt       *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+func (oi *OrderItem) SetModifiers(modifiers []product.Modifier) {
+	orderModifiers := make([]OrderModifier, 0)
+
+	for _, m := range modifiers {
+		for _, p := range m.Products {
+			orderModifiers = append(orderModifiers, OrderModifier{
+				Name:        p.Name,
+				Description: p.Description,
+				Image:       p.Image,
+				Category:    string(m.Category),
+				ProductID:   &p.ID,
+				SKU:         p.SKU,
+				Price:       p.Price,
+				Unit:        p.Unit,
+			})
+		}
+	}
+
+	oi.Modifiers = orderModifiers
 }
 
 type OrderModifier struct {
@@ -111,8 +161,8 @@ type OrderDiscount struct {
 	OrderID     *uint          `json:"order_id"`
 	Name        string         `json:"name,omitempty"`
 	Type        string         `json:"type"`
-	Percentage  float32        `json:"percentage,omitempty" gorm:"precision:18;scale:2"`
-	Value       float32        `json:"value,omitempty" gorm:"precision:18;scale:2"`
+	Percentage  float64        `json:"percentage,omitempty" gorm:"precision:18;scale:2"`
+	Value       float64        `json:"value,omitempty" gorm:"precision:18;scale:2"`
 	Description string         `json:"description,omitempty"`
 	Terms       string         `json:"terms,omitempty"`
 	ChannelID   *uint          `json:"channel_id,omitempty"`

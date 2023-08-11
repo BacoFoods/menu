@@ -35,7 +35,7 @@ type Product struct {
 	Description string             `json:"description"`
 	Image       string             `json:"image"`
 	SKU         string             `json:"sku"`
-	Price       float32            `json:"price" gorm:"precision:18;scale:2"`
+	Price       float64            `json:"price" gorm:"precision:18;scale:2"`
 	TaxID       *uint              `json:"tax_id"`
 	Tax         *taxes.Tax         `json:"tax" swaggerignore:"true"`
 	DiscountID  *uint              `json:"discount_id"`
@@ -54,7 +54,7 @@ type Modifier struct {
 	Name        string          `json:"name"`
 	Description string          `json:"description"`
 	Image       string          `json:"image"`
-	ApplyPrice  float32         `json:"apply_price" gorm:"precision:18;scale:2"`
+	ApplyPrice  float64         `json:"apply_price" gorm:"precision:18;scale:2"`
 	Category    Category        `json:"category"`
 	Products    []Product       `json:"products" swaggerignore:"true" gorm:"many2many:modifier_products;"`
 	BrandID     *uint           `json:"brand_id" binding:"required"`

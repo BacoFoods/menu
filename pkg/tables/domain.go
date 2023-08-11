@@ -20,8 +20,8 @@ type Table struct {
 	DisplayID   string          `json:"display_id" binding:"required"`
 	DisplayName string          `json:"display_name" binding:"required"`
 	Number      int             `json:"number" binding:"required"`
-	XLocation   float32         `json:"xlocation,omitempty"`
-	YLocation   float32         `json:"ylocation,omitempty"`
+	XLocation   float64         `json:"xlocation,omitempty"`
+	YLocation   float64         `json:"ylocation,omitempty"`
 	IsActive    bool            `json:"is_active"`
 	ZoneID      *uint           `json:"zone_id"`
 	OrderID     *uint           `json:"order_id,omitempty"`

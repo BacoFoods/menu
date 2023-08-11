@@ -17,7 +17,7 @@ const (
 type Tax struct {
 	ID          uint             `json:"id,omitempty"`
 	Name        string           `json:"name,omitempty"`
-	Percentage  float32          `json:"percentage,omitempty" gorm:"precision:18;scale:4;not null"`
+	Percentage  float64          `json:"percentage,omitempty" gorm:"precision:18;scale:4;not null"`
 	Description string           `json:"description,omitempty"`
 	CountryID   *uint            `json:"country_id,omitempty"`
 	Country     *country.Country `json:"country,omitempty" gorm:"foreignKey:CountryID"`
