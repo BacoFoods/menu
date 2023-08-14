@@ -11,12 +11,16 @@ import (
 
 const (
 	ErrorBadRequest           = "error bad request"
+	ErrorBadRequestOrderID    = "error bad request wrong order id"
+	ErrorBadRequestProductID  = "error bad request wrong product id"
 	ErrorBadRequestTableID    = "error bad request wrong table id"
 	ErrorBadRequestStoreID    = "error bad request wrong store id"
 	ErrorBadRequestOrderSeats = "error bad request wrong order seats can't be less than 0"
 	ErrorOrderCreation        = "error creating order"
 	ErrorOrderGetting         = "error getting order"
 	ErrorOrderUpdate          = "error updating order"
+
+	ErrorOrderItemUpdate = "error updating order item"
 
 	ErrorOrderTypeCreation = "error creating order type"
 	ErrorOrderTypeFinding  = "error finding order type"
@@ -30,6 +34,7 @@ type Repository interface {
 	Get(orderID string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
 	Update(order *Order) (*Order, error)
+	UpdateOrderItem(orderItem *OrderItem) (*OrderItem, error)
 
 	CreateOrderType(*OrderType) (*OrderType, error)
 	FindOrderType(filter map[string]any) ([]OrderType, error)
@@ -91,6 +96,38 @@ func (o *Order) SetItems(products []product.Product) {
 		}
 	}
 	o.Items = items
+}
+
+func (o *Order) AddProduct(product *product.Product) {
+	for _, item := range o.Items {
+		if *item.ProductID == product.ID {
+			item.Quantity++
+			return
+		}
+	}
+
+	o.Items = append(o.Items, OrderItem{
+		ProductID:   &product.ID,
+		Name:        product.Name,
+		Description: product.Description,
+		Image:       product.Image,
+		SKU:         product.SKU,
+		Price:       product.Price,
+		Unit:        product.Unit,
+	})
+}
+
+func (o *Order) RemoveProduct(product *product.Product) {
+	for i, item := range o.Items {
+		if *item.ProductID == product.ID {
+			if item.Quantity > 1 {
+				o.Items[i].Quantity--
+			} else {
+				o.Items = append(o.Items[:i], o.Items[i+1:]...)
+			}
+			return
+		}
+	}
 }
 
 type OrderItem struct {

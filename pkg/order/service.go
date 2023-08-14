@@ -17,6 +17,9 @@ type Service interface {
 	Get(string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
 	UpdateSeats(orderID string, seats int) (*Order, error)
+	AddProduct(orderID, productID string) (*Order, error)
+	RemoveProduct(orderID, productID string) (*Order, error)
+	UpdateProduct(product *OrderItem) (*Order, error)
 
 	CreateOrderType(orderType *OrderType) (*OrderType, error)
 	FindOrderType(filter map[string]any) ([]OrderType, error)
@@ -125,6 +128,68 @@ func (s service) UpdateSeats(orderID string, seats int) (*Order, error) {
 	}
 
 	return orderDB, nil
+}
+
+func (s service) AddProduct(orderID, productID string) (*Order, error) {
+	order, err := s.repository.Get(orderID)
+	if err != nil {
+		shared.LogError("error getting order", LogService, "AddProduct", err, orderID)
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	product, err := s.product.Get(productID)
+	if err != nil {
+		shared.LogError("error getting product", LogService, "AddProduct", err, productID)
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	order.AddProduct(product)
+
+	orderDB, err := s.repository.Update(order)
+	if err != nil {
+		shared.LogError("error updating order", LogService, "AddProduct", err, *order)
+		return nil, fmt.Errorf(ErrorOrderUpdate)
+	}
+
+	return orderDB, nil
+}
+
+func (s service) RemoveProduct(orderID, productID string) (*Order, error) {
+	order, err := s.repository.Get(orderID)
+	if err != nil {
+		shared.LogError("error getting order", LogService, "RemoveProduct", err, orderID)
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	product, err := s.product.Get(productID)
+	if err != nil {
+		shared.LogError("error getting product", LogService, "RemoveProduct", err, productID)
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	order.RemoveProduct(product)
+
+	orderDB, err := s.repository.Update(order)
+	if err != nil {
+		shared.LogError("error updating order", LogService, "RemoveProduct", err, *order)
+		return nil, fmt.Errorf(ErrorOrderUpdate)
+	}
+
+	return orderDB, nil
+}
+
+func (s service) UpdateProduct(product *OrderItem) (*Order, error) {
+	orderItem, err := s.repository.UpdateOrderItem(product)
+	if err != nil {
+		return nil, fmt.Errorf(ErrorOrderItemUpdate)
+	}
+
+	order, err := s.repository.Get(fmt.Sprintf("%d", orderItem.OrderID))
+	if err != nil {
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	return order, nil
 }
 
 // Order Types

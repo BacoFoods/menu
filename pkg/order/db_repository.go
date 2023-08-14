@@ -68,6 +68,22 @@ func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 	return orders, nil
 }
 
+// UpdateOrderItem method for update an order item in database
+func (r *DBRepository) UpdateOrderItem(item *OrderItem) (*OrderItem, error) {
+	var orderItem OrderItem
+	if err := r.db.First(&orderItem, item.ID).Error; err != nil {
+		shared.LogError("error getting order item", LogDBRepository, "UpdateOrderItem", err, *item)
+		return nil, err
+	}
+
+	if err := r.db.Model(&orderItem).Updates(item).Error; err != nil {
+		shared.LogError("error updating order item", LogDBRepository, "UpdateOrderItem", err, *item)
+		return nil, err
+	}
+
+	return item, nil
+}
+
 // OrderType methods
 
 // CreateOrderType method for create a new order type in database

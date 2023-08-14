@@ -391,6 +391,19 @@ definitions:
       store_id:
         type: integer
     type: object
+  order.RequestUpdateOrderProduct:
+    properties:
+      comments:
+        type: string
+      course:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: integer
+      unit:
+        type: string
+    type: object
   order.RequestUpdateOrderSeats:
     properties:
       seats:
@@ -3167,6 +3180,147 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To get an order
+      tags:
+      - Order
+  /order/{id}/product/{productID}/add:
+    patch:
+      consumes:
+      - application/json
+      description: To add a product to an order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: productID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To add a product to an order
+      tags:
+      - Order
+  /order/{id}/product/{productID}/remove:
+    patch:
+      consumes:
+      - application/json
+      description: To remove a product from an order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: productID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To remove a product from an order
+      tags:
+      - Order
+  /order/{id}/product/{productID}/update:
+    patch:
+      consumes:
+      - application/json
+      description: To update a product from an order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: productID
+        required: true
+        type: string
+      - description: product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/order.RequestUpdateOrderProduct'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update a product from an order
       tags:
       - Order
   /order/{id}/seats:
