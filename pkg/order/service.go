@@ -16,6 +16,7 @@ type Service interface {
 	UpdateTable(orderID, tableID uint64) (*Order, error)
 	Get(string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
+	UpdateSeats(orderID string, seats int) (*Order, error)
 
 	CreateOrderType(orderType *OrderType) (*OrderType, error)
 	FindOrderType(filter map[string]any) ([]OrderType, error)
@@ -103,6 +104,27 @@ func (s service) Get(id string) (*Order, error) {
 
 func (s service) Find(filter map[string]any) ([]Order, error) {
 	return s.repository.Find(filter)
+}
+
+func (s service) UpdateSeats(orderID string, seats int) (*Order, error) {
+	order, err := s.repository.Get(orderID)
+	if err != nil {
+		shared.LogError("error getting order", LogService, "UpdateSeats", err, orderID)
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	if order.Seats == seats {
+		return order, nil
+	}
+
+	order.Seats = seats
+	orderDB, err := s.repository.Update(order)
+	if err != nil {
+		shared.LogError("error updating order", LogService, "UpdateSeats", err, *order)
+		return nil, fmt.Errorf(ErrorOrderUpdate)
+	}
+
+	return orderDB, nil
 }
 
 // Order Types

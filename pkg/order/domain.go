@@ -10,12 +10,13 @@ import (
 )
 
 const (
-	ErrorBadRequest        = "error bad request"
-	ErrorBadRequestTableID = "error bad request wrong table id"
-	ErrorBadRequestStoreID = "error bad request wrong store id"
-	ErrorOrderCreation     = "error creating order"
-	ErrorOrderGetting      = "error getting order"
-	ErrorOrderUpdate       = "error updating order"
+	ErrorBadRequest           = "error bad request"
+	ErrorBadRequestTableID    = "error bad request wrong table id"
+	ErrorBadRequestStoreID    = "error bad request wrong store id"
+	ErrorBadRequestOrderSeats = "error bad request wrong order seats can't be less than 0"
+	ErrorOrderCreation        = "error creating order"
+	ErrorOrderGetting         = "error getting order"
+	ErrorOrderUpdate          = "error updating order"
 
 	ErrorOrderTypeCreation = "error creating order type"
 	ErrorOrderTypeFinding  = "error finding order type"

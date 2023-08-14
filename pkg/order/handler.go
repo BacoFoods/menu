@@ -10,6 +10,10 @@ import (
 
 const LogHandler string = "pkg/order/handler"
 
+type RequestUpdateOrderSeats struct {
+	Seats int `json:"seats" binding:"required"`
+}
+
 type Handler struct {
 	service Service
 }
@@ -144,6 +148,43 @@ func (h *Handler) Find(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(orders))
+}
+
+// UpdateSeats to handle a request to update the seats of an order
+// @Tags Order
+// @Summary To update the seats of an order
+// @Description To update the seats of an order
+// @Accept json
+// @Produce json
+// @Param id path string true "Order ID"
+// @Param seats body RequestUpdateOrderSeats true "Seats"
+// @Success 200 {object} object{status=string,data=Order}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /order/{id}/seats [patch]
+func (h *Handler) UpdateSeats(c *gin.Context) {
+	var body RequestUpdateOrderSeats
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "UpdateSeats", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	if body.Seats < 0 {
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequestOrderSeats))
+		return
+	}
+
+	orderID := c.Param("id")
+
+	order, err := h.service.UpdateSeats(orderID, body.Seats)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(order))
 }
 
 // Oder Types

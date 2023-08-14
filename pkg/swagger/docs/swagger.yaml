@@ -391,6 +391,13 @@ definitions:
       store_id:
         type: integer
     type: object
+  order.RequestUpdateOrderSeats:
+    properties:
+      seats:
+        type: integer
+    required:
+    - seats
+    type: object
   product.Modifier:
     properties:
       apply_price:
@@ -3160,6 +3167,52 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To get an order
+      tags:
+      - Order
+  /order/{id}/seats:
+    patch:
+      consumes:
+      - application/json
+      description: To update the seats of an order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Seats
+        in: body
+        name: seats
+        required: true
+        schema:
+          $ref: '#/definitions/order.RequestUpdateOrderSeats'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update the seats of an order
       tags:
       - Order
   /order/{id}/table/{table}:
