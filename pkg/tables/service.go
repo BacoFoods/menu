@@ -6,6 +6,7 @@ type Service interface {
 	Create(table *Table) (*Table, error)
 	Update(id string, table *Table) (*Table, error)
 	Delete(id string) error
+	Release(id *uint) (*Table, error)
 }
 
 type service struct {
@@ -34,4 +35,8 @@ func (s service) Update(id string, table *Table) (*Table, error) {
 
 func (s service) Delete(id string) error {
 	return s.repository.Delete(id)
+}
+
+func (s service) Release(id *uint) (*Table, error) {
+	return s.repository.RemoveOrder(id)
 }

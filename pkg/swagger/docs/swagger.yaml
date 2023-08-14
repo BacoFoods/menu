@@ -4635,6 +4635,46 @@ paths:
       summary: Update table
       tags:
       - Tables
+  /tables/{id}/release:
+    post:
+      consumes:
+      - application/json
+      description: Release table from order
+      parameters:
+      - description: table id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/tables.Table'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Release table from order
+      tags:
+      - Tables
   /tax:
     get:
       consumes:

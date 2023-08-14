@@ -6,13 +6,14 @@ import (
 )
 
 const (
-	ErrorBadRequest    = "error bad request"
-	ErrorTableUpdating = "error updating table"
-	ErrorTableDeleting = "error deleting table"
-	ErrorTableCreating = "error creating table"
-	ErrorTableGetting  = "error getting table"
-	ErrorTableFinding  = "error finding table"
-	ErrorTableHasOrder = "error table already has an order"
+	ErrorBadRequest     = "error bad request"
+	ErrorTableUpdating  = "error updating table"
+	ErrorTableDeleting  = "error deleting table"
+	ErrorTableCreating  = "error creating table"
+	ErrorTableGetting   = "error getting table"
+	ErrorTableFinding   = "error finding table"
+	ErrorTableHasOrder  = "error table already has an order"
+	ErrorTableReleasing = "error releasing table"
 )
 
 type Table struct {
@@ -37,4 +38,5 @@ type Repository interface {
 	Update(id string, table *Table) (*Table, error)
 	Delete(id string) error
 	SetOrder(tableID, orderID *uint) (*Table, error)
+	RemoveOrder(tableID *uint) (*Table, error)
 }

@@ -72,16 +72,22 @@ func (s service) UpdateTable(orderID, tableID uint64) (*Order, error) {
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	if *order.TableID == uint(tableID) {
+	oldTableID := *order.TableID
+	newTableID := uint(tableID)
+
+	if oldTableID == newTableID {
 		return order, nil
 	}
 
-	table := uint(tableID)
-	if _, err := s.table.SetOrder(&table, &order.ID); err != nil {
+	if _, err := s.table.SetOrder(&newTableID, &order.ID); err != nil {
 		return nil, err
 	}
 
-	order.TableID = &table
+	if _, err := s.table.RemoveOrder(&oldTableID); err != nil {
+		return nil, err
+	}
+
+	order.TableID = &newTableID
 	orderDB, err := s.repository.Update(order)
 	if err != nil {
 		shared.LogError("error updating order", LogService, "UpdateTable", err, *order)

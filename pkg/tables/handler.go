@@ -4,6 +4,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 const (
@@ -163,4 +164,35 @@ func (h Handler) Delete(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(nil))
+}
+
+// Release to handle release table from order request
+// @Tags Tables
+// @Summary Release table from order
+// @Description Release table from order
+// @Param id path string true "table id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=Table}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /tables/{id}/release [post]
+func (h Handler) Release(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
+	if err != nil {
+		shared.LogError("error converting table id to int", LogHandler, "Release", err, id)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	tableID := uint(id)
+	table, err := h.service.Release(&tableID)
+	if err != nil {
+		shared.LogError("error releasing table", LogHandler, "Release", err, id)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorTableReleasing))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(table))
 }
