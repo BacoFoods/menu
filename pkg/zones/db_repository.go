@@ -124,3 +124,19 @@ func (r *DBRepository) RemoveTables(zone *Zone, tables []uint) error {
 
 	return nil
 }
+
+// Enable method for enable a zone in database
+func (r *DBRepository) Enable(zoneID string) (*Zone, error) {
+	var zone Zone
+	if err := r.db.First(&zone, zoneID).Error; err != nil {
+		shared.LogError("Error finding zone", LogDBRepository, "Enable", err, zoneID)
+		return nil, err
+	}
+
+	if err := r.db.Model(&zone).Update("active", !zone.Active).Error; err != nil {
+		shared.LogError("Error updating zone", LogDBRepository, "Enable", err, zone)
+		return nil, err
+	}
+
+	return &zone, nil
+}

@@ -13,8 +13,14 @@ const (
 type RequestZoneCreate struct {
 	Name        string `json:"name" binding:"required"`
 	StoreID     uint   `json:"store_id" binding:"required"`
+	Active      bool   `json:"active"`
 	TableNumber int    `json:"table_number"`
 	TableAmount int    `json:"table_amount"`
+}
+
+type RequestZoneUpdate struct {
+	Name    string `json:"name"`
+	StoreID uint   `json:"store_id"`
 }
 
 type RequestAddTable struct {
@@ -112,6 +118,7 @@ func (h Handler) Create(c *gin.Context) {
 	}
 
 	zone := Zone{
+		Active:  req.Active,
 		Name:    req.Name,
 		StoreID: &req.StoreID,
 	}
@@ -133,7 +140,7 @@ func (h Handler) Create(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "ID"
-// @Param request body RequestZoneCreate true "Zone"
+// @Param request body RequestZoneUpdate true "Zone"
 // @Success 200 {object} object{status=string,data=Zone}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -141,7 +148,7 @@ func (h Handler) Create(c *gin.Context) {
 // @Router /zone/{id} [patch]
 func (h Handler) Update(c *gin.Context) {
 	id := c.Param("id")
-	var req RequestZoneCreate
+	var req RequestZoneUpdate
 	if err := c.ShouldBindJSON(&req); err != nil {
 		shared.LogWarn("warning binding request", LogHandler, "Update", err)
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorZoneBadRequest))
@@ -250,4 +257,29 @@ func (h Handler) RemoveTables(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse("tables removed from zone"))
+}
+
+// Enable to handle a request to enable a zone
+// @Tags Zones
+// @Summary To enable a zone
+// @Description To enable a zone
+// @Accept json
+// @Produce json
+// @Param id path int true "Zone ID"
+// @Success 200 {object} object{status=string,data=Zone}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /zone/{id}/enable [patch]
+func (h Handler) Enable(c *gin.Context) {
+	id := c.Param("id")
+
+	zone, err := h.service.Enable(id)
+	if err != nil {
+		shared.LogError("error enabling zone", LogHandler, "Enable", err, id)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorZoneEnabling))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(zone))
 }

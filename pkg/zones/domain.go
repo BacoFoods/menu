@@ -6,20 +6,22 @@ import (
 )
 
 const (
-	ErrorZoneFinding        = "Error finding zones"
-	ErrorZoneCreating       = "Error creating zone"
-	ErrorZoneUpdating       = "Error updating zone"
-	ErrorZoneDeleting       = "Error deleting zone"
-	ErrorZoneBadRequest     = "Error bad request"
-	ErrorZoneNotFound       = "Error zone not found"
-	ErrorZoneAddingTables   = "Error adding tables to zone"
-	ErrorZoneRemovingTables = "Error removing tables from zone"
+	ErrorZoneFinding        = "error finding zones"
+	ErrorZoneCreating       = "error creating zone"
+	ErrorZoneUpdating       = "error updating zone"
+	ErrorZoneDeleting       = "error deleting zone"
+	ErrorZoneBadRequest     = "error bad request"
+	ErrorZoneNotFound       = "error zone not found"
+	ErrorZoneAddingTables   = "error adding tables to zone"
+	ErrorZoneRemovingTables = "error removing tables from zone"
+	ErrorZoneEnabling       = "error enabling zone"
 )
 
 type Zone struct {
 	ID      uint           `json:"id"`
 	Name    string         `json:"name"`
 	Tables  []tables.Table `json:"tables" gorm:"foreignKey:ZoneID"`
+	Active  bool           `json:"active" gorm:"default:true"`
 	StoreID *uint          `json:"store_id"`
 }
 
@@ -31,6 +33,7 @@ type Repository interface {
 	Delete(zoneID string) error
 	AddTables(zone *Zone, tables []uint) error
 	RemoveTables(zone *Zone, tables []uint) error
+	Enable(zoneID string) (*Zone, error)
 }
 
 func SetTables(zone *Zone, tableNumber, tableAmount int) {

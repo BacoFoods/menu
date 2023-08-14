@@ -19,4 +19,5 @@ func (r *Routes) RegisterRoutes(router *gin.RouterGroup) {
 
 	router.PATCH("/zone/:id/tables/add", r.handler.AddTables)
 	router.PATCH("/zone/:id/tables/remove", r.handler.RemoveTables)
+	router.PATCH("/zone/:id/enable", r.handler.Enable)
 }

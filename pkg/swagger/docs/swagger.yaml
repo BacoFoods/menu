@@ -564,6 +564,8 @@ definitions:
     type: object
   zones.RequestZoneCreate:
     properties:
+      active:
+        type: boolean
       name:
         type: string
       store_id:
@@ -576,8 +578,17 @@ definitions:
     - name
     - store_id
     type: object
+  zones.RequestZoneUpdate:
+    properties:
+      name:
+        type: string
+      store_id:
+        type: integer
+    type: object
   zones.Zone:
     properties:
+      active:
+        type: boolean
       id:
         type: integer
       name:
@@ -3432,7 +3443,6 @@ paths:
       - description: field
         in: query
         name: field
-        required: true
         type: string
         x-example: price
       produces:
@@ -4634,7 +4644,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/zones.RequestZoneCreate'
+          $ref: '#/definitions/zones.RequestZoneUpdate'
       produces:
       - application/json
       responses:
@@ -4662,6 +4672,46 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To update a zone
+      tags:
+      - Zones
+  /zone/{id}/enable:
+    patch:
+      consumes:
+      - application/json
+      description: To enable a zone
+      parameters:
+      - description: Zone ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/zones.Zone'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To enable a zone
       tags:
       - Zones
   /zone/{id}/tables/add:

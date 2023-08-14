@@ -17,6 +17,7 @@ type Service interface {
 	Delete(zoneID string) error
 	AddTables(zoneID string, tables []uint) error
 	RemoveTables(zoneID string, tables []uint) error
+	Enable(zoneID string) (*Zone, error)
 }
 
 type service struct {
@@ -76,4 +77,8 @@ func (s service) RemoveTables(zoneID string, tables []uint) error {
 	}
 
 	return s.repository.RemoveTables(zone, tables)
+}
+
+func (s service) Enable(zoneID string) (*Zone, error) {
+	return s.repository.Enable(zoneID)
 }
