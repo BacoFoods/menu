@@ -14,6 +14,7 @@ const (
 	ErrorDeletingStore         = "error deleting store"
 	ErrorFindingStore          = "error finding store"
 	ErrorBadRequest            = "error bad request"
+	ErrorEnablingStore         = "error enabling store"
 	ErrorAddingChannel         = "error adding channel"
 	ErrorZonesGettingByStoreID = "error getting zones by store id"
 )
@@ -41,6 +42,7 @@ type Repository interface {
 	Update(*Store) (*Store, error)
 	Delete(string) (*Store, error)
 	FindByIDs(storeIDs []string) ([]Store, error)
+	Enable(storeID string) (*Store, error)
 	AddChannel(storeID string, channel *channel.Channel) (*Store, error)
 
 	FindZonesByStore(storeID string) ([]zones.Zone, error)

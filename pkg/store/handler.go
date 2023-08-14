@@ -257,3 +257,28 @@ func (h Handler) GetZoneByStore(c *gin.Context) {
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(zone))
 }
+
+// Enable to handle a request to enable/disable a store
+// @Tags Store
+// @Summary To enable/disable a store
+// @Description To enable/disable a store
+// @Accept json
+// @Produce json
+// @Param id path string true "store id"
+// @Success 200 {object} object{status=string,data=Store}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /store/{id}/enable [patch]
+func (h Handler) Enable(c *gin.Context) {
+	storeID := c.Param("id")
+
+	store, err := h.service.Enable(storeID)
+	if err != nil {
+		shared.LogError("error enabling store", LogHandler, "Enable", err, storeID)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorEnablingStore))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(store))
+}

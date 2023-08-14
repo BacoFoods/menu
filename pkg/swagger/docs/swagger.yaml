@@ -3788,6 +3788,46 @@ paths:
       summary: To add a channel to a store
       tags:
       - Store
+  /store/{id}/enable:
+    patch:
+      consumes:
+      - application/json
+      description: To enable/disable a store
+      parameters:
+      - description: store id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/store.Store'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To enable/disable a store
+      tags:
+      - Store
   /store/{id}/zones:
     get:
       consumes:
@@ -4678,7 +4718,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: To enable a zone
+      description: To enable/disable a zone
       parameters:
       - description: Zone ID
         in: path
@@ -4711,7 +4751,7 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
-      summary: To enable a zone
+      summary: To enable/disable a zone
       tags:
       - Zones
   /zone/{id}/tables/add:

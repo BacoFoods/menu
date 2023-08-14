@@ -13,6 +13,7 @@ type Service interface {
 	Create(*Store) (*Store, error)
 	Update(*Store) (*Store, error)
 	Delete(string) (*Store, error)
+	Enable(string) (*Store, error)
 	AddChannel(storeID, channelID string) (*Store, error)
 
 	FindZonesByStore(storeID string) ([]zones.Zone, error)
@@ -54,6 +55,11 @@ func (s service) Update(store *Store) (*Store, error) {
 // Delete deletes an existing store object.
 func (s service) Delete(storeID string) (*Store, error) {
 	return s.repository.Delete(storeID)
+}
+
+// Enable enables an existing store object.
+func (s service) Enable(storeID string) (*Store, error) {
+	return s.repository.Enable(storeID)
 }
 
 // AddChannel adds a channel to a store.

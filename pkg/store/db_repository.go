@@ -87,6 +87,22 @@ func (r *DBRepository) FindByIDs(storeIDs []string) ([]Store, error) {
 	return stores, nil
 }
 
+// Enable method for enable a store in database
+func (r *DBRepository) Enable(storeID string) (*Store, error) {
+	var store Store
+	if err := r.db.First(&store, storeID).Error; err != nil {
+		shared.LogError("error getting store", LogDBRepository, "Enable", err, storeID)
+		return nil, err
+	}
+
+	if err := r.db.Model(&store).Update("enabled", !store.Enabled).Error; err != nil {
+		shared.LogError("error updating store", LogDBRepository, "Enable", err, store)
+		return nil, err
+	}
+
+	return &store, nil
+}
+
 // AddChannel method for add a channel in store
 func (r *DBRepository) AddChannel(storeID string, channel *channel.Channel) (*Store, error) {
 	var store Store

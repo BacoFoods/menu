@@ -5108,6 +5108,71 @@ const docTemplate = `{
                 }
             }
         },
+        "/store/{id}/enable": {
+            "patch": {
+                "description": "To enable/disable a store",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Store"
+                ],
+                "summary": "To enable/disable a store",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "store id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/store.Store"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/store/{id}/zones": {
             "get": {
                 "description": "To get zones by store",
@@ -6538,7 +6603,7 @@ const docTemplate = `{
         },
         "/zone/{id}/enable": {
             "patch": {
-                "description": "To enable a zone",
+                "description": "To enable/disable a zone",
                 "consumes": [
                     "application/json"
                 ],
@@ -6548,7 +6613,7 @@ const docTemplate = `{
                 "tags": [
                     "Zones"
                 ],
-                "summary": "To enable a zone",
+                "summary": "To enable/disable a zone",
                 "parameters": [
                     {
                         "type": "integer",

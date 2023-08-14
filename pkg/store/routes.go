@@ -17,6 +17,7 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 	router.PATCH("/store/:id", r.handler.Update)
 	router.DELETE("/store/:id", r.handler.Delete)
 
+	router.PATCH("/store/:id/enable", r.handler.Enable)
 	router.PATCH("/store/:id/channel/:channelID", r.handler.AddChannel)
 
 	router.GET("/store/:id/zone", r.handler.FindZonesByStore)

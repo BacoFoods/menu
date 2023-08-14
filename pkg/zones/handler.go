@@ -259,10 +259,10 @@ func (h Handler) RemoveTables(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse("tables removed from zone"))
 }
 
-// Enable to handle a request to enable a zone
+// Enable to handle a request to enable/disable a zone
 // @Tags Zones
-// @Summary To enable a zone
-// @Description To enable a zone
+// @Summary To enable/disable a zone
+// @Description To enable/disable a zone
 // @Accept json
 // @Produce json
 // @Param id path int true "Zone ID"
