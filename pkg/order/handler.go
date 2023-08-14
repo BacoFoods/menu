@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -16,6 +17,8 @@ type Handler struct {
 func NewHandler(service Service) *Handler {
 	return &Handler{service}
 }
+
+// Order
 
 // Create to handle a request to create an order
 // @Tags Order
@@ -141,4 +144,150 @@ func (h *Handler) Find(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(orders))
+}
+
+// Oder Types
+
+// CreateOrderType to handle a request to create an order type
+// @Tags OrderType
+// @Summary To create an order type
+// @Description To create an order type
+// @Accept json
+// @Produce json
+// @Param orderType body OrderType true "Order Type"
+// @Success 200 {object} object{status=string,data=OrderType}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /order-type [post]
+func (h *Handler) CreateOrderType(c *gin.Context) {
+	var body OrderType
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "CreateOrderType", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	orderType, err := h.service.CreateOrderType(&body)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(orderType))
+}
+
+// FindOrderType to handle a request to find order types
+// @Tags OrderType
+// @Summary To find order types
+// @Description To find order types
+// @Accept json
+// @Produce json
+// @Param channelID path string false "Channel ID"
+// @Param storeID path string false "Store ID"
+// @Param brandID path string false "Brand ID"
+// @Param name path string false "Name"
+// @Success 200 {object} object{status=string,data=OrderType}
+// @Router /order-type [get]
+func (h *Handler) FindOrderType(c *gin.Context) {
+	filters := make(map[string]interface{})
+
+	channelID := c.Query("channelID")
+	if channelID != "" {
+		filters["channel_id"] = channelID
+	}
+
+	storeID := c.Query("storeID")
+	if storeID != "" {
+		filters["store_id"] = storeID
+	}
+
+	brandID := c.Query("brandID")
+	if brandID != "" {
+		filters["brand_id"] = brandID
+	}
+
+	name := c.Query("name")
+	if name != "" {
+		filters["name"] = name
+	}
+
+	orderTypes, err := h.service.FindOrderType(filters)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(orderTypes))
+}
+
+// GetOrderType to handle a request to get an order type
+// @Tags OrderType
+// @Summary To get an order type
+// @Description To get an order type
+// @Accept json
+// @Produce json
+// @Param id path string true "Order Type ID"
+// @Success 200 {object} object{status=string,data=OrderType}
+// @Router /order-type/{id} [get]
+func (h *Handler) GetOrderType(c *gin.Context) {
+	orderTypeID := c.Param("id")
+
+	orderType, err := h.service.GetOrderType(orderTypeID)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(orderType))
+}
+
+// UpdateOrderType to handle a request to update an order type
+// @Tags OrderType
+// @Summary To update an order type
+// @Description To update an order type
+// @Accept json
+// @Produce json
+// @Param id path string true "Order Type ID"
+// @Param orderType body OrderType true "Order Type"
+// @Success 200 {object} object{status=string,data=OrderType}
+// @Router /order-type/{id} [patch]
+func (h *Handler) UpdateOrderType(c *gin.Context) {
+	orderTypeID := c.Param("id")
+
+	var body OrderType
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "UpdateOrderType", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	orderType, err := h.service.UpdateOrderType(orderTypeID, &body)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(orderType))
+}
+
+// DeleteOrderType to handle a request to delete an order type
+// @Tags OrderType
+// @Summary To delete an order type
+// @Description To delete an order type
+// @Accept json
+// @Produce json
+// @Param id path string true "Order Type ID"
+// @Success 200 {object} object{status=string,data=OrderType}
+// @Router /order-type/{id} [delete]
+func (h *Handler) DeleteOrderType(c *gin.Context) {
+	orderTypeID := c.Param("id")
+
+	err := h.service.DeleteOrderType(orderTypeID)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(fmt.Sprintf("Order type with id %s has been deleted", orderTypeID)))
 }

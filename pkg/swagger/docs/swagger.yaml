@@ -214,6 +214,10 @@ definitions:
         $ref: '#/definitions/tables.Table'
       table_id:
         type: integer
+      type:
+        $ref: '#/definitions/order.OrderType'
+      type_id:
+        type: integer
     required:
     - brand_id
     - channel_id
@@ -369,6 +373,23 @@ definitions:
     - brand_id
     - channel_id
     - store_id
+    type: object
+  order.OrderType:
+    properties:
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
+      code:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      store_id:
+        type: integer
     type: object
   product.Modifier:
     properties:
@@ -2934,6 +2955,173 @@ paths:
       summary: To create an order
       tags:
       - Order
+  /order-type:
+    get:
+      consumes:
+      - application/json
+      description: To find order types
+      parameters:
+      - description: Channel ID
+        in: path
+        name: channelID
+        type: string
+      - description: Store ID
+        in: path
+        name: storeID
+        type: string
+      - description: Brand ID
+        in: path
+        name: brandID
+        type: string
+      - description: Name
+        in: path
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.OrderType'
+                status:
+                  type: string
+              type: object
+      summary: To find order types
+      tags:
+      - OrderType
+    post:
+      consumes:
+      - application/json
+      description: To create an order type
+      parameters:
+      - description: Order Type
+        in: body
+        name: orderType
+        required: true
+        schema:
+          $ref: '#/definitions/order.OrderType'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.OrderType'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create an order type
+      tags:
+      - OrderType
+  /order-type/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete an order type
+      parameters:
+      - description: Order Type ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.OrderType'
+                status:
+                  type: string
+              type: object
+      summary: To delete an order type
+      tags:
+      - OrderType
+    get:
+      consumes:
+      - application/json
+      description: To get an order type
+      parameters:
+      - description: Order Type ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.OrderType'
+                status:
+                  type: string
+              type: object
+      summary: To get an order type
+      tags:
+      - OrderType
+    patch:
+      consumes:
+      - application/json
+      description: To update an order type
+      parameters:
+      - description: Order Type ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Order Type
+        in: body
+        name: orderType
+        required: true
+        schema:
+          $ref: '#/definitions/order.OrderType'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.OrderType'
+                status:
+                  type: string
+              type: object
+      summary: To update an order type
+      tags:
+      - OrderType
   /order/{id}:
     get:
       consumes:

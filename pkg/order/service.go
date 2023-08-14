@@ -16,6 +16,12 @@ type Service interface {
 	UpdateTable(orderID, tableID uint64) (*Order, error)
 	Get(string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
+
+	CreateOrderType(orderType *OrderType) (*OrderType, error)
+	FindOrderType(filter map[string]any) ([]OrderType, error)
+	GetOrderType(orderTypeID string) (*OrderType, error)
+	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
+	DeleteOrderType(orderTypeID string) error
 }
 
 type service struct {
@@ -27,6 +33,8 @@ type service struct {
 func NewService(repository Repository, table tables.Repository, product products.Repository) service {
 	return service{repository, table, product}
 }
+
+// Orders
 
 func (s service) Create(order *Order) (*Order, error) {
 	productIDs := order.GetProductIDs()
@@ -89,4 +97,26 @@ func (s service) Get(id string) (*Order, error) {
 
 func (s service) Find(filter map[string]any) ([]Order, error) {
 	return s.repository.Find(filter)
+}
+
+// Order Types
+
+func (s service) CreateOrderType(orderType *OrderType) (*OrderType, error) {
+	return s.repository.CreateOrderType(orderType)
+}
+
+func (s service) FindOrderType(filter map[string]any) ([]OrderType, error) {
+	return s.repository.FindOrderType(filter)
+}
+
+func (s service) GetOrderType(orderTypeID string) (*OrderType, error) {
+	return s.repository.GetOrderType(orderTypeID)
+}
+
+func (s service) UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error) {
+	return s.repository.UpdateOrderType(orderTypeID, orderType)
+}
+
+func (s service) DeleteOrderType(orderTypeID string) error {
+	return s.repository.DeleteOrderType(orderTypeID)
 }

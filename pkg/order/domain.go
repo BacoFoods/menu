@@ -16,6 +16,12 @@ const (
 	ErrorOrderCreation     = "error creating order"
 	ErrorOrderGetting      = "error getting order"
 	ErrorOrderUpdate       = "error updating order"
+
+	ErrorOrderTypeCreation = "error creating order type"
+	ErrorOrderTypeFinding  = "error finding order type"
+	ErrorOrderTypeGetting  = "error getting order type"
+	ErrorOrderTypeUpdating = "error updating order type"
+	ErrorOrderTypeDeleting = "error deleting order type"
 )
 
 type Repository interface {
@@ -23,6 +29,12 @@ type Repository interface {
 	Get(orderID string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
 	Update(order *Order) (*Order, error)
+
+	CreateOrderType(*OrderType) (*OrderType, error)
+	FindOrderType(filter map[string]any) ([]OrderType, error)
+	GetOrderType(orderTypeID string) (*OrderType, error)
+	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
+	DeleteOrderType(orderTypeID string) error
 }
 
 type Order struct {
@@ -35,6 +47,8 @@ type Order struct {
 	ChannelID     *uint            `json:"channel_id" binding:"required"`
 	TableID       *uint            `json:"table_id"`
 	Table         *tables.Table    `json:"table"`
+	TypeID        *uint            `json:"type_id"`
+	Type          *OrderType       `json:"type"`
 	Comments      string           `json:"comments"`
 	Items         []OrderItem      `json:"items"  gorm:"foreignKey:OrderID"`
 	Discounts     []OrderDiscount  `json:"discounts"  gorm:"foreignKey:OrderID"`
@@ -155,7 +169,6 @@ type OrderStatus struct {
 
 type OrderType struct {
 	ID          uint            `json:"id"`
-	OrderID     *uint           `json:"order_id"`
 	Name        string          `json:"name"`
 	Code        string          `json:"code"`
 	Description string          `json:"description"`
