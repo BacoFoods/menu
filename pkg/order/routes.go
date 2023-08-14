@@ -13,4 +13,7 @@ func NewRoutes(handler *Handler) Routes {
 func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 	// Order
 	router.POST("/order", r.handler.Create)
+	router.PATCH("/order/:id/table/:table", r.handler.UpdateTable)
+	router.GET("/order/:id", r.handler.Get)
+	router.GET("/order", r.handler.Find)
 }

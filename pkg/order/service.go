@@ -13,6 +13,9 @@ const (
 
 type Service interface {
 	Create(*Order) (*Order, error)
+	UpdateTable(orderID, tableID uint64) (*Order, error)
+	Get(string) (*Order, error)
+	Find(filter map[string]any) ([]Order, error)
 }
 
 type service struct {
@@ -52,4 +55,38 @@ func (s service) Create(order *Order) (*Order, error) {
 	}
 
 	return orderDB, nil
+}
+
+func (s service) UpdateTable(orderID, tableID uint64) (*Order, error) {
+	order, err := s.repository.Get(fmt.Sprintf("%d", orderID))
+	if err != nil {
+		shared.LogError("error getting order", LogService, "UpdateTable", err, orderID)
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	if *order.TableID == uint(tableID) {
+		return order, nil
+	}
+
+	table := uint(tableID)
+	if _, err := s.table.SetOrder(&table, &order.ID); err != nil {
+		return nil, err
+	}
+
+	order.TableID = &table
+	orderDB, err := s.repository.Update(order)
+	if err != nil {
+		shared.LogError("error updating order", LogService, "UpdateTable", err, *order)
+		return nil, fmt.Errorf(ErrorOrderUpdate)
+	}
+
+	return orderDB, nil
+}
+
+func (s service) Get(id string) (*Order, error) {
+	return s.repository.Get(id)
+}
+
+func (s service) Find(filter map[string]any) ([]Order, error) {
+	return s.repository.Find(filter)
 }

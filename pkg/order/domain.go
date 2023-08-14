@@ -10,9 +10,20 @@ import (
 )
 
 const (
-	ErrorBadRequest    = "error bad request"
-	ErrorOrderCreation = "error creating order"
+	ErrorBadRequest        = "error bad request"
+	ErrorBadRequestTableID = "error bad request wrong table id"
+	ErrorBadRequestStoreID = "error bad request wrong store id"
+	ErrorOrderCreation     = "error creating order"
+	ErrorOrderGetting      = "error getting order"
+	ErrorOrderUpdate       = "error updating order"
 )
+
+type Repository interface {
+	Create(order *Order) (*Order, error)
+	Get(orderID string) (*Order, error)
+	Find(filter map[string]any) ([]Order, error)
+	Update(order *Order) (*Order, error)
+}
 
 type Order struct {
 	ID            uint             `json:"id" gorm:"primaryKey"`
@@ -187,9 +198,4 @@ type OrderSurcharge struct {
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
-}
-
-type Repository interface {
-	Create(order *Order) (*Order, error)
-	Get(orderID string) (*Order, error)
 }

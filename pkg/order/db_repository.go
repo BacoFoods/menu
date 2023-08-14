@@ -41,3 +41,28 @@ func (r *DBRepository) Get(orderID string) (*Order, error) {
 
 	return &order, nil
 }
+
+// Update method for update an order in database
+func (r *DBRepository) Update(order *Order) (*Order, error) {
+	if err := r.db.Save(order).Error; err != nil {
+		shared.LogError("error updating order", LogDBRepository, "Update", err, *order)
+		return nil, err
+	}
+
+	return order, nil
+}
+
+// Find method for find orders in database
+func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
+	var orders []Order
+	if err := r.db.
+		Preload(clause.Associations).
+		Preload("Items.Modifiers").
+		Where(filter).
+		Find(&orders).Error; err != nil {
+		shared.LogError("error finding orders", LogDBRepository, "Find", err, filter)
+		return nil, err
+	}
+
+	return orders, nil
+}
