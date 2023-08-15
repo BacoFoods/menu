@@ -57,6 +57,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 // @Router /discount [get]
 func (h *Handler) Find(ctx *gin.Context) {
 	query := make(map[string]string)
+
 	name := ctx.Query("name")
 	if name != "" {
 		query["name"] = ctx.Query("name")
