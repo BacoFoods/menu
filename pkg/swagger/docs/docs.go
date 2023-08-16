@@ -5688,37 +5688,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "address": {
-                                            "type": "string"
-                                        },
-                                        "brand_id": {
-                                            "type": "integer"
-                                        },
-                                        "enabled": {
-                                            "type": "boolean"
-                                        },
-                                        "image": {
-                                            "type": "string"
-                                        },
-                                        "latitude": {
-                                            "type": "number"
-                                        },
-                                        "longitude": {
-                                            "type": "number"
-                                        },
-                                        "name": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/store.Store"
                         }
                     }
                 ],
@@ -8609,7 +8579,13 @@ const docTemplate = `{
                 "brand_id": {
                     "type": "integer"
                 },
+                "city": {
+                    "type": "string"
+                },
                 "code": {
+                    "type": "string"
+                },
+                "email": {
                     "type": "string"
                 },
                 "enabled": {
@@ -8628,6 +8604,9 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "phone": {
                     "type": "string"
                 }
             }

@@ -101,7 +101,7 @@ func (h Handler) Get(c *gin.Context) {
 // @Description To create a store
 // @Accept json
 // @Produce json
-// @Param store body object{name=string,brand_id=integer,enabled=boolean,image=string,latitude=number,longitude=number,address=string} true "store"
+// @Param store body Store true "store"
 // @Success 200 {object} object{status=string,data=Store}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response

@@ -25,7 +25,10 @@ type Store struct {
 	Name      string            `json:"name"`
 	BrandID   *uint             `json:"brand_id"`
 	Enabled   bool              `json:"enabled"`
+	Email     string            `json:"email"`
+	Phone     string            `json:"phone"`
 	Image     string            `json:"image"`
+	City      string            `json:"city"`
 	Channels  []channel.Channel `json:"channels,omitempty" gorm:"many2many:store_channels;" swaggerignore:"true"`
 	Latitude  float64           `json:"latitude"`
 	Longitude float64           `json:"longitude"`

@@ -546,7 +546,11 @@ definitions:
         type: string
       brand_id:
         type: integer
+      city:
+        type: string
       code:
+        type: string
+      email:
         type: string
       enabled:
         type: boolean
@@ -559,6 +563,8 @@ definitions:
       longitude:
         type: number
       name:
+        type: string
+      phone:
         type: string
     type: object
   surcharge.Surcharge:
@@ -4215,24 +4221,7 @@ paths:
         name: store
         required: true
         schema:
-          allOf:
-          - type: object
-          - properties:
-              address:
-                type: string
-              brand_id:
-                type: integer
-              enabled:
-                type: boolean
-              image:
-                type: string
-              latitude:
-                type: number
-              longitude:
-                type: number
-              name:
-                type: string
-            type: object
+          $ref: '#/definitions/store.Store'
       produces:
       - application/json
       responses:
