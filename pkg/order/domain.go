@@ -10,15 +10,18 @@ import (
 )
 
 const (
-	ErrorBadRequest           = "error bad request"
-	ErrorBadRequestOrderID    = "error bad request wrong order id"
-	ErrorBadRequestProductID  = "error bad request wrong product id"
-	ErrorBadRequestTableID    = "error bad request wrong table id"
-	ErrorBadRequestStoreID    = "error bad request wrong store id"
-	ErrorBadRequestOrderSeats = "error bad request wrong order seats can't be less than 0"
-	ErrorOrderCreation        = "error creating order"
-	ErrorOrderGetting         = "error getting order"
-	ErrorOrderUpdate          = "error updating order"
+	ErrorBadRequest            = "error bad request"
+	ErrorBadRequestOrderID     = "error bad request wrong order id"
+	ErrorBadRequestProductID   = "error bad request wrong product id"
+	ErrorBadRequestTableID     = "error bad request wrong table id"
+	ErrorBadRequestStoreID     = "error bad request wrong store id"
+	ErrorBadRequestOrderSeats  = "error bad request wrong order seats can't be less than 0"
+	ErrorOrderCreation         = "error creating order"
+	ErrorOrderGetting          = "error getting order"
+	ErrorOrderUpdate           = "error updating order"
+	ErrorOrderProductGetting   = "error getting order product"
+	ErrorOrderProductNotFound  = "error order product with id %v not found; "
+	ErrorOrderModifierNotFound = "error order modifier with id %v not found; "
 
 	ErrorOrderItemUpdate = "error updating order item"
 
@@ -98,33 +101,14 @@ func (o *Order) SetItems(products []product.Product) {
 	o.Items = items
 }
 
-func (o *Order) AddProduct(product *product.Product) {
-	for _, item := range o.Items {
-		if *item.ProductID == product.ID {
-			item.Quantity++
-			return
-		}
-	}
-
-	o.Items = append(o.Items, OrderItem{
-		ProductID:   &product.ID,
-		Name:        product.Name,
-		Description: product.Description,
-		Image:       product.Image,
-		SKU:         product.SKU,
-		Price:       product.Price,
-		Unit:        product.Unit,
-	})
+func (o *Order) AddProduct(orderItem OrderItem) {
+	o.Items = append(o.Items, orderItem)
 }
 
 func (o *Order) RemoveProduct(product *product.Product) {
 	for i, item := range o.Items {
 		if *item.ProductID == product.ID {
-			if item.Quantity > 1 {
-				o.Items[i].Quantity--
-			} else {
-				o.Items = append(o.Items[:i], o.Items[i+1:]...)
-			}
+			o.Items = append(o.Items[:i], o.Items[i+1:]...)
 			return
 		}
 	}
@@ -140,7 +124,6 @@ type OrderItem struct {
 	SKU             string          `json:"sku"`
 	Price           float64         `json:"price" gorm:"precision:18;scale:2"`
 	Unit            string          `json:"unit"`
-	Quantity        int             `json:"quantity"`
 	Discount        float64         `json:"discount" gorm:"precision:18;scale:2"`
 	DiscountReason  string          `json:"discount_reason,omitempty"`
 	Surcharge       float64         `json:"surcharge" gorm:"precision:18;scale:2"`
@@ -177,6 +160,7 @@ func (oi *OrderItem) SetModifiers(modifiers []product.Modifier) {
 type OrderModifier struct {
 	ID          uint            `json:"id" gorm:"primaryKey"`
 	OrderItemID *uint           `json:"order_item_id"`
+	OrderID     uint            `json:"order_id"`
 	Name        string          `json:"name"`
 	Description string          `json:"description"`
 	Image       string          `json:"image"`

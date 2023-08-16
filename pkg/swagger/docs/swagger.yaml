@@ -223,19 +223,30 @@ definitions:
     - channel_id
     - store_id
     type: object
-  order.OrderDetailTDP:
+  order.OrderDTO:
     properties:
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
       comments:
         type: string
-      course:
+      items:
+        items:
+          $ref: '#/definitions/order.OrderItemDTO'
+        type: array
+      order_type:
         type: string
-      product_id:
+      seats:
         type: integer
-      quantity:
+      store_id:
+        type: integer
+      table_id:
         type: integer
     required:
-    - product_id
-    - quantity
+    - brand_id
+    - channel_id
+    - store_id
     type: object
   order.OrderDiscount:
     properties:
@@ -290,8 +301,6 @@ definitions:
         type: number
       product_id:
         type: integer
-      quantity:
-        type: integer
       sku:
         type: string
       surcharge:
@@ -300,6 +309,21 @@ definitions:
         type: string
       unit:
         type: string
+    type: object
+  order.OrderItemDTO:
+    properties:
+      comments:
+        type: string
+      course:
+        type: string
+      modifiers:
+        items:
+          $ref: '#/definitions/order.OrderModifierDTO'
+        type: array
+      product_id:
+        type: integer
+    required:
+    - product_id
     type: object
   order.OrderModifier:
     properties:
@@ -326,6 +350,15 @@ definitions:
       unit:
         type: string
     type: object
+  order.OrderModifierDTO:
+    properties:
+      comments:
+        type: string
+      product_id:
+        type: integer
+    required:
+    - product_id
+    type: object
   order.OrderSurcharge:
     properties:
       active:
@@ -349,31 +382,6 @@ definitions:
       store_id:
         type: integer
     type: object
-  order.OrderTDP:
-    properties:
-      brand_id:
-        type: integer
-      channel_id:
-        type: integer
-      comments:
-        type: string
-      items:
-        items:
-          $ref: '#/definitions/order.OrderDetailTDP'
-        type: array
-      order_type:
-        type: string
-      seats:
-        type: integer
-      store_id:
-        type: integer
-      table_id:
-        type: integer
-    required:
-    - brand_id
-    - channel_id
-    - store_id
-    type: object
   order.OrderType:
     properties:
       brand_id:
@@ -390,6 +398,15 @@ definitions:
         type: string
       store_id:
         type: integer
+    type: object
+  order.RequestAddProducts:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/order.OrderItemDTO'
+        type: array
+    required:
+    - items
     type: object
   order.RequestUpdateOrderProduct:
     properties:
@@ -2945,7 +2962,7 @@ paths:
         name: order
         required: true
         schema:
-          $ref: '#/definitions/order.OrderTDP'
+          $ref: '#/definitions/order.OrderDTO'
       produces:
       - application/json
       responses:
@@ -3182,22 +3199,23 @@ paths:
       summary: To get an order
       tags:
       - Order
-  /order/{id}/product/{productID}/add:
+  /order/{id}/add/products:
     patch:
       consumes:
       - application/json
-      description: To add a product to an order
+      description: To add products to an order
       parameters:
       - description: Order ID
         in: path
         name: id
         required: true
         type: string
-      - description: Product ID
-        in: path
-        name: productID
+      - description: Add Products
+        in: body
+        name: product
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/order.RequestAddProducts'
       produces:
       - application/json
       responses:
@@ -3224,10 +3242,10 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
-      summary: To add a product to an order
+      summary: To add products to an order
       tags:
       - Order
-  /order/{id}/product/{productID}/remove:
+  /order/{id}/remove/product:
     patch:
       consumes:
       - application/json
@@ -3270,57 +3288,6 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To remove a product from an order
-      tags:
-      - Order
-  /order/{id}/product/{productID}/update:
-    patch:
-      consumes:
-      - application/json
-      description: To update a product from an order
-      parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Product ID
-        in: path
-        name: productID
-        required: true
-        type: string
-      - description: product
-        in: body
-        name: product
-        required: true
-        schema:
-          $ref: '#/definitions/order.RequestUpdateOrderProduct'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      summary: To update a product from an order
       tags:
       - Order
   /order/{id}/seats:
@@ -3412,6 +3379,57 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To update the table of an order
+      tags:
+      - Order
+  /order/{id}/update/product:
+    patch:
+      consumes:
+      - application/json
+      description: To update a product from an order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: productID
+        required: true
+        type: string
+      - description: product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/order.RequestUpdateOrderProduct'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update a product from an order
       tags:
       - Order
   /overrider:

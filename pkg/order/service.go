@@ -17,7 +17,7 @@ type Service interface {
 	Get(string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
 	UpdateSeats(orderID string, seats int) (*Order, error)
-	AddProduct(orderID, productID string) (*Order, error)
+	AddProducts(orderID string, orderItem []OrderItem) (*Order, error)
 	RemoveProduct(orderID, productID string) (*Order, error)
 	UpdateProduct(product *OrderItem) (*Order, error)
 
@@ -130,20 +130,84 @@ func (s service) UpdateSeats(orderID string, seats int) (*Order, error) {
 	return orderDB, nil
 }
 
-func (s service) AddProduct(orderID, productID string) (*Order, error) {
+func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "AddProduct", err, orderID)
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	product, err := s.product.Get(productID)
-	if err != nil {
-		shared.LogError("error getting product", LogService, "AddProduct", err, productID)
-		return nil, fmt.Errorf(ErrorOrderGetting)
+	productIDs := make([]string, len(orderItems))
+	modifierIDs := make([]string, 0)
+	for i, item := range orderItems {
+		productIDs[i] = fmt.Sprintf("%d", *item.ProductID)
+		for _, mod := range item.Modifiers {
+			modifierIDs = append(modifierIDs, fmt.Sprintf("%d", *mod.ProductID))
+		}
 	}
 
-	order.AddProduct(product)
+	productsMap, err := s.product.GetAsMapByIDs(productIDs)
+	if err != nil {
+		shared.LogError("error getting products", LogService, "AddProduct", err, productIDs)
+		return nil, fmt.Errorf(ErrorOrderProductGetting)
+	}
+
+	productModifiersMap, err := s.product.GetAsMapByIDs(modifierIDs)
+	if err != nil {
+		shared.LogError("error getting modifiers products", LogService, "AddProduct", err, modifierIDs)
+		return nil, fmt.Errorf(ErrorOrderProductGetting)
+	}
+
+	errors := ""
+	for _, item := range orderItems {
+		productID := fmt.Sprintf("%d", *item.ProductID)
+		if _, ok := productsMap[productID]; !ok {
+			errors += fmt.Sprintf(ErrorOrderProductNotFound, productID)
+			continue
+		}
+
+		product := productsMap[productID]
+
+		modifiers := make([]OrderModifier, len(item.Modifiers))
+		for i, mod := range item.Modifiers {
+			productID := fmt.Sprintf("%d", *mod.ProductID)
+			if _, ok := productModifiersMap[productID]; !ok {
+				errors += fmt.Sprintf(ErrorOrderModifierNotFound, productID)
+				continue
+			}
+
+			modifier := productModifiersMap[productID]
+			modifiers[i] = OrderModifier{
+				OrderID:     order.ID,
+				ProductID:   mod.ProductID,
+				Name:        modifier.Name,
+				Description: modifier.Description,
+				Image:       modifier.Image,
+				SKU:         modifier.SKU,
+				Price:       modifier.Price,
+				Unit:        modifier.Unit,
+				Comments:    mod.Comments,
+			}
+		}
+
+		order.AddProduct(OrderItem{
+			OrderID:     &order.ID,
+			ProductID:   item.ProductID,
+			Name:        product.Name,
+			Description: product.Description,
+			Image:       product.Image,
+			SKU:         product.SKU,
+			Price:       product.Price,
+			Unit:        product.Unit,
+			Comments:    item.Comments,
+			Course:      item.Course,
+			Modifiers:   modifiers,
+		})
+	}
+
+	if errors != "" {
+		return nil, fmt.Errorf(errors)
+	}
 
 	orderDB, err := s.repository.Update(order)
 	if err != nil {

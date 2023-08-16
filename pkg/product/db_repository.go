@@ -62,6 +62,24 @@ func (r *DBRepository) GetByIDs(productIDs []string) ([]Product, error) {
 	return products, nil
 }
 
+// GetAsMapByIDs method for get products as map by ids in database
+func (r *DBRepository) GetAsMapByIDs(productIDs []string) (map[string]Product, error) {
+	var products []Product
+	if err := r.db.Preload(clause.Associations).
+		Preload("Modifiers.Products").
+		Find(&products, productIDs).Error; err != nil {
+		shared.LogError("error getting products", LogDBRepository, "GetAsMapByIDs", err, productIDs)
+		return nil, err
+	}
+
+	productsMap := make(map[string]Product)
+	for _, product := range products {
+		productsMap[fmt.Sprintf("%d", product.ID)] = product
+	}
+
+	return productsMap, nil
+}
+
 // Update method for update a product in database
 func (r *DBRepository) Update(product *Product) (*Product, error) {
 	var productDB Product

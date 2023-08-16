@@ -94,6 +94,7 @@ type Repository interface {
 	Find(map[string]string) ([]Product, error)
 	Get(productID string) (*Product, error)
 	GetByIDs(productIDs []string) ([]Product, error)
+	GetAsMapByIDs(productIDs []string) (map[string]Product, error)
 	Update(*Product) (*Product, error)
 	Delete(string) (*Product, error)
 	AddModifier(product *Product, modifier *Modifier) (*Product, error)

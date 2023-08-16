@@ -22,6 +22,10 @@ type RequestUpdateOrderProduct struct {
 	Course   string  `json:"course"`
 }
 
+type RequestAddProducts struct {
+	Items []OrderItemDTO `json:"items" binding:"required"`
+}
+
 type Handler struct {
 	service Service
 }
@@ -38,14 +42,14 @@ func NewHandler(service Service) *Handler {
 // @Description To create an order
 // @Accept json
 // @Produce json
-// @Param order body OrderTDP true "Order"
+// @Param order body OrderDTO true "Order"
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
 // @Router /order [post]
 func (h *Handler) Create(c *gin.Context) {
-	var body OrderTDP
+	var body OrderDTO
 	if err := c.ShouldBindJSON(&body); err != nil {
 		shared.LogError("error binding request body", LogHandler, "Create", err, body)
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
@@ -195,24 +199,35 @@ func (h *Handler) UpdateSeats(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(order))
 }
 
-// AddProduct to handle a request to add a product to an order
+// AddProducts to handle a request to add a products to an order
 // @Tags Order
-// @Summary To add a product to an order
-// @Description To add a product to an order
+// @Summary To add products to an order
+// @Description To add products to an order
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
-// @Param productID path string true "Product ID"
+// @Param product body RequestAddProducts true "Add Products"
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
-// @Router /order/{id}/product/{productID}/add [patch]
-func (h *Handler) AddProduct(c *gin.Context) {
+// @Router /order/{id}/add/products [patch]
+func (h *Handler) AddProducts(c *gin.Context) {
 	orderID := c.Param("id")
-	productID := c.Param("productID")
 
-	order, err := h.service.AddProduct(orderID, productID)
+	var body RequestAddProducts
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "AddProduct", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	items := make([]OrderItem, 0)
+	for _, item := range body.Items {
+		items = append(items, item.ToOrderItem())
+	}
+
+	order, err := h.service.AddProducts(orderID, items)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
@@ -233,7 +248,7 @@ func (h *Handler) AddProduct(c *gin.Context) {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
-// @Router /order/{id}/product/{productID}/remove [patch]
+// @Router /order/{id}/remove/product [patch]
 func (h *Handler) RemoveProduct(c *gin.Context) {
 	orderID := c.Param("id")
 	productID := c.Param("productID")
@@ -260,7 +275,7 @@ func (h *Handler) RemoveProduct(c *gin.Context) {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
-// @Router /order/{id}/product/{productID}/update [patch]
+// @Router /order/{id}/update/product [patch]
 func (h *Handler) UpdateProduct(c *gin.Context) {
 	var body RequestUpdateOrderProduct
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -288,7 +303,6 @@ func (h *Handler) UpdateProduct(c *gin.Context) {
 		ProductID: &uProductID,
 		Price:     body.Price,
 		Unit:      body.Unit,
-		Quantity:  body.Quantity,
 		Comments:  body.Comments,
 		Course:    body.Course,
 	}

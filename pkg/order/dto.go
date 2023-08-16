@@ -1,20 +1,20 @@
 package order
 
-type OrderTDP struct {
-	OrderType string           `json:"order_type"`
-	BrandID   *uint            `json:"brand_id" binding:"required"`
-	StoreID   *uint            `json:"store_id" binding:"required"`
-	ChannelID *uint            `json:"channel_id" binding:"required"`
-	TableID   *uint            `json:"table_id"`
-	Comments  string           `json:"comments"`
-	Detail    []OrderDetailTDP `json:"items"`
-	Seats     int              `json:"seats"`
+type OrderDTO struct {
+	OrderType string         `json:"order_type"`
+	BrandID   *uint          `json:"brand_id" binding:"required"`
+	StoreID   *uint          `json:"store_id" binding:"required"`
+	ChannelID *uint          `json:"channel_id" binding:"required"`
+	TableID   *uint          `json:"table_id"`
+	Comments  string         `json:"comments"`
+	Items     []OrderItemDTO `json:"items"`
+	Seats     int            `json:"seats"`
 }
 
-func (o OrderTDP) ToOrder() Order {
-	details := make([]OrderItem, len(o.Detail))
-	for i, d := range o.Detail {
-		details[i] = d.ToOrderDetail()
+func (o OrderDTO) ToOrder() Order {
+	items := make([]OrderItem, len(o.Items))
+	for i, d := range o.Items {
+		items[i] = d.ToOrderItem()
 	}
 
 	return Order{
@@ -25,22 +25,40 @@ func (o OrderTDP) ToOrder() Order {
 		TableID:   o.TableID,
 		Comments:  o.Comments,
 		Seats:     o.Seats,
-		Items:     details,
+		Items:     items,
 	}
 }
 
-type OrderDetailTDP struct {
-	ProductID *uint  `json:"product_id" binding:"required"`
-	Quantity  int    `json:"quantity" binding:"required"`
-	Comments  string `json:"comments"`
-	Course    string `json:"course"`
+type OrderItemDTO struct {
+	ProductID *uint              `json:"product_id" binding:"required"`
+	Comments  string             `json:"comments"`
+	Course    string             `json:"course"`
+	Modifiers []OrderModifierDTO `json:"modifiers"`
 }
 
-func (o OrderDetailTDP) ToOrderDetail() OrderItem {
+func (o OrderItemDTO) ToOrderItem() OrderItem {
+	modifiers := make([]OrderModifier, len(o.Modifiers))
+	for i, d := range o.Modifiers {
+		modifiers[i] = d.ToOrderModifier()
+	}
+
 	return OrderItem{
 		ProductID: o.ProductID,
-		Quantity:  o.Quantity,
 		Comments:  o.Comments,
 		Course:    o.Course,
+		Modifiers: modifiers,
+	}
+}
+
+type OrderModifierDTO struct {
+	Comments  string `json:"comments"`
+	ProductID uint   `json:"product_id" binding:"required"`
+}
+
+func (o OrderModifierDTO) ToOrderModifier() OrderModifier {
+	productID := o.ProductID
+	return OrderModifier{
+		Comments:  o.Comments,
+		ProductID: &productID,
 	}
 }

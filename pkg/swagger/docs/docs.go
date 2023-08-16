@@ -3690,7 +3690,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/order.OrderTDP"
+                            "$ref": "#/definitions/order.OrderDTO"
                         }
                     }
                 ],
@@ -4077,9 +4077,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/order/{id}/product/{productID}/add": {
+        "/order/{id}/add/products": {
             "patch": {
-                "description": "To add a product to an order",
+                "description": "To add products to an order",
                 "consumes": [
                     "application/json"
                 ],
@@ -4089,7 +4089,7 @@ const docTemplate = `{
                 "tags": [
                     "Order"
                 ],
-                "summary": "To add a product to an order",
+                "summary": "To add products to an order",
                 "parameters": [
                     {
                         "type": "string",
@@ -4099,11 +4099,13 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Product ID",
-                        "name": "productID",
-                        "in": "path",
-                        "required": true
+                        "description": "Add Products",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.RequestAddProducts"
+                        }
                     }
                 ],
                 "responses": {
@@ -4149,7 +4151,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/order/{id}/product/{productID}/remove": {
+        "/order/{id}/remove/product": {
             "patch": {
                 "description": "To remove a product from an order",
                 "consumes": [
@@ -4176,87 +4178,6 @@ const docTemplate = `{
                         "name": "productID",
                         "in": "path",
                         "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/order.Order"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/order/{id}/product/{productID}/update": {
-            "patch": {
-                "description": "To update a product from an order",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Order"
-                ],
-                "summary": "To update a product from an order",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Order ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Product ID",
-                        "name": "productID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "product",
-                        "name": "product",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/order.RequestUpdateOrderProduct"
-                        }
                     }
                 ],
                 "responses": {
@@ -4403,6 +4324,87 @@ const docTemplate = `{
                         "name": "table",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/order.Order"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/{id}/update/product": {
+            "patch": {
+                "description": "To update a product from an order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To update a product from an order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "productID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "product",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.RequestUpdateOrderProduct"
+                        }
                     }
                 ],
                 "responses": {
@@ -7968,23 +7970,39 @@ const docTemplate = `{
                 }
             }
         },
-        "order.OrderDetailTDP": {
+        "order.OrderDTO": {
             "type": "object",
             "required": [
-                "product_id",
-                "quantity"
+                "brand_id",
+                "channel_id",
+                "store_id"
             ],
             "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "channel_id": {
+                    "type": "integer"
+                },
                 "comments": {
                     "type": "string"
                 },
-                "course": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.OrderItemDTO"
+                    }
+                },
+                "order_type": {
                     "type": "string"
                 },
-                "product_id": {
+                "seats": {
                     "type": "integer"
                 },
-                "quantity": {
+                "store_id": {
+                    "type": "integer"
+                },
+                "table_id": {
                     "type": "integer"
                 }
             }
@@ -8069,9 +8087,6 @@ const docTemplate = `{
                 "product_id": {
                     "type": "integer"
                 },
-                "quantity": {
-                    "type": "integer"
-                },
                 "sku": {
                     "type": "string"
                 },
@@ -8083,6 +8098,29 @@ const docTemplate = `{
                 },
                 "unit": {
                     "type": "string"
+                }
+            }
+        },
+        "order.OrderItemDTO": {
+            "type": "object",
+            "required": [
+                "product_id"
+            ],
+            "properties": {
+                "comments": {
+                    "type": "string"
+                },
+                "course": {
+                    "type": "string"
+                },
+                "modifiers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.OrderModifierDTO"
+                    }
+                },
+                "product_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -8124,6 +8162,20 @@ const docTemplate = `{
                 }
             }
         },
+        "order.OrderModifierDTO": {
+            "type": "object",
+            "required": [
+                "product_id"
+            ],
+            "properties": {
+                "comments": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "order.OrderSurcharge": {
             "type": "object",
             "properties": {
@@ -8159,43 +8211,6 @@ const docTemplate = `{
                 }
             }
         },
-        "order.OrderTDP": {
-            "type": "object",
-            "required": [
-                "brand_id",
-                "channel_id",
-                "store_id"
-            ],
-            "properties": {
-                "brand_id": {
-                    "type": "integer"
-                },
-                "channel_id": {
-                    "type": "integer"
-                },
-                "comments": {
-                    "type": "string"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/order.OrderDetailTDP"
-                    }
-                },
-                "order_type": {
-                    "type": "string"
-                },
-                "seats": {
-                    "type": "integer"
-                },
-                "store_id": {
-                    "type": "integer"
-                },
-                "table_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "order.OrderType": {
             "type": "object",
             "properties": {
@@ -8219,6 +8234,20 @@ const docTemplate = `{
                 },
                 "store_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "order.RequestAddProducts": {
+            "type": "object",
+            "required": [
+                "items"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.OrderItemDTO"
+                    }
                 }
             }
         },
