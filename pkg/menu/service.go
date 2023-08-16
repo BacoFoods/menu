@@ -142,13 +142,18 @@ func (s service) FindByPlace(place, placeID string) ([]Menu, error) {
 
 // GetByPlace returns a single menu object loading overriders by ID.
 func (s service) GetByPlace(place, placeID, menuID string) (*Menu, error) {
+	menu, err := s.repository.Get(menuID)
+	if err != nil {
+		return nil, err
+	}
+
 	menuItems, err := s.repository.GetMenuItems(menuID)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(menuItems) == 0 {
-		return nil, nil
+		return menu, nil
 	}
 
 	overriders, err := s.product.OverriderFindByPlace(place, placeID)
@@ -157,11 +162,6 @@ func (s service) GetByPlace(place, placeID, menuID string) (*Menu, error) {
 	}
 
 	productsByCategory := OverrideProducts(menuItems, overriders)
-
-	menu, err := s.repository.Get(menuID)
-	if err != nil {
-		return nil, err
-	}
 
 	var categories []categoryPkg.Category
 	for _, category := range menu.Categories {
