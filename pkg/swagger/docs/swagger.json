@@ -3729,6 +3729,154 @@
                 }
             }
         },
+        "/order-item/{id}/add/modifiers": {
+            "patch": {
+                "description": "To add modifiers to a product's order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To add modifiers to a product's order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "OrderItemID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Add Modifiers",
+                        "name": "modifier",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.RequestModifiers"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/order.Order"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/order-item/{id}/remove/modifiers": {
+            "patch": {
+                "description": "To remove a modifiers from a product's order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To remove a modifiers from a product's order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "OrderItemID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Remove Modifiers",
+                        "name": "modifier",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.RequestModifiers"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/order.Order"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/order-type": {
             "get": {
                 "description": "To find order types",
@@ -8137,6 +8285,9 @@
                 "name": {
                     "type": "string"
                 },
+                "order_id": {
+                    "type": "integer"
+                },
                 "order_item_id": {
                     "type": "integer"
                 },
@@ -8239,6 +8390,20 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/order.OrderItemDTO"
+                    }
+                }
+            }
+        },
+        "order.RequestModifiers": {
+            "type": "object",
+            "required": [
+                "modifiers"
+            ],
+            "properties": {
+                "modifiers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.OrderModifierDTO"
                     }
                 }
             }

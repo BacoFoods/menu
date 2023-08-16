@@ -20,6 +20,8 @@ type Service interface {
 	AddProducts(orderID string, orderItem []OrderItem) (*Order, error)
 	RemoveProduct(orderID, productID string) (*Order, error)
 	UpdateProduct(product *OrderItem) (*Order, error)
+	AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error)
+	RemoveModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error)
 
 	CreateOrderType(orderType *OrderType) (*OrderType, error)
 	FindOrderType(filter map[string]any) ([]OrderType, error)
@@ -254,6 +256,38 @@ func (s service) UpdateProduct(product *OrderItem) (*Order, error) {
 	}
 
 	return order, nil
+}
+
+func (s service) AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error) {
+	orderItem, err := s.repository.GetOrderItem(fmt.Sprintf("%d", itemID))
+	if err != nil {
+		return nil, fmt.Errorf(ErrorOrderItemGetting)
+	}
+
+	orderItem.AddModifiers(modifiers)
+
+	orderItemUpdated, err := s.repository.UpdateOrderItem(orderItem)
+	if err != nil {
+		return nil, fmt.Errorf(ErrorOrderItemUpdate)
+	}
+
+	return orderItemUpdated, nil
+}
+
+func (s service) RemoveModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error) {
+	orderItem, err := s.repository.GetOrderItem(fmt.Sprintf("%d", itemID))
+	if err != nil {
+		return nil, fmt.Errorf(ErrorOrderItemGetting)
+	}
+
+	orderItem.RemoveModifiers(modifiers)
+
+	orderItemUpdated, err := s.repository.UpdateOrderItem(orderItem)
+	if err != nil {
+		return nil, fmt.Errorf(ErrorOrderItemUpdate)
+	}
+
+	return orderItemUpdated, nil
 }
 
 // Order Types

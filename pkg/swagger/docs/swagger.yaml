@@ -339,6 +339,8 @@ definitions:
         type: string
       name:
         type: string
+      order_id:
+        type: integer
       order_item_id:
         type: integer
       price:
@@ -407,6 +409,15 @@ definitions:
         type: array
     required:
     - items
+    type: object
+  order.RequestModifiers:
+    properties:
+      modifiers:
+        items:
+          $ref: '#/definitions/order.OrderModifierDTO'
+        type: array
+    required:
+    - modifiers
     type: object
   order.RequestUpdateOrderProduct:
     properties:
@@ -2990,6 +3001,98 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To create an order
+      tags:
+      - Order
+  /order-item/{id}/add/modifiers:
+    patch:
+      consumes:
+      - application/json
+      description: To add modifiers to a product's order
+      parameters:
+      - description: OrderItemID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Add Modifiers
+        in: body
+        name: modifier
+        required: true
+        schema:
+          $ref: '#/definitions/order.RequestModifiers'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To add modifiers to a product's order
+      tags:
+      - Order
+  /order-item/{id}/remove/modifiers:
+    patch:
+      consumes:
+      - application/json
+      description: To remove a modifiers from a product's order
+      parameters:
+      - description: OrderItemID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Remove Modifiers
+        in: body
+        name: modifier
+        required: true
+        schema:
+          $ref: '#/definitions/order.RequestModifiers'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To remove a modifiers from a product's order
       tags:
       - Order
   /order-type:

@@ -84,6 +84,17 @@ func (r *DBRepository) UpdateOrderItem(item *OrderItem) (*OrderItem, error) {
 	return item, nil
 }
 
+// GetOrderItem method for get an order item from database
+func (r *DBRepository) GetOrderItem(orderItemID string) (*OrderItem, error) {
+	var orderItem OrderItem
+	if err := r.db.First(&orderItem, orderItemID).Error; err != nil {
+		shared.LogError("error getting order item", LogDBRepository, "GetOrderItem", err, orderItemID)
+		return nil, err
+	}
+
+	return &orderItem, nil
+}
+
 // OrderType methods
 
 // CreateOrderType method for create a new order type in database

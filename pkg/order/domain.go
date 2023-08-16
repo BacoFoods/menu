@@ -12,6 +12,7 @@ import (
 const (
 	ErrorBadRequest            = "error bad request"
 	ErrorBadRequestOrderID     = "error bad request wrong order id"
+	ErrorBadRequestOrderItemID = "error bad request wrong order item id"
 	ErrorBadRequestProductID   = "error bad request wrong product id"
 	ErrorBadRequestTableID     = "error bad request wrong table id"
 	ErrorBadRequestStoreID     = "error bad request wrong store id"
@@ -23,7 +24,8 @@ const (
 	ErrorOrderProductNotFound  = "error order product with id %v not found; "
 	ErrorOrderModifierNotFound = "error order modifier with id %v not found; "
 
-	ErrorOrderItemUpdate = "error updating order item"
+	ErrorOrderItemUpdate  = "error updating order item"
+	ErrorOrderItemGetting = "error getting order item"
 
 	ErrorOrderTypeCreation = "error creating order type"
 	ErrorOrderTypeFinding  = "error finding order type"
@@ -38,6 +40,7 @@ type Repository interface {
 	Find(filter map[string]any) ([]Order, error)
 	Update(order *Order) (*Order, error)
 	UpdateOrderItem(orderItem *OrderItem) (*OrderItem, error)
+	GetOrderItem(orderItemID string) (*OrderItem, error)
 
 	CreateOrderType(*OrderType) (*OrderType, error)
 	FindOrderType(filter map[string]any) ([]OrderType, error)
@@ -136,25 +139,19 @@ type OrderItem struct {
 	DeletedAt       *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
-func (oi *OrderItem) SetModifiers(modifiers []product.Modifier) {
-	orderModifiers := make([]OrderModifier, 0)
+func (oi *OrderItem) AddModifiers(modifier []OrderModifier) {
+	oi.Modifiers = append(oi.Modifiers, modifier...)
+}
 
-	for _, m := range modifiers {
-		for _, p := range m.Products {
-			orderModifiers = append(orderModifiers, OrderModifier{
-				Name:        p.Name,
-				Description: p.Description,
-				Image:       p.Image,
-				Category:    string(m.Category),
-				ProductID:   &p.ID,
-				SKU:         p.SKU,
-				Price:       p.Price,
-				Unit:        p.Unit,
-			})
+func (oi *OrderItem) RemoveModifiers(modifiers []OrderModifier) {
+	for _, modifier := range modifiers {
+		for i, m := range oi.Modifiers {
+			if m.ID == modifier.ID {
+				oi.Modifiers = append(oi.Modifiers[:i], oi.Modifiers[i+1:]...)
+				break
+			}
 		}
 	}
-
-	oi.Modifiers = orderModifiers
 }
 
 type OrderModifier struct {

@@ -26,6 +26,10 @@ type RequestAddProducts struct {
 	Items []OrderItemDTO `json:"items" binding:"required"`
 }
 
+type RequestModifiers struct {
+	Modifiers []OrderModifierDTO `json:"modifiers" binding:"required"`
+}
+
 type Handler struct {
 	service Service
 }
@@ -308,6 +312,100 @@ func (h *Handler) UpdateProduct(c *gin.Context) {
 	}
 
 	order, err := h.service.UpdateProduct(updatedProduct)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(order))
+}
+
+// AddModifiers to handle a request to add a modifiers to a product's order
+// @Tags Order
+// @Summary To add modifiers to a product's order
+// @Description To add modifiers to a product's order
+// @Accept json
+// @Produce json
+// @Param id path string true "OrderItemID"
+// @Param modifier body RequestModifiers true "Add Modifiers"
+// @Success 200 {object} object{status=string,data=Order}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /order-item/{id}/add/modifiers [patch]
+func (h *Handler) AddModifiers(c *gin.Context) {
+	orderItemID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequestOrderItemID))
+		return
+	}
+
+	var body RequestModifiers
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "AddModifiers", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	modifiers := make([]OrderModifier, 0)
+	for _, modifier := range body.Modifiers {
+		modifiers = append(modifiers, modifier.ToOrderModifier())
+	}
+
+	if len(modifiers) == 0 {
+		shared.LogError("no modifiers provided", LogHandler, "AddModifiers", nil, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	order, err := h.service.AddModifiers(uint(orderItemID), modifiers)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(order))
+}
+
+// RemoveModifiers to handle a request to remove a modifiers from a product's order
+// @Tags Order
+// @Summary To remove a modifiers from a product's order
+// @Description To remove a modifiers from a product's order
+// @Accept json
+// @Produce json
+// @Param id path string true "OrderItemID"
+// @Param modifier body RequestModifiers true "Remove Modifiers"
+// @Success 200 {object} object{status=string,data=Order}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /order-item/{id}/remove/modifiers [patch]
+func (h *Handler) RemoveModifiers(c *gin.Context) {
+	orderItemID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequestOrderItemID))
+		return
+	}
+
+	var body RequestModifiers
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "RemoveModifiers", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	modifiers := make([]OrderModifier, 0)
+	for _, modifier := range body.Modifiers {
+		modifiers = append(modifiers, modifier.ToOrderModifier())
+	}
+
+	if len(modifiers) == 0 {
+		shared.LogError("no modifiers provided", LogHandler, "RemoveModifiers", nil, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	order, err := h.service.RemoveModifiers(uint(orderItemID), modifiers)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
