@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/product"
+	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
 	"time"
@@ -51,7 +52,7 @@ type Repository interface {
 
 type Order struct {
 	ID            uint             `json:"id" gorm:"primaryKey"`
-	Statuses      []OrderStatus    `json:"status" gorm:"foreignKey:OrderID" swaggerignore:"true"`
+	Statuses      []status.Status  `json:"status" gorm:"many2many:order_statuses" gorm:"foreignKey:OrderID" swaggerignore:"true"`
 	CurrentStatus string           `json:"current_status"`
 	OrderType     string           `json:"order_type"`
 	BrandID       *uint            `json:"brand_id" binding:"required"`
@@ -167,20 +168,6 @@ type OrderModifier struct {
 	Price       float64         `json:"price"  gorm:"precision:18;scale:2"`
 	Unit        string          `json:"unit"`
 	Comments    string          `json:"comments"`
-	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
-}
-
-type OrderStatus struct {
-	ID          uint            `json:"id"`
-	OrderID     *uint           `json:"order_id"`
-	Name        string          `json:"name"`
-	Code        string          `json:"code"`
-	Description string          `json:"description"`
-	ChannelID   *uint           `json:"channel_id"`
-	StoreID     *uint           `json:"store_id"`
-	BrandID     *uint           `json:"brand_id"`
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`

@@ -17,6 +17,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/order"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/router"
+	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
 	"github.com/BacoFoods/menu/pkg/swagger"
@@ -54,9 +55,9 @@ func main() {
 		&order.OrderItem{},
 		&order.OrderModifier{},
 		&order.OrderType{},
-		&order.OrderStatus{},
 		&order.OrderDiscount{},
 		&order.OrderSurcharge{},
+		&status.Status{},
 		&invoice.Invoice{},
 	)
 
@@ -151,6 +152,12 @@ func main() {
 	brandHandler := brand.NewHandler(brandService)
 	brandRoutes := brand.NewRoutes(brandHandler)
 
+	// Status
+	statusRepository := status.NewDBRepository(gormDB)
+	statusService := status.NewService(statusRepository)
+	statusHandler := status.NewHandler(statusService)
+	statusRoutes := status.NewRoutes(statusHandler)
+
 	// Order
 	orderRepository := order.NewDBRepository(gormDB)
 	orderService := order.NewService(orderRepository, tablesRepository, productRepository)
@@ -176,6 +183,7 @@ func main() {
 		Channel:      channelRoutes,
 		Availability: availabilityRoutes,
 		Order:        orderRoutes,
+		Status:       statusRoutes,
 	}
 
 	// Run server

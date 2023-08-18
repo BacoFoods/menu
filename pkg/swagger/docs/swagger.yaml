@@ -540,6 +540,65 @@ definitions:
       message:
         type: string
     type: object
+  status.CreateStatus:
+    properties:
+      active:
+        type: boolean
+      code:
+        type: string
+      color:
+        type: string
+      name:
+        type: string
+      next_status_id:
+        type: integer
+      prev_status_id:
+        type: integer
+    required:
+    - name
+    type: object
+  status.Status:
+    properties:
+      active:
+        type: boolean
+      code:
+        type: string
+      color:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      next:
+        $ref: '#/definitions/status.Status'
+      next_status_id:
+        type: integer
+      prev:
+        $ref: '#/definitions/status.Status'
+      prev_status_id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  status.UpdateStatus:
+    properties:
+      code:
+        type: string
+      color:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      next_status_id:
+        type: integer
+      prev_status_id:
+        type: integer
+    required:
+    - id
+    type: object
   store.Store:
     properties:
       address:
@@ -4162,6 +4221,199 @@ paths:
       summary: To update all overriders for a product
       tags:
       - Product
+  /status:
+    get:
+      consumes:
+      - application/json
+      description: To find status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/status.Status'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find status
+      tags:
+      - Status
+    patch:
+      consumes:
+      - application/json
+      description: To update status
+      parameters:
+      - description: status to update
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/status.UpdateStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/status.Status'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update status
+      tags:
+      - Status
+    post:
+      consumes:
+      - application/json
+      description: To create a status
+      parameters:
+      - description: status request
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/status.CreateStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/status.Status'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create a status
+      tags:
+      - Status
+  /status/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a status
+      parameters:
+      - description: statusID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: status request
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/status.Status'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  type: string
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To delete a status
+      tags:
+      - Status
+    get:
+      consumes:
+      - application/json
+      description: To find status by id
+      parameters:
+      - description: status id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/status.Status'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find status by id
+      tags:
+      - Status
   /store:
     get:
       consumes:
