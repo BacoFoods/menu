@@ -21,6 +21,7 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 	router.PATCH("/order/:id/add/products", r.handler.AddProducts)
 	router.PATCH("/order/:id/remove/product", r.handler.RemoveProduct)
 	router.PATCH("/order/:id/update/product", r.handler.UpdateProduct)
+	router.PATCH("/order/:id/status", r.handler.UpdateStatus)
 
 	// Order Item
 	router.PATCH("/order-item/:id/add/modifiers", r.handler.AddModifiers)
@@ -32,4 +33,7 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 	router.POST("order-type", r.handler.CreateOrderType)
 	router.PATCH("order-type/:id", r.handler.UpdateOrderType)
 	router.DELETE("order-type/:id", r.handler.DeleteOrderType)
+
+	// Invoice
+	router.POST("/order/:id/invoice", r.handler.CreateInvoice)
 }

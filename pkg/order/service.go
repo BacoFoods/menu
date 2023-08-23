@@ -2,6 +2,8 @@ package order
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/invoice"
+	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	products "github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/BacoFoods/menu/pkg/tables"
@@ -22,22 +24,23 @@ type Service interface {
 	UpdateProduct(product *OrderItem) (*Order, error)
 	AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error)
 	RemoveModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error)
-
 	CreateOrderType(orderType *OrderType) (*OrderType, error)
 	FindOrderType(filter map[string]any) ([]OrderType, error)
 	GetOrderType(orderTypeID string) (*OrderType, error)
 	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
 	DeleteOrderType(orderTypeID string) error
+	CreateInvoice(orderID string) (*invoice.Invoice, error)
 }
 
 type service struct {
 	repository Repository
 	table      tables.Repository
 	product    products.Repository
+	invoice    invoices.Repository
 }
 
-func NewService(repository Repository, table tables.Repository, product products.Repository) service {
-	return service{repository, table, product}
+func NewService(repository Repository, table tables.Repository, product products.Repository, invoice invoices.Repository) service {
+	return service{repository, table, product, invoice}
 }
 
 // Orders
@@ -310,4 +313,30 @@ func (s service) UpdateOrderType(orderTypeID string, orderType *OrderType) (*Ord
 
 func (s service) DeleteOrderType(orderTypeID string) error {
 	return s.repository.DeleteOrderType(orderTypeID)
+}
+
+// Invoice
+
+func (s service) CreateInvoice(orderID string) (*invoice.Invoice, error) {
+	order, err := s.repository.Get(orderID)
+	if err != nil {
+		shared.LogError("error getting order", LogService, "CreateInvoice", err, orderID)
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	order.ToInvoice()
+
+	invoice, err := s.invoice.Create(order.Invoice)
+	if err != nil {
+		shared.LogError("error creating invoice", LogService, "CreateInvoice", err, order.Invoice)
+		return nil, fmt.Errorf(invoices.ErrorInvoiceCreation)
+	}
+
+	order.InvoiceID = &invoice.ID
+	if _, err = s.repository.Update(order); err != nil {
+		shared.LogError("error updating order", LogService, "CreateInvoice", err, *order)
+		return nil, fmt.Errorf(ErrorOrderUpdate)
+	}
+
+	return invoice, nil
 }

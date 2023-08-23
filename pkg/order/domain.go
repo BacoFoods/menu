@@ -2,9 +2,11 @@ package order
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/status"
+	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
 	"time"
@@ -33,6 +35,8 @@ const (
 	ErrorOrderTypeGetting  = "error getting order type"
 	ErrorOrderTypeUpdating = "error updating order type"
 	ErrorOrderTypeDeleting = "error deleting order type"
+
+	TaxPercentage = 0.08
 )
 
 type Repository interface {
@@ -56,7 +60,9 @@ type Order struct {
 	CurrentStatus string           `json:"current_status"`
 	OrderType     string           `json:"order_type"`
 	BrandID       *uint            `json:"brand_id" binding:"required"`
+	Brand         *brand.Brand     `json:"brand,omitempty"`
 	StoreID       *uint            `json:"store_id" binding:"required"`
+	Store         *store.Store     `json:"store,omitempty"`
 	ChannelID     *uint            `json:"channel_id" binding:"required"`
 	TableID       *uint            `json:"table_id"`
 	Table         *tables.Table    `json:"table"`
@@ -64,8 +70,6 @@ type Order struct {
 	Type          *OrderType       `json:"type"`
 	Comments      string           `json:"comments"`
 	Items         []OrderItem      `json:"items"  gorm:"foreignKey:OrderID"`
-	Discounts     []OrderDiscount  `json:"discounts"  gorm:"foreignKey:OrderID"`
-	Surcharges    []OrderSurcharge `json:"surcharges"  gorm:"foreignKey:OrderID"`
 	CookingTime   int              `json:"cooking_time"`
 	Seats         int              `json:"seats"`
 	ExternalCode  string           `json:"external_code"`
@@ -116,6 +120,66 @@ func (o *Order) RemoveProduct(product *product.Product) {
 			return
 		}
 	}
+}
+
+func (o *Order) ToInvoice() {
+	subtotal := 0.0
+
+	newInvoice := invoice.Invoice{
+		OrderID:   &o.ID,
+		BrandID:   o.BrandID,
+		StoreID:   o.StoreID,
+		ChannelID: o.ChannelID,
+		TableID:   o.TableID,
+		Table:     o.Table,
+		Items:     make([]invoice.Item, 0),
+	}
+
+	// Adding items to invoice
+	for _, item := range o.Items {
+		newInvoice.Items = append(newInvoice.Items, invoice.Item{
+			ProductID:   item.ProductID,
+			Name:        item.Name,
+			Description: item.Description,
+			SKU:         item.SKU,
+			Price:       item.Price,
+			Comments:    item.Comments,
+		})
+
+		// Adding item price to subtotal
+		subtotal += item.Price
+
+		for _, modifier := range item.Modifiers {
+			// Only modifiers with price are added to invoice
+			if modifier.Price == 0 {
+				continue
+			}
+
+			// Adding modifier price to subtotal
+			subtotal += modifier.Price
+
+			newInvoice.Items = append(newInvoice.Items, invoice.Item{
+				ProductID:   modifier.ProductID,
+				Name:        modifier.Name,
+				Description: modifier.Description,
+				SKU:         modifier.SKU,
+				Price:       modifier.Price,
+				Comments:    modifier.Comments,
+			})
+		}
+	}
+
+	// Setting subtotals
+	newInvoice.SubTotal = subtotal
+
+	// Setting taxes
+	tax := subtotal * TaxPercentage
+	baseTax := subtotal - tax
+	newInvoice.BaseTax = baseTax
+	newInvoice.Total = subtotal + tax
+
+	// Setting invoice
+	o.Invoice = &newInvoice
 }
 
 type OrderItem struct {
@@ -181,39 +245,6 @@ type OrderType struct {
 	ChannelID   *uint           `json:"channel_id"`
 	StoreID     *uint           `json:"store_id"`
 	BrandID     *uint           `json:"brand_id"`
-	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
-}
-
-type OrderDiscount struct {
-	ID          uint           `json:"id"`
-	OrderID     *uint          `json:"order_id"`
-	Name        string         `json:"name,omitempty"`
-	Type        string         `json:"type"`
-	Percentage  float64        `json:"percentage,omitempty" gorm:"precision:18;scale:2"`
-	Value       float64        `json:"value,omitempty" gorm:"precision:18;scale:2"`
-	Description string         `json:"description,omitempty"`
-	Terms       string         `json:"terms,omitempty"`
-	ChannelID   *uint          `json:"channel_id,omitempty"`
-	StoreID     *uint          `json:"store_id,omitempty"`
-	BrandID     *uint          `json:"brand_id,omitempty"`
-	CreatedAt   *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt   *time.Time     `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
-}
-
-type OrderSurcharge struct {
-	ID          uint            `json:"id"`
-	OrderID     *uint           `json:"order_id"`
-	Name        string          `json:"name"`
-	Description string          `json:"description"`
-	Percentage  float64         `json:"percentage" gorm:"precision:18;scale:2"`
-	Amount      float64         `json:"amount" gorm:"precision:18;scale:2"`
-	Active      bool            `json:"active"`
-	ChannelID   *uint           `json:"channel_id,omitempty"`
-	StoreID     *uint           `json:"store_id,omitempty"`
-	BrandID     *uint           `json:"brand_id,omitempty"`
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`

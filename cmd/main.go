@@ -55,10 +55,11 @@ func main() {
 		&order.OrderItem{},
 		&order.OrderModifier{},
 		&order.OrderType{},
-		&order.OrderDiscount{},
-		&order.OrderSurcharge{},
 		&status.Status{},
 		&invoice.Invoice{},
+		&invoice.Item{},
+		&invoice.Discount{},
+		&invoice.Surcharge{},
 	)
 
 	// Healthcheck
@@ -158,9 +159,12 @@ func main() {
 	statusHandler := status.NewHandler(statusService)
 	statusRoutes := status.NewRoutes(statusHandler)
 
+	// Invoice
+	invoiceRepository := invoice.NewDBRepository(gormDB)
+
 	// Order
 	orderRepository := order.NewDBRepository(gormDB)
-	orderService := order.NewService(orderRepository, tablesRepository, productRepository)
+	orderService := order.NewService(orderRepository, tablesRepository, productRepository, invoiceRepository)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)
 

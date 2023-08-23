@@ -2,6 +2,7 @@ package order
 
 import (
 	"fmt"
+	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -12,6 +13,11 @@ const LogHandler string = "pkg/order/handler"
 
 type RequestUpdateOrderSeats struct {
 	Seats int `json:"seats" binding:"required"`
+}
+
+type RequestUpdateOrderStatus struct {
+	OrderID   uint   `json:"order_id" binding:"required"`
+	Operation string `json:"operation"`
 }
 
 type RequestUpdateOrderProduct struct {
@@ -320,6 +326,30 @@ func (h *Handler) UpdateProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(order))
 }
 
+// UpdateStatus to handle a request to update an order's status
+// @Tags Order
+// @Summary To update an order's status
+// @Description To update an order's status
+// @Accept json
+// @Produce json
+// @Param status body RequestUpdateOrderStatus true "status"
+// @Success 200 {object} object{status=string,data=Order}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /order/{id}/update/status [patch]
+func (h *Handler) UpdateStatus(c *gin.Context) {
+	var body RequestUpdateOrderStatus
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "UpdateStatus", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+}
+
+// Order Items
+
 // AddModifiers to handle a request to add a modifiers to a product's order
 // @Tags Order
 // @Summary To add modifiers to a product's order
@@ -558,4 +588,27 @@ func (h *Handler) DeleteOrderType(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(fmt.Sprintf("Order type with id %s has been deleted", orderTypeID)))
+}
+
+// Invoice
+
+// CreateInvoice to handle a request to create an invoice
+// @Tags Invoice
+// @Summary To create an invoice
+// @Description To create an invoice
+// @Accept json
+// @Produce json
+// @Param orderID path string true "Order ID"
+// @Success 200 {object} object{status=string,data=Invoice}
+// @Router /invoice [post]
+func (h *Handler) CreateInvoice(c *gin.Context) {
+	orderID := c.Param("id")
+
+	invoice, err := h.service.CreateInvoice(orderID)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(invoices.ErrorInvoiceCreation))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
 }

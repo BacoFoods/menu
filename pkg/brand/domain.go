@@ -18,6 +18,8 @@ type Brand struct {
 	ID          uint          `json:"id"`
 	Name        string        `json:"name"`
 	Description string        `json:"description"`
+	NIT         string        `json:"nit"`
+	SocialName  string        `json:"social_name"`
 	Menus       []menu.Menu   `json:"menus,omitempty" gorm:"foreignKey:BrandID"`
 	Stores      []store.Store `json:"stores,omitempty" gorm:"foreignKey:BrandID"`
 	CreatedAt   string        `json:"created_at,omitempty" swaggerignore:"true"`
