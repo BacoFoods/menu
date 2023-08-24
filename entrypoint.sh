@@ -1,1 +1,1 @@
-./main
+./cmd/main.go

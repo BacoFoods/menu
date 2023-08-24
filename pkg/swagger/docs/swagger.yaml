@@ -17,6 +17,10 @@ definitions:
         type: array
       name:
         type: string
+      nit:
+        type: string
+      social_name:
+        type: string
       stores:
         items:
           $ref: '#/definitions/store.Store'
@@ -109,11 +113,122 @@ definitions:
       value:
         type: number
     type: object
-  invoice.Invoice:
+  invoice.Discount:
     properties:
+      amount:
+        type: number
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
+      description:
+        type: string
       id:
         type: integer
+      invoice_id:
+        type: integer
+      name:
+        type: string
+      percentage:
+        type: number
+      store_id:
+        type: integer
+      terms:
+        type: string
+      type:
+        type: string
+    type: object
+  invoice.Invoice:
+    properties:
+      base_tax:
+        type: number
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
+      discounts:
+        items:
+          $ref: '#/definitions/invoice.Discount'
+        type: array
+      id:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/invoice.Item'
+        type: array
       order_id:
+        type: integer
+      payment:
+        $ref: '#/definitions/payment.Payment'
+      payment_id:
+        type: integer
+      store_id:
+        type: integer
+      sub_total:
+        type: number
+      surcharges:
+        items:
+          $ref: '#/definitions/invoice.Surcharge'
+        type: array
+      table:
+        $ref: '#/definitions/tables.Table'
+      table_id:
+        type: integer
+      taxes:
+        type: number
+      tips:
+        type: number
+      total:
+        type: number
+      total_discounts:
+        type: number
+      total_surcharges:
+        type: number
+    required:
+    - brand_id
+    - channel_id
+    - store_id
+    type: object
+  invoice.Item:
+    properties:
+      comments:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      invoice_id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      product_id:
+        type: integer
+      sku:
+        type: string
+    type: object
+  invoice.Surcharge:
+    properties:
+      active:
+        type: boolean
+      amount:
+        type: number
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      invoice_id:
+        type: integer
+      name:
+        type: string
+      percentage:
+        type: number
+      store_id:
         type: integer
     type: object
   menu.Menu:
@@ -174,6 +289,8 @@ definitions:
     type: object
   order.Order:
     properties:
+      brand:
+        $ref: '#/definitions/brand.Brand'
       brand_id:
         type: integer
       channel_id:
@@ -184,10 +301,6 @@ definitions:
         type: integer
       current_status:
         type: string
-      discounts:
-        items:
-          $ref: '#/definitions/order.OrderDiscount'
-        type: array
       external_code:
         type: string
       id:
@@ -204,12 +317,10 @@ definitions:
         type: string
       seats:
         type: integer
+      store:
+        $ref: '#/definitions/store.Store'
       store_id:
         type: integer
-      surcharges:
-        items:
-          $ref: '#/definitions/order.OrderSurcharge'
-        type: array
       table:
         $ref: '#/definitions/tables.Table'
       table_id:
@@ -247,31 +358,6 @@ definitions:
     - brand_id
     - channel_id
     - store_id
-    type: object
-  order.OrderDiscount:
-    properties:
-      brand_id:
-        type: integer
-      channel_id:
-        type: integer
-      description:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      order_id:
-        type: integer
-      percentage:
-        type: number
-      store_id:
-        type: integer
-      terms:
-        type: string
-      type:
-        type: string
-      value:
-        type: number
     type: object
   order.OrderItem:
     properties:
@@ -361,29 +447,6 @@ definitions:
     required:
     - product_id
     type: object
-  order.OrderSurcharge:
-    properties:
-      active:
-        type: boolean
-      amount:
-        type: number
-      brand_id:
-        type: integer
-      channel_id:
-        type: integer
-      description:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      order_id:
-        type: integer
-      percentage:
-        type: number
-      store_id:
-        type: integer
-    type: object
   order.OrderType:
     properties:
       brand_id:
@@ -438,6 +501,24 @@ definitions:
         type: integer
     required:
     - seats
+    type: object
+  order.RequestUpdateOrderStatus:
+    properties:
+      operation:
+        type: string
+      order_id:
+        type: integer
+    required:
+    - order_id
+    type: object
+  payment.Payment:
+    properties:
+      id:
+        type: integer
+      method:
+        type: string
+      name:
+        type: string
     type: object
   product.Modifier:
     properties:
@@ -2286,6 +2367,34 @@ paths:
       summary: To find discount by id
       tags:
       - Discount
+  /invoice:
+    post:
+      consumes:
+      - application/json
+      description: To create an invoice
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Invoice'
+                status:
+                  type: string
+              type: object
+      summary: To create an invoice
+      tags:
+      - Invoice
   /menu:
     get:
       consumes:
@@ -3598,6 +3707,47 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To update a product from an order
+      tags:
+      - Order
+  /order/{id}/update/status:
+    patch:
+      consumes:
+      - application/json
+      description: To update an order's status
+      parameters:
+      - description: status
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/order.RequestUpdateOrderStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update an order's status
       tags:
       - Order
   /overrider:

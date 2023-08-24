@@ -2,11 +2,12 @@ package order
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 const LogHandler string = "pkg/order/handler"
@@ -599,7 +600,7 @@ func (h *Handler) DeleteOrderType(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param orderID path string true "Order ID"
-// @Success 200 {object} object{status=string,data=Invoice}
+// @Success 200 {object} object{status=string,data=invoice.Invoice}
 // @Router /invoice [post]
 func (h *Handler) CreateInvoice(c *gin.Context) {
 	orderID := c.Param("id")

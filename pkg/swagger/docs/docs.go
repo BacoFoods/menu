@@ -2483,6 +2483,53 @@ const docTemplate = `{
                 }
             }
         },
+        "/invoice": {
+            "post": {
+                "description": "To create an invoice",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invoice"
+                ],
+                "summary": "To create an invoice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "orderID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Invoice"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/menu": {
             "get": {
                 "description": "To find menus",
@@ -4552,6 +4599,73 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/order.RequestUpdateOrderProduct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/order.Order"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/{id}/update/status": {
+            "patch": {
+                "description": "To update an order's status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To update an order's status",
+                "parameters": [
+                    {
+                        "description": "status",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.RequestUpdateOrderStatus"
                         }
                     }
                 ],
@@ -8090,6 +8204,12 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "nit": {
+                    "type": "string"
+                },
+                "social_name": {
+                    "type": "string"
+                },
                 "stores": {
                     "type": "array",
                     "items": {
@@ -8231,13 +8351,180 @@ const docTemplate = `{
                 }
             }
         },
-        "invoice.Invoice": {
+        "invoice.Discount": {
             "type": "object",
             "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "brand_id": {
+                    "type": "integer"
+                },
+                "channel_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
+                "invoice_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "percentage": {
+                    "type": "number"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "terms": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "invoice.Invoice": {
+            "type": "object",
+            "required": [
+                "brand_id",
+                "channel_id",
+                "store_id"
+            ],
+            "properties": {
+                "base_tax": {
+                    "type": "number"
+                },
+                "brand_id": {
+                    "type": "integer"
+                },
+                "channel_id": {
+                    "type": "integer"
+                },
+                "discounts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/invoice.Discount"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/invoice.Item"
+                    }
+                },
                 "order_id": {
+                    "type": "integer"
+                },
+                "payment": {
+                    "$ref": "#/definitions/payment.Payment"
+                },
+                "payment_id": {
+                    "type": "integer"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "sub_total": {
+                    "type": "number"
+                },
+                "surcharges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/invoice.Surcharge"
+                    }
+                },
+                "table": {
+                    "$ref": "#/definitions/tables.Table"
+                },
+                "table_id": {
+                    "type": "integer"
+                },
+                "taxes": {
+                    "type": "number"
+                },
+                "tips": {
+                    "type": "number"
+                },
+                "total": {
+                    "type": "number"
+                },
+                "total_discounts": {
+                    "type": "number"
+                },
+                "total_surcharges": {
+                    "type": "number"
+                }
+            }
+        },
+        "invoice.Item": {
+            "type": "object",
+            "properties": {
+                "comments": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "invoice_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "sku": {
+                    "type": "string"
+                }
+            }
+        },
+        "invoice.Surcharge": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "amount": {
+                    "type": "number"
+                },
+                "brand_id": {
+                    "type": "integer"
+                },
+                "channel_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "invoice_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "percentage": {
+                    "type": "number"
+                },
+                "store_id": {
                     "type": "integer"
                 }
             }
@@ -8334,6 +8621,9 @@ const docTemplate = `{
                 "store_id"
             ],
             "properties": {
+                "brand": {
+                    "$ref": "#/definitions/brand.Brand"
+                },
                 "brand_id": {
                     "type": "integer"
                 },
@@ -8348,12 +8638,6 @@ const docTemplate = `{
                 },
                 "current_status": {
                     "type": "string"
-                },
-                "discounts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/order.OrderDiscount"
-                    }
                 },
                 "external_code": {
                     "type": "string"
@@ -8379,14 +8663,11 @@ const docTemplate = `{
                 "seats": {
                     "type": "integer"
                 },
+                "store": {
+                    "$ref": "#/definitions/store.Store"
+                },
                 "store_id": {
                     "type": "integer"
-                },
-                "surcharges": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/order.OrderSurcharge"
-                    }
                 },
                 "table": {
                     "$ref": "#/definitions/tables.Table"
@@ -8436,44 +8717,6 @@ const docTemplate = `{
                 },
                 "table_id": {
                     "type": "integer"
-                }
-            }
-        },
-        "order.OrderDiscount": {
-            "type": "object",
-            "properties": {
-                "brand_id": {
-                    "type": "integer"
-                },
-                "channel_id": {
-                    "type": "integer"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "order_id": {
-                    "type": "integer"
-                },
-                "percentage": {
-                    "type": "number"
-                },
-                "store_id": {
-                    "type": "integer"
-                },
-                "terms": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "number"
                 }
             }
         },
@@ -8611,41 +8854,6 @@ const docTemplate = `{
                 }
             }
         },
-        "order.OrderSurcharge": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "amount": {
-                    "type": "number"
-                },
-                "brand_id": {
-                    "type": "integer"
-                },
-                "channel_id": {
-                    "type": "integer"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "order_id": {
-                    "type": "integer"
-                },
-                "percentage": {
-                    "type": "number"
-                },
-                "store_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "order.OrderType": {
             "type": "object",
             "properties": {
@@ -8728,6 +8936,34 @@ const docTemplate = `{
             "properties": {
                 "seats": {
                     "type": "integer"
+                }
+            }
+        },
+        "order.RequestUpdateOrderStatus": {
+            "type": "object",
+            "required": [
+                "order_id"
+            ],
+            "properties": {
+                "operation": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "payment.Payment": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "method": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
