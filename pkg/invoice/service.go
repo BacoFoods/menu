@@ -8,10 +8,11 @@ type Service interface {
 
 type service struct {
 	repository Repository
+	invoice Repository
 }
 
-func NewService(repository Repository) service {
-	return service{repository}
+func NewService(repository Repository, invoice Repository) service {
+	return service{repository, invoice}
 }
 
 // Get returns a single Invoice object by ID.

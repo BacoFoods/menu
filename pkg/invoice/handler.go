@@ -33,8 +33,9 @@ func NewHandler(service Service) *Handler {
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
 // @Router /invoice/{id} [get]
-func (h Handler) Get(c *gin.Context) {
+func (h *Handler) Get(c *gin.Context) {
 	invoiceID := c.Param("id")
+
 	invoice, err := h.service.Get(invoiceID)
 	if err != nil {
 		shared.LogError("error getting invoice", LogHandler, "Get", err, invoice)
