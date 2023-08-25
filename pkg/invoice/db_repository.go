@@ -11,8 +11,8 @@ type DBRepository struct {
 	db *gorm.DB
 }
 
-func NewDBRepository(db *gorm.DB) DBRepository {
-	return DBRepository{db}
+func NewDBRepository(db *gorm.DB) *DBRepository {
+	return &DBRepository{db}
 }
 
 func (r DBRepository) Create(invoice *Invoice) (*Invoice, error) {
