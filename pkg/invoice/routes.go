@@ -11,5 +11,5 @@ func NewRoutes(handler *Handler) *Routes {
 }
 
 func (r *Routes) RegisterRoutes(router *gin.RouterGroup) {
-
+	router.GET("/invoice/:id", r.handler.Get)
 }

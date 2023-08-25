@@ -1,19 +1,22 @@
 package invoice
 
 import (
+	"time"
+
 	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
-	"time"
 )
 
 const (
 	ErrorBadRequest      = "error bad request"
 	ErrorInvoiceCreation = "error creating invoice"
+	ErrorGettingInvoice = "error getting invoice"
 )
 
 type Repository interface {
 	Create(invoice *Invoice) (*Invoice, error)
+	Get(string) (*Invoice, error)
 }
 
 type Invoice struct {
