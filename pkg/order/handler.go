@@ -599,7 +599,7 @@ func (h *Handler) DeleteOrderType(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param orderID path string true "Order ID"
-// @Success 200 {object} object{status=string,data=Invoice}
+// @Success 200 {object} object{status=string,data=invoice.Invoice}
 // @Router /invoice [post]
 func (h *Handler) CreateInvoice(c *gin.Context) {
 	orderID := c.Param("id")

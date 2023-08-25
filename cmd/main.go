@@ -149,7 +149,7 @@ func main() {
 
 	// Brand
 	brandRepository := brand.NewDBRepository(gormDB)
-	brandService := brand.NewService(brandRepository)
+	brandService := brand.NewService(brandRepository, channelRepository)
 	brandHandler := brand.NewHandler(brandService)
 	brandRoutes := brand.NewRoutes(brandHandler)
 
