@@ -2546,7 +2546,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Invoice ID",
+                        "description": "invoice id",
                         "name": "id",
                         "in": "path",
                         "required": true

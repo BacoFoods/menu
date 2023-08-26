@@ -3,16 +3,16 @@ package invoice
 const LogService = "pkg/invoice/service"
 
 type Service interface {
-	Get(string) (*Invoice, error)
+	Get(invoiceID string) (*Invoice, error)
 }
 
 type service struct {
 	repository Repository
-	invoice Repository
+	//invoice Repository
 }
 
-func NewService(repository Repository, invoice Repository) service {
-	return service{repository, invoice}
+func NewService(repository Repository) service {
+	return service{repository}
 }
 
 // Get returns a single Invoice object by ID.

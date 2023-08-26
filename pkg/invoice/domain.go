@@ -11,12 +11,12 @@ import (
 const (
 	ErrorBadRequest      = "error bad request"
 	ErrorInvoiceCreation = "error creating invoice"
-	ErrorGettingInvoice = "error getting invoice"
+	ErrorGettingInvoice  = "error getting invoice"
 )
 
 type Repository interface {
 	Create(invoice *Invoice) (*Invoice, error)
-	Get(string) (*Invoice, error)
+	Get(invoiceID string) (*Invoice, error)
 }
 
 type Invoice struct {

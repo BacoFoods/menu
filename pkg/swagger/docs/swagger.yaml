@@ -2401,7 +2401,7 @@ paths:
       - application/json
       description: To get a invoice
       parameters:
-      - description: Invoice ID
+      - description: invoice id
         in: path
         name: id
         required: true
