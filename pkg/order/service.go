@@ -324,8 +324,11 @@ func (s service) CreateInvoice(orderID string) (*invoice.Invoice, error) {
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	order.ToInvoice()
+	if order.InvoiceID != nil {
+		return order.Invoice, nil
+	}
 
+	order.ToInvoice()
 	invoice, err := s.invoice.Create(order.Invoice)
 	if err != nil {
 		shared.LogError("error creating invoice", LogService, "CreateInvoice", err, order.Invoice)

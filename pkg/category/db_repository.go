@@ -80,7 +80,7 @@ func (r *DBRepository) GetMenusByCategory(categoryID string) ([]MenusCategory, e
 	if err := r.db.Debug().Table("menus").
 		Select("menus.id id, menus.name name, menus.enable enable").
 		Joins("left join menus_categories mc on menus.id = mc.menu_id").
-		Where("mc.category_id = ? and mc.deleted_at is null", categoryID).
+		Where("mc.category_id = ?", categoryID).
 		Find(&menusCategory).Error; err != nil {
 		shared.LogError("error getting menus by category", LogDBRepository, "GetMenusByCategory", err, categoryID)
 		return nil, err

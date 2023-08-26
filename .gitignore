@@ -3,6 +3,7 @@
 
 # App binary builds
 /cmd/go_menu*
+/cmd/tmp
 
 # Dependency directories
 .DS_Store

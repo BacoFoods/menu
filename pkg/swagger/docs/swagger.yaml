@@ -1123,6 +1123,10 @@ paths:
                 type: string
               name:
                 type: string
+              nit:
+                type: string
+              social_name:
+                type: string
             type: object
       produces:
       - application/json
@@ -2434,7 +2438,6 @@ paths:
             $ref: '#/definitions/shared.Response'
       summary: To get a invoice
       tags:
-      - Invoice
   /menu:
     get:
       consumes:

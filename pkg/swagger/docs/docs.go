@@ -474,6 +474,12 @@ const docTemplate = `{
                                         },
                                         "name": {
                                             "type": "string"
+                                        },
+                                        "nit": {
+                                            "type": "string"
+                                        },
+                                        "social_name": {
+                                            "type": "string"
                                         }
                                     }
                                 }
