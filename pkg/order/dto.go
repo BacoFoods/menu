@@ -12,9 +12,12 @@ type OrderDTO struct {
 }
 
 func (o OrderDTO) ToOrder() Order {
-	items := make([]OrderItem, len(o.Items))
-	for i, d := range o.Items {
-		items[i] = d.ToOrderItem()
+	items := make([]OrderItem, 0)
+	for _, d := range o.Items {
+		for j := 0; j < d.Quantity; j++ {
+			items = append(items, d.ToOrderItem())
+		}
+		continue
 	}
 
 	return Order{
@@ -33,6 +36,7 @@ type OrderItemDTO struct {
 	ProductID *uint              `json:"product_id" binding:"required"`
 	Comments  string             `json:"comments"`
 	Course    string             `json:"course"`
+	Quantity  int                `json:"quantity"`
 	Modifiers []OrderModifierDTO `json:"modifiers"`
 }
 
