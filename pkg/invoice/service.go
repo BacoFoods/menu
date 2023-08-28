@@ -8,7 +8,6 @@ type Service interface {
 
 type service struct {
 	repository Repository
-	//invoice Repository
 }
 
 func NewService(repository Repository) service {

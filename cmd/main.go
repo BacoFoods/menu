@@ -192,7 +192,7 @@ func main() {
 		Availability: availabilityRoutes,
 		Order:        orderRoutes,
 		Status:       statusRoutes,
-		Invoice: 	  *invoiceRoutes,
+		Invoice: 	  invoiceRoutes,
 	}
 
 	// Run server
