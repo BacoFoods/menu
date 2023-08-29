@@ -25,6 +25,7 @@ const (
 	ErrorOrderUpdate           = "error updating order"
 	ErrorOrderProductGetting   = "error getting order product"
 	ErrorOrderProductNotFound  = "error order product with id %v not found; "
+	ErrorOrderProductsNotFound = "error order products not found"
 	ErrorOrderModifierNotFound = "error order modifier with id %v not found; "
 
 	ErrorOrderItemUpdate  = "error updating order item"

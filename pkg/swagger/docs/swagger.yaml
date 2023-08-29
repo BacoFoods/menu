@@ -408,6 +408,8 @@ definitions:
         type: array
       product_id:
         type: integer
+      quantity:
+        type: integer
     required:
     - product_id
     type: object
@@ -2438,6 +2440,7 @@ paths:
             $ref: '#/definitions/shared.Response'
       summary: To get a invoice
       tags:
+      - Invoice
   /menu:
     get:
       consumes:

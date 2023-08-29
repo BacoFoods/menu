@@ -53,6 +53,10 @@ func (s service) Create(order *Order) (*Order, error) {
 		return nil, fmt.Errorf(ErrorOrderCreation)
 	}
 
+	if len(prods) == 0 {
+		return nil, fmt.Errorf(ErrorOrderProductsNotFound)
+	}
+
 	order.SetItems(prods)
 
 	newOrder, err := s.repository.Create(order)

@@ -8867,6 +8867,9 @@ const docTemplate = `{
                 },
                 "product_id": {
                     "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
                 }
             }
         },

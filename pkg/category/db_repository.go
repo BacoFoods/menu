@@ -77,6 +77,7 @@ func (r *DBRepository) Delete(categoryID string) (*Category, error) {
 // GetMenusByCategory method for get menus by category in database
 func (r *DBRepository) GetMenusByCategory(categoryID string) ([]MenusCategory, error) {
 	var menusCategory []MenusCategory
+
 	if err := r.db.Debug().Table("menus").
 		Select("menus.id id, menus.name name, menus.enable enable").
 		Joins("left join menus_categories mc on menus.id = mc.menu_id").
