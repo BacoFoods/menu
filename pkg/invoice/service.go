@@ -3,6 +3,7 @@ package invoice
 const LogService = "pkg/invoice/service"
 
 type Service interface {
+	Get(invoiceID string) (*Invoice, error)
 }
 
 type service struct {
@@ -11,4 +12,9 @@ type service struct {
 
 func NewService(repository Repository) service {
 	return service{repository}
+}
+
+// Get returns a single Invoice object by ID.
+func (s service) Get(invoiceID string) (*Invoice, error) {
+	return s.repository.Get(invoiceID)
 }

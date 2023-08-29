@@ -1,10 +1,11 @@
 package product
 
 import (
-	"github.com/BacoFoods/menu/pkg/shared"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	"github.com/BacoFoods/menu/pkg/shared"
+	"github.com/gin-gonic/gin"
 )
 
 const LogHandler string = "pkg/product/handler"

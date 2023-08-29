@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
@@ -161,6 +162,9 @@ func main() {
 
 	// Invoice
 	invoiceRepository := invoice.NewDBRepository(gormDB)
+	invoiceService := invoice.NewService(invoiceRepository)
+	invoiceHandler := invoice.NewHandler(invoiceService)
+	invoiceRoutes := invoice.NewRoutes(invoiceHandler)
 
 	// Order
 	orderRepository := order.NewDBRepository(gormDB)
@@ -188,6 +192,7 @@ func main() {
 		Availability: availabilityRoutes,
 		Order:        orderRoutes,
 		Status:       statusRoutes,
+		Invoice: 	  invoiceRoutes,
 	}
 
 	// Run server

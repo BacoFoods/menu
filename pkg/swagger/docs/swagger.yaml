@@ -2399,6 +2399,45 @@ paths:
       summary: To create an invoice
       tags:
       - Invoice
+  /invoice/{id}:
+    get:
+      consumes:
+      - application/json
+      description: To get a invoice
+      parameters:
+      - description: invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Invoice'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get a invoice
+      tags:
   /menu:
     get:
       consumes:
