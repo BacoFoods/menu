@@ -2,7 +2,6 @@ package order
 
 import (
 	"fmt"
-	"github.com/BacoFoods/menu/pkg/invoice"
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	products "github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
@@ -22,6 +21,7 @@ type Service interface {
 	AddProducts(orderID string, orderItem []OrderItem) (*Order, error)
 	RemoveProduct(orderID, productID string) (*Order, error)
 	UpdateProduct(product *OrderItem) (*Order, error)
+	ReleaseTable(orderID string) (*Order, error)
 	AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error)
 	RemoveModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error)
 	CreateOrderType(orderType *OrderType) (*OrderType, error)
@@ -29,7 +29,7 @@ type Service interface {
 	GetOrderType(orderTypeID string) (*OrderType, error)
 	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
 	DeleteOrderType(orderTypeID string) error
-	CreateInvoice(orderID string) (*invoice.Invoice, error)
+	CreateInvoice(orderID string) (*invoices.Invoice, error)
 }
 
 type service struct {
@@ -265,6 +265,27 @@ func (s service) UpdateProduct(product *OrderItem) (*Order, error) {
 	return order, nil
 }
 
+func (s service) ReleaseTable(orderID string) (*Order, error) {
+	order, err := s.repository.Get(orderID)
+	if err != nil {
+		shared.LogError("error getting order", LogService, "ReleaseTable", err, orderID)
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	if _, err := s.table.RemoveOrder(order.TableID); err != nil {
+		return nil, err
+	}
+
+	order.TableID = nil
+	orderDB, err := s.repository.Update(order)
+	if err != nil {
+		shared.LogError("error updating order", LogService, "ReleaseTable", err, *order)
+		return nil, fmt.Errorf(ErrorOrderUpdate)
+	}
+
+	return orderDB, nil
+}
+
 func (s service) AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error) {
 	orderItem, err := s.repository.GetOrderItem(fmt.Sprintf("%d", itemID))
 	if err != nil {
@@ -321,7 +342,7 @@ func (s service) DeleteOrderType(orderTypeID string) error {
 
 // Invoice
 
-func (s service) CreateInvoice(orderID string) (*invoice.Invoice, error) {
+func (s service) CreateInvoice(orderID string) (*invoices.Invoice, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "CreateInvoice", err, orderID)

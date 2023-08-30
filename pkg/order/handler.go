@@ -327,26 +327,28 @@ func (h *Handler) UpdateProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(order))
 }
 
-// UpdateStatus to handle a request to update an order's status
+// ReleaseTable to handle a request to release an order's table
 // @Tags Order
-// @Summary To update an order's status
-// @Description To update an order's status
+// @Summary To release an order's table
+// @Description To release an order's table
 // @Accept json
 // @Produce json
-// @Param status body RequestUpdateOrderStatus true "status"
+// @Param id path string true "Order ID"
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
-// @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
-// @Router /order/{id}/update/status [patch]
-func (h *Handler) UpdateStatus(c *gin.Context) {
-	var body RequestUpdateOrderStatus
-	if err := c.ShouldBindJSON(&body); err != nil {
-		shared.LogError("error binding request body", LogHandler, "UpdateStatus", err, body)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+// @Failure 422 {object} shared.Response
+// @Router /order/{id}/release-table [post]
+func (h *Handler) ReleaseTable(c *gin.Context) {
+	orderID := c.Param("id")
+
+	order, err := h.service.ReleaseTable(orderID)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
 
+	c.JSON(http.StatusOK, shared.SuccessResponse(order))
 }
 
 // Order Items

@@ -7,7 +7,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
-	"github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
 	"time"
 )
@@ -66,7 +65,6 @@ type Order struct {
 	Store         *store.Store     `json:"store,omitempty"`
 	ChannelID     *uint            `json:"channel_id" binding:"required"`
 	TableID       *uint            `json:"table_id"`
-	Table         *tables.Table    `json:"table"`
 	TypeID        *uint            `json:"type_id"`
 	Type          *OrderType       `json:"type"`
 	Comments      string           `json:"comments"`
@@ -132,7 +130,6 @@ func (o *Order) ToInvoice() {
 		StoreID:   o.StoreID,
 		ChannelID: o.ChannelID,
 		TableID:   o.TableID,
-		Table:     o.Table,
 		Items:     make([]invoice.Item, 0),
 	}
 

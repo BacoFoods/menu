@@ -4417,6 +4417,71 @@ const docTemplate = `{
                 }
             }
         },
+        "/order/{id}/release-table": {
+            "post": {
+                "description": "To release an order's table",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To release an order's table",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/order.Order"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/order/{id}/remove/product": {
             "patch": {
                 "description": "To remove a product from an order",
@@ -4670,73 +4735,6 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/order.RequestUpdateOrderProduct"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/order.Order"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/order/{id}/update/status": {
-            "patch": {
-                "description": "To update an order's status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Order"
-                ],
-                "summary": "To update an order's status",
-                "parameters": [
-                    {
-                        "description": "status",
-                        "name": "status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/order.RequestUpdateOrderStatus"
                         }
                     }
                 ],
@@ -7363,71 +7361,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/tables/{id}/release": {
-            "post": {
-                "description": "Release table from order",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Tables"
-                ],
-                "summary": "Release table from order",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "table id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/tables.Table"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/tax": {
             "get": {
                 "description": "To find tax",
@@ -8513,9 +8446,6 @@ const docTemplate = `{
                         "$ref": "#/definitions/invoice.Surcharge"
                     }
                 },
-                "table": {
-                    "$ref": "#/definitions/tables.Table"
-                },
                 "table_id": {
                     "type": "integer"
                 },
@@ -8739,9 +8669,6 @@ const docTemplate = `{
                 },
                 "store_id": {
                     "type": "integer"
-                },
-                "table": {
-                    "$ref": "#/definitions/tables.Table"
                 },
                 "table_id": {
                     "type": "integer"
@@ -9009,20 +8936,6 @@ const docTemplate = `{
             ],
             "properties": {
                 "seats": {
-                    "type": "integer"
-                }
-            }
-        },
-        "order.RequestUpdateOrderStatus": {
-            "type": "object",
-            "required": [
-                "order_id"
-            ],
-            "properties": {
-                "operation": {
-                    "type": "string"
-                },
-                "order_id": {
                     "type": "integer"
                 }
             }

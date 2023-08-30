@@ -170,8 +170,6 @@ definitions:
         items:
           $ref: '#/definitions/invoice.Surcharge'
         type: array
-      table:
-        $ref: '#/definitions/tables.Table'
       table_id:
         type: integer
       taxes:
@@ -321,8 +319,6 @@ definitions:
         $ref: '#/definitions/store.Store'
       store_id:
         type: integer
-      table:
-        $ref: '#/definitions/tables.Table'
       table_id:
         type: integer
       type:
@@ -503,15 +499,6 @@ definitions:
         type: integer
     required:
     - seats
-    type: object
-  order.RequestUpdateOrderStatus:
-    properties:
-      operation:
-        type: string
-      order_id:
-        type: integer
-    required:
-    - order_id
     type: object
   payment.Payment:
     properties:
@@ -3568,6 +3555,46 @@ paths:
       summary: To add products to an order
       tags:
       - Order
+  /order/{id}/release-table:
+    post:
+      consumes:
+      - application/json
+      description: To release an order's table
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To release an order's table
+      tags:
+      - Order
   /order/{id}/remove/product:
     patch:
       consumes:
@@ -3753,47 +3780,6 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To update a product from an order
-      tags:
-      - Order
-  /order/{id}/update/status:
-    patch:
-      consumes:
-      - application/json
-      description: To update an order's status
-      parameters:
-      - description: status
-        in: body
-        name: status
-        required: true
-        schema:
-          $ref: '#/definitions/order.RequestUpdateOrderStatus'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      summary: To update an order's status
       tags:
       - Order
   /overrider:
@@ -5398,46 +5384,6 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: Update table
-      tags:
-      - Tables
-  /tables/{id}/release:
-    post:
-      consumes:
-      - application/json
-      description: Release table from order
-      parameters:
-      - description: table id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/tables.Table'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      summary: Release table from order
       tags:
       - Tables
   /tax:

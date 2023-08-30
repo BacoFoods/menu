@@ -21,7 +21,8 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 	router.PATCH("/order/:id/add/products", r.handler.AddProducts)
 	router.PATCH("/order/:id/remove/product", r.handler.RemoveProduct)
 	router.PATCH("/order/:id/update/product", r.handler.UpdateProduct)
-	router.PATCH("/order/:id/status", r.handler.UpdateStatus)
+
+	router.POST("/order/:id/release-table", r.handler.ReleaseTable)
 
 	// Order Item
 	router.PATCH("/order-item/:id/add/modifiers", r.handler.AddModifiers)

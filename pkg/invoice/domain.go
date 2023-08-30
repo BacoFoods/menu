@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/BacoFoods/menu/pkg/payment"
-	"github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
 )
 
@@ -26,7 +25,6 @@ type Invoice struct {
 	StoreID         *uint            `json:"store_id" binding:"required"`
 	ChannelID       *uint            `json:"channel_id" binding:"required"`
 	TableID         *uint            `json:"table_id"`
-	Table           *tables.Table    `json:"table"`
 	Items           []Item           `json:"items"  gorm:"foreignKey:InvoiceID"`
 	Discounts       []Discount       `json:"discounts"  gorm:"foreignKey:InvoiceID"`
 	Surcharges      []Surcharge      `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
