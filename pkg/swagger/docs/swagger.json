@@ -8614,9 +8614,6 @@
                 "store_id"
             ],
             "properties": {
-                "brand": {
-                    "$ref": "#/definitions/brand.Brand"
-                },
                 "brand_id": {
                     "type": "integer"
                 },
@@ -8638,9 +8635,6 @@
                 "id": {
                     "type": "integer"
                 },
-                "invoice": {
-                    "$ref": "#/definitions/invoice.Invoice"
-                },
                 "invoice_id": {
                     "type": "integer"
                 },
@@ -8655,9 +8649,6 @@
                 },
                 "seats": {
                     "type": "integer"
-                },
-                "store": {
-                    "$ref": "#/definitions/store.Store"
                 },
                 "store_id": {
                     "type": "integer"

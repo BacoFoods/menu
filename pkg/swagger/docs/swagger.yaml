@@ -287,8 +287,6 @@ definitions:
     type: object
   order.Order:
     properties:
-      brand:
-        $ref: '#/definitions/brand.Brand'
       brand_id:
         type: integer
       channel_id:
@@ -303,8 +301,6 @@ definitions:
         type: string
       id:
         type: integer
-      invoice:
-        $ref: '#/definitions/invoice.Invoice'
       invoice_id:
         type: integer
       items:
@@ -315,8 +311,6 @@ definitions:
         type: string
       seats:
         type: integer
-      store:
-        $ref: '#/definitions/store.Store'
       store_id:
         type: integer
       table_id:

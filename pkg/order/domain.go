@@ -60,9 +60,9 @@ type Order struct {
 	CurrentStatus string           `json:"current_status"`
 	OrderType     string           `json:"order_type"`
 	BrandID       *uint            `json:"brand_id" binding:"required"`
-	Brand         *brand.Brand     `json:"brand,omitempty"`
+	Brand         *brand.Brand     `json:"brand,omitempty" swaggerignore:"true"`
 	StoreID       *uint            `json:"store_id" binding:"required"`
-	Store         *store.Store     `json:"store,omitempty"`
+	Store         *store.Store     `json:"store,omitempty" swaggerignore:"true"`
 	ChannelID     *uint            `json:"channel_id" binding:"required"`
 	TableID       *uint            `json:"table_id"`
 	TypeID        *uint            `json:"type_id"`
@@ -73,7 +73,7 @@ type Order struct {
 	Seats         int              `json:"seats"`
 	ExternalCode  string           `json:"external_code"`
 	InvoiceID     *uint            `json:"invoice_id"`
-	Invoice       *invoice.Invoice `json:"invoice"`
+	Invoice       *invoice.Invoice `json:"invoice" swaggerignore:"true"`
 	CreatedAt     *time.Time       `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt     *time.Time       `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt     *gorm.DeletedAt  `json:"deleted_at,omitempty" swaggerignore:"true"`

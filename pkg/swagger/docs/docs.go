@@ -8622,9 +8622,6 @@ const docTemplate = `{
                 "store_id"
             ],
             "properties": {
-                "brand": {
-                    "$ref": "#/definitions/brand.Brand"
-                },
                 "brand_id": {
                     "type": "integer"
                 },
@@ -8646,9 +8643,6 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "invoice": {
-                    "$ref": "#/definitions/invoice.Invoice"
-                },
                 "invoice_id": {
                     "type": "integer"
                 },
@@ -8663,9 +8657,6 @@ const docTemplate = `{
                 },
                 "seats": {
                     "type": "integer"
-                },
-                "store": {
-                    "$ref": "#/definitions/store.Store"
                 },
                 "store_id": {
                     "type": "integer"

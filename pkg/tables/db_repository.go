@@ -102,6 +102,11 @@ func (r DBRepository) SetOrder(tableID, orderID *uint) (*Table, error) {
 }
 
 func (r DBRepository) RemoveOrder(tableID *uint) (*Table, error) {
+	if tableID == nil {
+		shared.LogWarn("tableId is null, releasing table", LogRepository, "RemoveOrder", nil, nil)
+		return nil, nil
+	}
+
 	var table Table
 	if err := r.db.First(&table, tableID).Error; err != nil {
 		shared.LogError(ErrorTableUpdating, LogRepository, "RemoveOrder", err, *tableID)
