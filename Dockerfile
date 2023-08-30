@@ -15,9 +15,9 @@ FROM alpine AS production
 RUN apk --no-cache add ca-certificates
 
 WORKDIR /app
+
 # Retrieve the binary from the previous stage
 COPY --from=builder /src/main .
-
 COPY entrypoint.sh .
 
 # Set the binary as the entrypoint of the container

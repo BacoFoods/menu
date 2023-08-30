@@ -14,7 +14,7 @@ services:
       - '5432:5432'
   app:
     build:
-      dockerfile: Dockerfile.local
+      dockerfile: Dockerfile
     env_file:
       - .env
     environment:
