@@ -20,13 +20,13 @@ func NewHandler(service Service) *Handler {
 // @Tags Account
 // @Summary To create an account
 // @Description To create an account
-// @Param account body Account true "account request"
+// @Param account body RequestAccount true "account request"
 // @Accept json
 // @Produce json
 // @Success 200 {object} object{status=string,data=Account}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Router /account [post]
+// @Router /public/account [post]
 func (h *Handler) Create(ctx *gin.Context) {
 	var requestBody RequestAccount
 	if err := ctx.BindJSON(&requestBody); err != nil {

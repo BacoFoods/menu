@@ -1,5 +1,49 @@
 basePath: /api/menu/v1
 definitions:
+  account.Account:
+    properties:
+      ID:
+        type: integer
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
+      disabled:
+        type: boolean
+      email:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      store_id:
+        type: integer
+      username:
+        type: string
+    type: object
+  account.RequestAccount:
+    properties:
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
+      email:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      store_id:
+        type: integer
+      username:
+        type: string
+    required:
+    - brand_id
+    - email
+    - password
+    - store_id
+    - username
+    type: object
   availability.EnableRequest:
     properties:
       enable:
@@ -819,7 +863,7 @@ definitions:
     type: object
 info:
   contact:
-    email: anderson.rodriguez@bacu.com
+    email: andersonrodriguezce@gmail.com
     name: Anderson Rodriguez
     url: https://www.bacu.co/quienes-somos
   description: Microservices for MENU.
@@ -830,6 +874,79 @@ info:
   title: MENU-MS API Rest
   version: "1.0"
 paths:
+  /account/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete an account
+      parameters:
+      - description: account id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/account.Account'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To delete an account
+      tags:
+      - Account
+  /account/login:
+    post:
+      consumes:
+      - application/json
+      description: To login
+      parameters:
+      - description: account request
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/account.Account'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/account.Account'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To login
+      tags:
+      - Account
   /availability/{entity}/{entity-id}/{place}:
     get:
       consumes:
@@ -4417,6 +4534,43 @@ paths:
       summary: To update all overriders for a product
       tags:
       - Product
+  /public/account:
+    post:
+      consumes:
+      - application/json
+      description: To create an account
+      parameters:
+      - description: account request
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/account.RequestAccount'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/account.Account'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create an account
+      tags:
+      - Account
   /status:
     get:
       consumes:

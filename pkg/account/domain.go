@@ -8,10 +8,11 @@ import (
 )
 
 const (
-	ErrorBadRequest      = "bad request"
-	ErrorAccountCreating = "error creating account"
-	ErrorAccountDeleting = "error deleting account"
-	ErrorAccountLogin    = "error login account"
+	ErrorBadRequest             = "bad request"
+	ErrorAccountCreating        = "error creating account"
+	ErrorAccountDeleting        = "error deleting account"
+	ErrorAccountLogin           = "error login account"
+	ErrorAccountInvalidPassword = "error invalid password"
 )
 
 type Account struct {
@@ -30,7 +31,7 @@ type Account struct {
 }
 
 type Role struct {
-	ID          int64          `json:"ID"`
+	ID          int64          `json:"id"`
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	CreatedAt   *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
@@ -40,8 +41,8 @@ type Role struct {
 
 type Repository interface {
 	Create(*Account) (*Account, error)
-	Login(username, password string) (*Account, error)
-	Delete(username string) error
+	Get(username string) (*Account, error)
+	Delete(accountID string) error
 }
 
 func (a *Account) HashPassword() error {

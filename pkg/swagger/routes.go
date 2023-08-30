@@ -1,6 +1,7 @@
 package swagger
 
 import (
+	"github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/category"
@@ -37,7 +38,7 @@ func NewRoutes() Routes {
 // @termsOfService https://www.bacu.co/
 // @contact.name Anderson Rodriguez
 // @contact.url https://www.bacu.co/quienes-somos
-// @contact.email anderson.rodriguez@bacu.com
+// @contact.email andersonrodriguezce@gmail.com
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @BasePath /api/menu/v1
@@ -58,5 +59,6 @@ func (r *Routes) Register(group *gin.RouterGroup) {
 	_ = order.Handler{}
 	_ = status.Handler{}
 	_ = invoice.Handler{}
+	_ = account.Handler{}
 	group.GET("/swagger/*any", swaggerGin.WrapHandler(swaggerFiles.Handler))
 }

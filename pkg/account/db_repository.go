@@ -26,12 +26,27 @@ func (r DBRepository) Create(account *Account) (*Account, error) {
 	return account, nil
 }
 
-func (r DBRepository) Login(username, password string) (*Account, error) {
+func (r DBRepository) Get(username string) (*Account, error) {
 	var account Account
-	if err := r.db.Where("username = ? AND password = ?", username, password).First(&account).Error; err != nil {
-		shared.LogError("error login account", LogDBRepository, "Login", err, username, password)
+	if err := r.db.Where("username = ?", username).First(&account).Error; err != nil {
+		shared.LogError("error getting account", LogDBRepository, "Get", err, username)
 		return nil, err
 	}
 
 	return &account, nil
+}
+
+func (r DBRepository) Delete(accountID string) error {
+	var account Account
+	if err := r.db.First(&account, accountID).Error; err != nil {
+		shared.LogError("error getting account", LogDBRepository, "Delete", err, accountID)
+		return err
+	}
+
+	if err := r.db.Delete(&accountID, accountID).Error; err != nil {
+		shared.LogError("error deleting account", LogDBRepository, "Delete", err, accountID)
+		return err
+	}
+
+	return nil
 }

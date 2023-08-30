@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/account"
 
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/availability"
@@ -172,6 +173,12 @@ func main() {
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)
 
+	// Account
+	accountRepository := account.NewDBRepository(gormDB)
+	accountService := account.NewService(accountRepository)
+	accountHandler := account.NewHandler(accountService)
+	accountRoutes := account.NewRoutes(accountHandler)
+
 	// Routes
 	routes := &router.RoutesGroup{
 		HealthCheck:  healthcheckRoutes,
@@ -192,7 +199,8 @@ func main() {
 		Availability: availabilityRoutes,
 		Order:        orderRoutes,
 		Status:       statusRoutes,
-		Invoice: 	  invoiceRoutes,
+		Invoice:      invoiceRoutes,
+		Account:      accountRoutes,
 	}
 
 	// Run server

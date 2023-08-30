@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/account"
 
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
@@ -64,6 +65,7 @@ func NewRouter(routes *RoutesGroup) Router {
 
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
+	routes.Account.RegisterRoutes(private, public)
 	routes.Swagger.Register(public)
 
 	return router
@@ -89,5 +91,6 @@ type RoutesGroup struct {
 	Table        tables.Routes
 	Taxes        taxes.Routes
 	Zone         zones.Routes
-	Invoice		 invoice.Routes
+	Invoice      invoice.Routes
+	Account      account.Routes
 }
