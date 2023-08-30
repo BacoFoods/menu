@@ -138,6 +138,11 @@ definitions:
       type:
         type: string
     type: object
+  invoice.DiscountsID:
+    properties:
+      id:
+        type: integer
+    type: object
   invoice.Invoice:
     properties:
       base_tax:
@@ -184,6 +189,8 @@ definitions:
         type: number
       total_surcharges:
         type: number
+      type:
+        type: string
     required:
     - brand_id
     - channel_id
@@ -208,6 +215,23 @@ definitions:
       sku:
         type: string
     type: object
+  invoice.RequestUpdateInvoice:
+    properties:
+      discounts:
+        items:
+          $ref: '#/definitions/invoice.DiscountsID'
+        type: array
+      payment_id:
+        type: integer
+      surcharges:
+        items:
+          $ref: '#/definitions/invoice.SurchargesID'
+        type: array
+      tips:
+        type: number
+      type:
+        type: string
+    type: object
   invoice.Surcharge:
     properties:
       active:
@@ -229,6 +253,11 @@ definitions:
       percentage:
         type: number
       store_id:
+        type: integer
+    type: object
+  invoice.SurchargesID:
+    properties:
+      id:
         type: integer
     type: object
   menu.Menu:
@@ -2407,7 +2436,7 @@ paths:
       - application/json
       description: To get a invoice
       parameters:
-      - description: invoice id
+      - description: Invoice ID
         in: path
         name: id
         required: true
@@ -2439,6 +2468,51 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To get a invoice
+      tags:
+      - Invoice
+    patch:
+      consumes:
+      - application/json
+      description: To update an invoice
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: invoice
+        in: body
+        name: invoice
+        required: true
+        schema:
+          $ref: '#/definitions/invoice.RequestUpdateInvoice'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Invoice'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update an invoice
       tags:
       - Invoice
   /menu:

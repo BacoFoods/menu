@@ -24,7 +24,7 @@ func (r DBRepository) Create(invoice *Invoice) (*Invoice, error) {
 	return invoice, nil
 }
 
-// Get method for get a invoice in database
+// Get method for get an invoice in database
 func (r *DBRepository) Get(invoiceID string) (*Invoice, error) {
 	var invoice Invoice
 
@@ -34,4 +34,13 @@ func (r *DBRepository) Get(invoiceID string) (*Invoice, error) {
 	}
 
 	return &invoice, nil
+}
+
+// Update method for update an invoice in database
+func (r *DBRepository) Update(invoice *Invoice) (*Invoice, error) {
+	if err := r.db.Save(invoice).Error; err != nil {
+		shared.LogError("Error updating invoice", LogRepository, "Update", err, *invoice)
+		return nil, err
+	}
+	return invoice, nil
 }

@@ -2,6 +2,8 @@ package order
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/product"
@@ -9,7 +11,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
-	"time"
 )
 
 const (

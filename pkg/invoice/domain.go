@@ -12,11 +12,13 @@ const (
 	ErrorBadRequest      = "error bad request"
 	ErrorInvoiceCreation = "error creating invoice"
 	ErrorGettingInvoice  = "error getting invoice"
+	ErrorInvoiceUpdate	 = "error updating invoice"
 )
 
 type Repository interface {
 	Create(invoice *Invoice) (*Invoice, error)
 	Get(invoiceID string) (*Invoice, error)
+	Update(invoice *Invoice) (*Invoice, error)
 }
 
 type Invoice struct {
@@ -34,6 +36,7 @@ type Invoice struct {
 	TotalDiscounts  float64          `json:"total_discounts,omitempty"`
 	TotalSurcharges float64          `json:"total_surcharges,omitempty"`
 	Tips            float64          `json:"tips"`
+	Type			string           `json:"type"`
 	BaseTax         float64          `json:"base_tax"`
 	Taxes           float64          `json:"taxes"`
 	Total           float64          `json:"total"`

@@ -2552,10 +2552,82 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "invoice id",
+                        "description": "Invoice ID",
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Invoice"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "To update an invoice",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invoice"
+                ],
+                "summary": "To update an invoice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invoice ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "invoice",
+                        "name": "invoice",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/invoice.RequestUpdateInvoice"
+                        }
                     }
                 ],
                 "responses": {
@@ -8460,6 +8532,14 @@ const docTemplate = `{
                 }
             }
         },
+        "invoice.DiscountsID": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "invoice.Invoice": {
             "type": "object",
             "required": [
@@ -8533,6 +8613,9 @@ const docTemplate = `{
                 },
                 "total_surcharges": {
                     "type": "number"
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         },
@@ -8561,6 +8644,32 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "sku": {
+                    "type": "string"
+                }
+            }
+        },
+        "invoice.RequestUpdateInvoice": {
+            "type": "object",
+            "properties": {
+                "discounts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/invoice.DiscountsID"
+                    }
+                },
+                "payment_id": {
+                    "type": "integer"
+                },
+                "surcharges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/invoice.SurchargesID"
+                    }
+                },
+                "tips": {
+                    "type": "number"
+                },
+                "type": {
                     "type": "string"
                 }
             }
@@ -8596,6 +8705,14 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "store_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "invoice.SurchargesID": {
+            "type": "object",
+            "properties": {
+                "id": {
                     "type": "integer"
                 }
             }
