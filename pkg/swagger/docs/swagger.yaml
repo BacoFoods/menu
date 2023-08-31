@@ -2,18 +2,18 @@ basePath: /api/menu/v1
 definitions:
   account.Account:
     properties:
-      ID:
-        type: integer
       brand_id:
         type: integer
       channel_id:
         type: integer
       disabled:
         type: boolean
+      display_name:
+        type: string
       email:
         type: string
-      password:
-        type: string
+      id:
+        type: integer
       role:
         type: string
       store_id:
@@ -27,6 +27,8 @@ definitions:
         type: integer
       channel_id:
         type: integer
+      display_name:
+        type: string
       email:
         type: string
       password:
@@ -39,10 +41,46 @@ definitions:
         type: string
     required:
     - brand_id
+    - display_name
     - email
     - password
     - store_id
     - username
+    type: object
+  account.RequestLogin:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  account.RequestLoginPin:
+    properties:
+      pin:
+        type: integer
+    type: object
+  account.RequestPinUser:
+    properties:
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
+      display_name:
+        type: string
+      email:
+        type: string
+      pin:
+        type: integer
+      role:
+        type: string
+      store_id:
+        type: integer
+    required:
+    - brand_id
+    - display_name
+    - email
+    - pin
+    - store_id
     type: object
   availability.EnableRequest:
     properties:
@@ -874,6 +912,97 @@ info:
   title: MENU-MS API Rest
   version: "1.0"
 paths:
+  /account:
+    get:
+      consumes:
+      - application/json
+      description: To find an account
+      parameters:
+      - description: account username
+        in: query
+        name: username
+        type: string
+      - description: account email
+        in: query
+        name: email
+        type: string
+      - description: account store id
+        in: query
+        name: storeID
+        type: string
+      - description: account role
+        in: query
+        name: role
+        type: string
+      - description: account brand id
+        in: query
+        name: brandID
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/account.Account'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To find an account
+      tags:
+      - Account
+    post:
+      consumes:
+      - application/json
+      description: To create an account
+      parameters:
+      - description: account request
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/account.RequestPinUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/account.Account'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create an account
+      tags:
+      - Account
   /account/{id}:
     delete:
       consumes:
@@ -921,7 +1050,7 @@ paths:
         name: account
         required: true
         schema:
-          $ref: '#/definitions/account.Account'
+          $ref: '#/definitions/account.RequestLogin'
       produces:
       - application/json
       responses:
@@ -940,8 +1069,45 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To login
+      tags:
+      - Account
+  /account/login/pin:
+    post:
+      consumes:
+      - application/json
+      description: To login
+      parameters:
+      - description: account request
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/account.RequestLoginPin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/account.Account'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To login

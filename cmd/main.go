@@ -62,6 +62,7 @@ func main() {
 		&invoice.Item{},
 		&invoice.Discount{},
 		&invoice.Surcharge{},
+		&account.Account{},
 	)
 
 	// Healthcheck

@@ -43,7 +43,7 @@ func (r DBRepository) Delete(accountID string) error {
 		return err
 	}
 
-	if err := r.db.Delete(&accountID, accountID).Error; err != nil {
+	if err := r.db.Delete(&account, account.Id).Error; err != nil {
 		shared.LogError("error deleting account", LogDBRepository, "Delete", err, accountID)
 		return err
 	}

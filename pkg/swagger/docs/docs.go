@@ -25,9 +25,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/account/login": {
-            "post": {
-                "description": "To login",
+        "/account": {
+            "get": {
+                "description": "To find an account",
                 "consumes": [
                     "application/json"
                 ],
@@ -37,7 +37,93 @@ const docTemplate = `{
                 "tags": [
                     "Account"
                 ],
-                "summary": "To login",
+                "summary": "To find an account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "account username",
+                        "name": "username",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "account email",
+                        "name": "email",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "account store id",
+                        "name": "storeID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "account role",
+                        "name": "role",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "account brand id",
+                        "name": "brandID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/account.Account"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "To create an account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "To create an account",
                 "parameters": [
                     {
                         "description": "account request",
@@ -45,7 +131,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/account.Account"
+                            "$ref": "#/definitions/account.RequestPinUser"
                         }
                     }
                 ],
@@ -79,6 +165,128 @@ const docTemplate = `{
                     },
                     "422": {
                         "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/account/login": {
+            "post": {
+                "description": "To login",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "To login",
+                "parameters": [
+                    {
+                        "description": "account request",
+                        "name": "account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/account.RequestLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/account.Account"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/account/login/pin": {
+            "post": {
+                "description": "To login",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "To login",
+                "parameters": [
+                    {
+                        "description": "account request",
+                        "name": "account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/account.RequestLoginPin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/account.Account"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8433,9 +8641,6 @@ const docTemplate = `{
         "account.Account": {
             "type": "object",
             "properties": {
-                "ID": {
-                    "type": "integer"
-                },
                 "brand_id": {
                     "type": "integer"
                 },
@@ -8444,6 +8649,46 @@ const docTemplate = `{
                 },
                 "disabled": {
                     "type": "boolean"
+                },
+                "display_name": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "account.RequestAccount": {
+            "type": "object",
+            "required": [
+                "brand_id",
+                "display_name",
+                "email",
+                "password",
+                "store_id",
+                "username"
+            ],
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "channel_id": {
+                    "type": "integer"
+                },
+                "display_name": {
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"
@@ -8462,14 +8707,33 @@ const docTemplate = `{
                 }
             }
         },
-        "account.RequestAccount": {
+        "account.RequestLogin": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "account.RequestLoginPin": {
+            "type": "object",
+            "properties": {
+                "pin": {
+                    "type": "integer"
+                }
+            }
+        },
+        "account.RequestPinUser": {
             "type": "object",
             "required": [
                 "brand_id",
+                "display_name",
                 "email",
-                "password",
-                "store_id",
-                "username"
+                "pin",
+                "store_id"
             ],
             "properties": {
                 "brand_id": {
@@ -8478,20 +8742,20 @@ const docTemplate = `{
                 "channel_id": {
                     "type": "integer"
                 },
+                "display_name": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
-                "password": {
-                    "type": "string"
+                "pin": {
+                    "type": "integer"
                 },
                 "role": {
                     "type": "string"
                 },
                 "store_id": {
                     "type": "integer"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },

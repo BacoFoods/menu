@@ -37,8 +37,42 @@ func (h *Handler) Create(ctx *gin.Context) {
 
 	account, err := h.service.Create(requestBody.ToAccount())
 	if err != nil {
-		shared.LogError("error creating account", LogHandler, "Create", err, account)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAccountCreating))
+		shared.LogError("error creating account", LogHandler, "Create", err, requestBody)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAccountCreation))
+		return
+	}
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(account))
+}
+
+// CreatePinUser to handle a request to create an account
+// @Tags Account
+// @Summary To create an account
+// @Description To create an account
+// @Param account body RequestPinUser true "account request"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=Account}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /account [post]
+func (h *Handler) CreatePinUser(ctx *gin.Context) {
+	var request RequestPinUser
+	if err := ctx.BindJSON(&request); err != nil {
+		shared.LogWarn("warning binding request fail", LogHandler, "CreatePinUser", err)
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	if request.Pin < 1000 || request.Pin > 9999 {
+		shared.LogWarn("warning wrong pin length", LogHandler, "CreatePinUser", nil)
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorAccountPinBadRequest))
+		return
+	}
+
+	account, err := h.service.CreatePinUser(request.ToAccount())
+	if err != nil {
+		shared.LogError("error creating account", LogHandler, "CreatePinUser", err, request)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAccountCreation))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(account))
@@ -48,12 +82,12 @@ func (h *Handler) Create(ctx *gin.Context) {
 // @Tags Account
 // @Summary To login
 // @Description To login
-// @Param account body Account true "account request"
+// @Param account body RequestLogin true "account request"
 // @Accept json
 // @Produce json
 // @Success 200 {object} object{status=string,data=Account}
 // @Failure 400 {object} shared.Response
-// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
 // @Router /account/login [post]
 func (h *Handler) Login(ctx *gin.Context) {
 	var request RequestLogin
@@ -65,10 +99,45 @@ func (h *Handler) Login(ctx *gin.Context) {
 
 	account, err := h.service.Login(request.Username, request.Password)
 	if err != nil {
-		shared.LogError("error logging in", LogHandler, "Login", err, account)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAccountLogin))
+		shared.LogError("error logging in", LogHandler, "Login", err, request)
+		ctx.JSON(http.StatusForbidden, shared.ErrorResponse(ErrorAccountLogin))
 		return
 	}
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(account))
+}
+
+// LoginPin to handle a request to login
+// @Tags Account
+// @Summary To login
+// @Description To login
+// @Param account body RequestLoginPin true "account request"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=Account}
+// @Failure 400 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /account/login/pin [post]
+func (h *Handler) LoginPin(ctx *gin.Context) {
+	var request RequestLoginPin
+	if err := ctx.BindJSON(&request); err != nil {
+		shared.LogWarn("warning binding request fail", LogHandler, "LoginPin", err)
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	if request.Pin < 1000 || request.Pin > 9999 {
+		shared.LogWarn("warning wrong pin length", LogHandler, "LoginPin", nil)
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorAccountLogin))
+		return
+	}
+
+	account, err := h.service.LoginPin(request.Pin)
+	if err != nil {
+		shared.LogError("error logging in", LogHandler, "LoginPin", err, request)
+		ctx.JSON(http.StatusForbidden, shared.ErrorResponse(ErrorAccountLogin))
+		return
+	}
+
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(account))
 }
 
