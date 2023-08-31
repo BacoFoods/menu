@@ -13,6 +13,7 @@ type Service interface {
 	Create(*Account) (*Account, error)
 	Login(username, password string) (*Account, error)
 	Delete(id string) error
+	Find(filter map[string]any) ([]Account, error)
 }
 
 type service struct {
@@ -24,7 +25,6 @@ func NewService(repository Repository) service {
 }
 
 func (s service) Create(account *Account) (*Account, error) {
-
 	return s.repository.Create(account)
 }
 
@@ -44,4 +44,8 @@ func (s service) Login(username, password string) (*Account, error) {
 
 func (s service) Delete(id string) error {
 	return s.repository.Delete(id)
+}
+
+func (s service) Find(filter map[string]any) ([]Account, error) {
+	return s.repository.Find(filter)
 }

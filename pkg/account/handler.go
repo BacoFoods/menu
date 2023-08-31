@@ -99,3 +99,57 @@ func (h *Handler) Delete(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, shared.SuccessResponse("account deleted"))
 }
+
+// Find to handle a request to find an account
+// @Tags Account
+// @Summary To find an account
+// @Description To find an account
+// @Param username query string false "account username"
+// @Param email query string false "account email"
+// @Param storeID query string false "account store id"
+// @Param role query string false "account role"
+// @Param brandID query string false "account brand id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=Account}
+// @Failure 400 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /account [get]
+func (h *Handler) Find(ctx *gin.Context) {
+	filter := make(map[string]any)
+
+	username := ctx.Query("username")
+	if username != "" {
+		filter["username"] = username
+	}
+
+	email := ctx.Query("email")
+	if email != "" {
+		filter["email"] = email
+	}
+
+	storeID := ctx.Query("storeID")
+	if storeID != "" {
+		filter["storeID"] = storeID
+	}
+
+	role := ctx.Query("role")
+	if role != "" {
+		filter["role"] = role
+	}
+
+	brandID := ctx.Query("brandID")
+	if brandID != "" {
+		filter["brandID"] = brandID
+	}
+
+	accounts, err := h.service.Find(filter)
+	if err != nil {
+		shared.LogError("error finding account", LogHandler, "Find", err, filter)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAccountFinding))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(accounts))
+}

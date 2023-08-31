@@ -13,7 +13,15 @@ const (
 	ErrorAccountDeleting        = "error deleting account"
 	ErrorAccountLogin           = "error login account"
 	ErrorAccountInvalidPassword = "error invalid password"
+	ErrorAccountFinding         = "error finding account"
 )
+
+type Repository interface {
+	Create(*Account) (*Account, error)
+	Get(username string) (*Account, error)
+	Delete(accountID string) error
+	Find(filter map[string]any) ([]Account, error)
+}
 
 type Account struct {
 	ID        int64          `json:"ID"`
@@ -37,12 +45,6 @@ type Role struct {
 	CreatedAt   *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time     `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
-}
-
-type Repository interface {
-	Create(*Account) (*Account, error)
-	Get(username string) (*Account, error)
-	Delete(accountID string) error
 }
 
 func (a *Account) HashPassword() error {

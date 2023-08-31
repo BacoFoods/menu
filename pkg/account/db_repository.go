@@ -50,3 +50,13 @@ func (r DBRepository) Delete(accountID string) error {
 
 	return nil
 }
+
+func (r DBRepository) Find(filter map[string]any) ([]Account, error) {
+	var accounts []Account
+	if err := r.db.Find(&accounts, filter).Error; err != nil {
+		shared.LogError("error getting accounts", LogDBRepository, "Find", err, filter)
+		return nil, err
+	}
+
+	return accounts, nil
+}
