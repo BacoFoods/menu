@@ -5666,8 +5666,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "x-example": "price",
-                        "description": "field",
+                        "description": "options: (price, name, description, image, enable)",
                         "name": "field",
                         "in": "query"
                     }

@@ -4324,11 +4324,10 @@ paths:
         name: id
         required: true
         type: string
-      - description: field
+      - description: 'options: (price, name, description, image, enable)'
         in: query
         name: field
         type: string
-        x-example: price
       produces:
       - application/json
       responses:

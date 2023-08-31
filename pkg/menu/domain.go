@@ -90,6 +90,7 @@ func OverrideProducts(items []Item, overriders []product.Overrider) map[uint][]p
 	for _, item := range items {
 		var prod product.Product
 
+		// If product doesn't have overriders, then use the product as it is.
 		if len(overriders) == 0 {
 			prod = product.Product{
 				ID:          item.ID,
@@ -102,6 +103,7 @@ func OverrideProducts(items []Item, overriders []product.Overrider) map[uint][]p
 				DiscountID:  item.DiscountID,
 				Unit:        item.Unit,
 			}
+			// If product has overriders, then use the overrider product.
 		} else {
 			for _, overrider := range overriders {
 				if item.ID == *overrider.ProductID && IsAllowOverride(item, overrider) {

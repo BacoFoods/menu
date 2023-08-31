@@ -79,7 +79,7 @@ func (r *DBRepository) GetMenusByCategory(categoryID string) ([]MenusCategory, e
 	var menusCategory []MenusCategory
 
 	if err := r.db.Debug().Table("menus").
-		Select("menus.id id, menus.name name, menus.enable enable").
+		Select("menus.id, menus.name, menus.enable").
 		Joins("left join menus_categories mc on menus.id = mc.menu_id").
 		Where("mc.category_id = ?", categoryID).
 		Find(&menusCategory).Error; err != nil {
