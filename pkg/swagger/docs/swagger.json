@@ -8524,14 +8524,6 @@
                 }
             }
         },
-        "invoice.DiscountsID": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
         "invoice.Invoice": {
             "type": "object",
             "required": [
@@ -8643,20 +8635,14 @@
         "invoice.RequestUpdateInvoice": {
             "type": "object",
             "properties": {
-                "discounts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/invoice.DiscountsID"
-                    }
+                "discount_id": {
+                    "type": "integer"
                 },
                 "payment_id": {
                     "type": "integer"
                 },
-                "surcharges": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/invoice.SurchargesID"
-                    }
+                "surcharge_id": {
+                    "type": "integer"
                 },
                 "tips": {
                     "type": "number"
@@ -8697,14 +8683,6 @@
                     "type": "number"
                 },
                 "store_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "invoice.SurchargesID": {
-            "type": "object",
-            "properties": {
-                "id": {
                     "type": "integer"
                 }
             }

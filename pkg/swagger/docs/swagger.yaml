@@ -138,11 +138,6 @@ definitions:
       type:
         type: string
     type: object
-  invoice.DiscountsID:
-    properties:
-      id:
-        type: integer
-    type: object
   invoice.Invoice:
     properties:
       base_tax:
@@ -217,16 +212,12 @@ definitions:
     type: object
   invoice.RequestUpdateInvoice:
     properties:
-      discounts:
-        items:
-          $ref: '#/definitions/invoice.DiscountsID'
-        type: array
+      discount_id:
+        type: integer
       payment_id:
         type: integer
-      surcharges:
-        items:
-          $ref: '#/definitions/invoice.SurchargesID'
-        type: array
+      surcharge_id:
+        type: integer
       tips:
         type: number
       type:
@@ -253,11 +244,6 @@ definitions:
       percentage:
         type: number
       store_id:
-        type: integer
-    type: object
-  invoice.SurchargesID:
-    properties:
-      id:
         type: integer
     type: object
   menu.Menu:

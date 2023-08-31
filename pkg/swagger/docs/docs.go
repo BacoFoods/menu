@@ -8532,14 +8532,6 @@ const docTemplate = `{
                 }
             }
         },
-        "invoice.DiscountsID": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
         "invoice.Invoice": {
             "type": "object",
             "required": [
@@ -8651,20 +8643,14 @@ const docTemplate = `{
         "invoice.RequestUpdateInvoice": {
             "type": "object",
             "properties": {
-                "discounts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/invoice.DiscountsID"
-                    }
+                "discount_id": {
+                    "type": "integer"
                 },
                 "payment_id": {
                     "type": "integer"
                 },
-                "surcharges": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/invoice.SurchargesID"
-                    }
+                "surcharge_id": {
+                    "type": "integer"
                 },
                 "tips": {
                     "type": "number"
@@ -8705,14 +8691,6 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "store_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "invoice.SurchargesID": {
-            "type": "object",
-            "properties": {
-                "id": {
                     "type": "integer"
                 }
             }

@@ -18,19 +18,11 @@ type Handler struct {
 }
 
 type RequestUpdateInvoice struct {
-	Type       string         `json:"type"`
-	PaymentID  uint           `json:"payment_id"`
-	Surcharges []SurchargesID `json:"surcharges"`
-	Tips       float64        `json:"tips"`
-	Discounts  []DiscountsID  `json:"discounts"`
-}
-
-type SurchargesID struct {
-	ID uint `json:"id"`
-}
-
-type DiscountsID struct {
-	ID uint `json:"id"`
+	Type         string         `json:"type"`
+	PaymentID    uint           `json:"payment_id"`
+	SurchargeID  uint           `json:"surcharge_id"`
+	Tips         float64        `json:"tips"`
+	DiscountID   uint           `json:"discount_id"`
 }
 
 
@@ -70,7 +62,7 @@ func (h *Handler) Get(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Invoice ID"
 // @Param invoice body RequestUpdateInvoice true "invoice"
-// @Success 200 {object} object{status=string,data=Invoice}
+// @Success 200 {object} object{status=string,data=invoice.Invoice}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
@@ -93,22 +85,14 @@ func (h *Handler) Update(c *gin.Context) {
 	if body.PaymentID > 0 {
 		updatedData["PaymentID"] = body.PaymentID
 	}
-	if len(body.Surcharges) > 0 {
-		surchargeIDs := make([]uint, len(body.Surcharges))
-		for i, surcharge := range body.Surcharges {
-			surchargeIDs[i] = surcharge.ID
-		}
-		updatedData["Surcharges"] = surchargeIDs
+	if body.SurchargeID > 0 {
+		updatedData["SurchargeID"] = body.SurchargeID
+	}
+	if body.DiscountID > 0 {
+		updatedData["DiscountID"] = body.DiscountID
 	}
 	if body.Tips != 0 {
 		updatedData["Tips"] = body.Tips
-	}
-	if len(body.Discounts) > 0 {
-		discountIDs := make([]uint, len(body.Discounts))
-		for i, discount := range body.Discounts {
-			discountIDs[i] = discount.ID
-		}
-		updatedData["Discounts"] = discountIDs
 	}
 	// Agrega más campos aquí según sea necesario
 
