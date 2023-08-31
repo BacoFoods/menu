@@ -49,6 +49,7 @@ type Product struct {
 	Unit        string             `json:"unit"`
 	BrandID     *uint              `json:"brand_id" binding:"required"`
 	Color       string             `json:"color"`
+	Enabled     bool               `json:"enabled"`
 	Modifiers   []Modifier         `json:"modifiers" gorm:"many2many:product_modifiers;"`
 	CreatedAt   *time.Time         `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time         `json:"updated_at,omitempty" swaggerignore:"true"`

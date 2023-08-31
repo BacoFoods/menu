@@ -21,6 +21,7 @@ func (r *DBRepository) Create(country *Country) (*Country, error) {
 		shared.LogError("error creating country", LogDBRepository, "Create", err, country)
 		return nil, err
 	}
+
 	return country, nil
 }
 
@@ -30,6 +31,7 @@ func (r *DBRepository) Find(query map[string]string) ([]Country, error) {
 		shared.LogError("error finding country", LogDBRepository, "Find", err)
 		return nil, err
 	}
+
 	return country, nil
 }
 
