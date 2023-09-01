@@ -1,12 +1,10 @@
 package status
 
 type CreateStatus struct {
-	Name         string `json:"name" binding:"required"`
-	Color        string `json:"color"`
-	Code         string `json:"code"`
-	Active       bool   `json:"active"`
-	PrevStatusID *uint  `json:"prev_status_id"`
-	NextStatusID *uint  `json:"next_status_id"`
+	Name   string `json:"name" binding:"required"`
+	Color  string `json:"color"`
+	Code   string `json:"code" binding:"required"`
+	Active bool   `json:"active"`
 }
 
 func (cs CreateStatus) ToStatus() *Status {
@@ -19,12 +17,10 @@ func (cs CreateStatus) ToStatus() *Status {
 }
 
 type UpdateStatus struct {
-	ID           uint   `json:"id" binding:"required"`
-	Name         string `json:"name"`
-	Color        string `json:"color"`
-	Code         string `json:"code"`
-	PrevStatusID *uint  `json:"prev_status_id"`
-	NextStatusID *uint  `json:"next_status_id"`
+	ID    uint   `json:"id" binding:"required"`
+	Name  string `json:"name"`
+	Color string `json:"color"`
+	Code  string `json:"code"`
 }
 
 func (us UpdateStatus) ToStatus() *Status {

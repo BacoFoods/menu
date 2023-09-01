@@ -9672,6 +9672,7 @@
         "status.CreateStatus": {
             "type": "object",
             "required": [
+                "code",
                 "name"
             ],
             "properties": {
@@ -9686,12 +9687,6 @@
                 },
                 "name": {
                     "type": "string"
-                },
-                "next_status_id": {
-                    "type": "integer"
-                },
-                "prev_status_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -9738,12 +9733,6 @@
                 },
                 "name": {
                     "type": "string"
-                },
-                "next_status_id": {
-                    "type": "integer"
-                },
-                "prev_status_id": {
-                    "type": "integer"
                 }
             }
         },

@@ -9680,6 +9680,7 @@ const docTemplate = `{
         "status.CreateStatus": {
             "type": "object",
             "required": [
+                "code",
                 "name"
             ],
             "properties": {
@@ -9694,12 +9695,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "next_status_id": {
-                    "type": "integer"
-                },
-                "prev_status_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -9746,12 +9741,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "next_status_id": {
-                    "type": "integer"
-                },
-                "prev_status_id": {
-                    "type": "integer"
                 }
             }
         },

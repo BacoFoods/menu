@@ -705,11 +705,8 @@ definitions:
         type: string
       name:
         type: string
-      next_status_id:
-        type: integer
-      prev_status_id:
-        type: integer
     required:
+    - code
     - name
     type: object
   status.Status:
@@ -739,10 +736,6 @@ definitions:
         type: integer
       name:
         type: string
-      next_status_id:
-        type: integer
-      prev_status_id:
-        type: integer
     required:
     - id
     type: object
