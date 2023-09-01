@@ -18,13 +18,36 @@ type Handler struct {
 }
 
 type RequestUpdateInvoice struct {
-	Type         string         `json:"type"`
-	PaymentID    uint           `json:"payment_id"`
-	SurchargeID  uint           `json:"surcharge_id"`
-	Tips         float64        `json:"tips"`
-	DiscountID   uint           `json:"discount_id"`
+	Type         string `json:"type"`
+	PaymentID    uint   `json:"payment_id"`
+	SurchargeID  uint   `json:"surcharge_id"`
+	Tips         float64 `json:"tips"`
+	DiscountID   uint    `json:"discount_id"`
 }
 
+
+func (r *RequestUpdateInvoice) ToInvoice() *Invoice {
+	discount := Discount{
+		ID: r.DiscountID,
+	}
+	surcharge := Surcharge{
+		ID: r.SurchargeID,
+	}
+
+	paymentID := r.PaymentID
+	var paymentIDPtr *uint
+
+	if paymentID != 0 {
+		paymentIDPtr = &paymentID
+	}
+
+	return &Invoice{
+		Type:      r.Type,
+		PaymentID: paymentIDPtr,
+		Discounts: []Discount{discount},
+		Surcharges: []Surcharge{surcharge},
+	}
+}
 
 func NewHandler(service Service) *Handler {
 	return &Handler{service}
@@ -75,28 +98,8 @@ func (h *Handler) Update(c *gin.Context) {
 		return
 	}
 
-	invoiceID := c.Param("id")
-	updatedData := make(map[string]interface{})
+	updatedInvoice, err := h.service.Update(body.ToInvoice())
 
-	// Agrega los campos que se pueden actualizar
-	if body.Type != "" {
-		updatedData["Type"] = body.Type
-	}
-	if body.PaymentID > 0 {
-		updatedData["PaymentID"] = body.PaymentID
-	}
-	if body.SurchargeID > 0 {
-		updatedData["SurchargeID"] = body.SurchargeID
-	}
-	if body.DiscountID > 0 {
-		updatedData["DiscountID"] = body.DiscountID
-	}
-	if body.Tips != 0 {
-		updatedData["Tips"] = body.Tips
-	}
-	// Agrega más campos aquí según sea necesario
-
-	updatedInvoice, err := h.service.Update(invoiceID, updatedData)
 	if err != nil {
 		shared.LogError("error updating invoice", LogHandler, "UpdateInvoice", err, updatedInvoice)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceUpdate))

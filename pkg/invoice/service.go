@@ -1,12 +1,12 @@
 package invoice
 
-import "github.com/BacoFoods/menu/pkg/payment"
+import "fmt"
 
 const LogService = "pkg/invoice/service"
 
 type Service interface {
 	Get(invoiceID string) (*Invoice, error)
-	Update(invoiceID string, updateData map[string]interface{}) (*Invoice, error)
+	Update(invoice *Invoice) (*Invoice, error)
 }
 
 type service struct {
@@ -23,38 +23,31 @@ func (s service) Get(invoiceID string) (*Invoice, error) {
 }
 
 // Update actualiza el Invoice con los nuevos datos proporcionados en updateData.
-func (s service) Update(invoiceID string, updateData map[string]interface{}) (*Invoice, error) {
+func (s service) Update(updateData *Invoice) (*Invoice, error) {
 	// Obtener el invoice
-	invoice, err := s.repository.Get(invoiceID)
+	invoice, err := s.repository.Get(fmt.Sprintf("%d", updateData.ID))
 	if err != nil {
 		return nil, err
 	}
 
 	// Actualiza los campos con los valores proporcionados en updateData
-	for field, value := range updateData {
-		switch field {
-		case "Type":
-			if typeValue, ok := value.(string); ok {
-				invoice.Type = typeValue
-			}
-		case "Payment":
-			if paymentValue, ok := value.(*payment.Payment); ok {
-				invoice.Payment = paymentValue
-			}
-		case "Surcharges":
-			if surchargesValue, ok := value.([]Surcharge); ok {
-				invoice.Surcharges = surchargesValue
-			}
-		case "Tips":
-			if tipsValue, ok := value.(float64); ok {
-				invoice.Tips = tipsValue
-			}
-		case "Discounts":
-			if discountsValue, ok := value.([]Discount); ok {
-				invoice.Discounts = discountsValue
-			}
-		// Agrega más casos para otros campos que quieras actualizar
-		}
+	invoice.Type = updateData.Type
+	invoice.Tips = updateData.Tips
+	// Actualiza otros campos según sea necesario
+
+	// Actualiza PaymentID si existe
+	if updateData.PaymentID != nil {
+		invoice.PaymentID = updateData.PaymentID
+	}
+
+	// Actualiza SurchargeID si existe
+	if len(updateData.Surcharges) > 0 {
+		invoice.Surcharges[0].ID = updateData.Surcharges[0].ID
+	}
+
+	// Actualiza DiscountID si existe
+	if len(updateData.Discounts) > 0 {
+		invoice.Discounts[0].ID = updateData.Discounts[0].ID
 	}
 
 	// Actualizar el invoice en la base de datos
