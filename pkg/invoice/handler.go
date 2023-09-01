@@ -34,20 +34,26 @@ func (r *RequestUpdateInvoice) ToInvoice() *Invoice {
 		ID: r.SurchargeID,
 	}
 
-	paymentID := r.PaymentID
-	var paymentIDPtr *uint
+	// Create the Invoice using the builder
+	builder := NewInvoiceBuilder().
+		SetType(r.Type).
+		SetPaymentID(r.PaymentID).
+		SetSurchargeID(r.SurchargeID).
+		SetTips(r.Tips).
+		SetDiscountID(r.DiscountID)
 
-	if paymentID != 0 {
-		paymentIDPtr = &paymentID
+	invoice, err := builder.Build()
+
+	if err != nil {
+		return nil
 	}
 
-	return &Invoice{
-		Type:      r.Type,
-		PaymentID: paymentIDPtr,
-		Discounts: []Discount{discount},
-		Surcharges: []Surcharge{surcharge},
-	}
+	invoice.Discounts = []Discount{discount}
+	invoice.Surcharges = []Surcharge{surcharge}
+
+	return invoice
 }
+
 
 func NewHandler(service Service) *Handler {
 	return &Handler{service}
