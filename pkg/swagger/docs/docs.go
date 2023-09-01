@@ -4956,6 +4956,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/order/{id}/status": {
+            "patch": {
+                "description": "To update the status of an order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To update the status of an order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Status",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.RequestUpdateOrderStatus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/order.Order"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/order/{id}/table/{table}": {
             "patch": {
                 "description": "To update the table of an order",
@@ -8662,7 +8718,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "brand_id",
-                "display_name",
                 "email",
                 "pin",
                 "store_id"
@@ -9440,6 +9495,18 @@ const docTemplate = `{
                 }
             }
         },
+        "order.RequestUpdateOrderStatus": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "random string"
+                }
+            }
+        },
         "payment.Payment": {
             "type": "object",
             "properties": {
@@ -9556,6 +9623,9 @@ const docTemplate = `{
                 "discount_id": {
                     "type": "integer"
                 },
+                "enabled": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -9653,18 +9723,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "next": {
-                    "$ref": "#/definitions/status.Status"
-                },
-                "next_status_id": {
-                    "type": "integer"
-                },
-                "prev": {
-                    "$ref": "#/definitions/status.Status"
-                },
-                "prev_status_id": {
-                    "type": "integer"
                 },
                 "updated_at": {
                     "type": "string"

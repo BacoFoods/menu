@@ -21,7 +21,9 @@ const (
 	ErrorBadRequestOrderSeats  = "error bad request wrong order seats can't be less than 0"
 	ErrorOrderCreation         = "error creating order"
 	ErrorOrderGetting          = "error getting order"
+	ErrorOrderGettingStatus    = "error getting order status"
 	ErrorOrderUpdate           = "error updating order"
+	ErrorOrderUpdateStatus     = "error updating order status"
 	ErrorOrderProductGetting   = "error getting order product"
 	ErrorOrderProductNotFound  = "error order product with id %v not found; "
 	ErrorOrderProductsNotFound = "error order products not found"
@@ -178,6 +180,12 @@ func (o *Order) ToInvoice() {
 
 	// Setting invoice
 	o.Invoice = &newInvoice
+}
+
+func (o *Order) UpdateStatus(status *status.Status) error {
+	o.CurrentStatus = status.Code
+	o.Statuses = append(o.Statuses, *status)
+	return nil
 }
 
 type OrderItem struct {

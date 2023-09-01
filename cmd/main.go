@@ -170,7 +170,7 @@ func main() {
 
 	// Order
 	orderRepository := order.NewDBRepository(gormDB)
-	orderService := order.NewService(orderRepository, tablesRepository, productRepository, invoiceRepository)
+	orderService := order.NewService(orderRepository, tablesRepository, productRepository, invoiceRepository, statusRepository)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)
 

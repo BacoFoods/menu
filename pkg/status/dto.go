@@ -11,12 +11,10 @@ type CreateStatus struct {
 
 func (cs CreateStatus) ToStatus() *Status {
 	return &Status{
-		Name:         cs.Name,
-		Color:        cs.Color,
-		Code:         cs.Code,
-		Active:       cs.Active,
-		PrevStatusID: cs.PrevStatusID,
-		NextStatusID: cs.NextStatusID,
+		Name:   cs.Name,
+		Color:  cs.Color,
+		Code:   cs.Code,
+		Active: cs.Active,
 	}
 }
 
@@ -31,11 +29,9 @@ type UpdateStatus struct {
 
 func (us UpdateStatus) ToStatus() *Status {
 	return &Status{
-		ID:           us.ID,
-		Name:         us.Name,
-		Color:        us.Color,
-		Code:         us.Code,
-		PrevStatusID: us.PrevStatusID,
-		NextStatusID: us.NextStatusID,
+		ID:    us.ID,
+		Name:  us.Name,
+		Color: us.Color,
+		Code:  us.Code,
 	}
 }

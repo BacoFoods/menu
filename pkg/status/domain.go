@@ -14,18 +14,14 @@ const (
 )
 
 type Status struct {
-	ID           uint           `json:"id,omitempty" gorm:"primaryKey"`
-	Name         string         `json:"name"`
-	Color        string         `json:"color"`
-	Code         string         `json:"code"`
-	Active       bool           `json:"active"`
-	PrevStatusID *uint          `json:"prev_status_id"`
-	NextStatusID *uint          `json:"next_status_id"`
-	Prev         *Status        `json:"prev" gorm:"foreignKey:PrevStatusID"`
-	Next         *Status        `json:"next" gorm:"foreignKey:NextStatusID"`
-	CreatedAt    *time.Time     `json:"created_at,omitempty"`
-	UpdatedAt    *time.Time     `json:"updated_at,omitempty"`
-	DeletedAt    gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID        uint           `json:"id,omitempty" gorm:"primaryKey"`
+	Name      string         `json:"name"`
+	Color     string         `json:"color"`
+	Code      string         `json:"code"`
+	Active    bool           `json:"active"`
+	CreatedAt *time.Time     `json:"created_at,omitempty"`
+	UpdatedAt *time.Time     `json:"updated_at,omitempty"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type Repository interface {
@@ -34,6 +30,5 @@ type Repository interface {
 	Update(status *Status, statusID string) (*Status, error)
 	Get(statusID string) (*Status, error)
 	Find() ([]Status, error)
-	GetFirst() (*Status, error)
 	GetByCode(code string) (*Status, error)
 }

@@ -5,6 +5,7 @@ import (
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	products "github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
+	statuses "github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/tables"
 )
 
@@ -21,6 +22,7 @@ type Service interface {
 	AddProducts(orderID string, orderItem []OrderItem) (*Order, error)
 	RemoveProduct(orderID, productID string) (*Order, error)
 	UpdateProduct(product *OrderItem) (*Order, error)
+	UpdateStatus(orderID, statusCode string) (*Order, error)
 	ReleaseTable(orderID string) (*Order, error)
 	AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error)
 	RemoveModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error)
@@ -37,10 +39,15 @@ type service struct {
 	table      tables.Repository
 	product    products.Repository
 	invoice    invoices.Repository
+	status     statuses.Repository
 }
 
-func NewService(repository Repository, table tables.Repository, product products.Repository, invoice invoices.Repository) service {
-	return service{repository, table, product, invoice}
+func NewService(repository Repository,
+	table tables.Repository,
+	product products.Repository,
+	invoice invoices.Repository,
+	status statuses.Repository) service {
+	return service{repository, table, product, invoice, status}
 }
 
 // Orders
@@ -260,6 +267,31 @@ func (s service) UpdateProduct(product *OrderItem) (*Order, error) {
 	order, err := s.repository.Get(fmt.Sprintf("%d", orderItem.OrderID))
 	if err != nil {
 		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	return order, nil
+}
+
+func (s service) UpdateStatus(orderID, statusCode string) (*Order, error) {
+	order, err := s.repository.Get(orderID)
+	if err != nil {
+		shared.LogError("error getting order", LogService, "UpdateStatus", err, orderID)
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	status, err := s.status.GetByCode(statusCode)
+	if err != nil {
+		shared.LogError("error getting status", LogService, "UpdateStatus", err, status)
+		return nil, fmt.Errorf(ErrorOrderGettingStatus)
+	}
+
+	if err := order.UpdateStatus(status); err != nil {
+		return nil, err
+	}
+
+	if _, err := s.repository.Update(order); err != nil {
+		shared.LogError("error updating order", LogService, "UpdateStatus", err, *order)
+		return nil, fmt.Errorf(ErrorOrderUpdateStatus)
 	}
 
 	return order, nil

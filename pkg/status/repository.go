@@ -69,16 +69,6 @@ func (r *DBRepository) Find() ([]Status, error) {
 	return status, nil
 }
 
-func (r *DBRepository) GetFirst() (*Status, error) {
-	var status Status
-	if err := r.db.First(&status, "prev_status_id IS NULL").Error; err != nil {
-		shared.LogError("error getting first status", LogDBRepository, "GetFirst", err)
-		return nil, err
-	}
-
-	return &status, nil
-}
-
 func (r *DBRepository) GetByCode(code string) (*Status, error) {
 	var status Status
 	if err := r.db.First(&status, "code = ?", code).Error; err != nil {
