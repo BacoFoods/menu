@@ -24,33 +24,32 @@ func (s service) Get(invoiceID string) (*Invoice, error) {
 
 // Update actualiza el Invoice con los nuevos datos proporcionados en updateData.
 func (s service) Update(updateData *Invoice) (*Invoice, error) {
-	// Obtener el invoice existente por ID
+	// get an invoice by ID
 	existingInvoice, err := s.repository.Get(fmt.Sprintf("%d", updateData.ID))
 	if err != nil {
 		return nil, err
 	}
 
-	// Actualiza los campos con los valores proporcionados en updateData
+	// Update the fields with updateData values
 	existingInvoice.Type = updateData.Type
 	existingInvoice.Tips = updateData.Tips
-	// Actualiza otros campos según sea necesario
 
-	// Actualiza PaymentID si existe
+	// Update PaymentID if exists
 	if updateData.PaymentID != nil {
 		existingInvoice.PaymentID = updateData.PaymentID
 	}
 
-	// Actualiza SurchargeID si existe
+	// Update SurchargeID if exists
 	if len(updateData.Surcharges) > 0 {
 		existingInvoice.Surcharges[0].ID = updateData.Surcharges[0].ID
 	}
 
-	// Actualiza DiscountID si existe
+	// Update SurchargeID if exists
 	if len(updateData.Discounts) > 0 {
 		existingInvoice.Discounts[0].ID = updateData.Discounts[0].ID
 	}
 
-	// Actualizar el invoice en la base de datos
+	// Update the invoice in DB
 	updatedInvoice, err := s.repository.Update(existingInvoice)
 	if err != nil {
 		return nil, err
