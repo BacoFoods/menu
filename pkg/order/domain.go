@@ -183,6 +183,10 @@ func (o *Order) ToInvoice() {
 }
 
 func (o *Order) UpdateStatus(status *status.Status) error {
+	if o.CurrentStatus == status.Code {
+		return nil
+	}
+
 	o.CurrentStatus = status.Code
 	o.Statuses = append(o.Statuses, *status)
 	return nil
