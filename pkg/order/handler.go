@@ -17,7 +17,7 @@ type RequestUpdateOrderSeats struct {
 }
 
 type RequestUpdateOrderStatus struct {
-	Status string `json:"status" binding:"required" enum:"ordering,preparing,delivered,invoicing,canceled,completed" example:"ordering,preparing,delivered,invoicing,canceled,completed"`
+	Status string `json:"status" binding:"required" enum:"ordering,cooking,delivered,invoicing,canceled,completed" example:"ordering,cooking,delivered,invoicing,canceled,completed"`
 }
 
 type RequestUpdateOrderProduct struct {
@@ -335,7 +335,7 @@ func (h *Handler) UpdateProduct(c *gin.Context) {
 // @Param id path string true "Order ID"
 // @Param status body RequestUpdateOrderStatus true "Status"
 // @Success 200 {object} object{status=string,data=Order}
-// @Router /order/{id}/status [patch]
+// @Router /order/{id}/update/status [patch]
 func (h *Handler) UpdateStatus(c *gin.Context) {
 	orderID := c.Param("id")
 

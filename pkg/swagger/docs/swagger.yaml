@@ -578,7 +578,7 @@ definitions:
   order.RequestUpdateOrderStatus:
     properties:
       status:
-        example: random string
+        example: ordering,cooking,delivered,invoicing,canceled,completed
         type: string
     required:
     - status
@@ -3964,40 +3964,6 @@ paths:
       summary: To update the seats of an order
       tags:
       - Order
-  /order/{id}/status:
-    patch:
-      consumes:
-      - application/json
-      description: To update the status of an order
-      parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Status
-        in: body
-        name: status
-        required: true
-        schema:
-          $ref: '#/definitions/order.RequestUpdateOrderStatus'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
-      summary: To update the status of an order
-      tags:
-      - Order
   /order/{id}/table/{table}:
     patch:
       consumes:
@@ -4092,6 +4058,40 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To update a product from an order
+      tags:
+      - Order
+  /order/{id}/update/status:
+    patch:
+      consumes:
+      - application/json
+      description: To update the status of an order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Status
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/order.RequestUpdateOrderStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+      summary: To update the status of an order
       tags:
       - Order
   /overrider:

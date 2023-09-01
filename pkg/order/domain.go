@@ -21,7 +21,7 @@ const (
 	ErrorBadRequestOrderSeats  = "error bad request wrong order seats can't be less than 0"
 	ErrorOrderCreation         = "error creating order"
 	ErrorOrderGetting          = "error getting order"
-	ErrorOrderGettingStatus    = "error getting order status"
+	ErrorOrderGettingStatus    = "error wrong order status"
 	ErrorOrderUpdate           = "error updating order"
 	ErrorOrderUpdateStatus     = "error updating order status"
 	ErrorOrderProductGetting   = "error getting order product"
