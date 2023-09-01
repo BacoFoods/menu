@@ -35,8 +35,11 @@ func (ib *InvoiceBuilder) SetPaymentID(paymentID uint) *InvoiceBuilder {
 
 // SetSurchargeID sets the surcharge ID for the Invoice
 func (ib *InvoiceBuilder) SetSurchargeID(surchargeID uint) *InvoiceBuilder {
-	ib.SurchargeID.ID = surchargeID
-	return ib
+    if ib.SurchargeID == nil {
+        ib.SurchargeID = new(Surcharge)
+    }
+    ib.SurchargeID.ID = surchargeID
+    return ib
 }
 
 
@@ -53,8 +56,11 @@ func (ib *InvoiceBuilder) SetTips(tips float64) *InvoiceBuilder {
 
 // SetDiscountID sets the discount ID for the Invoice
 func (ib *InvoiceBuilder) SetDiscountID(discountID uint) *InvoiceBuilder {
-	ib.DiscountID.ID = discountID
-	return ib
+    if ib.DiscountID == nil {
+        ib.DiscountID = new(Discount)
+    }
+    ib.DiscountID.ID = discountID
+    return ib
 }
 
 // Build returns a new Invoice and an error if there are any validation errors
@@ -71,6 +77,9 @@ func (ib *InvoiceBuilder) Build() (*Invoice, error) {
 
 	if ib.SurchargeID == nil {
 		validationErrors = append(validationErrors, errors.New("surchargeID is required"))
+	} else {
+		// Crear una instancia de Surcharge si SurchargeID no es nulo
+		ib.SurchargeID = new(Surcharge)
 	}
 
 	if ib.Tips > 0.1*ib.SubTotal {
@@ -79,6 +88,9 @@ func (ib *InvoiceBuilder) Build() (*Invoice, error) {
 
 	if ib.DiscountID == nil {
 		validationErrors = append(validationErrors, errors.New("discountID is required"))
+	} else {
+		// Crear una instancia de Discount si DiscountID no es nulo
+		ib.DiscountID = new(Discount)
 	}
 
 	// Check if there are validation errors

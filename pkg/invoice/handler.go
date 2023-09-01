@@ -20,40 +20,52 @@ type Handler struct {
 type RequestUpdateInvoice struct {
 	Type         string `json:"type"`
 	PaymentID    uint   `json:"payment_id"`
-	SurchargeID  uint   `json:"surcharge_id"`
+	SurchargeID  *uint   `json:"surcharge_id"`
 	Tips         float64 `json:"tips"`
-	DiscountID   uint    `json:"discount_id"`
+	DiscountID   *uint    `json:"discount_id"`
 }
 
 
 func (r *RequestUpdateInvoice) ToInvoice() *Invoice {
-	discount := Discount{
-		ID: r.DiscountID,
-	}
-	surcharge := Surcharge{
-		ID: r.SurchargeID,
-	}
+    // Verificar si los punteros son nulos antes de acceder a sus valores
+    var discountID uint
+    var surchargeID uint
 
-	// Create the Invoice using the builder
-	builder := NewInvoiceBuilder().
-		SetType(r.Type).
-		SetPaymentID(r.PaymentID).
-		SetSurchargeID(r.SurchargeID).
-		SetTips(r.Tips).
-		SetDiscountID(r.DiscountID)
+    if r.DiscountID != nil {
+        discountID = *r.DiscountID
+    }
 
-	invoice, err := builder.Build()
+    if r.SurchargeID != nil {
+        surchargeID = *r.SurchargeID
+    }
 
-	if err != nil {
-		return nil
-	}
+    discount := Discount{
+        ID: discountID,
+    }
 
-	invoice.Discounts = []Discount{discount}
-	invoice.Surcharges = []Surcharge{surcharge}
+    surcharge := Surcharge{
+        ID: surchargeID,
+    }
 
-	return invoice
+    // Crear la factura utilizando el constructor
+    builder := NewInvoiceBuilder().
+        SetType(r.Type).
+        SetPaymentID(r.PaymentID).
+        SetSurchargeID(surchargeID).
+        SetTips(r.Tips).
+        SetDiscountID(discountID)
+
+    invoice, err := builder.Build()
+
+    if err != nil {
+        return nil
+    }
+
+    invoice.Discounts = []Discount{discount}
+    invoice.Surcharges = []Surcharge{surcharge}
+
+    return invoice
 }
-
 
 func NewHandler(service Service) *Handler {
 	return &Handler{service}
