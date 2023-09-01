@@ -40,10 +40,6 @@ func (s service) Create(account *Account) (*Account, error) {
 func (s service) CreatePinUser(account *Account) (*Account, error) {
 	account.HashPin()
 
-	fmt.Println("+======================================================+")
-	fmt.Println(account)
-	fmt.Println("+======================================================+")
-
 	return s.repository.Create(account)
 }
 
