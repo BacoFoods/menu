@@ -26,46 +26,42 @@ type RequestUpdateInvoice struct {
 }
 
 
-func (r *RequestUpdateInvoice) ToInvoice() *Invoice {
-    // Verificar si los punteros son nulos antes de acceder a sus valores
-    var discountID uint
-    var surchargeID uint
+func (r *RequestUpdateInvoice) ToInvoice() (*Invoice, error) {
+	// Verificar si los punteros son nulos antes de acceder a sus valores
+	var discountID uint
+	var surchargeID uint
 
-    if r.DiscountID != nil {
-        discountID = *r.DiscountID
-    }
+	if r.DiscountID != nil {
+		discountID = *r.DiscountID
+	}
 
-    if r.SurchargeID != nil {
-        surchargeID = *r.SurchargeID
-    }
+	if r.SurchargeID != nil {
+		surchargeID = *r.SurchargeID
+	}
 
-    discount := Discount{
-        ID: discountID,
-    }
+	invoiceBuilder := NewInvoiceBuilder().
+		SetType(r.Type).
+		SetPaymentID(r.PaymentID).
+		SetTips(r.Tips)
 
-    surcharge := Surcharge{
-        ID: surchargeID,
-    }
+	if discountID != 0 {
+		discount := Discount{ID: discountID}
+		invoiceBuilder.AddDiscount(discount)
+	}
 
-    // Crear la factura utilizando el constructor
-    builder := NewInvoiceBuilder().
-        SetType(r.Type).
-        SetPaymentID(r.PaymentID).
-        SetSurchargeID(surchargeID).
-        SetTips(r.Tips).
-        SetDiscountID(discountID)
+	if surchargeID != 0 {
+		surcharge := Surcharge{ID: surchargeID}
+		invoiceBuilder.AddSurcharge(surcharge)
+	}
 
-    invoice, err := builder.Build()
+	invoice, err := invoiceBuilder.Build()
+	if err != nil {
+		return nil, err  // Devuelve el error junto con nil
+	}
 
-    if err != nil {
-        return nil
-    }
-
-    invoice.Discounts = []Discount{discount}
-    invoice.Surcharges = []Surcharge{surcharge}
-
-    return invoice
+	return invoice, nil
 }
+
 
 func NewHandler(service Service) *Handler {
 	return &Handler{service}
@@ -109,20 +105,28 @@ func (h *Handler) Get(c *gin.Context) {
 // @Failure 403 {object} shared.Response
 // @Router /invoice/{id} [patch]
 func (h *Handler) Update(c *gin.Context) {
-	var body RequestUpdateInvoice
-	if err := c.ShouldBindJSON(&body); err != nil {
-		shared.LogError("error binding request body", LogHandler, "UpdateInvoice", err, body)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
-		return
-	}
+    var body RequestUpdateInvoice
+    if err := c.ShouldBindJSON(&body); err != nil {
+        shared.LogError("error binding request body", LogHandler, "UpdateInvoice", err, body)
+        c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+        return
+    }
 
-	updatedInvoice, err := h.service.Update(body.ToInvoice())
+    updatedInvoice, err := body.ToInvoice() // Llamada a ToInvoice sin manejo de errores
 
-	if err != nil {
-		shared.LogError("error updating invoice", LogHandler, "UpdateInvoice", err, updatedInvoice)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceUpdate))
-		return
-	}
+    if err != nil {
+        shared.LogError("error creating invoice from request", LogHandler, "UpdateInvoice", err)
+        c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceUpdate))
+        return
+    }
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(updatedInvoice))
+    updatedInvoice, err = h.service.Update(updatedInvoice) // Actualización de la factura después de la creación
+
+    if err != nil {
+        shared.LogError("error updating invoice", LogHandler, "UpdateInvoice", err, updatedInvoice)
+        c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceUpdate))
+        return
+    }
+
+    c.JSON(http.StatusOK, shared.SuccessResponse(updatedInvoice))
 }

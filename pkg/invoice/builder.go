@@ -6,46 +6,40 @@ import (
 )
 
 // Builder is a builder design pattern implementation for Invoice
-type InvoiceBuilder struct {
-	Errors     []error
-	PaymentID  *uint
-	SurchargeID  *Surcharge
-	DiscountID   *Discount
-	Tips       float64
-	Type       string
-	SubTotal   float64
+type Builder struct {
+	Invoice
+	Errors []error
 }
 
 // NewInvoiceBuilder returns a new builder for creating an Invoice
-func NewInvoiceBuilder() *InvoiceBuilder {
-	return new(InvoiceBuilder)
+func NewInvoiceBuilder() *Builder {
+	return &Builder{}
 }
 
 // SetType sets the type for the Invoice
-func (ib *InvoiceBuilder) SetType(typ string) *InvoiceBuilder {
+func (ib *Builder) SetType(typ string) *Builder {
+	if typ == "" {
+		ib.Errors = append(ib.Errors, errors.New("type is required"))
+	}
 	ib.Type = typ
 	return ib
 }
 
 // SetPaymentID sets the payment ID for the Invoice
-func (ib *InvoiceBuilder) SetPaymentID(paymentID uint) *InvoiceBuilder {
+func (ib *Builder) SetPaymentID(paymentID uint) *Builder {
 	ib.PaymentID = &paymentID
 	return ib
 }
 
-// SetSurchargeID sets the surcharge ID for the Invoice
-func (ib *InvoiceBuilder) SetSurchargeID(surchargeID uint) *InvoiceBuilder {
-    if ib.SurchargeID == nil {
-        ib.SurchargeID = new(Surcharge)
-    }
-    ib.SurchargeID.ID = surchargeID
-    return ib
+// AddSurcharge adds a surcharge to the Invoice
+func (ib *Builder) AddSurcharge(surcharge Surcharge) *Builder {
+	ib.Surcharges = append(ib.Surcharges, surcharge)
+	return ib
 }
 
-
 // SetTips sets the tips for the Invoice (with a business rule check)
-func (ib *InvoiceBuilder) SetTips(tips float64) *InvoiceBuilder {
-	// Check if tips exceed 10%
+func (ib *Builder) SetTips(tips float64) *Builder {
+	// Check if tips exceed 10% of the subtotal
 	if tips > 0.1*ib.SubTotal {
 		ib.Errors = append(ib.Errors, fmt.Errorf("tips cannot exceed 10%% of the subtotal"))
 	} else {
@@ -54,65 +48,16 @@ func (ib *InvoiceBuilder) SetTips(tips float64) *InvoiceBuilder {
 	return ib
 }
 
-// SetDiscountID sets the discount ID for the Invoice
-func (ib *InvoiceBuilder) SetDiscountID(discountID uint) *InvoiceBuilder {
-    if ib.DiscountID == nil {
-        ib.DiscountID = new(Discount)
-    }
-    ib.DiscountID.ID = discountID
-    return ib
+// AddDiscount adds a discount to the Invoice
+func (ib *Builder) AddDiscount(discount Discount) *Builder {
+	ib.Discounts = append(ib.Discounts, discount)
+	return ib
 }
 
 // Build returns a new Invoice and an error if there are any validation errors
-func (ib *InvoiceBuilder) Build() (*Invoice, error) {
-	var validationErrors []error
-
-	if ib.Type == "" {
-		validationErrors = append(validationErrors, errors.New("type is required"))
+func (ib *Builder) Build() (*Invoice, error) {
+	if len(ib.Errors) > 0 {
+		return nil, fmt.Errorf("validation errors: %v", ib.Errors)
 	}
-
-	if ib.PaymentID == nil {
-		validationErrors = append(validationErrors, errors.New("PaymentID is required"))
-	}
-
-	if ib.SurchargeID == nil {
-		validationErrors = append(validationErrors, errors.New("surchargeID is required"))
-	} else {
-		// Crear una instancia de Surcharge si SurchargeID no es nulo
-		ib.SurchargeID = new(Surcharge)
-	}
-
-	if ib.Tips > 0.1*ib.SubTotal {
-		validationErrors = append(validationErrors, errors.New("tips cannot exceed 10% of the subtotal"))
-	}
-
-	if ib.DiscountID == nil {
-		validationErrors = append(validationErrors, errors.New("discountID is required"))
-	} else {
-		// Crear una instancia de Discount si DiscountID no es nulo
-		ib.DiscountID = new(Discount)
-	}
-
-	// Check if there are validation errors
-	if len(validationErrors) > 0 {
-		return nil, fmt.Errorf("validation errors: %v", validationErrors)
-	}
-
-	// Create a new instance of Invoice
-	invoice := &Invoice{
-		Type:      ib.Type,
-		PaymentID: ib.PaymentID,
-		Tips:      ib.Tips,
-		SubTotal:  ib.SubTotal,
-	}
-
-	if ib.SurchargeID != nil {
-		invoice.Surcharges = []Surcharge{*ib.SurchargeID}
-	}
-
-	if ib.DiscountID != nil {
-		invoice.Discounts = []Discount{*ib.DiscountID}
-	}
-
-	return invoice, nil
+	return &ib.Invoice, nil
 }

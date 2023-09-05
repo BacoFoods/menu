@@ -30,6 +30,10 @@ func (s service) Update(updateData *Invoice) (*Invoice, error) {
 		return nil, err
 	}
 
+	// Si no se encuentra la factura, devuelve una instancia vacía o una factura con valores predeterminados
+	if existingInvoice == nil {
+		return &Invoice{}, nil
+	}
 	// Update the fields with updateData values
 	existingInvoice.Type = updateData.Type
 	existingInvoice.Tips = updateData.Tips
