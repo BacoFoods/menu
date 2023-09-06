@@ -85,10 +85,10 @@ func (h *Handler) CreatePinUser(ctx *gin.Context) {
 // @Param account body RequestLogin true "account request"
 // @Accept json
 // @Produce json
-// @Success 200 {object} object{status=string,data=Account}
+// @Success 200 {string} string
 // @Failure 400 {object} shared.Response
 // @Failure 403 {object} shared.Response
-// @Router /account/login [post]
+// @Router /public/account/login [post]
 func (h *Handler) Login(ctx *gin.Context) {
 	var request RequestLogin
 	if err := ctx.BindJSON(&request); err != nil {
@@ -103,7 +103,15 @@ func (h *Handler) Login(ctx *gin.Context) {
 		ctx.JSON(http.StatusForbidden, shared.ErrorResponse(ErrorAccountLogin))
 		return
 	}
-	ctx.JSON(http.StatusOK, shared.SuccessResponse(account))
+
+	jwt, err := account.JWT()
+	if err != nil {
+		shared.LogError("error generating jwt", LogHandler, "Login", err, account)
+		ctx.JSON(http.StatusForbidden, shared.ErrorResponse(ErrorAccountLogin))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, jwt)
 }
 
 // LoginPin to handle a request to login
@@ -113,10 +121,10 @@ func (h *Handler) Login(ctx *gin.Context) {
 // @Param account body RequestLoginPin true "account request"
 // @Accept json
 // @Produce json
-// @Success 200 {object} object{status=string,data=Account}
+// @Success 200 {string} string
 // @Failure 400 {object} shared.Response
 // @Failure 403 {object} shared.Response
-// @Router /account/login/pin [post]
+// @Router /public/account/login/pin [post]
 func (h *Handler) LoginPin(ctx *gin.Context) {
 	var request RequestLoginPin
 	if err := ctx.BindJSON(&request); err != nil {
@@ -138,7 +146,14 @@ func (h *Handler) LoginPin(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, shared.SuccessResponse(account))
+	jwt, err := account.JWT()
+	if err != nil {
+		shared.LogError("error generating jwt", LogHandler, "LoginPin", err, account)
+		ctx.JSON(http.StatusForbidden, shared.ErrorResponse(ErrorAccountLogin))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, jwt)
 }
 
 // Delete to handle a request to delete an account
@@ -184,6 +199,7 @@ func (h *Handler) Delete(ctx *gin.Context) {
 // @Failure 400 {object} shared.Response
 // @Failure 403 {object} shared.Response
 // @Failure 422 {object} shared.Response
+// @Security ApiKeyAuth
 // @Router /account [get]
 func (h *Handler) Find(ctx *gin.Context) {
 	filter := make(map[string]any)

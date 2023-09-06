@@ -42,6 +42,9 @@ func NewRoutes() Routes {
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @BasePath /api/menu/v1
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 //
 //go:generate go run github.com/swaggo/swag/cmd/swag@v1.8.4 init --parseDependency=true -o docs -g routes.go
 func (r *Routes) Register(group *gin.RouterGroup) {

@@ -939,6 +939,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find an account
       tags:
       - Account
@@ -1012,80 +1014,6 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To delete an account
-      tags:
-      - Account
-  /account/login:
-    post:
-      consumes:
-      - application/json
-      description: To login
-      parameters:
-      - description: account request
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/account.RequestLogin'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/account.Account'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/shared.Response'
-      summary: To login
-      tags:
-      - Account
-  /account/login/pin:
-    post:
-      consumes:
-      - application/json
-      description: To login
-      parameters:
-      - description: account request
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/account.RequestLoginPin'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/account.Account'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/shared.Response'
-      summary: To login
       tags:
       - Account
   /availability/{entity}/{entity-id}/{place}:
@@ -4744,6 +4672,66 @@ paths:
       summary: To create an account
       tags:
       - Account
+  /public/account/login:
+    post:
+      consumes:
+      - application/json
+      description: To login
+      parameters:
+      - description: account request
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/account.RequestLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To login
+      tags:
+      - Account
+  /public/account/login/pin:
+    post:
+      consumes:
+      - application/json
+      description: To login
+      parameters:
+      - description: account request
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/account.RequestLoginPin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To login
+      tags:
+      - Account
   /status:
     get:
       consumes:
@@ -6239,4 +6227,9 @@ paths:
       summary: To remove tables from a zone
       tags:
       - Zones
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

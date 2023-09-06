@@ -3,7 +3,11 @@ package account
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"github.com/BacoFoods/menu/pkg/brand"
+	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/shared"
+	"github.com/BacoFoods/menu/pkg/store"
+	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"time"
@@ -19,6 +23,8 @@ const (
 	ErrorAccountPinLogin        = "error login with pin account"
 	ErrorAccountInvalidPassword = "error invalid password"
 	ErrorAccountFinding         = "error finding account"
+
+	LogDomain = "pkg/account/domain"
 )
 
 type Repository interface {
@@ -29,19 +35,22 @@ type Repository interface {
 }
 
 type Account struct {
-	Id          uint           `json:"id"`
-	DisplayName string         `json:"display_name"`
-	Username    string         `json:"username"`
-	Password    string         `json:"-" swaggerignore:"true"`
-	Email       string         `json:"email"`
-	ChannelID   *int64         `json:"channel_id"`
-	StoreID     *int64         `json:"store_id"`
-	BrandID     *int64         `json:"brand_id"`
-	Role        string         `json:"role"`
-	Disabled    bool           `json:"disabled"`
-	CreatedAt   *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt   *time.Time     `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	Id          uint             `json:"id"`
+	DisplayName string           `json:"display_name"`
+	Username    string           `json:"username"`
+	Password    string           `json:"-" swaggerignore:"true"`
+	Email       string           `json:"email"`
+	ChannelID   *int64           `json:"channel_id"`
+	Channel     *channel.Channel `json:"channel,omitempty"`
+	StoreID     *int64           `json:"store_id"`
+	Store       *store.Store     `json:"store,omitempty"`
+	BrandID     *int64           `json:"brand_id"`
+	Brand       *brand.Brand     `json:"brand,omitempty"`
+	Role        string           `json:"role"`
+	Disabled    bool             `json:"disabled"`
+	CreatedAt   *time.Time       `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt   *time.Time       `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt   gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type Role struct {
@@ -79,4 +88,45 @@ func (a *Account) HashPin() {
 	hashBytes := hasher.Sum(nil)
 	a.Username = hex.EncodeToString(hashBytes)
 	a.Password = hex.EncodeToString(hashBytes)
+}
+
+func (a *Account) JWT() (string, error) {
+	channelName := ""
+	if a.Channel != nil {
+		channelName = a.Channel.Name
+	}
+
+	storeName := ""
+	if a.Store != nil {
+		storeName = a.Store.Name
+	}
+
+	brandName := ""
+	if a.Brand != nil {
+		brandName = a.Brand.Name
+	}
+
+	claims := jwt.MapClaims{
+		"name":         a.DisplayName,
+		"email":        a.Email,
+		"role":         a.Role,
+		"channel":      a.ChannelID,
+		"channel_name": channelName,
+		"store":        a.StoreID,
+		"store_name":   storeName,
+		"brand":        a.BrandID,
+		"brand_name":   brandName,
+		"exp":          time.Now().Add(time.Hour * 12).Unix(), // 12 hours expiration
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	secretKey := []byte("1234")
+	tokenString, err := token.SignedString(secretKey) // internal.Config.TokenSecret
+	if err != nil {
+		shared.LogError("error generating jwt", LogDomain, "JWT", err, *a)
+		return "", err
+	}
+
+	return tokenString, nil
 }

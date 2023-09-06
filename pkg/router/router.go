@@ -37,7 +37,7 @@ func NewRouter(routes *RoutesGroup) Router {
 
 	// Setting middlewares
 	router := gin.Default()
-	router.Use(CORSMiddleware(), Authentication())
+	router.Use(CORSMiddleware())
 
 	// Register health check route
 	healthCheck := router.Group(path)
@@ -45,6 +45,8 @@ func NewRouter(routes *RoutesGroup) Router {
 
 	// Register private routes
 	private := router.Group(path)
+	private.Use(Authentication())
+
 	routes.Availability.RegisterRoutes(private)
 	routes.Brand.RegisterRoutes(private)
 	routes.Category.RegisterRoutes(private)

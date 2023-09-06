@@ -3,6 +3,7 @@ package account
 import (
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const (
@@ -28,7 +29,9 @@ func (r DBRepository) Create(account *Account) (*Account, error) {
 
 func (r DBRepository) Get(username string) (*Account, error) {
 	var account Account
-	if err := r.db.Where("username = ?", username).First(&account).Error; err != nil {
+	if err := r.db.
+		Preload(clause.Associations).
+		Where("username = ?", username).First(&account).Error; err != nil {
 		shared.LogError("error getting account", LogDBRepository, "Get", err, username)
 		return nil, err
 	}

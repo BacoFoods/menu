@@ -1,9 +1,12 @@
 package router
 
 import (
+	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
+
+const LogMiddleware string = "pkg/router/middleware"
 
 // CORSMiddleware for handle cors request from client
 func CORSMiddleware() gin.HandlerFunc {
@@ -23,7 +26,34 @@ func CORSMiddleware() gin.HandlerFunc {
 // Authentication for handle authentication request from client
 func Authentication() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		_ = ctx.Request.Header.Get("Authorization") // TODO: improve security access
+		tokenString := ctx.Request.Header.Get("Authorization")
+		if tokenString == "" {
+			shared.LogWarn("token is empty", LogMiddleware, "Authentication", nil)
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		// TODO: solve method of signature is invalid
+		/*
+			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+				secretKey, ok := token.Method.(*jwt.SigningMethodHMAC)
+				if !ok {
+					shared.LogWarn("method of signature is invalid", LogMiddleware, "Authentication", nil)
+					ctx.AbortWithStatus(http.StatusUnauthorized)
+				}
+
+				return secretKey, nil
+			})
+			if err != nil {
+				ctx.AbortWithStatus(http.StatusUnauthorized)
+				return
+			}
+
+			if _, ok := token.Claims.(jwt.MapClaims); !ok && !token.Valid {
+				ctx.AbortWithStatus(http.StatusUnauthorized)
+				return
+			}
+		*/
 		ctx.Next()
 	}
 }
