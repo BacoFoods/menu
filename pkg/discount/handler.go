@@ -23,6 +23,7 @@ func NewHandler(service Service) *Handler {
 // @Param discount body Discount true "discount request"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Discount}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -50,6 +51,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 // @Description To find discount
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Discount}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -80,6 +82,7 @@ func (h *Handler) Find(ctx *gin.Context) {
 // @Param id path string true "discount id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Discount}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -103,6 +106,7 @@ func (h *Handler) Get(ctx *gin.Context) {
 // @Param discount body Discount true "discount to update"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Discount}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -132,6 +136,7 @@ func (h *Handler) Update(ctx *gin.Context) {
 // @Param id path string true "discountID"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Discount}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response

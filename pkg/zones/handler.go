@@ -45,6 +45,7 @@ func NewHandler(service Service) *Handler {
 // @Description To find zones
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param name query string false "Name"
 // @Param storeID query int false "Store ID"
 // @Success 200 {object} object{status=string,data=[]Zone}
@@ -80,6 +81,7 @@ func (h Handler) Find(c *gin.Context) {
 // @Description To get a zone
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path int true "ID"
 // @Success 200 {object} object{status=string,data=Zone}
 // @Failure 400 {object} shared.Response
@@ -103,6 +105,7 @@ func (h Handler) Get(c *gin.Context) {
 // @Description To create a zone
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param request body RequestZoneCreate true "Zone"
 // @Success 200 {object} object{status=string,data=Zone}
 // @Failure 400 {object} shared.Response
@@ -139,6 +142,7 @@ func (h Handler) Create(c *gin.Context) {
 // @Description To update a zone
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path int true "ID"
 // @Param request body RequestZoneUpdate true "Zone"
 // @Success 200 {object} object{status=string,data=Zone}
@@ -176,6 +180,7 @@ func (h Handler) Update(c *gin.Context) {
 // @Description To delete a zone
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path int true "ID"
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
@@ -200,6 +205,7 @@ func (h Handler) Delete(c *gin.Context) {
 // @Description To add tables to a zone
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path int true "Zone ID"
 // @Param request body RequestAddTable true "Add Table"
 // @Success 200 {object} shared.Response
@@ -232,6 +238,7 @@ func (h Handler) AddTables(c *gin.Context) {
 // @Description To remove tables from a zone
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path int true "Zone ID"
 // @Param request body RequestAddTable true "Remove Table"
 // @Success 200 {object} shared.Response
@@ -265,6 +272,7 @@ func (h Handler) RemoveTables(c *gin.Context) {
 // @Description To enable/disable a zone
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path int true "Zone ID"
 // @Success 200 {object} object{status=string,data=Zone}
 // @Failure 400 {object} shared.Response

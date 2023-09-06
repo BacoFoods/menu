@@ -2,7 +2,10 @@ package account
 
 import (
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
+	"fmt"
+	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/shared"
@@ -106,6 +109,12 @@ func (a *Account) JWT() (string, error) {
 		brandName = a.Brand.Name
 	}
 
+	tokenDuration, err := time.ParseDuration(fmt.Sprintf("%v", internal.Config.TokenExpireHours))
+	if err != nil {
+		shared.LogError("error parsing token duration", LogDomain, "JWT", err, internal.Config.TokenExpireHours)
+		return "", err
+	}
+
 	claims := jwt.MapClaims{
 		"name":         a.DisplayName,
 		"email":        a.Email,
@@ -116,12 +125,17 @@ func (a *Account) JWT() (string, error) {
 		"store_name":   storeName,
 		"brand":        a.BrandID,
 		"brand_name":   brandName,
-		"exp":          time.Now().Add(time.Hour * 12).Unix(), // 12 hours expiration
+		"exp":          tokenDuration, // 12 hours expiration
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	secretKey := []byte("1234")
+	secretKey, err := base64.StdEncoding.DecodeString(internal.Config.TokenSecret)
+	if err != nil {
+		shared.LogError("error decoding jwt key", LogDomain, "JWT", err, internal.Config.TokenSecret)
+		return "", err
+	}
+
 	tokenString, err := token.SignedString(secretKey) // internal.Config.TokenSecret
 	if err != nil {
 		shared.LogError("error generating jwt", LogDomain, "JWT", err, *a)

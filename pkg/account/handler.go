@@ -51,6 +51,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 // @Param account body RequestPinUser true "account request"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Account}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -163,6 +164,7 @@ func (h *Handler) LoginPin(ctx *gin.Context) {
 // @Param id path string true "account id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Account}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -195,11 +197,11 @@ func (h *Handler) Delete(ctx *gin.Context) {
 // @Param brandID query string false "account brand id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Account}
 // @Failure 400 {object} shared.Response
 // @Failure 403 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Security ApiKeyAuth
 // @Router /account [get]
 func (h *Handler) Find(ctx *gin.Context) {
 	filter := make(map[string]any)

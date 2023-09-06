@@ -25,6 +25,7 @@ func NewHandler(service Service) *Handler {
 // @Param brand-id query string false "brand id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Channel}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -64,6 +65,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Param id path string true "channel id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Channel}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -86,6 +88,7 @@ func (h *Handler) Get(c *gin.Context) {
 // @Description To create a channel
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param channel body Channel true "channel"
 // @Success 200 {object} object{status=string,data=Channel}
 // @Failure 400 {object} shared.Response
@@ -115,6 +118,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Description To update a channel
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "channel id"
 // @Param channel body Channel true "channel"
 // @Success 200 {object} object{status=string,data=Channel}
@@ -146,6 +150,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Description To delete a channel
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "channel id"
 // @Success 200 {object} object{status=string,data=Channel}
 // @Failure 400 {object} shared.Response

@@ -24,6 +24,7 @@ func NewHandler(service Service) *Handler {
 // @Param country body Country true "country request"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Country}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -52,6 +53,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 // @Param code query string false "country code"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Country}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -79,6 +81,7 @@ func (h *Handler) Find(ctx *gin.Context) {
 // @Param id path string true "country id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Country}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -102,6 +105,7 @@ func (h *Handler) Get(ctx *gin.Context) {
 // @Param country body Country true "country to update"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Country}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -131,6 +135,7 @@ func (h *Handler) Update(ctx *gin.Context) {
 // @Param id path string true "countryID"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Country}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response

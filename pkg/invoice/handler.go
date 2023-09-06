@@ -28,6 +28,7 @@ func NewHandler(service Service) *Handler {
 // @Param id path string true "invoice id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=invoice.Invoice}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response

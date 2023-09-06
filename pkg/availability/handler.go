@@ -35,6 +35,7 @@ func NewHandler(service Service) *Handler {
 // @Description Remove menu or category
 // @Tags Availability
 // @Produce json
+// @Security ApiKeyAuth
 // @Param entity path string true "Entity"
 // @Param entity-id path string true "Entity ID"
 // @Param place path string true "Place"
@@ -87,6 +88,7 @@ func (h *Handler) RemoveEntity(c *gin.Context) {
 // @Description Enable menu or category
 // @Tags Availability
 // @Produce json
+// @Security ApiKeyAuth
 // @Param entity path string true "Entity"
 // @Param entity-id path string true "Entity ID"
 // @Param place path string true "Place"
@@ -147,6 +149,7 @@ func (h *Handler) EnableEntity(c *gin.Context) {
 // @Description Find all entities
 // @Tags Availability
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -162,6 +165,7 @@ func (h *Handler) FindEntities(c *gin.Context) {
 // @Description Find all places
 // @Tags Availability
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -178,6 +182,7 @@ func (h *Handler) FindPlaces(c *gin.Context) {
 // @Tags Availability
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param entity path string true "Entity"
 // @Param entity-id path string true "Entity ID"
 // @Param place path string true "Place"
@@ -229,6 +234,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Tags Availability
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param entity path string true "Entity"
 // @Param entity-id path string true "Entity ID"
 // @Param place path string true "Place"

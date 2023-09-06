@@ -23,6 +23,7 @@ func NewHandler(service Service) *Handler {
 // @Param currency body Currency true "currency request"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Currency}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -51,6 +52,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 // @Param code query string false "currency code"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Currency}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -78,6 +80,7 @@ func (h *Handler) Find(ctx *gin.Context) {
 // @Param id path string true "currency id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Currency}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -101,6 +104,7 @@ func (h *Handler) Get(ctx *gin.Context) {
 // @Param currency body Currency true "currency to update"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Currency}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -130,6 +134,7 @@ func (h *Handler) Update(ctx *gin.Context) {
 // @Param id path string true "currencyID"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Currency}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response

@@ -37,6 +37,7 @@ func NewHandler(service Service) *Handler {
 // @Param code query string false "store code"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Store}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -77,6 +78,7 @@ func (h Handler) Find(c *gin.Context) {
 // @Param id path string true "store id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Store}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -101,6 +103,7 @@ func (h Handler) Get(c *gin.Context) {
 // @Description To create a store
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param store body Store true "store"
 // @Success 200 {object} object{status=string,data=Store}
 // @Failure 400 {object} shared.Response
@@ -131,6 +134,7 @@ func (h Handler) Create(c *gin.Context) {
 // @Description To update a store
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "store id"
 // @Param store body Store true "store"
 // @Success 200 {object} object{status=string,data=Store}
@@ -162,6 +166,7 @@ func (h Handler) Update(c *gin.Context) {
 // @Description To delete a store
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "store id"
 // @Success 200 {object} object{status=string,data=Store}
 // @Failure 400 {object} shared.Response
@@ -185,6 +190,7 @@ func (h Handler) Delete(c *gin.Context) {
 // @Description To add a channel to a store
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "store id"
 // @Param channelID path string true "channel id"
 // @Success 200 {object} object{status=string,data=Store}
@@ -212,6 +218,7 @@ func (h Handler) AddChannel(c *gin.Context) {
 // @Description To get zones by store
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "store id"
 // @Success 200 {object} object{status=string,data=[]object{}}
 // @Failure 400 {object} shared.Response
@@ -237,6 +244,7 @@ func (h Handler) FindZonesByStore(c *gin.Context) {
 // @Description To get tables by store
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "store id"
 // @Param zoneID path string true "zone id"
 // @Success 200 {object} object{status=string,data=object{}}
@@ -264,6 +272,7 @@ func (h Handler) GetZoneByStore(c *gin.Context) {
 // @Description To enable/disable a store
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "store id"
 // @Success 200 {object} object{status=string,data=Store}
 // @Failure 400 {object} shared.Response

@@ -52,6 +52,7 @@ func NewHandler(service Service) *Handler {
 // @Description To create an order
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param order body OrderDTO true "Order"
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
@@ -82,6 +83,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Description To update the table of an order
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Order ID"
 // @Param table path string true "Table"
 // @Success 200 {object} object{status=string,data=Order}
@@ -119,6 +121,7 @@ func (h *Handler) UpdateTable(c *gin.Context) {
 // @Description To get an order
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Order ID"
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
@@ -143,6 +146,7 @@ func (h *Handler) Get(c *gin.Context) {
 // @Description To find orders
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param store query string false "Store ID"
 // @Param table query string false "Table ID"
 // @Success 200 {object} object{status=string,data=Order}
@@ -178,6 +182,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Description To update the seats of an order
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Order ID"
 // @Param seats body RequestUpdateOrderSeats true "Seats"
 // @Success 200 {object} object{status=string,data=Order}
@@ -215,6 +220,7 @@ func (h *Handler) UpdateSeats(c *gin.Context) {
 // @Description To add products to an order
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Order ID"
 // @Param product body RequestAddProducts true "Add Products"
 // @Success 200 {object} object{status=string,data=Order}
@@ -252,6 +258,7 @@ func (h *Handler) AddProducts(c *gin.Context) {
 // @Description To remove a product from an order
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Order ID"
 // @Param productID path string true "Product ID"
 // @Success 200 {object} object{status=string,data=Order}
@@ -278,6 +285,7 @@ func (h *Handler) RemoveProduct(c *gin.Context) {
 // @Description To update a product from an order
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Order ID"
 // @Param productID path string true "Product ID"
 // @Param product body RequestUpdateOrderProduct true "product"
@@ -332,6 +340,7 @@ func (h *Handler) UpdateProduct(c *gin.Context) {
 // @Description To update the status of an order
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Order ID"
 // @Param status body RequestUpdateOrderStatus true "Status"
 // @Success 200 {object} object{status=string,data=Order}
@@ -361,6 +370,7 @@ func (h *Handler) UpdateStatus(c *gin.Context) {
 // @Description To release an order's table
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Order ID"
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
@@ -387,6 +397,7 @@ func (h *Handler) ReleaseTable(c *gin.Context) {
 // @Description To add modifiers to a product's order
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "OrderItemID"
 // @Param modifier body RequestModifiers true "Add Modifiers"
 // @Success 200 {object} object{status=string,data=Order}
@@ -434,6 +445,7 @@ func (h *Handler) AddModifiers(c *gin.Context) {
 // @Description To remove a modifiers from a product's order
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "OrderItemID"
 // @Param modifier body RequestModifiers true "Remove Modifiers"
 // @Success 200 {object} object{status=string,data=Order}
@@ -483,6 +495,7 @@ func (h *Handler) RemoveModifiers(c *gin.Context) {
 // @Description To create an order type
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param orderType body OrderType true "Order Type"
 // @Success 200 {object} object{status=string,data=OrderType}
 // @Failure 400 {object} shared.Response
@@ -512,6 +525,7 @@ func (h *Handler) CreateOrderType(c *gin.Context) {
 // @Description To find order types
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param channelID path string false "Channel ID"
 // @Param storeID path string false "Store ID"
 // @Param brandID path string false "Brand ID"
@@ -556,6 +570,7 @@ func (h *Handler) FindOrderType(c *gin.Context) {
 // @Description To get an order type
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Order Type ID"
 // @Success 200 {object} object{status=string,data=OrderType}
 // @Router /order-type/{id} [get]
@@ -577,6 +592,7 @@ func (h *Handler) GetOrderType(c *gin.Context) {
 // @Description To update an order type
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Order Type ID"
 // @Param orderType body OrderType true "Order Type"
 // @Success 200 {object} object{status=string,data=OrderType}
@@ -606,6 +622,7 @@ func (h *Handler) UpdateOrderType(c *gin.Context) {
 // @Description To delete an order type
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Order Type ID"
 // @Success 200 {object} object{status=string,data=OrderType}
 // @Router /order-type/{id} [delete]
@@ -629,6 +646,7 @@ func (h *Handler) DeleteOrderType(c *gin.Context) {
 // @Description To create an invoice
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param orderID path string true "Order ID"
 // @Success 200 {object} object{status=string,data=invoice.Invoice}
 // @Router /invoice [post]

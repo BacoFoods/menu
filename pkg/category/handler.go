@@ -26,6 +26,7 @@ func NewHandler(service Service) *Handler {
 // @Param productID query string false "category by product"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Category}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -65,6 +66,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Param id path string true "category id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Category}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -88,6 +90,7 @@ func (h *Handler) Get(c *gin.Context) {
 // @Param category body Category true "category request"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Category}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -117,6 +120,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Param category body Category true "category request"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Category}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -144,6 +148,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Param id path string true "category id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Category}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -166,6 +171,7 @@ func (h *Handler) Delete(c *gin.Context) {
 // @Param id path string true "category id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -191,6 +197,7 @@ func (h *Handler) GetMenus(c *gin.Context) {
 // @Param productID path string true "product id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -229,6 +236,7 @@ func (h *Handler) AddProduct(c *gin.Context) {
 // @Param productID path integer true "product id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response

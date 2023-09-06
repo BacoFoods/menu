@@ -33,6 +33,7 @@ func NewHandler(service Service) *Handler {
 // @Param brand-id query string false "brand id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Product}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -67,6 +68,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Param id path string true "product id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Product}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -94,6 +96,7 @@ func (h *Handler) Get(c *gin.Context) {
 //
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param product body Product true "product"
 // @Success 200 {object} object{status=string,data=Product}
 // @Failure 400 {object} shared.Response
@@ -124,6 +127,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Description To update a product
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "product id"
 // @Param product body Product true "product"
 // @Success 200 {object} object{status=string,data=Product}
@@ -153,6 +157,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Description To delete a product
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "product id"
 // @Success 200 {object} object{status=string,data=Product}
 // @Failure 400 {object} shared.Response
@@ -176,6 +181,7 @@ func (h *Handler) Delete(c *gin.Context) {
 // @Description To add a modifier to a product
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "product id"
 // @Param modifierID path string true "modifier id"
 // @Success 200 {object} object{status=string,data=Product}
@@ -203,6 +209,7 @@ func (h *Handler) AddModifier(c *gin.Context) {
 // @Description To remove a modifier from a product
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "product id"
 // @Param modifierID path string true "modifier id"
 // @Success 200 {object} object{status=string,data=Product}
@@ -230,6 +237,7 @@ func (h *Handler) RemoveModifier(c *gin.Context) {
 // @Description To get overriders for a product
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "product id"
 // @Param field query string false "options: (price, name, description, image, enable)"
 // @Success 200 {object} shared.Response
@@ -263,6 +271,7 @@ func (h *Handler) GetOverridersByField(c *gin.Context) {
 // @Description To update all overriders for a product
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "product id"
 // @Param request body RequestUpdateOverriders true "request"
 // @Success 200 {object} object{status=string,data=Product}
@@ -304,6 +313,7 @@ func (h *Handler) UpdateAllOverriders(c *gin.Context) {
 // @Description To get categories for a product
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "product id"
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
@@ -331,6 +341,7 @@ func (h *Handler) GetCategories(c *gin.Context) {
 // @Description To find modifiers
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param name query string false "modifier name"
 // @Param brand-id query string false "brand id"
 // @Success 200 {object} object{status=string,data=Modifier}
@@ -367,6 +378,7 @@ func (h *Handler) ModifierFind(c *gin.Context) {
 // @Description To create a modifier
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param modifier body Modifier true "modifier"
 // @Success 200 {object} object{status=string,data=Modifier}
 // @Failure 400 {object} shared.Response
@@ -397,6 +409,7 @@ func (h *Handler) ModifierCreate(c *gin.Context) {
 // @Description To add a product to a modifier
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "modifier id"
 // @Param productID path string true "product id"
 // @Success 200 {object} object{status=string,data=Modifier}
@@ -424,6 +437,7 @@ func (h *Handler) ModifierAddProduct(c *gin.Context) {
 // @Description To remove a product from a modifier
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "modifier id"
 // @Param productID path string true "product id"
 // @Success 200 {object} object{status=string,data=Modifier}
@@ -451,6 +465,7 @@ func (h *Handler) ModifierRemoveProduct(c *gin.Context) {
 // @Description To update a modifier
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "modifier id"
 // @Param modifier body ModifierDTO true "modifier"
 // @Success 200 {object} object{status=string,data=Modifier}
@@ -493,6 +508,7 @@ func (h *Handler) ModifierUpdate(c *gin.Context) {
 // @Param name query string false "overrider name"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Overrider}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -522,6 +538,7 @@ func (h *Handler) OverriderFind(c *gin.Context) {
 // @Param id path string true "overrider id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Overrider}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -546,6 +563,7 @@ func (h *Handler) OverriderGet(c *gin.Context) {
 // @Description To create an overrider
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param overriders body Overrider true "overrider"
 // @Success 200 {object} object{status=string,data=Overrider}
 // @Failure 400 {object} shared.Response
@@ -576,6 +594,7 @@ func (h *Handler) OverriderCreate(c *gin.Context) {
 // @Description To update an overrider
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "overrider id"
 // @Param overriders body Overrider true "overrider"
 // @Success 200 {object} object{status=string,data=Overrider}
@@ -608,6 +627,7 @@ func (h *Handler) OverriderUpdate(c *gin.Context) {
 // @Param id path string true "overrider id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Overrider}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response

@@ -1,7 +1,10 @@
 package router
 
 import (
+	"encoding/base64"
+	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/shared"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -33,27 +36,32 @@ func Authentication() gin.HandlerFunc {
 			return
 		}
 
-		// TODO: solve method of signature is invalid
-		/*
-			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
-				secretKey, ok := token.Method.(*jwt.SigningMethodHMAC)
-				if !ok {
-					shared.LogWarn("method of signature is invalid", LogMiddleware, "Authentication", nil)
-					ctx.AbortWithStatus(http.StatusUnauthorized)
-				}
+		secretKey, err := base64.StdEncoding.DecodeString(internal.Config.TokenSecret)
+		if err != nil {
+			shared.LogError("error decoding jwt key", LogMiddleware, "Authentication", err, internal.Config.TokenSecret)
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
 
-				return secretKey, nil
-			})
-			if err != nil {
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+			_, ok := token.Method.(*jwt.SigningMethodHMAC)
+			if !ok {
+				shared.LogWarn("method of signature is invalid", LogMiddleware, "Authentication", nil)
 				ctx.AbortWithStatus(http.StatusUnauthorized)
-				return
 			}
 
-			if _, ok := token.Claims.(jwt.MapClaims); !ok && !token.Valid {
-				ctx.AbortWithStatus(http.StatusUnauthorized)
-				return
-			}
-		*/
+			return secretKey, nil
+		})
+		if err != nil {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		if _, ok := token.Claims.(jwt.MapClaims); !ok && !token.Valid {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
 		ctx.Next()
 	}
 }

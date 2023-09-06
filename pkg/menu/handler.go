@@ -39,6 +39,7 @@ func NewHandler(service Service) *Handler {
 // @Param brand-id query string false "brand id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -74,6 +75,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Param id path string true "menu id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -96,6 +98,7 @@ func (h *Handler) Get(c *gin.Context) {
 // @Description To create a menu
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param menu body RequestMenuCreate true "menu"
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
@@ -126,6 +129,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Description To update a menu
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "menu id"
 // @Param menu body Menu true "menu"
 // @Success 200 {object} object{status=string,data=Menu}
@@ -157,6 +161,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Description To delete a menu
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "menu id"
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
@@ -182,6 +187,7 @@ func (h *Handler) Delete(c *gin.Context) {
 // @Param place-id path string true "place id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -208,6 +214,7 @@ func (h *Handler) ListByPlace(c *gin.Context) {
 // @Param menu-id path string true "menu id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -237,6 +244,7 @@ func (h *Handler) GetByPlace(c *gin.Context) {
 // @Param availability body RequestMenuAvailability true "availability"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -281,6 +289,7 @@ func (h *Handler) UpdateAvailability(c *gin.Context) {
 // @Param storeID path string true "store id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -308,6 +317,7 @@ func (h *Handler) FindChannels(c *gin.Context) {
 // @Param categoryID path string true "category id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -335,6 +345,7 @@ func (h *Handler) AddCategory(c *gin.Context) {
 // @Param categoryID path string true "category id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response

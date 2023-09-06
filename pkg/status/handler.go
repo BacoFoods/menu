@@ -23,6 +23,7 @@ func NewHandler(service Service) *Handler {
 // @Param status body CreateStatus true "status request"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Status}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -52,6 +53,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 // @Param status body Status true "status request"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=string}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -74,6 +76,7 @@ func (h *Handler) Delete(ctx *gin.Context) {
 // @Description To find status
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Status}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -97,6 +100,7 @@ func (h *Handler) Find(ctx *gin.Context) {
 // @Param id path string true "status id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Status}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -122,6 +126,7 @@ func (h *Handler) Get(ctx *gin.Context) {
 // @Param status body UpdateStatus true "status to update"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Status}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response

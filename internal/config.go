@@ -30,6 +30,6 @@ func init() {
 type AppConfig struct {
 	AppPort          string `env:"APP_PORT"`
 	AppEnv           string `env:"APP_ENV"`
-	TokenExpireHours int    `env:"TOKEN_EXPIRE_HOURS"`
+	TokenExpireHours string `env:"TOKEN_EXPIRE_HOURS"`
 	TokenSecret      string `env:"TOKEN_SECRET"`
 }

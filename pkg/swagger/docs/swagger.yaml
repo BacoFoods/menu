@@ -2,8 +2,12 @@ basePath: /api/menu/v1
 definitions:
   account.Account:
     properties:
+      brand:
+        $ref: '#/definitions/brand.Brand'
       brand_id:
         type: integer
+      channel:
+        $ref: '#/definitions/channel.Channel'
       channel_id:
         type: integer
       disabled:
@@ -16,6 +20,8 @@ definitions:
         type: integer
       role:
         type: string
+      store:
+        $ref: '#/definitions/store.Store'
       store_id:
         type: integer
       username:

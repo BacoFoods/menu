@@ -8604,8 +8604,14 @@ const docTemplate = `{
         "account.Account": {
             "type": "object",
             "properties": {
+                "brand": {
+                    "$ref": "#/definitions/brand.Brand"
+                },
                 "brand_id": {
                     "type": "integer"
+                },
+                "channel": {
+                    "$ref": "#/definitions/channel.Channel"
                 },
                 "channel_id": {
                     "type": "integer"
@@ -8624,6 +8630,9 @@ const docTemplate = `{
                 },
                 "role": {
                     "type": "string"
+                },
+                "store": {
+                    "$ref": "#/definitions/store.Store"
                 },
                 "store_id": {
                     "type": "integer"

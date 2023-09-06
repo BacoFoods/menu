@@ -25,6 +25,7 @@ func NewHandler(service Service) *Handler {
 // @Param name query string false "brand name"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Brand}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -52,6 +53,7 @@ func (h Handler) Find(c *gin.Context) {
 // @Param id path string true "brand id"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Brand}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -74,6 +76,7 @@ func (h Handler) Get(c *gin.Context) {
 // @Description To create a brand
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param brand body object{description=string,name=string,nit=string,social_name=string} true "brand"
 // @Success 200 {object} object{status=string,data=Brand}
 // @Failure 400 {object} shared.Response
@@ -104,6 +107,7 @@ func (h Handler) Create(c *gin.Context) {
 // @Description To update a brand
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "brand id"
 // @Param brand body Brand true "brand"
 // @Success 200 {object} object{status=string,data=Brand}
@@ -135,6 +139,7 @@ func (h Handler) Update(c *gin.Context) {
 // @Description To delete a brand
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "brand id"
 // @Success 200 {object} object{status=string,data=Brand}
 // @Failure 400 {object} shared.Response

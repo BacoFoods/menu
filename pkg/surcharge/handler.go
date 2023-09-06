@@ -24,6 +24,7 @@ func NewHandler(service Service) *Handler {
 // @Param name query string false "Name"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Surcharge}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -59,6 +60,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Param id path string true "Surcharge ID"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Surcharge}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
@@ -83,6 +85,7 @@ func (h *Handler) Get(c *gin.Context) {
 // @Description Create surcharge
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param surcharge body Surcharge true "Surcharge"
 // @Success 200 {object} object{status=string,data=Surcharge}
 // @Failure 400 {object} shared.Response
@@ -113,6 +116,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Description Update surcharge
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Surcharge ID"
 // @Param surcharge body Surcharge true "Surcharge"
 // @Success 200 {object} object{status=string,data=Surcharge}
@@ -147,6 +151,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Param id path string true "Surcharge ID"
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Surcharge}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
