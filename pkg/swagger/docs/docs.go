@@ -118,6 +118,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create an account",
                 "consumes": [
                     "application/json"
@@ -179,6 +184,11 @@ const docTemplate = `{
         },
         "/account/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete an account",
                 "consumes": [
                     "application/json"
@@ -238,6 +248,11 @@ const docTemplate = `{
         },
         "/availability/entities": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Find all entities",
                 "produces": [
                     "application/json"
@@ -276,6 +291,11 @@ const docTemplate = `{
         },
         "/availability/places": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Find all places",
                 "produces": [
                     "application/json"
@@ -314,6 +334,11 @@ const docTemplate = `{
         },
         "/availability/{entity}/{entity-id}/{place}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Find availability for entity and place",
                 "consumes": [
                     "application/json"
@@ -378,6 +403,11 @@ const docTemplate = `{
         },
         "/availability/{entity}/{entity-id}/{place}/{place-id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get availability for entity and place",
                 "consumes": [
                     "application/json"
@@ -447,6 +477,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Enable menu or category",
                 "produces": [
                     "application/json"
@@ -522,6 +557,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Remove menu or category",
                 "produces": [
                     "application/json"
@@ -590,6 +630,11 @@ const docTemplate = `{
         },
         "/brand": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find brands",
                 "consumes": [
                     "application/json"
@@ -655,6 +700,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create a brand",
                 "consumes": [
                     "application/json"
@@ -743,6 +793,11 @@ const docTemplate = `{
         },
         "/brand/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get a brand",
                 "consumes": [
                     "application/json"
@@ -806,6 +861,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete a brand",
                 "consumes": [
                     "application/json"
@@ -869,6 +929,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update a brand",
                 "consumes": [
                     "application/json"
@@ -943,6 +1008,11 @@ const docTemplate = `{
         },
         "/category": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find categories",
                 "consumes": [
                     "application/json"
@@ -1020,6 +1090,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create a category",
                 "consumes": [
                     "application/json"
@@ -1081,6 +1156,11 @@ const docTemplate = `{
         },
         "/category/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get a category",
                 "consumes": [
                     "application/json"
@@ -1144,6 +1224,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete a category",
                 "consumes": [
                     "application/json"
@@ -1201,6 +1286,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update a category",
                 "consumes": [
                     "application/json"
@@ -1269,6 +1359,11 @@ const docTemplate = `{
         },
         "/category/{id}/menu": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get menus from a category",
                 "consumes": [
                     "application/json"
@@ -1313,6 +1408,11 @@ const docTemplate = `{
         },
         "/category/{id}/product/{productID}/add": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To add a product to a category",
                 "consumes": [
                     "application/json"
@@ -1370,6 +1470,11 @@ const docTemplate = `{
         },
         "/category/{id}/product/{productID}/remove": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To remove a product from a category",
                 "consumes": [
                     "application/json"
@@ -1427,6 +1532,11 @@ const docTemplate = `{
         },
         "/channel": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find channels",
                 "consumes": [
                     "application/json"
@@ -1504,6 +1614,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create a channel",
                 "consumes": [
                     "application/json"
@@ -1571,6 +1686,11 @@ const docTemplate = `{
         },
         "/channel/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get a channel",
                 "consumes": [
                     "application/json"
@@ -1634,6 +1754,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete a channel",
                 "consumes": [
                     "application/json"
@@ -1697,6 +1822,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update a channel",
                 "consumes": [
                     "application/json"
@@ -1771,6 +1901,11 @@ const docTemplate = `{
         },
         "/country": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find country",
                 "consumes": [
                     "application/json"
@@ -1836,6 +1971,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create a country",
                 "consumes": [
                     "application/json"
@@ -1895,6 +2035,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update country plan",
                 "consumes": [
                     "application/json"
@@ -1962,6 +2107,11 @@ const docTemplate = `{
         },
         "/country/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find country by id",
                 "consumes": [
                     "application/json"
@@ -2025,6 +2175,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete a country",
                 "consumes": [
                     "application/json"
@@ -2084,6 +2239,11 @@ const docTemplate = `{
         },
         "/currency": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find currency",
                 "consumes": [
                     "application/json"
@@ -2149,6 +2309,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create a currency",
                 "consumes": [
                     "application/json"
@@ -2208,6 +2373,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update currency plan",
                 "consumes": [
                     "application/json"
@@ -2275,6 +2445,11 @@ const docTemplate = `{
         },
         "/currency/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find currency by id",
                 "consumes": [
                     "application/json"
@@ -2338,6 +2513,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete a currency",
                 "consumes": [
                     "application/json"
@@ -2397,6 +2577,11 @@ const docTemplate = `{
         },
         "/discount": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find discount",
                 "consumes": [
                     "application/json"
@@ -2454,6 +2639,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create a discount",
                 "consumes": [
                     "application/json"
@@ -2513,6 +2703,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update discount plan",
                 "consumes": [
                     "application/json"
@@ -2580,6 +2775,11 @@ const docTemplate = `{
         },
         "/discount/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find discount by id",
                 "consumes": [
                     "application/json"
@@ -2643,6 +2843,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete a discount",
                 "consumes": [
                     "application/json"
@@ -2702,6 +2907,11 @@ const docTemplate = `{
         },
         "/invoice": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create an invoice",
                 "consumes": [
                     "application/json"
@@ -2749,6 +2959,11 @@ const docTemplate = `{
         },
         "/invoice/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get a invoice",
                 "consumes": [
                     "application/json"
@@ -2814,6 +3029,11 @@ const docTemplate = `{
         },
         "/menu": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find menus",
                 "consumes": [
                     "application/json"
@@ -2885,6 +3105,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create a menu",
                 "consumes": [
                     "application/json"
@@ -2952,6 +3177,11 @@ const docTemplate = `{
         },
         "/menu/place/{place}/{place-id}/list": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To list menus by place",
                 "consumes": [
                     "application/json"
@@ -3027,6 +3257,11 @@ const docTemplate = `{
         },
         "/menu/place/{place}/{place-id}/menu-id/{menu-id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get a menu by place and load overriders",
                 "consumes": [
                     "application/json"
@@ -3106,6 +3341,11 @@ const docTemplate = `{
         },
         "/menu/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get a menu",
                 "consumes": [
                     "application/json"
@@ -3169,6 +3409,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete a menu",
                 "consumes": [
                     "application/json"
@@ -3232,6 +3477,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update a menu",
                 "consumes": [
                     "application/json"
@@ -3306,6 +3556,11 @@ const docTemplate = `{
         },
         "/menu/{id}/category/{categoryID}/add": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To add a category to a menu",
                 "consumes": [
                     "application/json"
@@ -3378,6 +3633,11 @@ const docTemplate = `{
         },
         "/menu/{id}/category/{categoryID}/remove": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To remove a category from a menu",
                 "consumes": [
                     "application/json"
@@ -3450,6 +3710,11 @@ const docTemplate = `{
         },
         "/menu/{id}/place/{place}/availability": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update availability of a menu",
                 "consumes": [
                     "application/json"
@@ -3516,6 +3781,11 @@ const docTemplate = `{
         },
         "/menu/{id}/store/{storeID}/channels": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find channels",
                 "consumes": [
                     "application/json"
@@ -3588,6 +3858,11 @@ const docTemplate = `{
         },
         "/modifier": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find modifiers",
                 "consumes": [
                     "application/json"
@@ -3656,6 +3931,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create a modifier",
                 "consumes": [
                     "application/json"
@@ -3723,6 +4003,11 @@ const docTemplate = `{
         },
         "/modifier/{id}": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update a modifier",
                 "consumes": [
                     "application/json"
@@ -3791,6 +4076,11 @@ const docTemplate = `{
         },
         "/modifier/{id}/product/{productID}": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To add a product to a modifier",
                 "consumes": [
                     "application/json"
@@ -3861,6 +4151,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To remove a product from a modifier",
                 "consumes": [
                     "application/json"
@@ -3933,6 +4228,11 @@ const docTemplate = `{
         },
         "/order": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find orders",
                 "consumes": [
                     "application/json"
@@ -4001,6 +4301,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create an order",
                 "consumes": [
                     "application/json"
@@ -4068,6 +4373,11 @@ const docTemplate = `{
         },
         "/order-item/{id}/add/modifiers": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To add modifiers to a product's order",
                 "consumes": [
                     "application/json"
@@ -4142,6 +4452,11 @@ const docTemplate = `{
         },
         "/order-item/{id}/remove/modifiers": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To remove a modifiers from a product's order",
                 "consumes": [
                     "application/json"
@@ -4216,6 +4531,11 @@ const docTemplate = `{
         },
         "/order-type": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find order types",
                 "consumes": [
                     "application/json"
@@ -4278,6 +4598,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create an order type",
                 "consumes": [
                     "application/json"
@@ -4345,6 +4670,11 @@ const docTemplate = `{
         },
         "/order-type/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get an order type",
                 "consumes": [
                     "application/json"
@@ -4390,6 +4720,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete an order type",
                 "consumes": [
                     "application/json"
@@ -4435,6 +4770,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update an order type",
                 "consumes": [
                     "application/json"
@@ -4491,6 +4831,11 @@ const docTemplate = `{
         },
         "/order/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get an order",
                 "consumes": [
                     "application/json"
@@ -4556,6 +4901,11 @@ const docTemplate = `{
         },
         "/order/{id}/add/products": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To add products to an order",
                 "consumes": [
                     "application/json"
@@ -4630,6 +4980,11 @@ const docTemplate = `{
         },
         "/order/{id}/release-table": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To release an order's table",
                 "consumes": [
                     "application/json"
@@ -4695,6 +5050,11 @@ const docTemplate = `{
         },
         "/order/{id}/remove/product": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To remove a product from an order",
                 "consumes": [
                     "application/json"
@@ -4767,6 +5127,11 @@ const docTemplate = `{
         },
         "/order/{id}/seats": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update the seats of an order",
                 "consumes": [
                     "application/json"
@@ -4841,6 +5206,11 @@ const docTemplate = `{
         },
         "/order/{id}/table/{table}": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update the table of an order",
                 "consumes": [
                     "application/json"
@@ -4913,6 +5283,11 @@ const docTemplate = `{
         },
         "/order/{id}/update/product": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update a product from an order",
                 "consumes": [
                     "application/json"
@@ -4994,6 +5369,11 @@ const docTemplate = `{
         },
         "/order/{id}/update/status": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update the status of an order",
                 "consumes": [
                     "application/json"
@@ -5050,6 +5430,11 @@ const docTemplate = `{
         },
         "/overrider": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find overrider",
                 "consumes": [
                     "application/json"
@@ -5115,6 +5500,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create an overrider",
                 "consumes": [
                     "application/json"
@@ -5182,6 +5572,11 @@ const docTemplate = `{
         },
         "/overrider/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get an overrider",
                 "consumes": [
                     "application/json"
@@ -5245,6 +5640,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete an overrider",
                 "consumes": [
                     "application/json"
@@ -5308,6 +5708,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update an overrider",
                 "consumes": [
                     "application/json"
@@ -5382,6 +5787,11 @@ const docTemplate = `{
         },
         "/product": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find products",
                 "consumes": [
                     "application/json"
@@ -5453,6 +5863,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "This endpoint creates a product and makes an association with all store channels to this product to allow",
                 "consumes": [
                     "application/json"
@@ -5520,6 +5935,11 @@ const docTemplate = `{
         },
         "/product/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get a product",
                 "consumes": [
                     "application/json"
@@ -5583,6 +6003,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete a product",
                 "consumes": [
                     "application/json"
@@ -5646,6 +6071,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update a product",
                 "consumes": [
                     "application/json"
@@ -5720,6 +6150,11 @@ const docTemplate = `{
         },
         "/product/{id}/category": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get categories for a product",
                 "consumes": [
                     "application/json"
@@ -5770,6 +6205,11 @@ const docTemplate = `{
         },
         "/product/{id}/modifier/{modifierID}": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To add a modifier to a product",
                 "consumes": [
                     "application/json"
@@ -5840,6 +6280,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To remove a modifier from a product",
                 "consumes": [
                     "application/json"
@@ -5912,6 +6357,11 @@ const docTemplate = `{
         },
         "/product/{id}/overrider": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get overriders for a product",
                 "consumes": [
                     "application/json"
@@ -5968,6 +6418,11 @@ const docTemplate = `{
         },
         "/product/{id}/overrider/update-all": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update all overriders for a product",
                 "consumes": [
                     "application/json"
@@ -6195,6 +6650,11 @@ const docTemplate = `{
         },
         "/status": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find status",
                 "consumes": [
                     "application/json"
@@ -6252,6 +6712,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create a status",
                 "consumes": [
                     "application/json"
@@ -6311,6 +6776,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update status",
                 "consumes": [
                     "application/json"
@@ -6378,6 +6848,11 @@ const docTemplate = `{
         },
         "/status/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find status by id",
                 "consumes": [
                     "application/json"
@@ -6441,6 +6916,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete a status",
                 "consumes": [
                     "application/json"
@@ -6509,6 +6989,11 @@ const docTemplate = `{
         },
         "/store": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find stores",
                 "consumes": [
                     "application/json"
@@ -6586,6 +7071,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create a store",
                 "consumes": [
                     "application/json"
@@ -6653,6 +7143,11 @@ const docTemplate = `{
         },
         "/store/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get a store",
                 "consumes": [
                     "application/json"
@@ -6716,6 +7211,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete a store",
                 "consumes": [
                     "application/json"
@@ -6779,6 +7279,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update a store",
                 "consumes": [
                     "application/json"
@@ -6853,6 +7358,11 @@ const docTemplate = `{
         },
         "/store/{id}/channel/{channelID}": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To add a channel to a store",
                 "consumes": [
                     "application/json"
@@ -6925,6 +7435,11 @@ const docTemplate = `{
         },
         "/store/{id}/enable": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To enable/disable a store",
                 "consumes": [
                     "application/json"
@@ -6990,6 +7505,11 @@ const docTemplate = `{
         },
         "/store/{id}/zones": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get zones by store",
                 "consumes": [
                     "application/json"
@@ -7058,6 +7578,11 @@ const docTemplate = `{
         },
         "/store/{id}/zones/{zoneID}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get tables by store",
                 "consumes": [
                     "application/json"
@@ -7130,6 +7655,11 @@ const docTemplate = `{
         },
         "/surcharges": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Find surcharges",
                 "consumes": [
                     "application/json"
@@ -7201,6 +7731,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create surcharge",
                 "consumes": [
                     "application/json"
@@ -7268,6 +7803,11 @@ const docTemplate = `{
         },
         "/surcharges/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get surcharge",
                 "consumes": [
                     "application/json"
@@ -7331,6 +7871,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete surcharge",
                 "consumes": [
                     "application/json"
@@ -7394,6 +7939,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update surcharge",
                 "consumes": [
                     "application/json"
@@ -7468,6 +8018,11 @@ const docTemplate = `{
         },
         "/tables": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Find tables",
                 "consumes": [
                     "application/json"
@@ -7539,6 +8094,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create table",
                 "consumes": [
                     "application/json"
@@ -7606,6 +8166,11 @@ const docTemplate = `{
         },
         "/tables/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get tables",
                 "consumes": [
                     "application/json"
@@ -7669,6 +8234,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete table",
                 "consumes": [
                     "application/json"
@@ -7717,6 +8287,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update table",
                 "consumes": [
                     "application/json"
@@ -7782,6 +8357,11 @@ const docTemplate = `{
         },
         "/tax": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find tax",
                 "consumes": [
                     "application/json"
@@ -7847,6 +8427,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create a tax",
                 "consumes": [
                     "application/json"
@@ -7906,6 +8491,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update tax plan",
                 "consumes": [
                     "application/json"
@@ -7973,6 +8563,11 @@ const docTemplate = `{
         },
         "/tax/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find tax by id",
                 "consumes": [
                     "application/json"
@@ -8036,6 +8631,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete a tax",
                 "consumes": [
                     "application/json"
@@ -8095,6 +8695,11 @@ const docTemplate = `{
         },
         "/zone": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To find zones",
                 "consumes": [
                     "application/json"
@@ -8166,6 +8771,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To create a zone",
                 "consumes": [
                     "application/json"
@@ -8233,6 +8843,11 @@ const docTemplate = `{
         },
         "/zone/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To get a zone",
                 "consumes": [
                     "application/json"
@@ -8296,6 +8911,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To delete a zone",
                 "consumes": [
                     "application/json"
@@ -8344,6 +8964,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update a zone",
                 "consumes": [
                     "application/json"
@@ -8418,6 +9043,11 @@ const docTemplate = `{
         },
         "/zone/{id}/enable": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To enable/disable a zone",
                 "consumes": [
                     "application/json"
@@ -8483,6 +9113,11 @@ const docTemplate = `{
         },
         "/zone/{id}/tables/add": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To add tables to a zone",
                 "consumes": [
                     "application/json"
@@ -8542,6 +9177,11 @@ const docTemplate = `{
         },
         "/zone/{id}/tables/remove": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To remove tables from a zone",
                 "consumes": [
                     "application/json"

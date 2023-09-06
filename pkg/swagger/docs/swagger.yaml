@@ -983,6 +983,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create an account
       tags:
       - Account
@@ -1019,6 +1021,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete an account
       tags:
       - Account
@@ -1062,6 +1066,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Find availability for entity and place
       tags:
       - Availability
@@ -1108,6 +1114,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Remove menu or category
       tags:
       - Availability
@@ -1155,6 +1163,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Get availability for entity and place
       tags:
       - Availability
@@ -1206,6 +1216,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Enable menu or category
       tags:
       - Availability
@@ -1231,6 +1243,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Find all entities
       tags:
       - Availability
@@ -1256,6 +1270,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Find all places
       tags:
       - Availability
@@ -1297,6 +1313,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find brands
       tags:
       - Brand
@@ -1348,6 +1366,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create a brand
       tags:
       - Brand
@@ -1388,6 +1408,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete a brand
       tags:
       - Brand
@@ -1427,6 +1449,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get a brand
       tags:
       - Brand
@@ -1472,6 +1496,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update a brand
       tags:
       - Brand
@@ -1521,6 +1547,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find categories
       tags:
       - Category
@@ -1557,6 +1585,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create a category
       tags:
       - Category
@@ -1593,6 +1623,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete a category
       tags:
       - Category
@@ -1632,6 +1664,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get a category
       tags:
       - Category
@@ -1673,6 +1707,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update a category
       tags:
       - Category
@@ -1702,6 +1738,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get menus from a category
       tags:
       - Category
@@ -1740,6 +1778,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To add a product to a category
       tags:
       - Category
@@ -1778,6 +1818,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To remove a product from a category
       tags:
       - Category
@@ -1827,6 +1869,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find channels
       tags:
       - Channel
@@ -1867,6 +1911,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create a channel
       tags:
       - Channel
@@ -1907,6 +1953,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete a channel
       tags:
       - Channel
@@ -1946,6 +1994,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get a channel
       tags:
       - Channel
@@ -1991,6 +2041,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update a channel
       tags:
       - Channel
@@ -2032,6 +2084,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find country
       tags:
       - Country
@@ -2072,6 +2126,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update country
       tags:
       - Country
@@ -2108,6 +2164,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create a country
       tags:
       - Country
@@ -2144,6 +2202,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete a country
       tags:
       - Country
@@ -2183,6 +2243,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find country by id
       tags:
       - Country
@@ -2224,6 +2286,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find currency
       tags:
       - Currency
@@ -2264,6 +2328,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update currency
       tags:
       - Currency
@@ -2300,6 +2366,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create a currency
       tags:
       - Currency
@@ -2336,6 +2404,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete a currency
       tags:
       - Currency
@@ -2375,6 +2445,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find currency by id
       tags:
       - Currency
@@ -2411,6 +2483,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find discount
       tags:
       - Discount
@@ -2451,6 +2525,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update discount
       tags:
       - Discount
@@ -2487,6 +2563,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create a discount
       tags:
       - Discount
@@ -2523,6 +2601,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete a discount
       tags:
       - Discount
@@ -2562,6 +2642,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find discount by id
       tags:
       - Discount
@@ -2590,6 +2672,8 @@ paths:
                 status:
                   type: string
               type: object
+      security:
+      - ApiKeyAuth: []
       summary: To create an invoice
       tags:
       - Invoice
@@ -2630,6 +2714,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get a invoice
       tags:
       - Invoice
@@ -2675,6 +2761,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find menus
       tags:
       - Menu
@@ -2715,6 +2803,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create a menu
       tags:
       - Menu
@@ -2755,6 +2845,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete a menu
       tags:
       - Menu
@@ -2794,6 +2886,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get a menu
       tags:
       - Menu
@@ -2839,6 +2933,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update a menu
       tags:
       - Menu
@@ -2884,6 +2980,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To add a category to a menu
       tags:
       - Menu
@@ -2929,6 +3027,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To remove a category from a menu
       tags:
       - Menu
@@ -2973,6 +3073,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update availability of a menu
       tags:
       - Menu
@@ -3018,6 +3120,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find channels
       tags:
       - Menu
@@ -3065,6 +3169,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To list menus by place
       tags:
       - Menu
@@ -3115,6 +3221,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get a menu by place and load overriders
       tags:
       - Menu
@@ -3158,6 +3266,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find modifiers
       tags:
       - Modifiers
@@ -3198,6 +3308,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create a modifier
       tags:
       - Modifiers
@@ -3240,6 +3352,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update a modifier
       tags:
       - Modifiers
@@ -3285,6 +3399,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To remove a product from a modifier
       tags:
       - Modifiers
@@ -3329,6 +3445,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To add a product to a modifier
       tags:
       - Modifiers
@@ -3372,6 +3490,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find orders
       tags:
       - Order
@@ -3412,6 +3532,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create an order
       tags:
       - Order
@@ -3458,6 +3580,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To add modifiers to a product's order
       tags:
       - Order
@@ -3504,6 +3628,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To remove a modifiers from a product's order
       tags:
       - Order
@@ -3543,6 +3669,8 @@ paths:
                 status:
                   type: string
               type: object
+      security:
+      - ApiKeyAuth: []
       summary: To find order types
       tags:
       - OrderType
@@ -3583,6 +3711,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create an order type
       tags:
       - OrderType
@@ -3611,6 +3741,8 @@ paths:
                 status:
                   type: string
               type: object
+      security:
+      - ApiKeyAuth: []
       summary: To delete an order type
       tags:
       - OrderType
@@ -3638,6 +3770,8 @@ paths:
                 status:
                   type: string
               type: object
+      security:
+      - ApiKeyAuth: []
       summary: To get an order type
       tags:
       - OrderType
@@ -3671,6 +3805,8 @@ paths:
                 status:
                   type: string
               type: object
+      security:
+      - ApiKeyAuth: []
       summary: To update an order type
       tags:
       - OrderType
@@ -3711,6 +3847,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get an order
       tags:
       - Order
@@ -3757,6 +3895,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To add products to an order
       tags:
       - Order
@@ -3797,6 +3937,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To release an order's table
       tags:
       - Order
@@ -3842,6 +3984,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To remove a product from an order
       tags:
       - Order
@@ -3888,6 +4032,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update the seats of an order
       tags:
       - Order
@@ -3933,6 +4079,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update the table of an order
       tags:
       - Order
@@ -3984,6 +4132,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update a product from an order
       tags:
       - Order
@@ -4018,6 +4168,8 @@ paths:
                 status:
                   type: string
               type: object
+      security:
+      - ApiKeyAuth: []
       summary: To update the status of an order
       tags:
       - Order
@@ -4059,6 +4211,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find overrider
       tags:
       - Overrider
@@ -4099,6 +4253,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create an overrider
       tags:
       - Overrider
@@ -4139,6 +4295,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete an overrider
       tags:
       - Overrider
@@ -4178,6 +4336,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get an overrider
       tags:
       - Overrider
@@ -4223,6 +4383,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update an overrider
       tags:
       - Overrider
@@ -4268,6 +4430,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find products
       tags:
       - Product
@@ -4309,6 +4473,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create a product
       tags:
       - Product
@@ -4349,6 +4515,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete a product
       tags:
       - Product
@@ -4388,6 +4556,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get a product
       tags:
       - Product
@@ -4433,6 +4603,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update a product
       tags:
       - Product
@@ -4466,6 +4638,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get categories for a product
       tags:
       - Product
@@ -4511,6 +4685,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To remove a modifier from a product
       tags:
       - Product
@@ -4555,6 +4731,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To add a modifier to a product
       tags:
       - Product
@@ -4592,6 +4770,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get overriders for a product
       tags:
       - Product
@@ -4638,6 +4818,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update all overriders for a product
       tags:
       - Product
@@ -4771,6 +4953,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find status
       tags:
       - Status
@@ -4811,6 +4995,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update status
       tags:
       - Status
@@ -4847,6 +5033,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create a status
       tags:
       - Status
@@ -4889,6 +5077,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete a status
       tags:
       - Status
@@ -4928,6 +5118,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find status by id
       tags:
       - Status
@@ -4977,6 +5169,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find stores
       tags:
       - Store
@@ -5017,6 +5211,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create a store
       tags:
       - Store
@@ -5057,6 +5253,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete a store
       tags:
       - Store
@@ -5096,6 +5294,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get a store
       tags:
       - Store
@@ -5141,6 +5341,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update a store
       tags:
       - Store
@@ -5186,6 +5388,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To add a channel to a store
       tags:
       - Store
@@ -5226,6 +5430,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To enable/disable a store
       tags:
       - Store
@@ -5268,6 +5474,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get zones by store
       tags:
       - Store
@@ -5313,6 +5521,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get tables by store
       tags:
       - Store
@@ -5358,6 +5568,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Find surcharges
       tags:
       - Surcharge
@@ -5398,6 +5610,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Create surcharge
       tags:
       - Surcharge
@@ -5438,6 +5652,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Delete surcharge
       tags:
       - Surcharge
@@ -5477,6 +5693,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Get surcharge
       tags:
       - Surcharge
@@ -5522,6 +5740,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Update surcharge
       tags:
       - Surcharge
@@ -5567,6 +5787,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Find tables
       tags:
       - Tables
@@ -5607,6 +5829,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Create table
       tags:
       - Tables
@@ -5640,6 +5864,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Delete table
       tags:
       - Tables
@@ -5679,6 +5905,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Get tables
       tags:
       - Tables
@@ -5718,6 +5946,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Update table
       tags:
       - Tables
@@ -5759,6 +5989,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find tax
       tags:
       - Tax
@@ -5799,6 +6031,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update tax
       tags:
       - Tax
@@ -5835,6 +6069,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create a tax
       tags:
       - Tax
@@ -5871,6 +6107,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete a tax
       tags:
       - Tax
@@ -5910,6 +6148,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find tax by id
       tags:
       - Tax
@@ -5955,6 +6195,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To find zones
       tags:
       - Zones
@@ -5995,6 +6237,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To create a zone
       tags:
       - Zones
@@ -6028,6 +6272,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To delete a zone
       tags:
       - Zones
@@ -6067,6 +6313,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To get a zone
       tags:
       - Zones
@@ -6112,6 +6360,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update a zone
       tags:
       - Zones
@@ -6152,6 +6402,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To enable/disable a zone
       tags:
       - Zones
@@ -6191,6 +6443,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To add tables to a zone
       tags:
       - Zones
@@ -6230,6 +6484,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To remove tables from a zone
       tags:
       - Zones
