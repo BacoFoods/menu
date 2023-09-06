@@ -25,6 +25,8 @@ services:
       DB_PASS: ${DB_PASSWD}
       LOG_LEVEL: ${LOG_LEVEL}
       APP_ENV: ${APP_ENV}
+      TOKEN_EXPIRE_HOURS: ${TOKEN_EXPIRE_HOURS}
+      TOKEN_SECRET: ${TOKEN_SECRET}
     links:
       - database:database
     volumes:
