@@ -1,6 +1,7 @@
 package invoice
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/BacoFoods/menu/pkg/shared"
@@ -20,45 +21,21 @@ type Handler struct {
 type RequestUpdateInvoice struct {
 	Type         string `json:"type"`
 	PaymentID    uint   `json:"payment_id"`
-	SurchargeID  *uint   `json:"surcharge_id"`
+	Surcharges  []uint   `json:"surcharge_id"`
 	Tips         float64 `json:"tips"`
-	DiscountID   *uint    `json:"discount_id"`
+	Discounts   []uint    `json:"discount_id"`
 }
 
 
 func (r *RequestUpdateInvoice) ToInvoice() (*Invoice, error) {
-	// Verificar si los punteros son nulos antes de acceder a sus valores
-	var discountID uint
-	var surchargeID uint
-
-	if r.DiscountID != nil {
-		discountID = *r.DiscountID
-	}
-
-	if r.SurchargeID != nil {
-		surchargeID = *r.SurchargeID
-	}
-
-	invoiceBuilder := NewInvoiceBuilder().
+	invoice,err := NewInvoiceBuilder().
 		SetType(r.Type).
 		SetPaymentID(r.PaymentID).
-		SetTips(r.Tips)
-
-	if discountID != 0 {
-		discount := Discount{ID: discountID}
-		invoiceBuilder.AddDiscount(discount)
-	}
-
-	if surchargeID != 0 {
-		surcharge := Surcharge{ID: surchargeID}
-		invoiceBuilder.AddSurcharge(surcharge)
-	}
-
-	invoice, err := invoiceBuilder.Build()
+		SetTips(r.Tips).Build()
 	if err != nil {
 		return nil, err  // Devuelve el error junto con nil
 	}
-
+	fmt.Println("invoice",invoice)
 	return invoice, nil
 }
 
@@ -111,16 +88,15 @@ func (h *Handler) Update(c *gin.Context) {
         c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
         return
     }
-
-    updatedInvoice, err := body.ToInvoice() // Llamada a ToInvoice sin manejo de errores
-
-    if err != nil {
-        shared.LogError("error creating invoice from request", LogHandler, "UpdateInvoice", err)
+	fmt.Println("body",&body)
+	updatedInvoice,err:=body.ToInvoice()
+	fmt.Println("updatedInvoice",updatedInvoice)
+	if err != nil {
+        shared.LogError("error ToInvoice", LogHandler, "ToInvoice", err, updatedInvoice)
         c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceUpdate))
         return
     }
-
-    updatedInvoice, err = h.service.Update(updatedInvoice) // Actualización de la factura después de la creación
+    updatedInvoice,err=h.service.Update(updatedInvoice, body.Discounts, body.Surcharges) // TODO actualizar nombres a Discounts no DiscountID Actualización de la factura después de la creación
 
     if err != nil {
         shared.LogError("error updating invoice", LogHandler, "UpdateInvoice", err, updatedInvoice)

@@ -1,6 +1,8 @@
 package invoice
 
 import (
+	"fmt"
+
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 )
@@ -38,9 +40,18 @@ func (r *DBRepository) Get(invoiceID string) (*Invoice, error) {
 
 // Update method for update an invoice in database
 func (r *DBRepository) Update(invoice *Invoice) (*Invoice, error) {
-	if err := r.db.Save(invoice).Error; err != nil {
-		shared.LogError("Error updating invoice", LogRepository, "Update", err, *invoice)
+	var invoiceDB Invoice
+	fmt.Println("invoice",invoice)
+	fmt.Println("invoice id",invoice.ID)
+	fmt.Println("invoice DB",&invoiceDB)
+	if err := r.db.First(&invoiceDB, invoice.ID).Error; err != nil {
+		shared.LogError("error getting invoice", LogRepository, "Update", err, invoice.ID, invoice)
 		return nil, err
 	}
-	return invoice, nil
+	fmt.Println(r.db.Model(&invoiceDB))
+	if err := r.db.Model(&invoiceDB).Updates(invoice).Error; err != nil {
+		shared.LogError("error updating invoice", LogRepository, "Update", err, invoice.ID, invoice)
+		return nil, err
+	}
+	return &invoiceDB, nil
 }

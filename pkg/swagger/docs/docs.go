@@ -8644,13 +8644,19 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "discount_id": {
-                    "type": "integer"
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "payment_id": {
                     "type": "integer"
                 },
                 "surcharge_id": {
-                    "type": "integer"
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "tips": {
                     "type": "number"

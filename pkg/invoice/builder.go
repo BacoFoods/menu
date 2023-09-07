@@ -31,26 +31,27 @@ func (ib *Builder) SetPaymentID(paymentID uint) *Builder {
 	return ib
 }
 
-// AddSurcharge adds a surcharge to the Invoice
-func (ib *Builder) AddSurcharge(surcharge Surcharge) *Builder {
-	ib.Surcharges = append(ib.Surcharges, surcharge)
-	return ib
-}
-
 // SetTips sets the tips for the Invoice (with a business rule check)
 func (ib *Builder) SetTips(tips float64) *Builder {
-	// Check if tips exceed 10% of the subtotal
-	if tips > 0.1*ib.SubTotal {
-		ib.Errors = append(ib.Errors, fmt.Errorf("tips cannot exceed 10%% of the subtotal"))
-	} else {
+	if tips != 0 {
 		ib.Tips = tips
+	} else if tips < 0 {
+		ib.Errors = append(ib.Errors, errors.New("tips must be greater than 0"))
+	} else {
+		ib.Tips = 0
 	}
 	return ib
 }
 
-// AddDiscount adds a discount to the Invoice
-func (ib *Builder) AddDiscount(discount Discount) *Builder {
-	ib.Discounts = append(ib.Discounts, discount)
+// AddExistingDiscounts añade descuentos existentes a la Invoice en construcción
+func (ib *Builder) AddExistingDiscounts(discounts []Discount) *Builder {
+	ib.Discounts = append(ib.Discounts, discounts...)
+	return ib
+}
+
+// AddExistingSurcharges añade recargos existentes a la Invoice en construcción
+func (ib *Builder) AddExistingSurcharges(surcharges []Surcharge) *Builder {
+	ib.Surcharges = append(ib.Surcharges, surcharges...)
 	return ib
 }
 

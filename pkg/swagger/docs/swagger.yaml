@@ -213,11 +213,15 @@ definitions:
   invoice.RequestUpdateInvoice:
     properties:
       discount_id:
-        type: integer
+        items:
+          type: integer
+        type: array
       payment_id:
         type: integer
       surcharge_id:
-        type: integer
+        items:
+          type: integer
+        type: array
       tips:
         type: number
       type:
