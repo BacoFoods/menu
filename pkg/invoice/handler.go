@@ -35,7 +35,6 @@ func (r *RequestUpdateInvoice) ToInvoice() (*Invoice, error) {
 	if err != nil {
 		return nil, err  // Devuelve el error junto con nil
 	}
-	fmt.Println("invoice",invoice)
 	return invoice, nil
 }
 
@@ -89,8 +88,11 @@ func (h *Handler) Update(c *gin.Context) {
         return
     }
 	fmt.Println("body",&body)
+
 	updatedInvoice,err:=body.ToInvoice()
+
 	fmt.Println("updatedInvoice",updatedInvoice)
+	
 	if err != nil {
         shared.LogError("error ToInvoice", LogHandler, "ToInvoice", err, updatedInvoice)
         c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceUpdate))

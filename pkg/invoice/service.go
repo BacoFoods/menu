@@ -26,6 +26,7 @@ func (s service) Get(invoiceID string) (*Invoice, error) {
 func (s service) Update(updateData *Invoice, discounts []uint, surcharges []uint) (*Invoice, error) {
 	// get an invoice by ID
 	existingInvoice, err := s.repository.Get(fmt.Sprintf("%d", updateData.ID))
+
 	fmt.Println("existingInvoice",existingInvoice)
 	fmt.Println("existingInvoice",existingInvoice)
 	fmt.Println("discounts",discounts)
@@ -34,7 +35,9 @@ func (s service) Update(updateData *Invoice, discounts []uint, surcharges []uint
 	if updateData.Tips > 0.1*existingInvoice.SubTotal {
 		return nil, fmt.Errorf("tips cannot be greater than 10 percent of subtotal")
 	}
+
 	fmt.Println("updateData",updateData.Discounts)
+
 	 // Agrega nuevos descuentos)	
 	if err != nil {
 		return nil, err
@@ -55,7 +58,9 @@ func (s service) Update(updateData *Invoice, discounts []uint, surcharges []uint
 			ID: surchargeID,
 			
 		}
+
 		fmt.Println("surcharge completo",surcharge)
+		
 		updateData.Surcharges = append(updateData.Surcharges, surcharge)
 	}
 	// Si no se encuentra la factura, devuelve una instancia vacía o una factura con valores predeterminados
