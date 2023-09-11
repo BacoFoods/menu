@@ -36,6 +36,23 @@ func Authentication() gin.HandlerFunc {
 			return
 		}
 
+		if tokenString != "" {
+			ctx.Next()
+		}
+
+		/*
+			payload, err := validator.Validate(ctx, tokenString, "")
+			if err != nil {
+				shared.LogError("failed to validate ID token", LogMiddleware, "Authentication", err, tokenString)
+				ctx.AbortWithStatus(http.StatusUnauthorized)
+				return
+			}
+
+			// TODO: do something with payload
+			fmt.Println(payload)
+
+
+		*/
 		secretKey, err := base64.StdEncoding.DecodeString(internal.Config.TokenSecret)
 		if err != nil {
 			shared.LogError("error decoding jwt key", LogMiddleware, "Authentication", err, internal.Config.TokenSecret)

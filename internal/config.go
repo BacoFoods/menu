@@ -32,4 +32,5 @@ type AppConfig struct {
 	AppEnv           string `env:"APP_ENV"`
 	TokenExpireHours string `env:"TOKEN_EXPIRE_HOURS"`
 	TokenSecret      string `env:"TOKEN_SECRET"`
+	GoogleFile       string `env:"GOOGLE_AUTH_CREDENTIALS_FILE" envDefault:"./google_auth_credentials_runners_app.json"`
 }
