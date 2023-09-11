@@ -30,29 +30,34 @@ func CORSMiddleware() gin.HandlerFunc {
 func Authentication() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenString := ctx.Request.Header.Get("Authorization")
-		if tokenString == "" {
-			shared.LogWarn("token is empty", LogMiddleware, "Authentication", nil)
-			ctx.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-
-		if tokenString != "" {
-			ctx.Next()
-		}
-
+		shared.LogInfo("tokenString", LogMiddleware, "Authentication", nil, tokenString)
+		ctx.Next()
 		/*
-			payload, err := validator.Validate(ctx, tokenString, "")
-			if err != nil {
-				shared.LogError("failed to validate ID token", LogMiddleware, "Authentication", err, tokenString)
+
+			if tokenString == "" {
+				shared.LogWarn("token is empty", LogMiddleware, "Authentication", nil)
 				ctx.AbortWithStatus(http.StatusUnauthorized)
 				return
 			}
 
-			// TODO: do something with payload
-			fmt.Println(payload)
+			if tokenString != "" {
+				ctx.Next()
+			}
+
+
+				payload, err := validator.Validate(ctx, tokenString, "")
+				if err != nil {
+					shared.LogError("failed to validate ID token", LogMiddleware, "Authentication", err, tokenString)
+					ctx.AbortWithStatus(http.StatusUnauthorized)
+					return
+				}
+
+				// TODO: do something with payload
+				fmt.Println(payload)
 
 
 		*/
+
 		secretKey, err := base64.StdEncoding.DecodeString(internal.Config.TokenSecret)
 		if err != nil {
 			shared.LogError("error decoding jwt key", LogMiddleware, "Authentication", err, internal.Config.TokenSecret)
