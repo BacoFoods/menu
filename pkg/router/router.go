@@ -2,7 +2,6 @@ package router
 
 import (
 	"fmt"
-	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
@@ -16,7 +15,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/order"
 	"github.com/BacoFoods/menu/pkg/product"
-	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
@@ -25,8 +23,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/taxes"
 	"github.com/BacoFoods/menu/pkg/zones"
 	"github.com/gin-gonic/gin"
-	"google.golang.org/api/idtoken"
-	"google.golang.org/api/option"
 )
 
 // Router interface for router implementation
@@ -37,10 +33,13 @@ type Router interface {
 // NewRouter create a new router instance with all routes using gin
 func NewRouter(routes *RoutesGroup) Router {
 	path := "api/menu/v1"
-	validator, err := idtoken.NewValidator(context.TODO(), option.WithCredentialsFile(internal.Config.GoogleFile))
-	if err != nil {
-		shared.LogError("error initializing validator", "pkg/router/router.go", "NewRouter", err, nil)
-	}
+	/*
+		validator, err := idtoken.NewValidator(context.TODO(), option.WithCredentialsFile(internal.Config.GoogleFile))
+		if err != nil {
+			shared.LogError("error initializing validator", "pkg/router/router.go", "NewRouter", err, nil)
+		}
+
+	*/
 
 	// Setting middlewares
 	router := gin.Default()
