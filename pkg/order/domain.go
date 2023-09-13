@@ -61,6 +61,7 @@ type Order struct {
 	Statuses      []status.Status  `json:"status" gorm:"many2many:order_statuses" gorm:"foreignKey:OrderID" swaggerignore:"true"`
 	CurrentStatus string           `json:"current_status"`
 	OrderType     string           `json:"order_type"`
+	ClientName    string           `json:"client_name"`
 	BrandID       *uint            `json:"brand_id" binding:"required"`
 	Brand         *brand.Brand     `json:"brand,omitempty" swaggerignore:"true"`
 	StoreID       *uint            `json:"store_id" binding:"required"`
@@ -133,6 +134,10 @@ func (o *Order) ToInvoice() {
 		ChannelID: o.ChannelID,
 		TableID:   o.TableID,
 		Items:     make([]invoice.Item, 0),
+	}
+
+	if o.InvoiceID != nil {
+		newInvoice.ID = *o.InvoiceID
 	}
 
 	// Adding items to invoice

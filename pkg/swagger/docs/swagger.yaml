@@ -376,6 +376,8 @@ definitions:
         type: integer
       channel_id:
         type: integer
+      client_name:
+        type: string
       comments:
         type: string
       cooking_time:
@@ -2645,36 +2647,6 @@ paths:
       summary: To find discount by id
       tags:
       - Discount
-  /invoice:
-    post:
-      consumes:
-      - application/json
-      description: To create an invoice
-      parameters:
-      - description: Order ID
-        in: path
-        name: orderID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/invoice.Invoice'
-                status:
-                  type: string
-              type: object
-      security:
-      - ApiKeyAuth: []
-      summary: To create an invoice
-      tags:
-      - Invoice
   /invoice/{id}:
     get:
       consumes:
@@ -3898,6 +3870,36 @@ paths:
       summary: To add products to an order
       tags:
       - Order
+  /order/{id}/invoice:
+    post:
+      consumes:
+      - application/json
+      description: To create an invoice
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Invoice'
+                status:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: To create an invoice
+      tags:
+      - Invoice
   /order/{id}/release-table:
     post:
       consumes:

@@ -384,15 +384,15 @@ func (s service) CreateInvoice(orderID string) (*invoices.Invoice, error) {
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	if order.InvoiceID != nil {
-		return order.Invoice, nil
-	}
-
 	order.ToInvoice()
-	invoice, err := s.invoice.Create(order.Invoice)
+	invoice, err := s.invoice.CreateUpdate(order.Invoice)
 	if err != nil {
 		shared.LogError("error creating invoice", LogService, "CreateInvoice", err, order.Invoice)
 		return nil, fmt.Errorf(invoices.ErrorInvoiceCreation)
+	}
+
+	if order.InvoiceID != nil {
+		return invoice, nil
 	}
 
 	order.InvoiceID = &invoice.ID

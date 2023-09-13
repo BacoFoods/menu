@@ -14,7 +14,7 @@ const (
 )
 
 type Repository interface {
-	Create(invoice *Invoice) (*Invoice, error)
+	CreateUpdate(invoice *Invoice) (*Invoice, error)
 	Get(invoiceID string) (*Invoice, error)
 }
 
