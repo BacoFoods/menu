@@ -115,7 +115,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To create an account",
+                "description": "To create a pin user",
                 "consumes": [
                     "application/json"
                 ],
@@ -125,7 +125,7 @@
                 "tags": [
                     "Account"
                 ],
-                "summary": "To create an account",
+                "summary": "To create a pin user",
                 "parameters": [
                     {
                         "description": "account request",
@@ -9277,11 +9277,9 @@
         "account.RequestAccount": {
             "type": "object",
             "required": [
-                "brand_id",
                 "display_name",
                 "email",
                 "password",
-                "store_id",
                 "username"
             ],
             "properties": {

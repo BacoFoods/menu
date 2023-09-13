@@ -44,10 +44,10 @@ func (h *Handler) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(account))
 }
 
-// CreatePinUser to handle a request to create an account
+// CreatePinUser to handle a request to create a pin user
 // @Tags Account
-// @Summary To create an account
-// @Description To create an account
+// @Summary To create a pin user
+// @Description To create a pin user
 // @Param account body RequestPinUser true "account request"
 // @Accept json
 // @Produce json

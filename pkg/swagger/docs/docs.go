@@ -123,7 +123,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To create an account",
+                "description": "To create a pin user",
                 "consumes": [
                     "application/json"
                 ],
@@ -133,7 +133,7 @@ const docTemplate = `{
                 "tags": [
                     "Account"
                 ],
-                "summary": "To create an account",
+                "summary": "To create a pin user",
                 "parameters": [
                     {
                         "description": "account request",
@@ -9285,11 +9285,9 @@ const docTemplate = `{
         "account.RequestAccount": {
             "type": "object",
             "required": [
-                "brand_id",
                 "display_name",
                 "email",
                 "password",
-                "store_id",
                 "username"
             ],
             "properties": {

@@ -17,8 +17,8 @@ type RequestAccount struct {
 	Password    string `json:"password" binding:"required"`
 	Email       string `json:"email" binding:"required"`
 	Role        string `json:"role"`
-	BrandID     int64  `json:"brand_id" binding:"required"`
-	StoreID     int64  `json:"store_id" binding:"required"`
+	BrandID     int64  `json:"brand_id"`
+	StoreID     int64  `json:"store_id"`
 	ChannelID   int64  `json:"channel_id"`
 }
 
@@ -28,15 +28,30 @@ func (r RequestAccount) ToAccount() *Account {
 		displayName = r.Username
 	}
 
+	var brandID *int64
+	if r.BrandID != 0 {
+		brandID = &r.BrandID
+	}
+
+	var storeID *int64
+	if r.StoreID != 0 {
+		storeID = &r.StoreID
+	}
+
+	var channelID *int64
+	if r.ChannelID != 0 {
+		channelID = &r.ChannelID
+	}
+
 	return &Account{
 		DisplayName: displayName,
 		Username:    r.Username,
 		Password:    r.Password,
 		Email:       r.Email,
 		Role:        r.Role,
-		BrandID:     &r.BrandID,
-		StoreID:     &r.StoreID,
-		ChannelID:   &r.ChannelID,
+		BrandID:     brandID,
+		StoreID:     storeID,
+		ChannelID:   channelID,
 	}
 }
 
@@ -56,6 +71,11 @@ func (r RequestPinUser) ToAccount() *Account {
 		displayName = r.Email
 	}
 
+	var channelID *int64
+	if r.ChannelID != 0 {
+		channelID = &r.ChannelID
+	}
+
 	return &Account{
 		DisplayName: displayName,
 		Username:    fmt.Sprintf("%d", r.Pin),
@@ -64,6 +84,6 @@ func (r RequestPinUser) ToAccount() *Account {
 		Role:        r.Role,
 		BrandID:     &r.BrandID,
 		StoreID:     &r.StoreID,
-		ChannelID:   &r.ChannelID,
+		ChannelID:   channelID,
 	}
 }

@@ -240,7 +240,9 @@ func (h *Handler) AddProducts(c *gin.Context) {
 
 	items := make([]OrderItem, 0)
 	for _, item := range body.Items {
-		items = append(items, item.ToOrderItem())
+		for j := 0; j < item.Quantity; j++ {
+			items = append(items, item.ToOrderItem())
+		}
 	}
 
 	order, err := h.service.AddProducts(orderID, items)

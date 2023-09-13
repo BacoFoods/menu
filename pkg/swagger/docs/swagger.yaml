@@ -46,11 +46,9 @@ definitions:
       username:
         type: string
     required:
-    - brand_id
     - display_name
     - email
     - password
-    - store_id
     - username
     type: object
   account.RequestLogin:
@@ -953,7 +951,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: To create an account
+      description: To create a pin user
       parameters:
       - description: account request
         in: body
@@ -985,7 +983,7 @@ paths:
             $ref: '#/definitions/shared.Response'
       security:
       - ApiKeyAuth: []
-      summary: To create an account
+      summary: To create a pin user
       tags:
       - Account
   /account/{id}:
