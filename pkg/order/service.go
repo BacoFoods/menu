@@ -2,6 +2,7 @@ package order
 
 import (
 	"fmt"
+
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	products "github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
@@ -156,9 +157,11 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 	productIDs := make([]string, len(orderItems))
 	modifierIDs := make([]string, 0)
 	for i, item := range orderItems {
-		productIDs[i] = fmt.Sprintf("%d", *item.ProductID)
-		for _, mod := range item.Modifiers {
-			modifierIDs = append(modifierIDs, fmt.Sprintf("%d", *mod.ProductID))
+		if item.ProductID != nil {
+			productIDs[i] = fmt.Sprintf("%d", *item.ProductID)
+			for _, mod := range item.Modifiers {
+				modifierIDs = append(modifierIDs, fmt.Sprintf("%d", *mod.ProductID))
+			}
 		}
 	}
 
