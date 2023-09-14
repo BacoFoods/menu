@@ -27,6 +27,7 @@ type Service interface {
 	ReleaseTable(orderID string) (*Order, error)
 	AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error)
 	RemoveModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error)
+	OrderItemUpdateCourse(itemID string, course string) (*OrderItem, error)
 	CreateOrderType(orderType *OrderType) (*OrderType, error)
 	FindOrderType(filter map[string]any) ([]OrderType, error)
 	GetOrderType(orderTypeID string) (*OrderType, error)
@@ -344,6 +345,22 @@ func (s service) RemoveModifiers(itemID uint, modifiers []OrderModifier) (*Order
 	}
 
 	orderItem.RemoveModifiers(modifiers)
+
+	orderItemUpdated, err := s.repository.UpdateOrderItem(orderItem)
+	if err != nil {
+		return nil, fmt.Errorf(ErrorOrderItemUpdate)
+	}
+
+	return orderItemUpdated, nil
+}
+
+func (s service) OrderItemUpdateCourse(itemID string, course string) (*OrderItem, error) {
+	orderItem, err := s.repository.GetOrderItem(itemID)
+	if err != nil {
+		return nil, fmt.Errorf(ErrorOrderItemGetting)
+	}
+
+	orderItem.Course = course
 
 	orderItemUpdated, err := s.repository.UpdateOrderItem(orderItem)
 	if err != nil {

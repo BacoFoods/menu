@@ -4768,6 +4768,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/order-item/{id}/course": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To update the course of a product's order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To update the course of a product's order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "OrderItemID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Course",
+                        "name": "course",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.RequestUpdateOrderItemCourse"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/order.Order"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/order-item/{id}/remove/modifiers": {
             "patch": {
                 "security": [
@@ -10482,6 +10543,17 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/order.OrderModifierDTO"
                     }
+                }
+            }
+        },
+        "order.RequestUpdateOrderItemCourse": {
+            "type": "object",
+            "required": [
+                "course"
+            ],
+            "properties": {
+                "course": {
+                    "type": "string"
                 }
             }
         },

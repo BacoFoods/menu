@@ -66,3 +66,31 @@ func (o OrderModifierDTO) ToOrderModifier() OrderModifier {
 		ProductID: &productID,
 	}
 }
+
+type RequestUpdateOrderSeats struct {
+	Seats int `json:"seats" binding:"required"`
+}
+
+type RequestUpdateOrderStatus struct {
+	Status string `json:"status" binding:"required" enum:"ordering,cooking,delivered,invoicing,canceled,completed" example:"ordering,cooking,delivered,invoicing,canceled,completed"`
+}
+
+type RequestUpdateOrderProduct struct {
+	Price    float64 `json:"price"`
+	Unit     string  `json:"unit"`
+	Quantity int     `json:"quantity"`
+	Comments string  `json:"comments"`
+	Course   string  `json:"course"`
+}
+
+type RequestUpdateOrderItemCourse struct {
+	Course string `json:"course" binding:"required"`
+}
+
+type RequestAddProducts struct {
+	Items []OrderItemDTO `json:"items" binding:"required"`
+}
+
+type RequestModifiers struct {
+	Modifiers []OrderModifierDTO `json:"modifiers" binding:"required"`
+}

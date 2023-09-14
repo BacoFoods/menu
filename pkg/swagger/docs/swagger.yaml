@@ -578,6 +578,13 @@ definitions:
     required:
     - modifiers
     type: object
+  order.RequestUpdateOrderItemCourse:
+    properties:
+      course:
+        type: string
+    required:
+    - course
+    type: object
   order.RequestUpdateOrderProduct:
     properties:
       comments:
@@ -3790,6 +3797,42 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To add modifiers to a product's order
+      tags:
+      - Order
+  /order-item/{id}/course:
+    patch:
+      consumes:
+      - application/json
+      description: To update the course of a product's order
+      parameters:
+      - description: OrderItemID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Course
+        in: body
+        name: course
+        required: true
+        schema:
+          $ref: '#/definitions/order.RequestUpdateOrderItemCourse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: To update the course of a product's order
       tags:
       - Order
   /order-item/{id}/remove/modifiers:

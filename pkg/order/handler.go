@@ -12,30 +12,6 @@ import (
 
 const LogHandler string = "pkg/order/handler"
 
-type RequestUpdateOrderSeats struct {
-	Seats int `json:"seats" binding:"required"`
-}
-
-type RequestUpdateOrderStatus struct {
-	Status string `json:"status" binding:"required" enum:"ordering,cooking,delivered,invoicing,canceled,completed" example:"ordering,cooking,delivered,invoicing,canceled,completed"`
-}
-
-type RequestUpdateOrderProduct struct {
-	Price    float64 `json:"price"`
-	Unit     string  `json:"unit"`
-	Quantity int     `json:"quantity"`
-	Comments string  `json:"comments"`
-	Course   string  `json:"course"`
-}
-
-type RequestAddProducts struct {
-	Items []OrderItemDTO `json:"items" binding:"required"`
-}
-
-type RequestModifiers struct {
-	Modifiers []OrderModifierDTO `json:"modifiers" binding:"required"`
-}
-
 type Handler struct {
 	service Service
 }
@@ -487,6 +463,36 @@ func (h *Handler) RemoveModifiers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(order))
+}
+
+// UpdateCourse to handle a request to update the course of a product's order
+// @Tags Order
+// @Summary To update the course of a product's order
+// @Description To update the course of a product's order
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "OrderItemID"
+// @Param course body RequestUpdateOrderItemCourse true "Course"
+// @Success 200 {object} object{status=string,data=Order}
+// @Router /order-item/{id}/course [patch]
+func (h *Handler) UpdateCourse(c *gin.Context) {
+	courseID := c.Param("id")
+
+	var body RequestUpdateOrderItemCourse
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "UpdateCourse", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	orderItem, err := h.service.OrderItemUpdateCourse(courseID, body.Course)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderItemUpdateCourse))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(orderItem))
 }
 
 // Oder Types
