@@ -45,3 +45,32 @@ func (h *Handler) Get(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoices))
 }
+
+// Find to handle a request to find invoices
+// @Tags Invoice
+// @Summary To find invoices
+// @Description To find invoices
+// @Param order_id query string false "order id"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=object{invoices=[]Invoice}}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /invoice [get]
+func (h *Handler) Find(c *gin.Context) {
+	filter := make(map[string]any)
+	orderID := c.Query("order_id")
+	if orderID != "" {
+		filter["order_id"] = orderID
+	}
+
+	invoices, err := h.service.Find(filter)
+	if err != nil {
+		shared.LogError("error finding invoices", LogHandler, "Find", err, invoices)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceFinding))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(invoices))
+}

@@ -3,6 +3,7 @@ package invoice
 import (
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const LogRepository = "pkg/invoice/repository"
@@ -34,4 +35,15 @@ func (r *DBRepository) Get(invoiceID string) (*Invoice, error) {
 	}
 
 	return &invoice, nil
+}
+
+// Find method for find invoices in database
+func (r *DBRepository) Find(filter map[string]interface{}) ([]Invoice, error) {
+	var invoices []Invoice
+	if err := r.db.Preload(clause.Associations).Find(&invoices, filter).Error; err != nil {
+		shared.LogError("error finding invoices", LogRepository, "Find", err, filter)
+		return nil, err
+	}
+
+	return invoices, nil
 }

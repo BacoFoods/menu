@@ -11,11 +11,13 @@ const (
 	ErrorBadRequest      = "error bad request"
 	ErrorInvoiceCreation = "error creating invoice"
 	ErrorGettingInvoice  = "error getting invoice"
+	ErrorInvoiceFinding  = "error finding invoices"
 )
 
 type Repository interface {
 	CreateUpdate(invoice *Invoice) (*Invoice, error)
 	Get(invoiceID string) (*Invoice, error)
+	Find(filter map[string]any) ([]Invoice, error)
 }
 
 type Invoice struct {
