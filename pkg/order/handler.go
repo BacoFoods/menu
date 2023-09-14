@@ -465,28 +465,35 @@ func (h *Handler) RemoveModifiers(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(order))
 }
 
-// UpdateCourse to handle a request to update the course of a product's order
+// OrderItemUpdate to handle a request to update an order item
 // @Tags Order
-// @Summary To update the course of a product's order
-// @Description To update the course of a product's order
+// @Summary To update an order item
+// @Description To update an order item
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path string true "OrderItemID"
-// @Param course body RequestUpdateOrderItemCourse true "Course"
+// @Param orderItem body RequestUpdateOrderItem true "order item"
 // @Success 200 {object} object{status=string,data=Order}
-// @Router /order-item/{id}/course [patch]
-func (h *Handler) UpdateCourse(c *gin.Context) {
-	courseID := c.Param("id")
+// @Router /order-item/{id}/update [patch]
+func (h *Handler) OrderItemUpdate(c *gin.Context) {
+	orderItemID, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		shared.LogWarn("error parsing order item id", LogHandler, "OrderItemUpdate", err, orderItemID)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequestOrderItemID))
+	}
 
-	var body RequestUpdateOrderItemCourse
+	var body RequestUpdateOrderItem
 	if err := c.ShouldBindJSON(&body); err != nil {
-		shared.LogError("error binding request body", LogHandler, "UpdateCourse", err, body)
+		shared.LogError("error binding request body", LogHandler, "UpdateOrderItem", err, body)
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
 
-	orderItem, err := h.service.OrderItemUpdateCourse(courseID, body.Course)
+	item := body.ToOrderItem()
+	item.ID = uint(orderItemID)
+
+	orderItem, err := h.service.OrderItemUpdateCourse(&item)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderItemUpdateCourse))
 		return

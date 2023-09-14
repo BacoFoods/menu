@@ -83,8 +83,18 @@ type RequestUpdateOrderProduct struct {
 	Course   string  `json:"course"`
 }
 
-type RequestUpdateOrderItemCourse struct {
-	Course string `json:"course" binding:"required"`
+type RequestUpdateOrderItem struct {
+	Price    float64 `json:"price"`
+	Comments string  `json:"comments"`
+	Course   string  `json:"course"`
+}
+
+func (r RequestUpdateOrderItem) ToOrderItem() OrderItem {
+	return OrderItem{
+		Price:    r.Price,
+		Comments: r.Comments,
+		Course:   r.Course,
+	}
 }
 
 type RequestAddProducts struct {

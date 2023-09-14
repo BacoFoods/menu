@@ -30,7 +30,7 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 	// Order Item
 	router.PATCH("/order-item/:id/add/modifiers", r.handler.AddModifiers)
 	router.PATCH("/order-item/:id/remove/modifier", r.handler.RemoveModifiers)
-	router.PATCH("/order-item/:id/course", r.handler.UpdateCourse)
+	router.PATCH("/order-item/:id/update", r.handler.OrderItemUpdate)
 
 	// Order Types
 	router.GET("order-type", r.handler.FindOrderType)

@@ -81,7 +81,7 @@ func (r *DBRepository) UpdateOrderItem(item *OrderItem) (*OrderItem, error) {
 		return nil, err
 	}
 
-	return item, nil
+	return &orderItem, nil
 }
 
 // GetOrderItem method for get an order item from database
