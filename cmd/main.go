@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/course"
 
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/availability"
@@ -63,6 +64,7 @@ func main() {
 		&invoice.Discount{},
 		&invoice.Surcharge{},
 		&account.Account{},
+		&course.Course{},
 	)
 
 	// Healthcheck
@@ -180,6 +182,12 @@ func main() {
 	accountHandler := account.NewHandler(accountService)
 	accountRoutes := account.NewRoutes(accountHandler)
 
+	// Course
+	courseRepository := course.NewDBRepository(gormDB)
+	courseService := course.NewService(courseRepository)
+	courseHandler := course.NewHandler(courseService)
+	courseRoutes := course.NewRoutes(courseHandler)
+
 	// Routes
 	routes := &router.RoutesGroup{
 		HealthCheck:  healthcheckRoutes,
@@ -202,6 +210,7 @@ func main() {
 		Status:       statusRoutes,
 		Invoice:      invoiceRoutes,
 		Account:      accountRoutes,
+		Course:       courseRoutes,
 	}
 
 	// Run server

@@ -11,6 +11,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/country"
+	"github.com/BacoFoods/menu/pkg/course"
 	"github.com/BacoFoods/menu/pkg/currency"
 	"github.com/BacoFoods/menu/pkg/discount"
 	"github.com/BacoFoods/menu/pkg/healthcheck"
@@ -39,7 +40,8 @@ type Router interface {
 // NewRouter create a new router instance with all routes using gin
 func NewRouter(routes *RoutesGroup) Router {
 	path := "api/menu/v1"
-	fmt.Println(internal.Config.GoogleConfig)
+
+	// Setting Google JWT validator
 	decodeBytes, err := base64.StdEncoding.DecodeString(internal.Config.GoogleConfig)
 	if err != nil {
 		shared.LogError("error decoding jwt key", "pkg/router/router.go", "NewRouter", err, nil)
@@ -81,6 +83,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Table.RegisterRoutes(private)
 	routes.Zone.RegisterRoutes(private)
 	routes.Invoice.RegisterRoutes(private)
+	routes.Course.RegisterRoutes(private)
 
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
@@ -113,4 +116,5 @@ type RoutesGroup struct {
 	Zone         zones.Routes
 	Invoice      invoice.Routes
 	Account      account.Routes
+	Course       course.Routes
 }

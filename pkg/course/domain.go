@@ -5,6 +5,21 @@ import (
 	"time"
 )
 
+const (
+	ErrorCourseFinding  string = "error finding courses"
+	ErrorCourseGetting  string = "error getting course by id"
+	ErrorCourseBinding  string = "error binding course"
+	ErrorCourseCreating string = "error creating course"
+	ErrorCourseDeleting string = "error deleting course"
+)
+
+type Repository interface {
+	Find(map[string]any) ([]Course, error)
+	Get(string) (Course, error)
+	Create(Course) (Course, error)
+	Delete(string) (Course, error)
+}
+
 type Course struct {
 	ID          uint            `json:"id"`
 	Name        string          `json:"name"`
