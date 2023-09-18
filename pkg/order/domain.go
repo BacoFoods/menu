@@ -2,6 +2,7 @@ package order
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/BacoFoods/menu/pkg/brand"
@@ -170,15 +171,24 @@ func (o *Order) ToInvoice() {
 			})
 		}
 	}
-
 	// Setting subtotals
 	newInvoice.SubTotal = subtotal
 
 	// Setting taxes
-	tax := subtotal * TaxPercentage
-	baseTax := subtotal - tax
+	tax := subtotal - (subtotal / (1 + TaxPercentage))
+	baseTax := subtotal / (1 + TaxPercentage)
+
+	if newInvoice.Tips != 0 {
+		tipsAmount := math.Round(baseTax * 0.1)
+		newInvoice.Tips = math.Round(tipsAmount)
+	} else if newInvoice.Tips > 1 {
+		newInvoice.Tips = math.Round(newInvoice.Tips)
+	} else {
+		newInvoice.Tips = 0
+	}
+
 	newInvoice.BaseTax = baseTax
-	newInvoice.Total = subtotal + tax
+	newInvoice.Total = baseTax + tax
 
 	// Setting invoice
 	o.Invoice = &newInvoice

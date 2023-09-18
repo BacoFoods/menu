@@ -12,7 +12,7 @@ const (
 	ErrorBadRequest      = "error bad request"
 	ErrorInvoiceCreation = "error creating invoice"
 	ErrorGettingInvoice  = "error getting invoice"
-	ErrorInvoiceUpdate	 = "error updating invoice"
+	ErrorInvoiceUpdate   = "error updating invoice"
 )
 
 type Repository interface {
@@ -30,13 +30,13 @@ type Invoice struct {
 	TableID         *uint            `json:"table_id"`
 	Table           *tables.Table    `json:"table"`
 	Items           []Item           `json:"items"  gorm:"foreignKey:InvoiceID"`
-	Discounts       []Discount       `json:"discounts"  gorm:"foreignKey:InvoiceID"`
-	Surcharges      []Surcharge      `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
+	Discounts       []Discount       `json:"discounts" gorm:"many2many:invoice_discounts;"`
+	Surcharges      []Surcharge      `json:"surcharges" gorm:"many2many:invoice_surcharges;"`
 	SubTotal        float64          `json:"sub_total"`
 	TotalDiscounts  float64          `json:"total_discounts,omitempty"`
 	TotalSurcharges float64          `json:"total_surcharges,omitempty"`
 	Tips            float64          `json:"tips"`
-	Type			string           `json:"type"`
+	Type            string           `json:"type"`
 	BaseTax         float64          `json:"base_tax"`
 	Taxes           float64          `json:"taxes"`
 	Total           float64          `json:"total"`
@@ -63,7 +63,7 @@ type Item struct {
 
 type Discount struct {
 	ID          uint           `json:"id"`
-	InvoiceID   *uint          `json:"invoice_id"`
+	Invoices    []Invoice      `json:"invoices" gorm:"many2many:invoice_discounts;"`
 	Name        string         `json:"name,omitempty"`
 	Type        string         `json:"type"`
 	Percentage  float64        `json:"percentage,omitempty" gorm:"precision:18;scale:2"`
@@ -80,7 +80,7 @@ type Discount struct {
 
 type Surcharge struct {
 	ID          uint            `json:"id"`
-	InvoiceID   *uint           `json:"invoice_id"`
+	Invoices    []Invoice       `json:"invoices" gorm:"many2many:invoice_surcharges;"`
 	Name        string          `json:"name"`
 	Description string          `json:"description"`
 	Percentage  float64         `json:"percentage" gorm:"precision:18;scale:2"`
@@ -92,4 +92,30 @@ type Surcharge struct {
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+type InvoiceDiscount struct {
+	gorm.Model
+	InvoiceID  uint
+	DiscountID uint
+}
+
+type InvoiceSurcharge struct {
+	gorm.Model
+	InvoiceID   uint
+	SurchargeID uint
+}
+
+// SetupDiscountInvoicesJoinTable configures a many-to-many relationship between Discount and Invoice
+// This function should be called during migration to set up the join table invoice_discounts.
+// For more information, refer to the GORM documentation: https://gorm.io/docs/many_to_many.html#Customize-JoinTable
+func SetupDiscountInvoicesJoinTable(db *gorm.DB) error {
+	return db.SetupJoinTable(&Discount{}, "Invoices", &InvoiceDiscount{})
+}
+
+// SetupSurchargeInvoicesJoinTable configures a many-to-many relationship between Surcharge and Invoice
+// This function should be called during migration to set up the join table invoice_surcharges.
+// For more information, refer to the GORM documentation: https://gorm.io/docs/many_to_many.html#Customize-JoinTable
+func SetupSurchargeInvoicesJoinTable(db *gorm.DB) error {
+	return db.SetupJoinTable(&Surcharge{}, "Invoices", &InvoiceSurcharge{})
 }
