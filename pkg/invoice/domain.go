@@ -9,16 +9,19 @@ import (
 )
 
 const (
-	ErrorBadRequest      = "error bad request"
-	ErrorInvoiceCreation = "error creating invoice"
-	ErrorGettingInvoice  = "error getting invoice"
-	ErrorInvoiceUpdate   = "error updating invoice"
+	ErrorBadRequest                = "error bad request"
+	ErrorInvoiceCreation           = "error creating invoice"
+	ErrorGettingInvoice            = "error getting invoice"
+	ErrorInvoiceUpdate             = "error updating invoice"
+	ErrorInvalidTipAmount          = "error invalid tip amount"
+	ErrorTipPercentageExceedsLimit = "error tip percentage exceeds limit"
 )
 
 type Repository interface {
 	Create(invoice *Invoice) (*Invoice, error)
 	Get(invoiceID string) (*Invoice, error)
 	Update(invoice *Invoice) (*Invoice, error)
+	UpdateTip(invoice *Invoice) (*Invoice, error)
 }
 
 type Invoice struct {

@@ -2673,6 +2673,80 @@ const docTemplate = `{
                 }
             }
         },
+        "/invoice/{id}/tip": {
+            "post": {
+                "description": "To update the tip of an invoice",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invoice"
+                ],
+                "summary": "To update the tip of an invoice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invoice ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "tip",
+                        "name": "tip",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/invoice.RequestUpdateTip"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Invoice"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/menu": {
             "get": {
                 "description": "To find menus",
@@ -8512,8 +8586,11 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "invoice_id": {
-                    "type": "integer"
+                "invoices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/invoice.Invoice"
+                    }
                 },
                 "name": {
                     "type": "string"
@@ -8666,6 +8743,14 @@ const docTemplate = `{
                 }
             }
         },
+        "invoice.RequestUpdateTip": {
+            "type": "object",
+            "properties": {
+                "tips": {
+                    "type": "number"
+                }
+            }
+        },
         "invoice.Surcharge": {
             "type": "object",
             "properties": {
@@ -8687,8 +8772,11 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "invoice_id": {
-                    "type": "integer"
+                "invoices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/invoice.Invoice"
+                    }
                 },
                 "name": {
                     "type": "string"

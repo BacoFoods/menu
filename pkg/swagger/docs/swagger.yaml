@@ -125,8 +125,10 @@ definitions:
         type: string
       id:
         type: integer
-      invoice_id:
-        type: integer
+      invoices:
+        items:
+          $ref: '#/definitions/invoice.Invoice'
+        type: array
       name:
         type: string
       percentage:
@@ -227,6 +229,11 @@ definitions:
       type:
         type: string
     type: object
+  invoice.RequestUpdateTip:
+    properties:
+      tips:
+        type: number
+    type: object
   invoice.Surcharge:
     properties:
       active:
@@ -241,8 +248,10 @@ definitions:
         type: string
       id:
         type: integer
-      invoice_id:
-        type: integer
+      invoices:
+        items:
+          $ref: '#/definitions/invoice.Invoice'
+        type: array
       name:
         type: string
       percentage:
@@ -2503,6 +2512,52 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To update an invoice
+      tags:
+      - Invoice
+  /invoice/{id}/tip:
+    post:
+      consumes:
+      - application/json
+      description: To update the tip of an invoice
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: tip
+        in: body
+        name: tip
+        required: true
+        schema:
+          $ref: '#/definitions/invoice.RequestUpdateTip'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Invoice'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To update the tip of an invoice
       tags:
       - Invoice
   /menu:

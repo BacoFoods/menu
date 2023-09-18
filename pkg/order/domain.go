@@ -127,15 +127,20 @@ func (o *Order) RemoveProduct(product *product.Product) {
 
 func (o *Order) ToInvoice() {
 	subtotal := 0.0
+	totalSurcharges := 0.0
+	totalDiscounts := 0.0
+	tipsAmount := 0.0
 
 	newInvoice := invoice.Invoice{
-		OrderID:   &o.ID,
-		BrandID:   o.BrandID,
-		StoreID:   o.StoreID,
-		ChannelID: o.ChannelID,
-		TableID:   o.TableID,
-		Table:     o.Table,
-		Items:     make([]invoice.Item, 0),
+		OrderID:    &o.ID,
+		BrandID:    o.BrandID,
+		StoreID:    o.StoreID,
+		ChannelID:  o.ChannelID,
+		TableID:    o.TableID,
+		Table:      o.Table,
+		Items:      make([]invoice.Item, 0),
+		Discounts:  make([]invoice.Discount, 0),
+		Surcharges: make([]invoice.Surcharge, 0),
 	}
 
 	// Adding items to invoice
@@ -171,6 +176,23 @@ func (o *Order) ToInvoice() {
 			})
 		}
 	}
+
+	// Calculate total surcharges
+	for _, surcharge := range newInvoice.Surcharges {
+		totalSurcharges += surcharge.Amount
+	}
+	newInvoice.TotalSurcharges = totalSurcharges
+
+	// Calculate total discounts
+	for _, discount := range newInvoice.Discounts {
+		if discount.Type == "percentage" {
+			totalDiscounts += (subtotal * discount.Percentage) / 100
+		} else if discount.Type == "amount" {
+			totalDiscounts += discount.Amount
+		}
+	}
+	newInvoice.TotalDiscounts = totalDiscounts
+
 	// Setting subtotals
 	newInvoice.SubTotal = subtotal
 
@@ -180,15 +202,17 @@ func (o *Order) ToInvoice() {
 
 	if newInvoice.Tips != 0 {
 		tipsAmount := math.Round(baseTax * 0.1)
-		newInvoice.Tips = math.Round(tipsAmount)
+		newInvoice.Tips = tipsAmount
 	} else if newInvoice.Tips > 1 {
-		newInvoice.Tips = math.Round(newInvoice.Tips)
+		tipsAmount := math.Round(newInvoice.Tips)
+		newInvoice.Tips = tipsAmount
 	} else {
-		newInvoice.Tips = 0
+		tipsAmount := 0.0
+		newInvoice.Tips = tipsAmount
 	}
 
 	newInvoice.BaseTax = baseTax
-	newInvoice.Total = baseTax + tax
+	newInvoice.Total = math.Round(baseTax + tax + totalSurcharges - totalDiscounts + tipsAmount)
 
 	// Setting invoice
 	o.Invoice = &newInvoice

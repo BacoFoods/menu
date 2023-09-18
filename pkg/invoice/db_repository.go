@@ -42,18 +42,24 @@ func (r *DBRepository) Get(invoiceID string) (*Invoice, error) {
 func (r *DBRepository) Update(invoice *Invoice) (*Invoice, error) {
 	var invoiceDB Invoice
 
-	fmt.Println("invoice",invoice)
-	fmt.Println("invoice id",invoice.ID)
-	fmt.Println("invoice DB",&invoiceDB)
-	
 	if err := r.db.Where("id = ?", invoice.ID).First(&invoiceDB, invoice.ID).Error; err != nil {
 		shared.LogError("error getting invoice", LogRepository, "Update", err, invoice.ID, invoice)
 		return nil, err
 	}
 	fmt.Println(r.db.Model(&invoiceDB))
-	if err := r.db.Model(&invoiceDB).Select("tips", "type", "payment_id","discounts", "surcharges").Where("id = ?", invoice.ID).Updates(invoice).Error; err != nil {
+	if err := r.db.Model(&invoiceDB).Select("tips", "type", "payment_id", "discounts", "surcharges").Where("id = ?", invoice.ID).Updates(invoice).Error; err != nil {
 		shared.LogError("error updating invoice", LogRepository, "Update", err, invoice.ID, invoice)
 		return nil, err
 	}
 	return &invoiceDB, nil
+}
+
+// UpdateTip actualiza el campo 'tips' de un Invoice en la base de datos.
+func (r *DBRepository) UpdateTip(invoice *Invoice) (*Invoice, error) {
+	if err := r.db.Save(invoice).Error; err != nil {
+		shared.LogError("error updating tips in invoice", LogRepository, "UpdateTip", err, *invoice)
+		return nil, err
+	}
+
+	return invoice, nil
 }
