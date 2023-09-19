@@ -36,6 +36,11 @@ func (r *DBRepository) Find(query map[string]string) ([]Country, error) {
 }
 
 func (r *DBRepository) Get(countryID string) (*Country, error) {
+	if countryID == "" {
+		shared.LogWarn("error getting country", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var country Country
 	if err := r.db.Preload(clause.Associations).First(&country, countryID).Error; err != nil {
 		shared.LogError("error getting country", LogDBRepository, "Find", err, countryID)

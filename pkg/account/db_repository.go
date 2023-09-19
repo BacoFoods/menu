@@ -28,6 +28,11 @@ func (r DBRepository) Create(account *Account) (*Account, error) {
 }
 
 func (r DBRepository) Get(username string) (*Account, error) {
+	if username == "" {
+		shared.LogWarn("error getting account", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var account Account
 	if err := r.db.
 		Preload(clause.Associations).

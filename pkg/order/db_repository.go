@@ -7,7 +7,11 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-const LogDBRepository string = "pkg/order/db_repository"
+const (
+	LogDBRepository string = "pkg/order/db_repository"
+	StatusActive    string = "active"
+	StatusCreate    string = "create"
+)
 
 type DBRepository struct {
 	db *gorm.DB
@@ -31,6 +35,11 @@ func (r *DBRepository) Create(order *Order) (*Order, error) {
 
 // Get method for get an order from database
 func (r *DBRepository) Get(orderID string) (*Order, error) {
+	if orderID == "" {
+		shared.LogWarn("error getting order", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var order Order
 	if err := r.db.
 		Preload(clause.Associations).
@@ -55,10 +64,17 @@ func (r *DBRepository) Update(order *Order) (*Order, error) {
 
 // Find method for find orders in database
 func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
-	var orders []Order
-	if err := r.db.
+	tx := r.db.
 		Preload(clause.Associations).
-		Preload("Items.Modifiers").
+		Preload("Items.Modifiers")
+
+	if status, ok := filter["status"]; ok && status == StatusActive {
+		tx.Where("status = ? OR status = ? OR status", StatusCreate, StatusCreate, StatusCreate)
+		delete(filter, "status")
+	}
+
+	var orders []Order
+	if err := tx.
 		Where(filter).
 		Find(&orders).Error; err != nil {
 		shared.LogError("error finding orders", LogDBRepository, "Find", err, filter)

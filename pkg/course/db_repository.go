@@ -26,6 +26,11 @@ func (r DBRepository) Find(filter map[string]any) ([]Course, error) {
 }
 
 func (r DBRepository) Get(courseID string) (Course, error) {
+	if courseID == "" {
+		shared.LogWarn("error getting course", LogRepository, "Get", shared.ErrorIDEmpty)
+		return Course{}, shared.ErrorIDEmpty
+	}
+
 	var course Course
 	if err := r.db.First(&course, courseID).Error; err != nil {
 		shared.LogError("error finding course", LogRepository, "Get", err, courseID)

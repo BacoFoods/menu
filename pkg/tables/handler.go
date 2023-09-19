@@ -29,7 +29,7 @@ func NewHandler(service Service) *Handler {
 // @Success 200 {object} object{status=string,data=Table}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /tables/{id} [get]
 func (h Handler) Get(ctx *gin.Context) {
 	id := ctx.Param("id")
@@ -56,7 +56,7 @@ func (h Handler) Get(ctx *gin.Context) {
 // @Success 200 {object} object{status=string,data=[]Table}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /tables [get]
 func (h Handler) Find(ctx *gin.Context) {
 	query := make(map[string]any)
@@ -92,7 +92,7 @@ func (h Handler) Find(ctx *gin.Context) {
 // @Success 200 {object} object{status=string,data=Table}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /tables [post]
 func (h Handler) Create(ctx *gin.Context) {
 	var table Table
@@ -123,7 +123,7 @@ func (h Handler) Create(ctx *gin.Context) {
 // @Success 200 {object} object{status=string,data=Table}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /tables/{id} [patch]
 func (h Handler) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
@@ -156,7 +156,7 @@ func (h Handler) Update(ctx *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /tables/{id} [delete]
 func (h Handler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")

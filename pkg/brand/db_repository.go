@@ -39,6 +39,11 @@ func (r *DBRepository) Find(filters map[string]string) ([]Brand, error) {
 
 // Get method for get a brand in database
 func (r *DBRepository) Get(brandID string) (*Brand, error) {
+	if brandID == "" {
+		shared.LogWarn("error getting brand", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var brand Brand
 
 	if err := r.db.First(&brand, brandID).Error; err != nil {

@@ -42,6 +42,11 @@ func (r *DBRepository) Find(filters map[string]string) ([]Product, error) {
 
 // Get method for get a product in database
 func (r *DBRepository) Get(productID string) (*Product, error) {
+	if productID == "" {
+		shared.LogWarn("error getting product", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var product Product
 	if err := r.db.Preload(clause.Associations).
 		Preload("Modifiers.Products").

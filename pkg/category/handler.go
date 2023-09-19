@@ -30,7 +30,7 @@ func NewHandler(service Service) *Handler {
 // @Success 200 {object} object{status=string,data=[]Category}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /category [get]
 func (h *Handler) Find(c *gin.Context) {
 	query := make(map[string]string)
@@ -70,7 +70,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Category}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /category/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	categoryID := c.Param("id")
@@ -201,7 +201,7 @@ func (h *Handler) GetMenus(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /category/{id}/product/{productID}/add [patch]
 func (h *Handler) AddProduct(c *gin.Context) {
 	categoryID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -240,7 +240,7 @@ func (h *Handler) AddProduct(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /category/{id}/product/{productID}/remove [patch]
 func (h *Handler) RemoveProduct(c *gin.Context) {
 	categoryID, err := strconv.ParseUint(c.Param("id"), 10, 64)

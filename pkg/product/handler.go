@@ -37,7 +37,7 @@ func NewHandler(service Service) *Handler {
 // @Success 200 {object} object{status=string,data=[]Product}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /product [get]
 func (h *Handler) Find(c *gin.Context) {
 	query := make(map[string]string)
@@ -72,7 +72,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Product}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /product/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	productID := c.Param("id")
@@ -101,7 +101,7 @@ func (h *Handler) Get(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Product}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /product [post]
 func (h *Handler) Create(c *gin.Context) {
 	var requestBody Product
@@ -133,7 +133,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Product}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /product/{id} [patch]
 func (h *Handler) Update(c *gin.Context) {
 	var requestBody Product
@@ -162,7 +162,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Product}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /product/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	productID := c.Param("id")
@@ -187,7 +187,7 @@ func (h *Handler) Delete(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Product}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /product/{id}/modifier/{modifierID} [post]
 func (h *Handler) AddModifier(c *gin.Context) {
 	productID := c.Param("id")
@@ -215,7 +215,7 @@ func (h *Handler) AddModifier(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Product}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /product/{id}/modifier/{modifierID} [delete]
 func (h *Handler) RemoveModifier(c *gin.Context) {
 	productID := c.Param("id")
@@ -243,7 +243,7 @@ func (h *Handler) RemoveModifier(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /product/{id}/overrider [get]
 func (h *Handler) GetOverridersByField(c *gin.Context) {
 	productID := c.Param("id")
@@ -277,7 +277,7 @@ func (h *Handler) GetOverridersByField(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Product}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /product/{id}/overrider/update-all [patch]
 func (h *Handler) UpdateAllOverriders(c *gin.Context) {
 	productID := c.Param("id")
@@ -318,7 +318,7 @@ func (h *Handler) UpdateAllOverriders(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /product/{id}/category [get]
 func (h *Handler) GetCategories(c *gin.Context) {
 	productID := c.Param("id")
@@ -347,7 +347,7 @@ func (h *Handler) GetCategories(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Modifier}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /modifier [get]
 func (h *Handler) ModifierFind(c *gin.Context) {
 	query := make(map[string]string)
@@ -383,7 +383,7 @@ func (h *Handler) ModifierFind(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Modifier}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /modifier [post]
 func (h *Handler) ModifierCreate(c *gin.Context) {
 	var body Modifier
@@ -415,7 +415,7 @@ func (h *Handler) ModifierCreate(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Modifier}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /modifier/{id}/product/{productID} [post]
 func (h *Handler) ModifierAddProduct(c *gin.Context) {
 	modifierID := c.Param("id")
@@ -443,7 +443,7 @@ func (h *Handler) ModifierAddProduct(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Modifier}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /modifier/{id}/product/{productID} [delete]
 func (h *Handler) ModifierRemoveProduct(c *gin.Context) {
 	modifierID := c.Param("id")
@@ -512,7 +512,7 @@ func (h *Handler) ModifierUpdate(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=[]Overrider}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /overrider [get]
 func (h *Handler) OverriderFind(c *gin.Context) {
 	query := make(map[string]string)
@@ -542,7 +542,7 @@ func (h *Handler) OverriderFind(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Overrider}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /overrider/{id} [get]
 func (h *Handler) OverriderGet(c *gin.Context) {
 	overriderID := c.Param("id")
@@ -568,7 +568,7 @@ func (h *Handler) OverriderGet(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Overrider}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /overrider [post]
 func (h *Handler) OverriderCreate(c *gin.Context) {
 	var request Overrider
@@ -600,7 +600,7 @@ func (h *Handler) OverriderCreate(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Overrider}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /overrider/{id} [patch]
 func (h *Handler) OverriderUpdate(c *gin.Context) {
 	var request Overrider
@@ -631,7 +631,7 @@ func (h *Handler) OverriderUpdate(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Overrider}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /overrider/{id} [delete]
 func (h *Handler) OverriderDelete(c *gin.Context) {
 	overriderID := c.Param("id")

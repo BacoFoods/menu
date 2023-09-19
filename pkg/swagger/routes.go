@@ -6,11 +6,13 @@ import (
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
+	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/course"
 	"github.com/BacoFoods/menu/pkg/discount"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/order"
+	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
@@ -65,5 +67,7 @@ func (r *Routes) Register(group *gin.RouterGroup) {
 	_ = invoice.Handler{}
 	_ = account.Handler{}
 	_ = course.Handler{}
+	_ = client.Handler{}
+	_ = payment.Handler{}
 	group.GET("/swagger/*any", swaggerGin.WrapHandler(swaggerFiles.Handler))
 }

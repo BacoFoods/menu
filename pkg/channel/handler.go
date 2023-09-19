@@ -29,7 +29,7 @@ func NewHandler(service Service) *Handler {
 // @Success 200 {object} object{status=string,data=[]Channel}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /channel [get]
 func (h *Handler) Find(c *gin.Context) {
 	query := make(map[string]string)
@@ -69,7 +69,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Channel}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /channel/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	channelID := c.Param("id")
@@ -93,7 +93,7 @@ func (h *Handler) Get(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Channel}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /channel [post]
 func (h *Handler) Create(c *gin.Context) {
 	var request Channel
@@ -124,7 +124,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Channel}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /channel/{id} [patch]
 func (h *Handler) Update(c *gin.Context) {
 	var request Channel
@@ -155,7 +155,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Channel}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /channel/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	channelID := c.Param("id")

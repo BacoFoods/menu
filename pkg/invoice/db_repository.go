@@ -27,9 +27,14 @@ func (r DBRepository) CreateUpdate(invoice *Invoice) (*Invoice, error) {
 
 // Get method for get an invoice in database
 func (r *DBRepository) Get(invoiceID string) (*Invoice, error) {
+	if invoiceID == "" {
+		shared.LogWarn("error getting invoice", LogRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var invoice Invoice
 
-	if err := r.db.First(&invoice, invoiceID).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).First(&invoice, invoiceID).Error; err != nil {
 		shared.LogError("error getting invoice", LogRepository, "Get", err, invoiceID)
 		return nil, err
 	}

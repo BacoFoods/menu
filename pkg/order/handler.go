@@ -33,7 +33,7 @@ func NewHandler(service Service) *Handler {
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /order [post]
 func (h *Handler) Create(c *gin.Context) {
 	var body OrderDTO
@@ -65,7 +65,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /order/{id}/table/{table} [patch]
 func (h *Handler) UpdateTable(c *gin.Context) {
 	storeID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -102,7 +102,7 @@ func (h *Handler) UpdateTable(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /order/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	orderID := c.Param("id")
@@ -125,22 +125,30 @@ func (h *Handler) Get(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param store query string false "Store ID"
 // @Param table query string false "Table ID"
+// @Param status query string false "Status"
+// @Param days query string false "Days before"
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /order [get]
 func (h *Handler) Find(c *gin.Context) {
 	filters := make(map[string]interface{})
 
-	storeID := c.Query("store")
-	if storeID != "" {
+	if storeID := c.Query("store"); storeID != "" {
 		filters["store_id"] = storeID
 	}
 
-	tableID := c.Query("table")
-	if tableID != "" {
+	if tableID := c.Query("table"); tableID != "" {
 		filters["table_id"] = tableID
+	}
+
+	if status := c.Query("status"); status != "" {
+		filters["status"] = status
+	}
+
+	if days := c.Query("days"); days != "" {
+		filters["days"] = days
 	}
 
 	orders, err := h.service.Find(filters)
@@ -164,7 +172,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /order/{id}/seats [patch]
 func (h *Handler) UpdateSeats(c *gin.Context) {
 	var body RequestUpdateOrderSeats
@@ -202,7 +210,7 @@ func (h *Handler) UpdateSeats(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /order/{id}/add/products [patch]
 func (h *Handler) AddProducts(c *gin.Context) {
 	orderID := c.Param("id")
@@ -242,7 +250,7 @@ func (h *Handler) AddProducts(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /order/{id}/remove/product [patch]
 func (h *Handler) RemoveProduct(c *gin.Context) {
 	orderID := c.Param("id")
@@ -270,7 +278,7 @@ func (h *Handler) RemoveProduct(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /order/{id}/update/product [patch]
 func (h *Handler) UpdateProduct(c *gin.Context) {
 	var body RequestUpdateOrderProduct
@@ -352,7 +360,7 @@ func (h *Handler) UpdateStatus(c *gin.Context) {
 // @Param id path string true "Order ID"
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Router /order/{id}/release-table [post]
 func (h *Handler) ReleaseTable(c *gin.Context) {
@@ -381,7 +389,7 @@ func (h *Handler) ReleaseTable(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /order-item/{id}/add/modifiers [patch]
 func (h *Handler) AddModifiers(c *gin.Context) {
 	orderItemID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -429,7 +437,7 @@ func (h *Handler) AddModifiers(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /order-item/{id}/remove/modifiers [patch]
 func (h *Handler) RemoveModifiers(c *gin.Context) {
 	orderItemID, err := strconv.ParseUint(c.Param("id"), 10, 64)
@@ -515,7 +523,7 @@ func (h *Handler) OrderItemUpdate(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=OrderType}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /order-type [post]
 func (h *Handler) CreateOrderType(c *gin.Context) {
 	var body OrderType

@@ -37,6 +37,11 @@ func (r *DBRepository) Find(filters map[string]string) ([]Channel, error) {
 
 // Get method for get a channel in database
 func (r *DBRepository) Get(channelID string) (*Channel, error) {
+	if channelID == "" {
+		shared.LogWarn("error getting channel", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var channel Channel
 	if err := r.db.First(&channel, channelID).Error; err != nil {
 		shared.LogError("error getting channel", LogDBRepository, "Get", err, channelID)

@@ -29,6 +29,11 @@ func (r *DBRepository) Find(filters map[string]string) ([]Surcharge, error) {
 }
 
 func (r *DBRepository) Get(surchargeID string) (*Surcharge, error) {
+	if surchargeID == "" {
+		shared.LogWarn("error getting surcharge", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var surcharge Surcharge
 
 	if err := r.db.First(&surcharge, surchargeID).Error; err != nil {

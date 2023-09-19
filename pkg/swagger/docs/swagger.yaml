@@ -149,6 +149,19 @@ definitions:
     required:
     - brand_id
     type: object
+  client.Client:
+    properties:
+      document:
+        type: string
+      document_type:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   country.Country:
     properties:
       currency:
@@ -248,6 +261,10 @@ definitions:
         type: integer
       channel_id:
         type: integer
+      client:
+        $ref: '#/definitions/client.Client'
+      client_id:
+        type: integer
       discounts:
         items:
           $ref: '#/definitions/invoice.Discount'
@@ -260,10 +277,10 @@ definitions:
         type: array
       order_id:
         type: integer
-      payment:
-        $ref: '#/definitions/payment.Payment'
-      payment_id:
-        type: integer
+      payments:
+        items:
+          $ref: '#/definitions/payment.Payment'
+        type: array
       store_id:
         type: integer
       sub_total:
@@ -506,6 +523,7 @@ definitions:
         type: integer
     required:
     - product_id
+    - quantity
     type: object
   order.OrderModifier:
     properties:
@@ -617,12 +635,20 @@ definitions:
     type: object
   payment.Payment:
     properties:
+      code:
+        type: string
       id:
+        type: integer
+      invoice_id:
         type: integer
       method:
         type: string
-      name:
-        type: string
+      quantity:
+        type: number
+    required:
+    - invoice_id
+    - method
+    - quantity
     type: object
   product.Modifier:
     properties:
@@ -963,8 +989,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1084,8 +1110,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1132,8 +1158,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1181,8 +1207,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1234,8 +1260,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1261,8 +1287,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1288,8 +1314,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1331,8 +1357,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1384,8 +1410,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1426,8 +1452,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1467,8 +1493,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1514,8 +1540,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1565,8 +1591,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1682,8 +1708,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1796,8 +1822,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1836,8 +1862,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1887,8 +1913,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1929,8 +1955,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -1971,8 +1997,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2012,8 +2038,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2059,8 +2085,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2072,6 +2098,211 @@ paths:
       summary: To update a channel
       tags:
       - Channel
+  /clients:
+    get:
+      consumes:
+      - application/json
+      description: To list all clients
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/client.Client'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To list all clients
+      tags:
+      - Client
+    post:
+      consumes:
+      - application/json
+      description: To create a client
+      parameters:
+      - description: client
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/client.Client'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/client.Client'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To create a client
+      tags:
+      - Client
+  /clients/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a client
+      parameters:
+      - description: client id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/client.Client'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To delete a client
+      tags:
+      - Client
+    get:
+      consumes:
+      - application/json
+      description: To get a client
+      parameters:
+      - description: client id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/client.Client'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To get a client
+      tags:
+      - Client
+    patch:
+      consumes:
+      - application/json
+      description: To update a client
+      parameters:
+      - description: client
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/client.Client'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/client.Client'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To update a client
+      tags:
+      - Client
   /country:
     get:
       consumes:
@@ -2102,8 +2333,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2144,8 +2375,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2261,8 +2492,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2308,8 +2539,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2350,8 +2581,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2392,8 +2623,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2433,8 +2664,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2476,8 +2707,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2518,8 +2749,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2635,8 +2866,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2673,8 +2904,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2715,8 +2946,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2832,8 +3063,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2880,8 +3111,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2922,8 +3153,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -2933,6 +3164,100 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To get a invoice
+      tags:
+      - Invoice
+  /invoice/{id}/client/{clientID}/add:
+    post:
+      consumes:
+      - application/json
+      description: To add a client to an invoice
+      parameters:
+      - description: invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: client id
+        in: path
+        name: clientID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Invoice'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To add a client to an invoice
+      tags:
+      - Invoice
+  /invoice/{id}/client/{clientID}/remove:
+    post:
+      consumes:
+      - application/json
+      description: To remove a client from an invoice
+      parameters:
+      - description: invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: client id
+        in: path
+        name: clientID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Invoice'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To remove a client from an invoice
       tags:
       - Invoice
   /menu:
@@ -2969,8 +3294,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3011,8 +3336,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3053,8 +3378,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3094,8 +3419,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3141,8 +3466,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3188,8 +3513,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3235,8 +3560,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3281,8 +3606,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3328,8 +3653,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3377,8 +3702,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3429,8 +3754,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3474,8 +3799,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3516,8 +3841,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3607,8 +3932,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3653,8 +3978,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3680,6 +4005,14 @@ paths:
         in: query
         name: table
         type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
+      - description: Days before
+        in: query
+        name: days
+        type: string
       produces:
       - application/json
       responses:
@@ -3698,8 +4031,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3740,8 +4073,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3788,8 +4121,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3836,8 +4169,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -3955,8 +4288,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4091,8 +4424,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4139,8 +4472,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4211,8 +4544,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4258,8 +4591,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4306,8 +4639,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4353,8 +4686,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4406,8 +4739,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4485,8 +4818,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4527,8 +4860,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4569,8 +4902,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4610,8 +4943,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4657,8 +4990,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4670,6 +5003,216 @@ paths:
       summary: To update an overrider
       tags:
       - Overrider
+  /payment:
+    get:
+      consumes:
+      - application/json
+      description: To find payment
+      parameters:
+      - description: payment code
+        in: query
+        name: code
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/payment.Payment'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find payment
+      tags:
+      - Payment
+    patch:
+      consumes:
+      - application/json
+      description: To update payment
+      parameters:
+      - description: payment body
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/payment.Payment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payment.Payment'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To update payment
+      tags:
+      - Payment
+    post:
+      consumes:
+      - application/json
+      description: To create payment
+      parameters:
+      - description: payment body
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/payment.Payment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payment.Payment'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To create payment
+      tags:
+      - Payment
+  /payment/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete payment
+      parameters:
+      - description: payment id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payment.Payment'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To delete payment
+      tags:
+      - Payment
+    get:
+      consumes:
+      - application/json
+      description: To get a payment by id
+      parameters:
+      - description: payment id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payment.Payment'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To get a payment by id
+      tags:
+      - Payment
   /product:
     get:
       consumes:
@@ -4704,8 +5247,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4747,8 +5290,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4789,8 +5332,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4830,8 +5373,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4877,8 +5420,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4912,8 +5455,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -4959,8 +5502,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5005,8 +5548,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5044,8 +5587,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5092,8 +5635,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5165,8 +5708,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To login
@@ -5195,8 +5738,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To login
@@ -5227,8 +5770,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5269,8 +5812,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5392,8 +5935,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5443,8 +5986,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5485,8 +6028,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5527,8 +6070,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5568,8 +6111,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5615,8 +6158,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5662,8 +6205,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5704,8 +6247,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5748,8 +6291,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5795,8 +6338,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5842,8 +6385,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5884,8 +6427,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5926,8 +6469,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -5967,8 +6510,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6014,8 +6557,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6061,8 +6604,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6103,8 +6646,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6138,8 +6681,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6179,8 +6722,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6220,8 +6763,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6263,8 +6806,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6305,8 +6848,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6422,8 +6965,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6469,8 +7012,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6511,8 +7054,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6546,8 +7089,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6587,8 +7130,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6634,8 +7177,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6676,8 +7219,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6717,8 +7260,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -6758,8 +7301,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/shared.Response'
-        "403":
-          description: Forbidden
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":

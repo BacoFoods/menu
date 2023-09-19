@@ -28,7 +28,7 @@ func NewHandler(service Service) *Handler {
 // @Success 200 {object} object{status=string,data=[]Course}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /course [get]
 func (h *Handler) Find(ctx *gin.Context) {
 	filter := make(map[string]any)
@@ -61,7 +61,7 @@ func (h *Handler) Find(ctx *gin.Context) {
 // @Success 200 {object} object{status=string,data=Course}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /course/{id} [get]
 func (h *Handler) FindByID(ctx *gin.Context) {
 	id := ctx.Param("id")
@@ -85,7 +85,7 @@ func (h *Handler) FindByID(ctx *gin.Context) {
 // @Success 200 {object} object{status=string,data=Course}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /course [put]
 func (h *Handler) Create(ctx *gin.Context) {
 	var course Course
@@ -116,7 +116,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 // @Success 200 {object} object{status=string,data=Course}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /course/{id} [delete]
 func (h *Handler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")

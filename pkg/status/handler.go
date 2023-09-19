@@ -80,7 +80,7 @@ func (h *Handler) Delete(ctx *gin.Context) {
 // @Success 200 {object} object{status=string,data=[]Status}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /status [get]
 func (h *Handler) Find(ctx *gin.Context) {
 	statuses, err := h.service.Find()
@@ -104,7 +104,7 @@ func (h *Handler) Find(ctx *gin.Context) {
 // @Success 200 {object} object{status=string,data=Status}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /status/{id} [get]
 func (h *Handler) Get(ctx *gin.Context) {
 	statusID := ctx.Param("id")
@@ -130,7 +130,7 @@ func (h *Handler) Get(ctx *gin.Context) {
 // @Success 200 {object} object{status=string,data=Status}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /status [patch]
 func (h *Handler) Update(ctx *gin.Context) {
 	var dto UpdateStatus

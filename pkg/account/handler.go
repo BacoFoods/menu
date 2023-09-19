@@ -88,7 +88,7 @@ func (h *Handler) CreatePinUser(ctx *gin.Context) {
 // @Produce json
 // @Success 200 {string} string
 // @Failure 400 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /public/account/login [post]
 func (h *Handler) Login(ctx *gin.Context) {
 	var request RequestLogin
@@ -124,7 +124,7 @@ func (h *Handler) Login(ctx *gin.Context) {
 // @Produce json
 // @Success 200 {string} string
 // @Failure 400 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /public/account/login/pin [post]
 func (h *Handler) LoginPin(ctx *gin.Context) {
 	var request RequestLoginPin
@@ -200,7 +200,7 @@ func (h *Handler) Delete(ctx *gin.Context) {
 // @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=Account}
 // @Failure 400 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Router /account [get]
 func (h *Handler) Find(ctx *gin.Context) {

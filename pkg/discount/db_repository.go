@@ -34,6 +34,11 @@ func (r *DBRepository) Find(filter map[string]string) ([]Discount, error) {
 }
 
 func (r *DBRepository) Get(discountID string) (*Discount, error) {
+	if discountID == "" {
+		shared.LogWarn("error getting discount", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var discount Discount
 	if err := r.db.Preload(clause.Associations).First(&discount, discountID).Error; err != nil {
 		shared.LogError("error getting discount", LogDBRepository, "Find", err, discountID)

@@ -43,6 +43,11 @@ func (r *DBRepository) Find(filters map[string]string) ([]Menu, error) {
 
 // Get method for get a menu in database
 func (r *DBRepository) Get(menuID string) (*Menu, error) {
+	if menuID == "" {
+		shared.LogWarn("error getting menu", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var menu Menu
 	if err := r.db.Preload(clause.Associations).
 		First(&menu, menuID).Error; err != nil {

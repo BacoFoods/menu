@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/course"
+	"github.com/BacoFoods/menu/pkg/payment"
 
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/availability"
@@ -65,6 +67,8 @@ func main() {
 		&invoice.Surcharge{},
 		&account.Account{},
 		&course.Course{},
+		&client.Client{},
+		&payment.Payment{},
 	)
 
 	// Healthcheck
@@ -164,9 +168,15 @@ func main() {
 	statusHandler := status.NewHandler(statusService)
 	statusRoutes := status.NewRoutes(statusHandler)
 
+	// Client
+	clientRepository := client.NewDBRepository(gormDB)
+	clientService := client.NewService(clientRepository)
+	clientHandler := client.NewHandler(clientService)
+	clientRoutes := client.NewRoutes(clientHandler)
+
 	// Invoice
 	invoiceRepository := invoice.NewDBRepository(gormDB)
-	invoiceService := invoice.NewService(invoiceRepository)
+	invoiceService := invoice.NewService(invoiceRepository, clientRepository)
 	invoiceHandler := invoice.NewHandler(invoiceService)
 	invoiceRoutes := invoice.NewRoutes(invoiceHandler)
 
@@ -187,6 +197,12 @@ func main() {
 	courseService := course.NewService(courseRepository)
 	courseHandler := course.NewHandler(courseService)
 	courseRoutes := course.NewRoutes(courseHandler)
+
+	// Payment
+	paymentRepository := payment.NewDBRepository(gormDB)
+	paymentService := payment.NewService(paymentRepository)
+	paymentHandler := payment.NewHandler(paymentService)
+	paymentRoutes := payment.NewRoutes(paymentHandler)
 
 	// Routes
 	routes := &router.RoutesGroup{
@@ -211,6 +227,8 @@ func main() {
 		Invoice:      invoiceRoutes,
 		Account:      accountRoutes,
 		Course:       courseRoutes,
+		Client:       clientRoutes,
+		Payment:      paymentRoutes,
 	}
 
 	// Run server

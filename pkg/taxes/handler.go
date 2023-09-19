@@ -56,7 +56,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 // @Success 200 {object} object{status=string,data=[]Tax}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /tax [get]
 func (h *Handler) Find(ctx *gin.Context) {
 	query := make(map[string]string)
@@ -84,7 +84,7 @@ func (h *Handler) Find(ctx *gin.Context) {
 // @Success 200 {object} object{status=string,data=Tax}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /tax/{id} [get]
 func (h *Handler) Get(ctx *gin.Context) {
 	taxID := ctx.Param("id")
@@ -108,7 +108,7 @@ func (h *Handler) Get(ctx *gin.Context) {
 // @Success 200 {object} object{status=string,data=Tax}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /tax [patch]
 func (h *Handler) Update(ctx *gin.Context) {
 	var requestBody Tax

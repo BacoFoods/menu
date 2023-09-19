@@ -50,6 +50,11 @@ func (r *DBRepository) Update(status *Status, statusID string) (*Status, error) 
 }
 
 func (r *DBRepository) Get(statusID string) (*Status, error) {
+	if statusID == "" {
+		shared.LogWarn("error getting brand", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var status Status
 	if err := r.db.Preload(clause.Associations).First(&status, statusID).Error; err != nil {
 		shared.LogError("error getting status", LogDBRepository, "Find", err, statusID)

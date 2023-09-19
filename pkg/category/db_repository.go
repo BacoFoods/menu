@@ -38,6 +38,11 @@ func (r *DBRepository) Find(filters map[string]string) ([]Category, error) {
 
 // Get method for get a category in database
 func (r *DBRepository) Get(categoryID string) (*Category, error) {
+	if categoryID == "" {
+		shared.LogWarn("error getting category", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var category Category
 	if err := r.db.Preload(clause.Associations).First(&category, categoryID).Error; err != nil {
 		shared.LogError("error getting category", LogDBRepository, "Get", err, categoryID)

@@ -34,6 +34,11 @@ func (r *DBRepository) Find(query map[string]string) ([]Currency, error) {
 }
 
 func (r *DBRepository) Get(currencyID string) (*Currency, error) {
+	if currencyID == "" {
+		shared.LogWarn("error getting currency", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var currency Currency
 	if err := r.db.Preload(clause.Associations).First(&currency, currencyID).Error; err != nil {
 		shared.LogError("error getting currency", LogDBRepository, "Find", err, currencyID)

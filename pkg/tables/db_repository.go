@@ -17,6 +17,11 @@ func NewDBRepository(db *gorm.DB) DBRepository {
 }
 
 func (r DBRepository) Get(id string) (*Table, error) {
+	if id == "" {
+		shared.LogWarn("error getting table", LogRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var table Table
 
 	if err := r.db.First(&table, id).Error; err != nil {

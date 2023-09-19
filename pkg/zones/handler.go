@@ -51,7 +51,7 @@ func NewHandler(service Service) *Handler {
 // @Success 200 {object} object{status=string,data=[]Zone}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /zone [get]
 func (h Handler) Find(c *gin.Context) {
 	filters := make(map[string]any)
@@ -86,7 +86,7 @@ func (h Handler) Find(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Zone}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /zone/{id} [get]
 func (h Handler) Get(c *gin.Context) {
 	id := c.Param("id")
@@ -110,7 +110,7 @@ func (h Handler) Get(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Zone}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /zone [post]
 func (h Handler) Create(c *gin.Context) {
 	var req RequestZoneCreate
@@ -148,7 +148,7 @@ func (h Handler) Create(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Zone}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /zone/{id} [patch]
 func (h Handler) Update(c *gin.Context) {
 	id := c.Param("id")
@@ -185,7 +185,7 @@ func (h Handler) Update(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /zone/{id} [delete]
 func (h Handler) Delete(c *gin.Context) {
 	id := c.Param("id")
@@ -211,7 +211,7 @@ func (h Handler) Delete(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /zone/{id}/tables/add [patch]
 func (h Handler) AddTables(c *gin.Context) {
 	id := c.Param("id")
@@ -244,7 +244,7 @@ func (h Handler) AddTables(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /zone/{id}/tables/remove [patch]
 func (h Handler) RemoveTables(c *gin.Context) {
 	id := c.Param("id")
@@ -277,7 +277,7 @@ func (h Handler) RemoveTables(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Zone}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /zone/{id}/enable [patch]
 func (h Handler) Enable(c *gin.Context) {
 	id := c.Param("id")

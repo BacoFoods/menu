@@ -43,7 +43,7 @@ func NewHandler(service Service) *Handler {
 // @Success 200 {object} object{status=string,data=[]Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /menu [get]
 func (h *Handler) Find(c *gin.Context) {
 	query := make(map[string]string)
@@ -79,7 +79,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /menu/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	menuID := c.Param("id")
@@ -103,7 +103,7 @@ func (h *Handler) Get(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /menu [post]
 func (h *Handler) Create(c *gin.Context) {
 	var body RequestMenuCreate
@@ -135,7 +135,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /menu/{id} [patch]
 func (h *Handler) Update(c *gin.Context) {
 	var requestBody Menu
@@ -166,7 +166,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /menu/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	menuID := c.Param("id")
@@ -191,7 +191,7 @@ func (h *Handler) Delete(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=[]Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /menu/place/{place}/{place-id}/list [get]
 func (h *Handler) ListByPlace(c *gin.Context) {
 	place := c.Param("place")
@@ -218,7 +218,7 @@ func (h *Handler) ListByPlace(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /menu/place/{place}/{place-id}/menu-id/{menu-id} [get]
 func (h *Handler) GetByPlace(c *gin.Context) {
 	place := c.Param("place")
@@ -248,7 +248,7 @@ func (h *Handler) GetByPlace(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /menu/{id}/place/{place}/availability [put]
 func (h *Handler) UpdateAvailability(c *gin.Context) {
 	menuID := c.Param("id")
@@ -293,7 +293,7 @@ func (h *Handler) UpdateAvailability(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /menu/{id}/store/{storeID}/channels [get]
 func (h *Handler) FindChannels(c *gin.Context) {
 	menuID := c.Param("id")
@@ -321,7 +321,7 @@ func (h *Handler) FindChannels(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /menu/{id}/category/{categoryID}/add [patch]
 func (h *Handler) AddCategory(c *gin.Context) {
 	menuID := c.Param("id")
@@ -349,7 +349,7 @@ func (h *Handler) AddCategory(c *gin.Context) {
 // @Success 200 {object} object{status=string,data=Menu}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /menu/{id}/category/{categoryID}/remove [patch]
 func (h *Handler) RemoveCategory(c *gin.Context) {
 	menuID := c.Param("id")

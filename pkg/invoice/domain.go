@@ -1,6 +1,7 @@
 package invoice
 
 import (
+	"github.com/BacoFoods/menu/pkg/client"
 	"time"
 
 	"github.com/BacoFoods/menu/pkg/payment"
@@ -8,10 +9,13 @@ import (
 )
 
 const (
-	ErrorBadRequest      = "error bad request"
-	ErrorInvoiceCreation = "error creating invoice"
-	ErrorGettingInvoice  = "error getting invoice"
-	ErrorInvoiceFinding  = "error finding invoices"
+	ErrorBadRequest            = "error bad request"
+	ErrorInvoiceCreation       = "error creating invoice"
+	ErrorGettingInvoice        = "error getting invoice"
+	ErrorInvoiceFinding        = "error finding invoices"
+	ErrorInvoiceAddingClient   = "error adding client to invoice"
+	ErrorInvoiceRemovingClient = "error removing client from invoice"
+	ErrorInvoiceWrongClient    = "error wrong client for invoice"
 )
 
 type Repository interface {
@@ -21,27 +25,28 @@ type Repository interface {
 }
 
 type Invoice struct {
-	ID              uint             `json:"id"`
-	OrderID         *uint            `json:"order_id"`
-	BrandID         *uint            `json:"brand_id" binding:"required"`
-	StoreID         *uint            `json:"store_id" binding:"required"`
-	ChannelID       *uint            `json:"channel_id" binding:"required"`
-	TableID         *uint            `json:"table_id"`
-	Items           []Item           `json:"items"  gorm:"foreignKey:InvoiceID"`
-	Discounts       []Discount       `json:"discounts"  gorm:"foreignKey:InvoiceID"`
-	Surcharges      []Surcharge      `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
-	SubTotal        float64          `json:"sub_total"`
-	TotalDiscounts  float64          `json:"total_discounts,omitempty"`
-	TotalSurcharges float64          `json:"total_surcharges,omitempty"`
-	Tips            float64          `json:"tips"`
-	BaseTax         float64          `json:"base_tax"`
-	Taxes           float64          `json:"taxes"`
-	Total           float64          `json:"total"`
-	PaymentID       *uint            `json:"payment_id"`
-	Payment         *payment.Payment `json:"payment"`
-	CreatedAt       *time.Time       `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt       *time.Time       `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt       *gorm.DeletedAt  `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID              uint              `json:"id"`
+	OrderID         *uint             `json:"order_id"`
+	BrandID         *uint             `json:"brand_id" binding:"required"`
+	StoreID         *uint             `json:"store_id" binding:"required"`
+	ChannelID       *uint             `json:"channel_id" binding:"required"`
+	TableID         *uint             `json:"table_id"`
+	Items           []Item            `json:"items"  gorm:"foreignKey:InvoiceID"`
+	Discounts       []Discount        `json:"discounts"  gorm:"foreignKey:InvoiceID"`
+	Surcharges      []Surcharge       `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
+	SubTotal        float64           `json:"sub_total"`
+	TotalDiscounts  float64           `json:"total_discounts,omitempty"`
+	TotalSurcharges float64           `json:"total_surcharges,omitempty"`
+	Tips            float64           `json:"tips"`
+	BaseTax         float64           `json:"base_tax"`
+	Taxes           float64           `json:"taxes"`
+	Total           float64           `json:"total"`
+	Payments        []payment.Payment `json:"payments" gorm:"foreignKey:InvoiceID"`
+	ClientID        *uint             `json:"client_id"`
+	Client          *client.Client    `json:"client,omitempty"`
+	CreatedAt       *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt       *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt       *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type Item struct {

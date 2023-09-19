@@ -39,6 +39,11 @@ func (r *DBRepository) Find(filters map[string]string) ([]Store, error) {
 
 // Get method for get a store in database
 func (r *DBRepository) Get(storeID string) (*Store, error) {
+	if storeID == "" {
+		shared.LogWarn("error getting store", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var store Store
 	if err := r.db.Preload(clause.Associations).First(&store, storeID).Error; err != nil {
 		shared.LogError("error getting store", LogDBRepository, "Get", err, storeID)

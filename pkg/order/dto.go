@@ -36,7 +36,7 @@ type OrderItemDTO struct {
 	ProductID *uint              `json:"product_id" binding:"required"`
 	Comments  string             `json:"comments"`
 	Course    string             `json:"course"`
-	Quantity  int                `json:"quantity"`
+	Quantity  int                `json:"quantity" binding:"required"`
 	Modifiers []OrderModifierDTO `json:"modifiers"`
 }
 

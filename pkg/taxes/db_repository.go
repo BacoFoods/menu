@@ -35,6 +35,11 @@ func (r *DBRepository) Find(query map[string]string) ([]Tax, error) {
 }
 
 func (r *DBRepository) Get(taxID string) (*Tax, error) {
+	if taxID == "" {
+		shared.LogWarn("error getting tax", LogDBRepository, "Get", shared.ErrorIDEmpty)
+		return nil, shared.ErrorIDEmpty
+	}
+
 	var tax Tax
 	if err := r.db.Preload(clause.Associations).First(&tax, taxID).Error; err != nil {
 		shared.LogError("error getting tax", LogDBRepository, "Find", err, taxID)

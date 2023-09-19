@@ -103,8 +103,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -274,8 +274,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -317,8 +317,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -386,8 +386,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -462,8 +462,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -542,8 +542,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -613,8 +613,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -685,8 +685,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -776,8 +776,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -846,8 +846,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -914,8 +914,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -991,8 +991,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -1075,8 +1075,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -1209,8 +1209,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -1453,8 +1453,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -1515,8 +1515,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -1599,8 +1599,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -1669,8 +1669,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -1739,8 +1739,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -1807,8 +1807,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -1884,8 +1884,350 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/clients": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To list all clients",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Client"
+                ],
+                "summary": "To list all clients",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/client.Client"
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To create a client",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Client"
+                ],
+                "summary": "To create a client",
+                "parameters": [
+                    {
+                        "description": "client",
+                        "name": "client",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/client.Client"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/client.Client"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/clients/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To get a client",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Client"
+                ],
+                "summary": "To get a client",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "client id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/client.Client"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To delete a client",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Client"
+                ],
+                "summary": "To delete a client",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "client id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/client.Client"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To update a client",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Client"
+                ],
+                "summary": "To update a client",
+                "parameters": [
+                    {
+                        "description": "client",
+                        "name": "client",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/client.Client"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/client.Client"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -1956,8 +2298,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -2090,8 +2432,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -2160,8 +2502,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -2300,8 +2642,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -2370,8 +2712,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -2440,8 +2782,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -2508,8 +2850,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -2580,8 +2922,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -2714,8 +3056,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -2784,8 +3126,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -2910,8 +3252,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -3044,8 +3386,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -3114,8 +3456,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -3260,8 +3602,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -3330,8 +3672,162 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/invoice/{id}/client/{clientID}/add": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To add a client to an invoice",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invoice"
+                ],
+                "summary": "To add a client to an invoice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "invoice id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "client id",
+                        "name": "clientID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Invoice"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/invoice/{id}/client/{clientID}/remove": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To remove a client from an invoice",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invoice"
+                ],
+                "summary": "To remove a client from an invoice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "invoice id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "client id",
+                        "name": "clientID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Invoice"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -3408,8 +3904,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -3478,8 +3974,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -3558,8 +4054,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -3642,8 +4138,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -3712,8 +4208,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -3780,8 +4276,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -3857,8 +4353,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -3934,8 +4430,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -4011,8 +4507,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -4082,8 +4578,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -4159,8 +4655,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -4234,8 +4730,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -4304,8 +4800,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -4454,8 +4950,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -4529,8 +5025,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -4574,6 +5070,18 @@ const docTemplate = `{
                         "description": "Table ID",
                         "name": "table",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Days before",
+                        "name": "days",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -4604,8 +5112,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -4674,8 +5182,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -4753,8 +5261,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -4832,8 +5340,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -5032,8 +5540,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -5263,8 +5771,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -5342,8 +5850,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -5464,8 +5972,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -5541,8 +6049,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -5620,8 +6128,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -5697,8 +6205,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -5783,8 +6291,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -5916,8 +6424,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -5986,8 +6494,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -6056,8 +6564,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -6124,8 +6632,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -6201,8 +6709,358 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To find payment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "To find payment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "payment code",
+                        "name": "code",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/payment.Payment"
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To create payment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "To create payment",
+                "parameters": [
+                    {
+                        "description": "payment body",
+                        "name": "payment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/payment.Payment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/payment.Payment"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To update payment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "To update payment",
+                "parameters": [
+                    {
+                        "description": "payment body",
+                        "name": "payment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/payment.Payment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/payment.Payment"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To get a payment by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "To get a payment by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "payment id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/payment.Payment"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To delete payment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "To delete payment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "payment id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/payment.Payment"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -6279,8 +7137,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -6349,8 +7207,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -6419,8 +7277,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -6487,8 +7345,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -6564,8 +7422,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -6619,8 +7477,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -6696,8 +7554,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -6771,8 +7629,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -6832,8 +7690,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -6911,8 +7769,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -7024,8 +7882,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -7070,8 +7928,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -7128,8 +7986,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -7262,8 +8120,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -7332,8 +8190,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -7487,8 +8345,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -7557,8 +8415,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -7627,8 +8485,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -7695,8 +8553,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -7772,8 +8630,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -7849,8 +8707,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -7919,8 +8777,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -7992,8 +8850,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8069,8 +8927,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8147,8 +9005,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8217,8 +9075,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8287,8 +9145,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8355,8 +9213,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8432,8 +9290,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8510,8 +9368,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8580,8 +9438,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8650,8 +9508,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8703,8 +9561,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8771,8 +9629,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8843,8 +9701,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -8977,8 +9835,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -9047,8 +9905,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -9187,8 +10045,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -9257,8 +10115,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -9327,8 +10185,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -9380,8 +10238,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -9457,8 +10315,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -9527,8 +10385,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -9591,8 +10449,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -9655,8 +10513,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/shared.Response"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -9897,6 +10755,26 @@ const docTemplate = `{
                 }
             }
         },
+        "client.Client": {
+            "type": "object",
+            "properties": {
+                "document": {
+                    "type": "string"
+                },
+                "document_type": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "country.Country": {
             "type": "object",
             "properties": {
@@ -10053,6 +10931,12 @@ const docTemplate = `{
                 "channel_id": {
                     "type": "integer"
                 },
+                "client": {
+                    "$ref": "#/definitions/client.Client"
+                },
+                "client_id": {
+                    "type": "integer"
+                },
                 "discounts": {
                     "type": "array",
                     "items": {
@@ -10071,11 +10955,11 @@ const docTemplate = `{
                 "order_id": {
                     "type": "integer"
                 },
-                "payment": {
-                    "$ref": "#/definitions/payment.Payment"
-                },
-                "payment_id": {
-                    "type": "integer"
+                "payments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/payment.Payment"
+                    }
                 },
                 "store_id": {
                     "type": "integer"
@@ -10414,7 +11298,8 @@ const docTemplate = `{
         "order.OrderItemDTO": {
             "type": "object",
             "required": [
-                "product_id"
+                "product_id",
+                "quantity"
             ],
             "properties": {
                 "comments": {
@@ -10605,15 +11490,26 @@ const docTemplate = `{
         },
         "payment.Payment": {
             "type": "object",
+            "required": [
+                "invoice_id",
+                "method",
+                "quantity"
+            ],
             "properties": {
+                "code": {
+                    "type": "string"
+                },
                 "id": {
+                    "type": "integer"
+                },
+                "invoice_id": {
                     "type": "integer"
                 },
                 "method": {
                     "type": "string"
                 },
-                "name": {
-                    "type": "string"
+                "quantity": {
+                    "type": "number"
                 }
             }
         },

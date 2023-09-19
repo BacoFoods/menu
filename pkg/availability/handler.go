@@ -43,7 +43,7 @@ func NewHandler(service Service) *Handler {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /availability/{entity}/{entity-id}/{place}/{place-id} [delete]
 func (h *Handler) RemoveEntity(c *gin.Context) {
 	entity, err := GetEntity(c.Param("entity"))
@@ -97,7 +97,7 @@ func (h *Handler) RemoveEntity(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /availability/{entity}/{entity-id}/{place}/{place-id} [put]
 func (h *Handler) EnableEntity(c *gin.Context) {
 	entity, err := GetEntity(c.Param("entity"))
@@ -153,7 +153,7 @@ func (h *Handler) EnableEntity(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /availability/entities [get]
 func (h *Handler) FindEntities(c *gin.Context) {
 	entities := h.service.FindEntities()
@@ -169,7 +169,7 @@ func (h *Handler) FindEntities(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /availability/places [get]
 func (h *Handler) FindPlaces(c *gin.Context) {
 	places := h.service.FindPlaces()
@@ -189,7 +189,7 @@ func (h *Handler) FindPlaces(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /availability/{entity}/{entity-id}/{place} [get]
 func (h *Handler) Find(c *gin.Context) {
 	entity, err := GetEntity(c.Param("entity"))
@@ -242,7 +242,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Success 200 {object} shared.Response
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Failure 403 {object} shared.Response
+// @Failure 401 {object} shared.Response
 // @Router /availability/{entity}/{entity-id}/{place}/{place-id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	entity, err := GetEntity(c.Param("entity"))
