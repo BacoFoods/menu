@@ -2600,8 +2600,8 @@ const docTemplate = `{
                     }
                 }
             },
-            "patch": {
-                "description": "To update an invoice",
+            "post": {
+                "description": "To update the tip of an invoice",
                 "consumes": [
                     "application/json"
                 ],
@@ -2611,7 +2611,7 @@ const docTemplate = `{
                 "tags": [
                     "Invoice"
                 ],
-                "summary": "To update an invoice",
+                "summary": "To update the tip of an invoice",
                 "parameters": [
                     {
                         "type": "string",
@@ -2621,12 +2621,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "invoice",
-                        "name": "invoice",
+                        "description": "tip",
+                        "name": "tip",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/invoice.RequestUpdateInvoice"
+                            "$ref": "#/definitions/invoice.RequestUpdateTip"
                         }
                     }
                 ],
@@ -2671,11 +2671,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/invoice/{id}/tip": {
-            "post": {
-                "description": "To update the tip of an invoice",
+            },
+            "patch": {
+                "description": "To update an invoice",
                 "consumes": [
                     "application/json"
                 ],
@@ -2685,7 +2683,7 @@ const docTemplate = `{
                 "tags": [
                     "Invoice"
                 ],
-                "summary": "To update the tip of an invoice",
+                "summary": "To update an invoice",
                 "parameters": [
                     {
                         "type": "string",
@@ -2695,12 +2693,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "tip",
-                        "name": "tip",
+                        "description": "invoice",
+                        "name": "invoice",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/invoice.RequestUpdateTip"
+                            "$ref": "#/definitions/invoice.RequestUpdateInvoice"
                         }
                     }
                 ],

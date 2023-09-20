@@ -200,10 +200,10 @@ func (o *Order) ToInvoice() {
 	tax := subtotal - (subtotal / (1 + TaxPercentage))
 	baseTax := subtotal / (1 + TaxPercentage)
 
-	if newInvoice.Tips != 0 {
+	if newInvoice.Tips != 0.0 {
 		tipsAmount := math.Round(baseTax * 0.1)
 		newInvoice.Tips = tipsAmount
-	} else if newInvoice.Tips > 1 {
+	} else if newInvoice.Tips > 1.0 {
 		tipsAmount := math.Round(newInvoice.Tips)
 		newInvoice.Tips = tipsAmount
 	} else {

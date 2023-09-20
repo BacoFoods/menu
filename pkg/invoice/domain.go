@@ -1,6 +1,7 @@
 package invoice
 
 import (
+	"math"
 	"time"
 
 	"github.com/BacoFoods/menu/pkg/payment"
@@ -15,6 +16,8 @@ const (
 	ErrorInvoiceUpdate             = "error updating invoice"
 	ErrorInvalidTipAmount          = "error invalid tip amount"
 	ErrorTipPercentageExceedsLimit = "error tip percentage exceeds limit"
+
+	TaxPercentage = 0.08
 )
 
 type Repository interface {
@@ -121,4 +124,24 @@ func SetupDiscountInvoicesJoinTable(db *gorm.DB) error {
 // For more information, refer to the GORM documentation: https://gorm.io/docs/many_to_many.html#Customize-JoinTable
 func SetupSurchargeInvoicesJoinTable(db *gorm.DB) error {
 	return db.SetupJoinTable(&Surcharge{}, "Invoices", &InvoiceSurcharge{})
+}
+
+// ReCalculateTips recalcula el campo 'tips' y actualiza el campo 'total' del Invoice.
+func (i *Invoice) ReCalculateTips() {
+	tipsAmount := 0.0
+
+	i.BaseTax = math.Round(i.SubTotal / (1 + TaxPercentage))
+
+	if i.Tips == 0.1 {
+		tipsAmount = math.Round(i.BaseTax * 0.1)
+		i.Tips = tipsAmount
+	} else if i.Tips > 1.0 {
+		tipsAmount = math.Round(i.Tips)
+		i.Tips = tipsAmount
+	} else {
+		tipsAmount = 0.0
+		i.Tips = tipsAmount
+	}
+
+	i.Total = math.Round(i.BaseTax + i.Taxes + i.TotalSurcharges - i.TotalDiscounts + tipsAmount)
 }

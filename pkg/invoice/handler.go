@@ -1,7 +1,6 @@
 package invoice
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/BacoFoods/menu/pkg/shared"
@@ -89,19 +88,15 @@ func (h *Handler) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
-	fmt.Println("body", &body)
 
 	updatedInvoice, err := body.ToInvoice()
-
-	fmt.Println("updatedInvoice", updatedInvoice)
 
 	if err != nil {
 		shared.LogError("error ToInvoice", LogHandler, "ToInvoice", err, updatedInvoice)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceUpdate))
 		return
 	}
-	updatedInvoice, err = h.service.Update(updatedInvoice, body.Discounts, body.Surcharges) // TODO actualizar nombres a Discounts no DiscountID Actualización de la factura después de la creación
-
+	updatedInvoice, err = h.service.Update(updatedInvoice, body.Discounts, body.Surcharges)
 	if err != nil {
 		shared.LogError("error updating invoice", LogHandler, "UpdateInvoice", err, updatedInvoice)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceUpdate))
@@ -123,7 +118,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 403 {object} shared.Response
-// @Router /invoice/{id}/tip [post]
+// @Router /invoice/{id} [post]
 func (h *Handler) UpdateTip(c *gin.Context) {
 	invoiceID := c.Param("id") // Obtener el ID del invoice desde el contexto
 
@@ -142,31 +137,11 @@ func (h *Handler) UpdateTip(c *gin.Context) {
 		return
 	}
 
-	// Verificar si las propinas son nulas o negativas
-	if tipReq.Tips < 0 {
-		shared.LogError("error invalid tip amount", LogHandler, "UpdateTip", err, tipReq.Tips)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvalidTipAmount))
-		return
-	}
-
-	// Calcular el subtotal
-	subtotal := existingInvoice.SubTotal
-
-	// Verificar si los tips son un porcentaje o un valor nominal
-	if tipReq.Tips <= 1.0 { // Si es menor o igual a 1, se considera un porcentaje
-		// Verificar si el porcentaje excede el 10% del subtotal
-		if tipReq.Tips > 0.1*subtotal {
-			shared.LogError("error tip percentage exceeds limit", LogHandler, "UpdateTip", err, tipReq.Tips)
-			c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorTipPercentageExceedsLimit))
-			return
-		}
-		existingInvoice.Tips = tipReq.Tips * subtotal // Calcular las propinas como un porcentaje del subtotal
-	} else { // Si es mayor que 1, se considera un valor nominal y se suma directamente
-		existingInvoice.Tips += tipReq.Tips
-	}
+	// Actualizar el campo 'tips' del invoice existente
+	existingInvoice.Tips = tipReq.Tips
 
 	// Guardar el invoice actualizado en la base de datos
-	updatedInvoice, err := h.service.Update(existingInvoice, nil, nil) // No se actualizan descuentos ni recargos
+	updatedInvoice, err := h.service.UpdateTip(existingInvoice) // No se actualizan descuentos ni recargos
 	if err != nil {
 		shared.LogError("error updating invoice", LogHandler, "UpdateTip", err, updatedInvoice)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceUpdate))

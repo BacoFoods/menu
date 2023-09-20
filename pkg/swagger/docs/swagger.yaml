@@ -2514,7 +2514,6 @@ paths:
       summary: To update an invoice
       tags:
       - Invoice
-  /invoice/{id}/tip:
     post:
       consumes:
       - application/json
