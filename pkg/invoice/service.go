@@ -77,7 +77,7 @@ func (s service) UpdateTip(updateData *Invoice) (*Invoice, error) {
 
 	// Verificar si las propinas son nulas o negativas
 	if updateData.Tips < 0 {
-		return nil, fmt.Errorf("tips cannot be negative")
+		return nil, fmt.Errorf(ErrorInvalidTipAmount)
 	}
 
 	// Calcular el subtotal
@@ -87,7 +87,7 @@ func (s service) UpdateTip(updateData *Invoice) (*Invoice, error) {
 	if updateData.Tips <= 1.0 { // Si es menor o igual a 1, se considera un porcentaje
 		// Verificar si el porcentaje excede el 10% del subtotal
 		if updateData.Tips > 0.1*subtotal {
-			return nil, fmt.Errorf("tips cannot be greater than 10 percent of subtotal")
+			return nil, fmt.Errorf(ErrorTipPercentageExceedsLimit)
 		}
 		existingInvoice.Tips = updateData.Tips * subtotal // Calcular las propinas como un porcentaje del subtotal
 	} else { // Si es mayor que 1, se considera un valor nominal y se suma directamente
