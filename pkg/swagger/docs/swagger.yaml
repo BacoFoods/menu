@@ -2884,6 +2884,15 @@ paths:
       consumes:
       - application/json
       description: To find discount
+      parameters:
+      - description: discount name
+        in: query
+        name: name
+        type: string
+      - description: store id
+        in: query
+        name: store-id
+        type: string
       produces:
       - application/json
       responses:

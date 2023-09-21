@@ -3221,6 +3221,20 @@ const docTemplate = `{
                     "Discount"
                 ],
                 "summary": "To find discount",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "discount name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "store id",
+                        "name": "store-id",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

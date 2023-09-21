@@ -49,6 +49,8 @@ func (h *Handler) Create(ctx *gin.Context) {
 // @Tags Discount
 // @Summary To find discount
 // @Description To find discount
+// @Param name query string false "discount name"
+// @Param store-id query string false "store id"
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -63,6 +65,11 @@ func (h *Handler) Find(ctx *gin.Context) {
 	name := ctx.Query("name")
 	if name != "" {
 		query["name"] = ctx.Query("name")
+	}
+
+	storeID := ctx.Query("store-id")
+	if storeID != "" {
+		query["store_id"] = storeID
 	}
 
 	discounts, err := h.service.Find(query)
