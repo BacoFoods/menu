@@ -13,6 +13,10 @@ type CreateInvoiceRequest struct {
 	OrderID string `json:"order_id" binding:"required"`
 }
 
+type RequestUpdateTip struct {
+	Tips float64 `json:"tips"`
+}
+
 type Handler struct {
 	service Service
 }
@@ -73,6 +77,51 @@ func (h *Handler) Find(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoices))
+}
+
+// UpdateTip to handle a request to update the tip of an invoice
+// @Tags Invoice
+// @Summary To update the tip of an invoice
+// @Description To update the tip of an invoice
+// @Accept json
+// @Produce json
+// @Param id path string true "Invoice ID"
+// @Param tip body RequestUpdateTip true "tip"
+// @Success 200 {object} object{status=string,data=invoice.Invoice}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /invoice/{id} [post]
+func (h *Handler) UpdateTip(c *gin.Context) {
+	invoiceID := c.Param("id") // Obtener el ID del invoice desde el contexto
+
+	var tipReq RequestUpdateTip
+	if err := c.ShouldBindJSON(&tipReq); err != nil {
+		shared.LogError("error binding request body", LogHandler, "UpdateTip", err, tipReq)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	// Obtener el invoice existente por su ID
+	existingInvoice, err := h.service.Get(invoiceID)
+	if err != nil {
+		shared.LogError("error getting invoice", LogHandler, "UpdateTip", err, existingInvoice)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingInvoice))
+		return
+	}
+
+	// Actualizar el campo 'tips' del invoice existente
+	existingInvoice.Tips = tipReq.Tips
+
+	// Guardar el invoice actualizado en la base de datos
+	updatedInvoice, err := h.service.UpdateTip(existingInvoice) // No se actualizan descuentos ni recargos
+	if err != nil {
+		shared.LogError("error updating invoice", LogHandler, "UpdateTip", err, updatedInvoice)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceUpdate))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(updatedInvoice))
 }
 
 // AddClient to handle a request to add a client to an invoice

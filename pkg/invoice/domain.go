@@ -1,27 +1,35 @@
 package invoice
 
 import (
-	"github.com/BacoFoods/menu/pkg/client"
+	"math"
 	"time"
+
+	"github.com/BacoFoods/menu/pkg/client"
 
 	"github.com/BacoFoods/menu/pkg/payment"
 	"gorm.io/gorm"
 )
 
 const (
-	ErrorBadRequest            = "error bad request"
-	ErrorInvoiceCreation       = "error creating invoice"
-	ErrorGettingInvoice        = "error getting invoice"
-	ErrorInvoiceFinding        = "error finding invoices"
-	ErrorInvoiceAddingClient   = "error adding client to invoice"
-	ErrorInvoiceRemovingClient = "error removing client from invoice"
-	ErrorInvoiceWrongClient    = "error wrong client for invoice"
+	ErrorBadRequest            		= "error bad request"
+	ErrorInvoiceCreation       		= "error creating invoice"
+	ErrorGettingInvoice        		= "error getting invoice"
+	ErrorInvoiceFinding        		= "error finding invoices"
+	ErrorInvoiceUpdate         		= "error updating invoice"
+	ErrorInvalidTipAmount         	= "error invalid tip amount"
+	ErrorTipPercentageExceedsLimit 	= "error tip percentage exceeds limit"
+	ErrorInvoiceAddingClient   		= "error adding client to invoice"
+	ErrorInvoiceRemovingClient 		= "error removing client from invoice"
+	ErrorInvoiceWrongClient    		= "error wrong client for invoice"
+
+	TaxPercentage = 0.08
 )
 
 type Repository interface {
 	CreateUpdate(invoice *Invoice) (*Invoice, error)
 	Get(invoiceID string) (*Invoice, error)
 	Find(filter map[string]any) ([]Invoice, error)
+	UpdateTip(invoice *Invoice) (*Invoice, error)
 }
 
 type Invoice struct {
@@ -94,4 +102,24 @@ type Surcharge struct {
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+// ReCalculateTips recalcula el campo 'tips' y actualiza el campo 'total' del Invoice.
+func (i *Invoice) ReCalculateTips() {
+	tipsAmount := 0.0
+
+	i.BaseTax = math.Round(i.SubTotal / (1 + TaxPercentage))
+
+	if i.Tips == 0.1 {
+		tipsAmount = math.Round(i.BaseTax * 0.1)
+		i.Tips = tipsAmount
+	} else if i.Tips > 1.0 {
+		tipsAmount = math.Round(i.Tips)
+		i.Tips = tipsAmount
+	} else {
+		tipsAmount = 0.0
+		i.Tips = tipsAmount
+	}
+
+	i.Total = math.Round(i.BaseTax + i.Taxes + i.TotalSurcharges - i.TotalDiscounts + tipsAmount)
 }
