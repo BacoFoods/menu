@@ -3679,6 +3679,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update the tip of an invoice",
                 "consumes": [
                     "application/json"
@@ -11089,7 +11094,10 @@
         "invoice.RequestUpdateTip": {
             "type": "object",
             "properties": {
-                "tips": {
+                "type": {
+                    "type": "string"
+                },
+                "value": {
                     "type": "number"
                 }
             }

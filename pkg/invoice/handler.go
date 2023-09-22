@@ -14,7 +14,8 @@ type CreateInvoiceRequest struct {
 }
 
 type RequestUpdateTip struct {
-	Tips float64 `json:"tips"`
+	Type  string  `json:"type"`
+	Value float64 `json:"value"`
 }
 
 type Handler struct {
@@ -85,6 +86,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Description To update the tip of an invoice
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path string true "Invoice ID"
 // @Param tip body RequestUpdateTip true "tip"
 // @Success 200 {object} object{status=string,data=invoice.Invoice}
@@ -93,7 +95,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Failure 403 {object} shared.Response
 // @Router /invoice/{id} [post]
 func (h *Handler) UpdateTip(c *gin.Context) {
-	invoiceID := c.Param("id") // Obtener el ID del invoice desde el contexto
+	invoiceID := c.Param("id")
 
 	var tipReq RequestUpdateTip
 	if err := c.ShouldBindJSON(&tipReq); err != nil {
@@ -102,19 +104,7 @@ func (h *Handler) UpdateTip(c *gin.Context) {
 		return
 	}
 
-	// Obtener el invoice existente por su ID
-	existingInvoice, err := h.service.Get(invoiceID)
-	if err != nil {
-		shared.LogError("error getting invoice", LogHandler, "UpdateTip", err, existingInvoice)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingInvoice))
-		return
-	}
-
-	// Actualizar el campo 'tips' del invoice existente
-	existingInvoice.Tips = tipReq.Tips
-
-	// Guardar el invoice actualizado en la base de datos
-	updatedInvoice, err := h.service.UpdateTip(existingInvoice) // No se actualizan descuentos ni recargos
+	updatedInvoice, err := h.service.UpdateTip(tipReq.Value, tipReq.Type, invoiceID)
 	if err != nil {
 		shared.LogError("error updating invoice", LogHandler, "UpdateTip", err, updatedInvoice)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceUpdate))

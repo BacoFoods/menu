@@ -1,6 +1,7 @@
 package invoice
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -11,16 +12,17 @@ import (
 )
 
 const (
-	ErrorBadRequest            		= "error bad request"
-	ErrorInvoiceCreation       		= "error creating invoice"
-	ErrorGettingInvoice        		= "error getting invoice"
-	ErrorInvoiceFinding        		= "error finding invoices"
-	ErrorInvoiceUpdate         		= "error updating invoice"
-	ErrorInvalidTipAmount         	= "error invalid tip amount"
-	ErrorTipPercentageExceedsLimit 	= "error tip percentage exceeds limit"
-	ErrorInvoiceAddingClient   		= "error adding client to invoice"
-	ErrorInvoiceRemovingClient 		= "error removing client from invoice"
-	ErrorInvoiceWrongClient    		= "error wrong client for invoice"
+	ErrorBadRequest                = "error bad request"
+	ErrorInvoiceCreation           = "error creating invoice"
+	ErrorGettingInvoice            = "error getting invoice"
+	ErrorInvoiceFinding            = "error finding invoices"
+	ErrorInvoiceUpdate             = "error updating invoice"
+	ErrorInvalidTipAmount          = "error invalid tip amount"
+	ErrorTipPercentageExceedsLimit = "error tip percentage exceeds limit"
+	ErrorTipPercentageValue        = "error tip percentage wrong value"
+	ErrorInvoiceAddingClient       = "error adding client to invoice"
+	ErrorInvoiceRemovingClient     = "error removing client from invoice"
+	ErrorInvoiceWrongClient        = "error wrong client for invoice"
 
 	TaxPercentage = 0.08
 )
@@ -104,22 +106,27 @@ type Surcharge struct {
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
-// ReCalculateTips recalcula el campo 'tips' y actualiza el campo 'total' del Invoice.
-func (i *Invoice) ReCalculateTips() {
-	tipsAmount := 0.0
+func (i *Invoice) CalculateTip(value float64, tipType string) (*Invoice, error) {
+	i.BaseTax = math.Round(i.SubTotal*100.0/(1+TaxPercentage)) / 100.0
+	i.Taxes = math.Round((i.SubTotal-i.BaseTax)*100) / 100.0
 
-	i.BaseTax = math.Round(i.SubTotal / (1 + TaxPercentage))
+	if tipType == "PERCENTAGE" {
+		if value*i.BaseTax > 0.1*i.BaseTax {
+			return nil, fmt.Errorf(ErrorTipPercentageExceedsLimit)
+		} else if !(value == 0.05) && !(value == 0.1) {
+			return nil, fmt.Errorf(ErrorTipPercentageValue)
+		}
+		i.Tips = math.Round(value*i.BaseTax*100.0) / 100.0
 
-	if i.Tips == 0.1 {
-		tipsAmount = math.Round(i.BaseTax * 0.1)
-		i.Tips = tipsAmount
-	} else if i.Tips > 1.0 {
-		tipsAmount = math.Round(i.Tips)
-		i.Tips = tipsAmount
+	} else if tipType == "AMOUNT" {
+		if value < 0 {
+			return nil, fmt.Errorf(ErrorInvalidTipAmount)
+		}
+		i.Tips = math.Round((value+i.BaseTax)*100.0) / 100.0
 	} else {
-		tipsAmount = 0.0
-		i.Tips = tipsAmount
+		i.Tips = 0.0
 	}
 
-	i.Total = math.Round(i.BaseTax + i.Taxes + i.TotalSurcharges - i.TotalDiscounts + tipsAmount)
+	i.Total = math.Round((i.BaseTax+i.Taxes+i.TotalSurcharges-i.TotalDiscounts+i.Tips)*100.0) / 100.0
+	return i, nil
 }

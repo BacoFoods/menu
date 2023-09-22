@@ -3687,6 +3687,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "To update the tip of an invoice",
                 "consumes": [
                     "application/json"
@@ -11097,7 +11102,10 @@ const docTemplate = `{
         "invoice.RequestUpdateTip": {
             "type": "object",
             "properties": {
-                "tips": {
+                "type": {
+                    "type": "string"
+                },
+                "value": {
                     "type": "number"
                 }
             }

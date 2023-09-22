@@ -327,7 +327,9 @@ definitions:
     type: object
   invoice.RequestUpdateTip:
     properties:
-      tips:
+      type:
+        type: string
+      value:
         type: number
     type: object
   invoice.Surcharge:
@@ -3213,6 +3215,8 @@ paths:
           description: Unprocessable Entity
           schema:
             $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
       summary: To update the tip of an invoice
       tags:
       - Invoice
