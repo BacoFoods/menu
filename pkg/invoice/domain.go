@@ -24,7 +24,10 @@ const (
 	ErrorInvoiceRemovingClient     = "error removing client from invoice"
 	ErrorInvoiceWrongClient        = "error wrong client for invoice"
 
-	TaxPercentage = 0.08
+	TaxPercentage     = 0.08
+	TipTypePercentage = "PERCENTAGE"
+	TipTypeAmount     = "AMOUNT"
+	TipPercentageMax  = 0.1
 )
 
 type Repository interface {
@@ -106,27 +109,25 @@ type Surcharge struct {
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
-func (i *Invoice) CalculateTip(value float64, tipType string) (*Invoice, error) {
-	i.BaseTax = math.Round(i.SubTotal*100.0/(1+TaxPercentage)) / 100.0
-	i.Taxes = math.Round((i.SubTotal-i.BaseTax)*100) / 100.0
+func (i *Invoice) CalculateTip(value float64, tipType string) error {
+	i.BaseTax = math.Ceil(i.SubTotal / (1 + TaxPercentage))
+	i.Taxes = i.SubTotal - i.BaseTax
 
-	if tipType == "PERCENTAGE" {
-		if value*i.BaseTax > 0.1*i.BaseTax {
-			return nil, fmt.Errorf(ErrorTipPercentageExceedsLimit)
+	switch tipType {
+	case TipTypePercentage:
+		if value > TipPercentageMax {
+			return fmt.Errorf(ErrorTipPercentageExceedsLimit)
 		} else if !(value == 0.05) && !(value == 0.1) {
-			return nil, fmt.Errorf(ErrorTipPercentageValue)
+			return fmt.Errorf(ErrorTipPercentageValue)
 		}
-		i.Tips = math.Round(value*i.BaseTax*100.0) / 100.0
-
-	} else if tipType == "AMOUNT" {
+		i.Tips = math.Floor(value * i.BaseTax)
+	case TipTypeAmount:
 		if value < 0 {
-			return nil, fmt.Errorf(ErrorInvalidTipAmount)
+			return fmt.Errorf(ErrorInvalidTipAmount)
 		}
-		i.Tips = math.Round((value+i.BaseTax)*100.0) / 100.0
-	} else {
-		i.Tips = 0.0
+		i.Tips = math.Floor(value + i.BaseTax)
 	}
 
-	i.Total = math.Round((i.BaseTax+i.Taxes+i.TotalSurcharges-i.TotalDiscounts+i.Tips)*100.0) / 100.0
-	return i, nil
+	i.Total = i.BaseTax + i.Taxes + i.TotalSurcharges - i.TotalDiscounts + i.Tips
+	return nil
 }

@@ -43,16 +43,11 @@ func (s service) UpdateTip(value float64, tipType string, invoiceID string) (*In
 		return nil, err
 	}
 
-	existingInvoice, err2 := existingInvoice.CalculateTip(value, tipType)
-	if err2 != nil {
-		return nil, err2
-	}
-
-	updatedInvoice, err := s.repository.UpdateTip(existingInvoice)
-	if err != nil {
+	if err := existingInvoice.CalculateTip(value, tipType); err != nil {
 		return nil, err
 	}
-	return updatedInvoice, nil
+
+	return s.repository.UpdateTip(existingInvoice)
 }
 
 // AddClient adds a client to an invoice.
