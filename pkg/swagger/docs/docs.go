@@ -8956,7 +8956,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/surcharges": {
+        "/surcharge": {
             "get": {
                 "security": [
                     {
@@ -8985,6 +8985,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Name",
                         "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store ID",
+                        "name": "storeID",
                         "in": "query"
                     }
                 ],
@@ -9104,7 +9110,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/surcharges/{id}": {
+        "/surcharge/{id}": {
             "get": {
                 "security": [
                     {
