@@ -36,7 +36,7 @@ func (h *Handler) Find(c *gin.Context) {
 
 	name := c.Query("name")
 	if name != "" {
-		query["name"] = c.Query("name")
+		query["name"] = name
 	}
 
 	brandID := c.Query("brandID")
