@@ -375,6 +375,36 @@ func (h *Handler) ReleaseTable(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(order))
 }
 
+// UpdateComments to handle a request to update an order's comments
+// @Tags Order
+// @Summary To update an order's comments
+// @Description To update an order's comments
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "Order ID"
+// @Param comments body RequestUpdateOrderComments true "Comments"
+// @Success 200 {object} object{status=string,data=Order}
+// @Router /order/{id}/update/comments [patch]
+func (h *Handler) UpdateComments(c *gin.Context) {
+	orderID := c.Param("id")
+
+	var body RequestUpdateOrderComments
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "UpdateComments", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	order, err := h.service.UpdateComments(orderID, body.Comments)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderUpdatingComments))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(order))
+}
+
 // Order Items
 
 // AddModifiers to handle a request to add a modifiers to a product's order

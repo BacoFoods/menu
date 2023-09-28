@@ -104,3 +104,7 @@ type RequestAddProducts struct {
 type RequestModifiers struct {
 	Modifiers []OrderModifierDTO `json:"modifiers" binding:"required"`
 }
+
+type RequestUpdateOrderComments struct {
+	Comments string `json:"comments" binding:"required"`
+}

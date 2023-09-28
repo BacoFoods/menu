@@ -6234,6 +6234,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/order/{id}/update/comments": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To update an order's comments",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To update an order's comments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Comments",
+                        "name": "comments",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.RequestUpdateOrderComments"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/order.Order"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/order/{id}/update/product": {
             "patch": {
                 "security": [
@@ -11442,6 +11503,17 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/order.OrderModifierDTO"
                     }
+                }
+            }
+        },
+        "order.RequestUpdateOrderComments": {
+            "type": "object",
+            "required": [
+                "comments"
+            ],
+            "properties": {
+                "comments": {
+                    "type": "string"
                 }
             }
         },
