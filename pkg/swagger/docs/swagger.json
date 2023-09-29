@@ -9086,7 +9086,7 @@
                 }
             }
         },
-        "/surcharges": {
+        "/surcharge": {
             "get": {
                 "security": [
                     {
@@ -9115,6 +9115,12 @@
                         "type": "string",
                         "description": "Name",
                         "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store ID",
+                        "name": "storeID",
                         "in": "query"
                     }
                 ],
@@ -9234,7 +9240,7 @@
                 }
             }
         },
-        "/surcharges/{id}": {
+        "/surcharge/{id}": {
             "get": {
                 "security": [
                     {

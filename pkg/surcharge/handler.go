@@ -22,6 +22,7 @@ func NewHandler(service Service) *Handler {
 // @Description Find surcharges
 // @Param brandID query string false "Brand ID"
 // @Param name query string false "Name"
+// @Param storeID query string false "Store ID"
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -29,7 +30,7 @@ func NewHandler(service Service) *Handler {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 401 {object} shared.Response
-// @Router /surcharges [get]
+// @Router /surcharge [get]
 func (h *Handler) Find(c *gin.Context) {
 	query := make(map[string]string)
 
@@ -41,6 +42,11 @@ func (h *Handler) Find(c *gin.Context) {
 	brandID := c.Query("brandID")
 	if brandID != "" {
 		query["brand_id"] = brandID
+	}
+
+	storeID := c.Query("storeID")
+	if storeID != "" {
+		query["store_id"] = storeID
 	}
 
 	surcharges, err := h.service.Find(query)
@@ -65,7 +71,7 @@ func (h *Handler) Find(c *gin.Context) {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 401 {object} shared.Response
-// @Router /surcharges/{id} [get]
+// @Router /surcharge/{id} [get]
 func (h *Handler) Get(c *gin.Context) {
 	id := c.Param("id")
 
@@ -91,7 +97,7 @@ func (h *Handler) Get(c *gin.Context) {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 401 {object} shared.Response
-// @Router /surcharges [post]
+// @Router /surcharge [post]
 func (h *Handler) Create(c *gin.Context) {
 	var surcharge Surcharge
 	if err := c.ShouldBindJSON(&surcharge); err != nil {
@@ -123,7 +129,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 401 {object} shared.Response
-// @Router /surcharges/{id} [patch]
+// @Router /surcharge/{id} [patch]
 func (h *Handler) Update(c *gin.Context) {
 	id := c.Param("id")
 
@@ -156,7 +162,7 @@ func (h *Handler) Update(c *gin.Context) {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 401 {object} shared.Response
-// @Router /surcharges/{id} [delete]
+// @Router /surcharge/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	id := c.Param("id")
 

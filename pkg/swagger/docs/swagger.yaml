@@ -6457,7 +6457,7 @@ paths:
       summary: To get tables by store
       tags:
       - Store
-  /surcharges:
+  /surcharge:
     get:
       consumes:
       - application/json
@@ -6470,6 +6470,10 @@ paths:
       - description: Name
         in: query
         name: name
+        type: string
+      - description: Store ID
+        in: query
+        name: storeID
         type: string
       produces:
       - application/json
@@ -6546,7 +6550,7 @@ paths:
       summary: Create surcharge
       tags:
       - Surcharge
-  /surcharges/{id}:
+  /surcharge/{id}:
     delete:
       consumes:
       - application/json
