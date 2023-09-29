@@ -13,6 +13,11 @@ type CreateInvoiceRequest struct {
 	OrderID string `json:"order_id" binding:"required"`
 }
 
+type RequestUpdateTip struct {
+	Type  string  `json:"type"`
+	Value float64 `json:"value"`
+}
+
 type Handler struct {
 	service Service
 }
@@ -73,6 +78,40 @@ func (h *Handler) Find(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoices))
+}
+
+// UpdateTip to handle a request to update the tip of an invoice
+// @Tags Invoice
+// @Summary To update the tip of an invoice
+// @Description To update the tip of an invoice
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "Invoice ID"
+// @Param tip body RequestUpdateTip true "tip"
+// @Success 200 {object} object{status=string,data=invoice.Invoice}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 403 {object} shared.Response
+// @Router /invoice/{id} [post]
+func (h *Handler) UpdateTip(c *gin.Context) {
+	invoiceID := c.Param("id")
+
+	var tipReq RequestUpdateTip
+	if err := c.ShouldBindJSON(&tipReq); err != nil {
+		shared.LogError("error binding request body", LogHandler, "UpdateTip", err, tipReq)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	updatedInvoice, err := h.service.UpdateTip(tipReq.Value, tipReq.Type, invoiceID)
+	if err != nil {
+		shared.LogError("error updating invoice", LogHandler, "UpdateTip", err, updatedInvoice)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceUpdate))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(updatedInvoice))
 }
 
 // AddClient to handle a request to add a client to an invoice

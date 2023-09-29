@@ -2,6 +2,7 @@ package invoice
 
 import (
 	"fmt"
+
 	clientPKG "github.com/BacoFoods/menu/pkg/client"
 )
 
@@ -10,6 +11,7 @@ const LogService = "pkg/invoice/service"
 type Service interface {
 	Get(invoiceID string) (*Invoice, error)
 	Find(filter map[string]any) ([]Invoice, error)
+	UpdateTip(value float64, tipType string, invoiceID string) (*Invoice, error)
 	AddClient(invoiceID string, clientID string) (*Invoice, error)
 	RemoveClient(invoiceID string, clientID string) (*Invoice, error)
 }
@@ -31,6 +33,21 @@ func (s service) Get(invoiceID string) (*Invoice, error) {
 // Find returns a list of Invoice objects.
 func (s service) Find(filter map[string]any) ([]Invoice, error) {
 	return s.repository.Find(filter)
+}
+
+// UpdateTip update 'tips' field of an Invoice .y verifica si es un valor válido
+func (s service) UpdateTip(value float64, tipType string, invoiceID string) (*Invoice, error) {
+
+	existingInvoice, err := s.repository.Get(invoiceID)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := existingInvoice.CalculateTip(value, tipType); err != nil {
+		return nil, err
+	}
+
+	return s.repository.UpdateTip(existingInvoice)
 }
 
 // AddClient adds a client to an invoice.

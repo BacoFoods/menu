@@ -52,3 +52,17 @@ func (r *DBRepository) Find(filter map[string]interface{}) ([]Invoice, error) {
 
 	return invoices, nil
 }
+
+// UpdateTip update the field 'tips' of an Invoice in database.
+func (r *DBRepository) UpdateTip(invoice *Invoice) (*Invoice, error) {
+	var invoiceDB Invoice
+	if err := r.db.First(&invoiceDB, invoice.ID).Error; err != nil {
+		shared.LogError("error getting invoice", LogRepository, "UpdateTip", err, invoice.ID, *invoice)
+		return nil, err
+	}
+	if err := r.db.Model(&invoiceDB).Where("id = ?", invoice.ID).Updates(invoice).Error; err != nil {
+		shared.LogError("error updating tip of an invoice", LogRepository, "UpdateTip", err, invoice.ID, invoice)
+		return nil, err
+	}
+	return &invoiceDB, nil
+}

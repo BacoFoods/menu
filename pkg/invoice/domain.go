@@ -1,27 +1,40 @@
 package invoice
 
 import (
-	"github.com/BacoFoods/menu/pkg/client"
+	"fmt"
+	"math"
 	"time"
+
+	"github.com/BacoFoods/menu/pkg/client"
 
 	"github.com/BacoFoods/menu/pkg/payment"
 	"gorm.io/gorm"
 )
 
 const (
-	ErrorBadRequest            = "error bad request"
-	ErrorInvoiceCreation       = "error creating invoice"
-	ErrorGettingInvoice        = "error getting invoice"
-	ErrorInvoiceFinding        = "error finding invoices"
-	ErrorInvoiceAddingClient   = "error adding client to invoice"
-	ErrorInvoiceRemovingClient = "error removing client from invoice"
-	ErrorInvoiceWrongClient    = "error wrong client for invoice"
+	ErrorBadRequest                = "error bad request"
+	ErrorInvoiceCreation           = "error creating invoice"
+	ErrorGettingInvoice            = "error getting invoice"
+	ErrorInvoiceFinding            = "error finding invoices"
+	ErrorInvoiceUpdate             = "error updating invoice"
+	ErrorInvalidTipAmount          = "error invalid tip amount"
+	ErrorTipPercentageExceedsLimit = "error tip percentage exceeds limit"
+	ErrorTipPercentageValue        = "error tip percentage wrong value"
+	ErrorInvoiceAddingClient       = "error adding client to invoice"
+	ErrorInvoiceRemovingClient     = "error removing client from invoice"
+	ErrorInvoiceWrongClient        = "error wrong client for invoice"
+
+	TaxPercentage     = 0.08
+	TipTypePercentage = "PERCENTAGE"
+	TipTypeAmount     = "AMOUNT"
+	TipPercentageMax  = 0.1
 )
 
 type Repository interface {
 	CreateUpdate(invoice *Invoice) (*Invoice, error)
 	Get(invoiceID string) (*Invoice, error)
 	Find(filter map[string]any) ([]Invoice, error)
+	UpdateTip(invoice *Invoice) (*Invoice, error)
 }
 
 type Invoice struct {
@@ -94,4 +107,27 @@ type Surcharge struct {
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+func (i *Invoice) CalculateTip(value float64, tipType string) error {
+	i.BaseTax = math.Ceil(i.SubTotal / (1 + TaxPercentage))
+	i.Taxes = i.SubTotal - i.BaseTax
+
+	switch tipType {
+	case TipTypePercentage:
+		if value > TipPercentageMax {
+			return fmt.Errorf(ErrorTipPercentageExceedsLimit)
+		} else if !(value == 0.05) && !(value == 0.1) {
+			return fmt.Errorf(ErrorTipPercentageValue)
+		}
+		i.Tips = math.Floor(value * i.BaseTax)
+	case TipTypeAmount:
+		if value < 0 {
+			return fmt.Errorf(ErrorInvalidTipAmount)
+		}
+		i.Tips = math.Floor(value + i.BaseTax)
+	}
+
+	i.Total = i.BaseTax + i.Taxes + i.TotalSurcharges - i.TotalDiscounts + i.Tips
+	return nil
 }
