@@ -69,6 +69,7 @@ func main() {
 		&course.Course{},
 		&client.Client{},
 		&payment.Payment{},
+		&payment.PaymentMethod{},
 	)
 
 	// Healthcheck

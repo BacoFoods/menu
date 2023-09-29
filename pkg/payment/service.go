@@ -6,6 +6,8 @@ type Service interface {
 	Create(payment *Payment) (*Payment, error)
 	Update(payment *Payment) (*Payment, error)
 	Delete(paymentID string) (*Payment, error)
+
+	FindPaymentMethods(filter map[string]any) ([]PaymentMethod, error)
 }
 
 type service struct {
@@ -34,4 +36,8 @@ func (s service) Update(payment *Payment) (*Payment, error) {
 
 func (s service) Delete(paymentID string) (*Payment, error) {
 	return s.repository.Delete(paymentID)
+}
+
+func (s service) FindPaymentMethods(filter map[string]any) ([]PaymentMethod, error) {
+	return s.repository.FindPaymentMethods(filter)
 }

@@ -16,4 +16,6 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 	router.POST("/payment", r.handler.Create)
 	router.PATCH("/payment", r.handler.Update)
 	router.DELETE("/payment/:id", r.handler.Delete)
+
+	router.GET("/payment-method", r.handler.FindPaymentMethod)
 }

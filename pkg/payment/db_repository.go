@@ -81,3 +81,13 @@ func (r *DBRepository) Delete(paymentID string) (*Payment, error) {
 
 	return payment, nil
 }
+
+func (r *DBRepository) FindPaymentMethods(filter map[string]any) ([]PaymentMethod, error) {
+	var paymentMethods []PaymentMethod
+	if err := r.db.Where(filter).Find(&paymentMethods).Error; err != nil {
+		shared.LogError(ErrorPaymentMethodFinding, LogRepository, "FindPaymentMethods", err)
+		return nil, err
+	}
+
+	return paymentMethods, nil
+}

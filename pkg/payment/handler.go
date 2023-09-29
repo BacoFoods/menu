@@ -161,3 +161,43 @@ func (h *Handler) Delete(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(payment))
 }
+
+// FindPaymentMethod to handle a request to find all payment method
+// @Tags Payment
+// @Summary To find payment method
+// @Description To find payment method
+// @Accept json
+// @Produce json
+// @Param brand_id query string false "brand id"
+// @Param store_id query string false "store id"
+// @Param channel_id query string false "channel id"
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=[]PaymentMethod}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /payment-method [get]
+func (h *Handler) FindPaymentMethod(ctx *gin.Context) {
+	var filter map[string]any
+
+	if brandID := ctx.Query("brand_id"); brandID != "" {
+		filter["brand_id"] = brandID
+	}
+
+	if storeID := ctx.Query("store_id"); storeID != "" {
+		filter["store_id"] = storeID
+	}
+
+	if channelID := ctx.Query("channel_id"); channelID != "" {
+		filter["channel_id"] = channelID
+	}
+
+	paymentMethods, err := h.service.FindPaymentMethods(filter)
+	if err != nil {
+		shared.LogError("error finding payment method", LogHandler, "FindPaymentMethod", err)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorPaymentMethodFinding))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(paymentMethods))
+}

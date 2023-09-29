@@ -664,6 +664,25 @@ definitions:
     - method
     - quantity
     type: object
+  payment.PaymentMethod:
+    properties:
+      brand_id:
+        type: integer
+      channel_id:
+        type: integer
+      code:
+        type: string
+      franchise:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      short_name:
+        type: string
+      store_id:
+        type: integer
+    type: object
   product.Modifier:
     properties:
       apply_price:
@@ -5234,6 +5253,57 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To create payment
+      tags:
+      - Payment
+  /payment-method:
+    get:
+      consumes:
+      - application/json
+      description: To find payment method
+      parameters:
+      - description: brand id
+        in: query
+        name: brand_id
+        type: string
+      - description: store id
+        in: query
+        name: store_id
+        type: string
+      - description: channel id
+        in: query
+        name: channel_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/payment.PaymentMethod'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find payment method
       tags:
       - Payment
   /payment/{id}:
