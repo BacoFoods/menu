@@ -9,6 +9,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/shared"
 	statuses "github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/tables"
+	"strconv"
 )
 
 const (
@@ -100,16 +101,16 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 		accountUUID = ctx.Value("account_uuid").(string)
 	}
 	channelID := int64(0)
-	if ctx.Value("channel_id") != nil {
-		channelID = ctx.Value("channel_id").(int64)
+	if value := ctx.Value("channel_id"); value != nil {
+		channelID, _ = strconv.ParseInt(value.(string), 10, 64)
 	}
 	brandID := int64(0)
-	if ctx.Value("brand_id") != nil {
-		brandID = ctx.Value("brand_id").(int64)
+	if value := ctx.Value("brand_id"); value != nil {
+		brandID, _ = strconv.ParseInt(value.(string), 10, 64)
 	}
 	storeID := int64(0)
-	if ctx.Value("store_id") != nil {
-		storeID = ctx.Value("store_id").(int64)
+	if value := ctx.Value("store_id"); value != nil {
+		storeID, _ = strconv.ParseInt(value.(string), 10, 64)
 	}
 	accountID := uint(0)
 

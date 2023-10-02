@@ -87,11 +87,11 @@ func CerebroAuth(credential string, ctx *gin.Context) bool {
 	ctx.Set("account_uuid", token.Claims.(jwt.MapClaims)["uuid"])
 	ctx.Set("account_role", token.Claims.(jwt.MapClaims)["role"])
 	ctx.Set("account_name", token.Claims.(jwt.MapClaims)["name"])
-	ctx.Set("brand_id", token.Claims.(jwt.MapClaims)["brand"])
+	ctx.Set("brand_id", fmt.Sprintf("%v", token.Claims.(jwt.MapClaims)["brand"]))
 	ctx.Set("brand_name", token.Claims.(jwt.MapClaims)["brand_name"])
-	ctx.Set("channel_id", token.Claims.(jwt.MapClaims)["channel"])
+	ctx.Set("channel_id", fmt.Sprintf("%v", token.Claims.(jwt.MapClaims)["channel"]))
 	ctx.Set("channel_name", token.Claims.(jwt.MapClaims)["channel_name"])
-	ctx.Set("store_id", token.Claims.(jwt.MapClaims)["store"])
+	ctx.Set("store_id", fmt.Sprintf("%v", token.Claims.(jwt.MapClaims)["store"]))
 	ctx.Set("store_name", token.Claims.(jwt.MapClaims)["store_name"])
 
 	return true
