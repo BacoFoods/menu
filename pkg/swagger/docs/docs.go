@@ -11394,6 +11394,23 @@ const docTemplate = `{
                 }
             }
         },
+        "order.Attendee": {
+            "type": "object",
+            "properties": {
+                "account_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order_step": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
         "order.Order": {
             "type": "object",
             "required": [
@@ -11402,6 +11419,12 @@ const docTemplate = `{
                 "store_id"
             ],
             "properties": {
+                "attendees": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/order.Attendee"
+                    }
+                },
                 "brand_id": {
                     "type": "integer"
                 },

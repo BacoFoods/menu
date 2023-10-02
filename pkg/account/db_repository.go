@@ -68,3 +68,13 @@ func (r DBRepository) Find(filter map[string]any) ([]Account, error) {
 
 	return accounts, nil
 }
+
+func (r DBRepository) GetByUUID(uuid string) (*Account, error) {
+	var account Account
+	if err := r.db.Where("uuid = ?", uuid).First(&account).Error; err != nil {
+		shared.LogError("error getting account", LogDBRepository, "GetByUUID", err, uuid)
+		return nil, err
+	}
+
+	return &account, nil
+}

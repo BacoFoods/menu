@@ -12,7 +12,7 @@ const (
 	ErrorTableCreating  = "error creating table"
 	ErrorTableGetting   = "error getting table"
 	ErrorTableFinding   = "error finding table"
-	ErrorTableHasOrder  = "error table already has an order"
+	ErrorTableHasOrder  = "error order was created but table already has an order"
 	ErrorTableReleasing = "error releasing table"
 )
 

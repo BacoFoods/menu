@@ -70,6 +70,7 @@ func main() {
 		&client.Client{},
 		&payment.Payment{},
 		&payment.PaymentMethod{},
+		&order.Attendee{},
 	)
 
 	// Healthcheck
@@ -181,17 +182,22 @@ func main() {
 	invoiceHandler := invoice.NewHandler(invoiceService)
 	invoiceRoutes := invoice.NewRoutes(invoiceHandler)
 
-	// Order
-	orderRepository := order.NewDBRepository(gormDB)
-	orderService := order.NewService(orderRepository, tablesRepository, productRepository, invoiceRepository, statusRepository)
-	orderHandler := order.NewHandler(orderService)
-	orderRoutes := order.NewRoutes(orderHandler)
-
 	// Account
 	accountRepository := account.NewDBRepository(gormDB)
 	accountService := account.NewService(accountRepository)
 	accountHandler := account.NewHandler(accountService)
 	accountRoutes := account.NewRoutes(accountHandler)
+
+	// Order
+	orderRepository := order.NewDBRepository(gormDB)
+	orderService := order.NewService(orderRepository,
+		tablesRepository,
+		productRepository,
+		invoiceRepository,
+		statusRepository,
+		accountRepository)
+	orderHandler := order.NewHandler(orderService)
+	orderRoutes := order.NewRoutes(orderHandler)
 
 	// Course
 	courseRepository := course.NewDBRepository(gormDB)

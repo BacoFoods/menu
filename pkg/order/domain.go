@@ -1,6 +1,7 @@
 package order
 
 import (
+	"context"
 	"fmt"
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/invoice"
@@ -41,13 +42,23 @@ const (
 	ErrorOrderTypeDeleting = "error deleting order type"
 
 	TaxPercentage = 0.08
+
+	OrderStepCreated OrderStep = "created"
+	OrderStepPaid    OrderStep = "paid"
+
+	OrderActionCreated OrderAction = "fue atendido por"
+	OrderActionPaid    OrderAction = "registró su pago"
 )
+
+type OrderStep string
+type OrderAction string
 
 type Repository interface {
 	Create(order *Order) (*Order, error)
 	Get(orderID string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
 	Update(order *Order) (*Order, error)
+
 	UpdateOrderItem(orderItem *OrderItem) (*OrderItem, error)
 	GetOrderItem(orderItemID string) (*OrderItem, error)
 
@@ -56,6 +67,8 @@ type Repository interface {
 	GetOrderType(orderTypeID string) (*OrderType, error)
 	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
 	DeleteOrderType(orderTypeID string) error
+
+	CreateAttendee(attendee *Attendee) (*Attendee, error)
 }
 
 type Order struct {
@@ -78,6 +91,7 @@ type Order struct {
 	Seats         int              `json:"seats"`
 	ExternalCode  string           `json:"external_code"`
 	InvoiceID     *uint            `json:"invoice_id"`
+	Attendees     []Attendee       `json:"attendees" gorm:"foreignKey:OrderID"`
 	Invoice       *invoice.Invoice `json:"invoice" swaggerignore:"true"`
 	CreatedAt     *time.Time       `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt     *time.Time       `json:"updated_at,omitempty" swaggerignore:"true"`
@@ -266,3 +280,18 @@ type OrderType struct {
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
+
+type Attendee struct {
+	ID        uint            `json:"id" swaggerignore:"true" gorm:"primaryKey"`
+	AccountID uint            `json:"account_id"`
+	OrderID   uint            `json:"order_id" swaggerignore:"true"`
+	Name      string          `json:"name"`
+	Role      string          `json:"role"`
+	Action    OrderAction     `json:"order_action"`
+	OrderStep OrderStep       `json:"order_step"`
+	CreatedAt *time.Time      `json:"created_at" swaggerignore:"true"`
+	UpdatedAt *time.Time      `json:"updated_at" swaggerignore:"true"`
+	DeletedAt *gorm.DeletedAt `json:"deleted_at" swaggerignore:"true"`
+}
+
+type OrderCtx context.Context

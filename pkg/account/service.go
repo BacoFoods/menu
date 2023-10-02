@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
+	"github.com/google/uuid"
 )
 
 const (
@@ -33,6 +34,8 @@ func (s service) Create(account *Account) (*Account, error) {
 		shared.LogError(ErrorAccountCreation, LogService, "Create", err, account)
 		return nil, fmt.Errorf(ErrorAccountCreation)
 	}
+
+	account.UUID = uuid.New().String()
 
 	return s.repository.Create(account)
 }

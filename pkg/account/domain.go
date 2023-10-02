@@ -35,10 +35,12 @@ type Repository interface {
 	Get(username string) (*Account, error)
 	Delete(accountID string) error
 	Find(filter map[string]any) ([]Account, error)
+	GetByUUID(uuid string) (*Account, error)
 }
 
 type Account struct {
 	Id          uint             `json:"id"`
+	UUID        string           `json:"uuid"`
 	DisplayName string           `json:"display_name"`
 	Username    string           `json:"username"`
 	Password    string           `json:"-" swaggerignore:"true"`
@@ -116,6 +118,7 @@ func (a *Account) JWT() (string, error) {
 	}
 
 	claims := jwt.MapClaims{
+		"uuid":         a.UUID,
 		"name":         a.DisplayName,
 		"email":        a.Email,
 		"role":         a.Role,

@@ -44,7 +44,7 @@ func (h *Handler) Create(c *gin.Context) {
 	}
 
 	order := body.ToOrder()
-	orderDB, err := h.service.Create(&order)
+	orderDB, err := h.service.Create(&order, c)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return

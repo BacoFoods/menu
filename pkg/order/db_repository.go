@@ -170,3 +170,14 @@ func (r *DBRepository) DeleteOrderType(orderTypeID string) error {
 
 	return nil
 }
+
+// Attendee methods
+
+func (r *DBRepository) CreateAttendee(attendee *Attendee) (*Attendee, error) {
+	if err := r.db.Save(attendee).Error; err != nil {
+		shared.LogError("error creating attendee", LogDBRepository, "CreateAttendee", err, *attendee)
+		return nil, err
+	}
+
+	return attendee, nil
+}

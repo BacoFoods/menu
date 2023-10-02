@@ -41,7 +41,7 @@ func AuthMiddleware(validator *idtoken.Validator) gin.HandlerFunc {
 			return
 		}
 
-		if GoogleAuth(tokenString, ctx, validator) || CerebroAuth(tokenString) {
+		if GoogleAuth(tokenString, ctx, validator) || CerebroAuth(tokenString, ctx) {
 			ctx.Next()
 			return
 		}
@@ -60,7 +60,7 @@ func GoogleAuth(credential string, ctx *gin.Context, validator *idtoken.Validato
 	return true
 }
 
-func CerebroAuth(credential string) bool {
+func CerebroAuth(credential string, ctx *gin.Context) bool {
 	secretKey, err := base64.StdEncoding.DecodeString(internal.Config.TokenSecret)
 	if err != nil {
 		shared.LogError("error decoding jwt key", LogMiddleware, "Authentication", err, internal.Config.TokenSecret)
@@ -83,6 +83,16 @@ func CerebroAuth(credential string) bool {
 	if _, ok := token.Claims.(jwt.MapClaims); !ok && !token.Valid {
 		return false
 	}
+
+	ctx.Set("account_uuid", token.Claims.(jwt.MapClaims)["uuid"])
+	ctx.Set("account_role", token.Claims.(jwt.MapClaims)["role"])
+	ctx.Set("account_name", token.Claims.(jwt.MapClaims)["name"])
+	ctx.Set("brand_id", token.Claims.(jwt.MapClaims)["brand"])
+	ctx.Set("brand_name", token.Claims.(jwt.MapClaims)["brand_name"])
+	ctx.Set("channel_id", token.Claims.(jwt.MapClaims)["channel"])
+	ctx.Set("channel_name", token.Claims.(jwt.MapClaims)["channel_name"])
+	ctx.Set("store_id", token.Claims.(jwt.MapClaims)["store"])
+	ctx.Set("store_name", token.Claims.(jwt.MapClaims)["store_name"])
 
 	return true
 }

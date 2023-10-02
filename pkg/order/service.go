@@ -1,8 +1,9 @@
 package order
 
 import (
+	"context"
 	"fmt"
-
+	accounts "github.com/BacoFoods/menu/pkg/account"
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	products "github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
@@ -15,7 +16,7 @@ const (
 )
 
 type Service interface {
-	Create(*Order) (*Order, error)
+	Create(order *Order, ctx context.Context) (*Order, error)
 	UpdateTable(orderID, tableID uint64) (*Order, error)
 	Get(string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
@@ -43,20 +44,30 @@ type service struct {
 	product    products.Repository
 	invoice    invoices.Repository
 	status     statuses.Repository
+	account    accounts.Repository
 }
 
 func NewService(repository Repository,
 	table tables.Repository,
 	product products.Repository,
 	invoice invoices.Repository,
-	status statuses.Repository) service {
-	return service{repository, table, product, invoice, status}
+	status statuses.Repository,
+	account accounts.Repository) service {
+	return service{repository,
+		table,
+		product,
+		invoice,
+		status,
+		account,
+	}
 }
 
 // Orders
 
-func (s service) Create(order *Order) (*Order, error) {
+func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
+	// Setting product items
 	productIDs := order.GetProductIDs()
+
 	prods, err := s.product.GetByIDs(productIDs)
 	if err != nil {
 		shared.LogError("error getting products", LogService, "Create", err, productIDs)
@@ -75,10 +86,54 @@ func (s service) Create(order *Order) (*Order, error) {
 		return nil, fmt.Errorf(ErrorOrderCreation)
 	}
 
+	// Setting order attendees
+	username := ctx.Value("account_name").(string)
+	role := ctx.Value("account_role").(string)
+	accountUUID := ctx.Value("account_uuid").(string)
+	accountID := uint(0)
+	account, err := s.account.GetByUUID(accountUUID)
+	if err != nil {
+		shared.LogError("error getting account", LogService, "Create", err, accountUUID)
+	}
+
+	if account == nil {
+		username := ctx.Value("account_name").(string)
+		channelID := ctx.Value("channel_id").(int64)
+		brandID := ctx.Value("brand_id").(int64)
+		storeID := ctx.Value("store_id").(int64)
+		role := ctx.Value("role").(string)
+		account = &accounts.Account{
+			Username:  username,
+			ChannelID: &channelID,
+			BrandID:   &brandID,
+			StoreID:   &storeID,
+			Role:      role,
+		}
+	} else {
+		accountID = account.Id
+		username = account.Username
+		role = account.Role
+	}
+
+	attendee := &Attendee{
+		AccountID: accountID,
+		OrderID:   newOrder.ID,
+		Name:      username,
+		Role:      role,
+		Action:    OrderActionCreated,
+		OrderStep: OrderStepCreated,
+	}
+
+	if _, err := s.repository.CreateAttendee(attendee); err != nil {
+		shared.LogError("error creating attendee", LogService, "Create", err, *attendee)
+	}
+
+	// Setting table
 	if _, err := s.table.SetOrder(newOrder.TableID, &newOrder.ID); err != nil {
 		return nil, err
 	}
 
+	// Getting order updated from db
 	orderDB, err := s.repository.Get(fmt.Sprintf("%d", newOrder.ID))
 	if err != nil {
 		shared.LogError("error getting order", LogService, "Create", err, newOrder.ID)

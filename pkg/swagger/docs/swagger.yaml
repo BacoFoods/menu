@@ -411,8 +411,23 @@ definitions:
     - place
     - place_id
     type: object
+  order.Attendee:
+    properties:
+      account_id:
+        type: integer
+      name:
+        type: string
+      order_step:
+        type: string
+      role:
+        type: string
+    type: object
   order.Order:
     properties:
+      attendees:
+        items:
+          $ref: '#/definitions/order.Attendee'
+        type: array
       brand_id:
         type: integer
       channel_id:
