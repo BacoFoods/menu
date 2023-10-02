@@ -87,32 +87,32 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	}
 
 	// Setting order attendees
-	var username string
+	username := ""
 	if ctx.Value("account_name") != nil {
 		username = ctx.Value("account_name").(string)
 	}
-	var role string
+	role := ""
 	if ctx.Value("role") != nil {
 		role = ctx.Value("role").(string)
 	}
-	var accountUUID string
+	accountUUID := ""
 	if ctx.Value("account_uuid") != nil {
 		accountUUID = ctx.Value("account_uuid").(string)
 	}
-	var channelID int64
+	channelID := int64(0)
 	if ctx.Value("channel_id") != nil {
 		channelID = ctx.Value("channel_id").(int64)
 	}
-	var brandID int64
+	brandID := int64(0)
 	if ctx.Value("brand_id") != nil {
 		brandID = ctx.Value("brand_id").(int64)
 	}
-	var storeID int64
+	storeID := int64(0)
 	if ctx.Value("store_id") != nil {
 		storeID = ctx.Value("store_id").(int64)
 	}
-
 	accountID := uint(0)
+
 	account, err := s.account.GetByUUID(accountUUID)
 	if err != nil {
 		shared.LogWarn("error getting account", LogService, "Create", err, accountUUID)
