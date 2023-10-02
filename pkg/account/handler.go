@@ -243,7 +243,7 @@ func (h *Handler) Find(ctx *gin.Context) {
 
 // Update to handle a request to update an account
 // @Tags Account
-// @Summary To update an account
+// @Summary To update an account but ⚠️⚠️⚠️⚠️⚠️⚠️⚠️ be careful ⚠️⚠️⚠️⚠️⚠️⚠️⚠️
 // @Description To update an account
 // @Param account body RequestAccountUpdate true "account request"
 // @Accept json

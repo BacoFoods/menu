@@ -197,7 +197,7 @@ const docTemplate = `{
                 "tags": [
                     "Account"
                 ],
-                "summary": "To update an account",
+                "summary": "To update an account but ⚠️⚠️⚠️⚠️⚠️⚠️⚠️ be careful ⚠️⚠️⚠️⚠️⚠️⚠️⚠️",
                 "parameters": [
                     {
                         "description": "account request",
