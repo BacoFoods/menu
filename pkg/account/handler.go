@@ -240,3 +240,33 @@ func (h *Handler) Find(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(accounts))
 }
+
+// Update to handle a request to update an account
+// @Tags Account
+// @Summary To update an account
+// @Description To update an account
+// @Param account body RequestAccountUpdate true "account request"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=Account}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /account [patch]
+func (h *Handler) Update(ctx *gin.Context) {
+	var requestBody RequestAccountUpdate
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		shared.LogWarn("warning binding request fail", LogHandler, "Update", err)
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	account, err := h.service.Update(requestBody.ToAccount())
+	if err != nil {
+		shared.LogError("error updating account", LogHandler, "Update", err, requestBody)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAccountUpdating))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(account))
+}

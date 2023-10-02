@@ -26,6 +26,7 @@ const (
 	ErrorAccountPinLogin        = "error login with pin account"
 	ErrorAccountInvalidPassword = "error invalid password"
 	ErrorAccountFinding         = "error finding account"
+	ErrorAccountUpdating        = "error updating account"
 
 	LogDomain = "pkg/account/domain"
 )
@@ -36,6 +37,7 @@ type Repository interface {
 	Delete(accountID string) error
 	Find(filter map[string]any) ([]Account, error)
 	GetByUUID(uuid string) (*Account, error)
+	Update(*Account) (*Account, error)
 }
 
 type Account struct {

@@ -17,4 +17,5 @@ func (r Routes) RegisterRoutes(private, public *gin.RouterGroup) {
 	private.POST("/account", r.handler.CreatePinUser)
 	private.DELETE("/account/:id", r.handler.Delete)
 	private.GET("/account", r.handler.Find)
+	private.PATCH("/account", r.handler.Update)
 }

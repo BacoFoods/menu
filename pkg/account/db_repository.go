@@ -78,3 +78,18 @@ func (r DBRepository) GetByUUID(uuid string) (*Account, error) {
 
 	return &account, nil
 }
+
+func (r DBRepository) Update(account *Account) (*Account, error) {
+	var accountDB Account
+	if err := r.db.First(&accountDB, account.Id).Error; err != nil {
+		shared.LogError("error getting account", LogDBRepository, "Update", err, *account)
+		return nil, err
+	}
+
+	if err := r.db.Model(&accountDB).Updates(account).Error; err != nil {
+		shared.LogError("error updating account", LogDBRepository, "Update", err, *account)
+		return nil, err
+	}
+
+	return account, nil
+}

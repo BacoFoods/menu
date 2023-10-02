@@ -180,6 +180,70 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To update an account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "To update an account",
+                "parameters": [
+                    {
+                        "description": "account request",
+                        "name": "account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/account.RequestAccountUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/account.Account"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
             }
         },
         "/account/{id}": {
@@ -10810,6 +10874,9 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
                 }
             }
         },
@@ -10844,6 +10911,38 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "account.RequestAccountUpdate": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "channel_id": {
+                    "type": "integer"
+                },
+                "display_name": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "uuid": {
                     "type": "string"
                 }
             }
@@ -11401,6 +11500,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "order_action": {
                     "type": "string"
                 },
                 "order_step": {

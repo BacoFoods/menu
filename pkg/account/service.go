@@ -19,6 +19,7 @@ type Service interface {
 	LoginPin(pin int) (*Account, error)
 	Delete(id string) error
 	Find(filter map[string]any) ([]Account, error)
+	Update(*Account) (*Account, error)
 }
 
 type service struct {
@@ -81,4 +82,8 @@ func (s service) Delete(id string) error {
 
 func (s service) Find(filter map[string]any) ([]Account, error) {
 	return s.repository.Find(filter)
+}
+
+func (s service) Update(account *Account) (*Account, error) {
+	return s.repository.Update(account)
 }
