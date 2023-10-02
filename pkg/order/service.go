@@ -113,10 +113,9 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	}
 
 	accountID := uint(0)
-	accountUUID = ""
 	account, err := s.account.GetByUUID(accountUUID)
 	if err != nil {
-		shared.LogError("error getting account", LogService, "Create", err, accountUUID)
+		shared.LogWarn("error getting account", LogService, "Create", err, accountUUID)
 	}
 
 	if account == nil {
