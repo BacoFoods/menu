@@ -87,21 +87,39 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	}
 
 	// Setting order attendees
-	username := ctx.Value("account_name").(string)
-	role := ctx.Value("account_role").(string)
-	accountUUID := ctx.Value("account_uuid").(string)
+	var username string
+	if ctx.Value("account_name") != nil {
+		username = ctx.Value("account_name").(string)
+	}
+	var role string
+	if ctx.Value("role") != nil {
+		role = ctx.Value("role").(string)
+	}
+	var accountUUID string
+	if ctx.Value("account_uuid") != nil {
+		accountUUID = ctx.Value("account_uuid").(string)
+	}
+	var channelID int64
+	if ctx.Value("channel_id") != nil {
+		channelID = ctx.Value("channel_id").(int64)
+	}
+	var brandID int64
+	if ctx.Value("brand_id") != nil {
+		brandID = ctx.Value("brand_id").(int64)
+	}
+	var storeID int64
+	if ctx.Value("store_id") != nil {
+		storeID = ctx.Value("store_id").(int64)
+	}
+
 	accountID := uint(0)
+	accountUUID = ""
 	account, err := s.account.GetByUUID(accountUUID)
 	if err != nil {
 		shared.LogError("error getting account", LogService, "Create", err, accountUUID)
 	}
 
 	if account == nil {
-		username := ctx.Value("account_name").(string)
-		channelID := ctx.Value("channel_id").(int64)
-		brandID := ctx.Value("brand_id").(int64)
-		storeID := ctx.Value("store_id").(int64)
-		role := ctx.Value("role").(string)
 		account = &accounts.Account{
 			Username:  username,
 			ChannelID: &channelID,
@@ -111,7 +129,7 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 		}
 	} else {
 		accountID = account.Id
-		username = account.Username
+		username = account.DisplayName
 		role = account.Role
 	}
 
