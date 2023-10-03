@@ -108,3 +108,7 @@ type RequestModifiers struct {
 type RequestUpdateOrderComments struct {
 	Comments string `json:"comments" binding:"required"`
 }
+
+type RequestUpdateOrderClientName struct {
+	ClientName string `json:"client_name" binding:"required"`
+}

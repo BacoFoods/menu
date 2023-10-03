@@ -405,6 +405,36 @@ func (h *Handler) UpdateComments(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(order))
 }
 
+// UpdateClientName to handle a request to update an order's client name
+// @Tags Order
+// @Summary To update an order's client name
+// @Description To update an order's client name
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "Order ID"
+// @Param clientName body RequestUpdateOrderClientName true "Client Name"
+// @Success 200 {object} object{status=string,data=Order}
+// @Router /order/{id}/update/client-name [patch]
+func (h *Handler) UpdateClientName(c *gin.Context) {
+	orderID := c.Param("id")
+
+	var body RequestUpdateOrderClientName
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "UpdateClientName", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	order, err := h.service.UpdateClientName(orderID, body.ClientName)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderUpdatingClientName))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(order))
+}
+
 // Order Items
 
 // AddModifiers to handle a request to add a modifiers to a product's order

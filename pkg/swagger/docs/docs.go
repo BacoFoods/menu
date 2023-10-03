@@ -6375,6 +6375,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/order/{id}/update/client-name": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To update an order's client name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To update an order's client name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Client Name",
+                        "name": "clientName",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.RequestUpdateOrderClientName"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/order.Order"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/order/{id}/update/comments": {
             "patch": {
                 "security": [
@@ -12084,6 +12145,17 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/order.OrderModifierDTO"
                     }
+                }
+            }
+        },
+        "order.RequestUpdateOrderClientName": {
+            "type": "object",
+            "required": [
+                "client_name"
+            ],
+            "properties": {
+                "client_name": {
+                    "type": "string"
                 }
             }
         },

@@ -28,6 +28,7 @@ type Service interface {
 	UpdateStatus(orderID, statusCode string) (*Order, error)
 	ReleaseTable(orderID string) (*Order, error)
 	UpdateComments(orderID, comments string) (*Order, error)
+	UpdateClientName(orderID, clientName string) (*Order, error)
 	AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error)
 	RemoveModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error)
 	OrderItemUpdateCourse(orderItem *OrderItem) (*OrderItem, error)
@@ -446,6 +447,18 @@ func (s service) UpdateComments(orderID, comments string) (*Order, error) {
 	}
 
 	order.Comments = comments
+
+	return s.repository.Update(order)
+}
+
+func (s service) UpdateClientName(orderID, clientName string) (*Order, error) {
+	order, err := s.repository.Get(orderID)
+	if err != nil {
+		shared.LogError("error getting order", LogService, "UpdateClientName", err, orderID)
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	order.ClientName = clientName
 
 	return s.repository.Update(order)
 }

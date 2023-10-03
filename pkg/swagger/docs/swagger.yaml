@@ -643,6 +643,13 @@ definitions:
     required:
     - modifiers
     type: object
+  order.RequestUpdateOrderClientName:
+    properties:
+      client_name:
+        type: string
+    required:
+    - client_name
+    type: object
   order.RequestUpdateOrderComments:
     properties:
       comments:
@@ -4864,6 +4871,42 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To update the table of an order
+      tags:
+      - Order
+  /order/{id}/update/client-name:
+    patch:
+      consumes:
+      - application/json
+      description: To update an order's client name
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Client Name
+        in: body
+        name: clientName
+        required: true
+        schema:
+          $ref: '#/definitions/order.RequestUpdateOrderClientName'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: To update an order's client name
       tags:
       - Order
   /order/{id}/update/comments:
