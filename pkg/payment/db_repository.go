@@ -91,3 +91,58 @@ func (r *DBRepository) FindPaymentMethods(filter map[string]any) ([]PaymentMetho
 
 	return paymentMethods, nil
 }
+
+func (r *DBRepository) GetPaymentMethod(paymentMethodID string) (*PaymentMethod, error) {
+	if paymentMethodID == "" {
+		err := shared.ErrorIDEmpty
+		shared.LogWarn("payment method id is empty", LogRepository, "GetPaymentMethod", err, paymentMethodID)
+		return nil, err
+	}
+
+	var paymentMethod PaymentMethod
+	if err := r.db.Where("id = ?", paymentMethodID).First(&paymentMethod).Error; err != nil {
+		shared.LogError(ErrorPaymentMethodFinding, LogRepository, "GetPaymentMethod", err, paymentMethodID)
+		return nil, err
+	}
+
+	return &paymentMethod, nil
+}
+
+func (r *DBRepository) CreatePaymentMethod(paymentMethod *PaymentMethod) (*PaymentMethod, error) {
+	if err := r.db.Create(paymentMethod).Error; err != nil {
+		shared.LogError(ErrorPaymentMethodFinding, LogRepository, "CreatePaymentMethod", err, paymentMethod)
+		return nil, err
+	}
+
+	return paymentMethod, nil
+}
+
+func (r *DBRepository) UpdatePaymentMethod(paymentMethod *PaymentMethod) (*PaymentMethod, error) {
+	if err := r.db.Save(paymentMethod).Error; err != nil {
+		shared.LogError(ErrorPaymentMethodFinding, LogRepository, "UpdatePaymentMethod", err, paymentMethod)
+		return nil, err
+	}
+
+	return paymentMethod, nil
+}
+
+func (r *DBRepository) DeletePaymentMethod(paymentMethodID string) (*PaymentMethod, error) {
+	if paymentMethodID == "" {
+		err := shared.ErrorIDEmpty
+		shared.LogWarn("payment method id is empty", LogRepository, "DeletePaymentMethod", err, paymentMethodID)
+		return nil, err
+	}
+
+	paymentMethod, err := r.GetPaymentMethod(paymentMethodID)
+	if err != nil {
+		shared.LogError(ErrorPaymentMethodFinding, LogRepository, "DeletePaymentMethod", err, paymentMethodID)
+		return nil, err
+	}
+
+	if err := r.db.Delete(paymentMethod).Error; err != nil {
+		shared.LogError(ErrorPaymentMethodFinding, LogRepository, "DeletePaymentMethod", err, paymentMethodID)
+		return nil, err
+	}
+
+	return paymentMethod, nil
+}

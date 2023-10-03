@@ -23,6 +23,10 @@ type Repository interface {
 	Delete(paymentID string) (*Payment, error)
 
 	FindPaymentMethods(filter map[string]any) ([]PaymentMethod, error)
+	GetPaymentMethod(paymentMethodID string) (*PaymentMethod, error)
+	CreatePaymentMethod(*PaymentMethod) (*PaymentMethod, error)
+	UpdatePaymentMethod(*PaymentMethod) (*PaymentMethod, error)
+	DeletePaymentMethod(string) (*PaymentMethod, error)
 }
 
 type Payment struct {

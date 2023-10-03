@@ -5383,7 +5383,174 @@ paths:
       - ApiKeyAuth: []
       summary: To find payment method
       tags:
-      - Payment
+      - PaymentMethod
+    patch:
+      consumes:
+      - application/json
+      description: To update payment method
+      parameters:
+      - description: payment method body
+        in: body
+        name: payment_method
+        required: true
+        schema:
+          $ref: '#/definitions/payment.PaymentMethod'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payment.PaymentMethod'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To update payment method
+      tags:
+      - PaymentMethod
+    post:
+      consumes:
+      - application/json
+      description: To create payment method
+      parameters:
+      - description: payment method body
+        in: body
+        name: payment_method
+        required: true
+        schema:
+          $ref: '#/definitions/payment.PaymentMethod'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payment.PaymentMethod'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To create payment method
+      tags:
+      - PaymentMethod
+  /payment-method/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete payment method
+      parameters:
+      - description: payment method id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payment.PaymentMethod'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To delete payment method
+      tags:
+      - PaymentMethod
+    get:
+      consumes:
+      - application/json
+      description: To get a payment method by id
+      parameters:
+      - description: payment method id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payment.PaymentMethod'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To get a payment method by id
+      tags:
+      - PaymentMethod
   /payment/{id}:
     delete:
       consumes:
