@@ -8,6 +8,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
+	"github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
 	"time"
 )
@@ -51,6 +52,7 @@ const (
 )
 
 type OrderStep string
+
 type OrderAction string
 
 type Repository interface {
@@ -83,6 +85,7 @@ type Order struct {
 	Store         *store.Store     `json:"store,omitempty" swaggerignore:"true"`
 	ChannelID     *uint            `json:"channel_id" binding:"required"`
 	TableID       *uint            `json:"table_id"`
+	Table         *tables.Table    `json:"table,omitempty" swaggerignore:"true"`
 	TypeID        *uint            `json:"type_id"`
 	Type          *OrderType       `json:"type"`
 	Comments      string           `json:"comments"`
@@ -91,8 +94,8 @@ type Order struct {
 	Seats         int              `json:"seats"`
 	ExternalCode  string           `json:"external_code"`
 	InvoiceID     *uint            `json:"invoice_id"`
-	Attendees     []Attendee       `json:"attendees" gorm:"foreignKey:OrderID"`
 	Invoice       *invoice.Invoice `json:"invoice" swaggerignore:"true"`
+	Attendees     []Attendee       `json:"attendees" gorm:"foreignKey:OrderID"`
 	CreatedAt     *time.Time       `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt     *time.Time       `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt     *gorm.DeletedAt  `json:"deleted_at,omitempty" swaggerignore:"true"`
