@@ -2,6 +2,7 @@ package invoice
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/shared"
 
 	clientPKG "github.com/BacoFoods/menu/pkg/client"
 )
@@ -14,6 +15,7 @@ type Service interface {
 	UpdateTip(value float64, tipType string, invoiceID string) (*Invoice, error)
 	AddClient(invoiceID string, clientID string) (*Invoice, error)
 	RemoveClient(invoiceID string, clientID string) (*Invoice, error)
+	Separate(invoiceID string, invoices [][]uint) ([]Invoice, error)
 }
 
 type service struct {
@@ -84,4 +86,63 @@ func (s service) RemoveClient(invoiceID string, clientID string) (*Invoice, erro
 
 	invoice.ClientID = nil
 	return s.repository.CreateUpdate(invoice)
+}
+
+// Separate separates an invoice into multiple invoices.
+func (s service) Separate(invoiceID string, invoices [][]uint) ([]Invoice, error) {
+	invoiceDB, err := s.repository.Get(invoiceID)
+	if err != nil {
+		return nil, err
+	}
+
+	mapItems := invoiceDB.MapItems()
+
+	newInvoices := make([]Invoice, 0)
+	for _, invoice := range invoices {
+		newInvoice := Invoice{
+			OrderID:         invoiceDB.OrderID,
+			BrandID:         invoiceDB.BrandID,
+			StoreID:         invoiceDB.StoreID,
+			ChannelID:       invoiceDB.ChannelID,
+			TableID:         invoiceDB.TableID,
+			Items:           nil,
+			Discounts:       invoiceDB.Discounts,
+			Surcharges:      invoiceDB.Surcharges,
+			SubTotal:        0,
+			TotalDiscounts:  0,
+			TotalSurcharges: 0,
+			Tips:            0,
+			BaseTax:         0,
+			Taxes:           0,
+			Total:           0,
+			Payments:        nil,
+			ClientID:        invoiceDB.ClientID,
+		}
+		for _, itemID := range invoice {
+			item, ok := mapItems[itemID]
+			if !ok {
+				err := fmt.Errorf(ErrorItemNotFound)
+				shared.LogError("error separating invoice", LogService, "Separate", err, itemID)
+				return nil, err
+			}
+			newInvoice.Items = append(newInvoice.Items, item)
+			newInvoice.SubTotal += item.Price
+			tax := newInvoice.SubTotal * TaxPercentage
+			baseTax := newInvoice.SubTotal - tax
+			newInvoice.BaseTax = baseTax
+			newInvoice.Total = newInvoice.SubTotal + tax
+		}
+		newInvoices = append(newInvoices, newInvoice)
+	}
+
+	invoicesBatch, err := s.repository.CreateBatch(newInvoices)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.repository.Delete(invoiceID); err != nil {
+		return nil, err
+	}
+
+	return invoicesBatch, nil
 }

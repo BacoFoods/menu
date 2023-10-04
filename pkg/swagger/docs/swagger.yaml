@@ -348,6 +348,17 @@ definitions:
       sku:
         type: string
     type: object
+  invoice.RequestInvoiceSeparate:
+    properties:
+      invoices:
+        items:
+          items:
+            type: integer
+          type: array
+        type: array
+    required:
+    - invoices
+    type: object
   invoice.RequestUpdateTip:
     properties:
       type:
@@ -468,8 +479,6 @@ definitions:
       external_code:
         type: string
       id:
-        type: integer
-      invoice_id:
         type: integer
       items:
         items:
@@ -3432,6 +3441,61 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To remove a client from an invoice
+      tags:
+      - Invoice
+  /invoice/{id}/separate:
+    post:
+      consumes:
+      - application/json
+      description: To separate an invoice
+      parameters:
+      - description: invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: invoices for separation
+        in: body
+        name: invoices
+        required: true
+        schema:
+          $ref: '#/definitions/invoice.RequestInvoiceSeparate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  allOf:
+                  - type: object
+                  - properties:
+                      invoices:
+                        items:
+                          $ref: '#/definitions/invoice.Invoice'
+                        type: array
+                    type: object
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To separate an invoice
       tags:
       - Invoice
   /menu:

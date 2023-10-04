@@ -495,21 +495,13 @@ func (s service) CreateInvoice(orderID string) (*invoices.Invoice, error) {
 	}
 
 	order.ToInvoice()
-	invoice, err := s.invoice.CreateUpdate(order.Invoice)
+
+	invoice := order.Invoices[0]
+	invoiceDB, err := s.invoice.CreateUpdate(&invoice)
 	if err != nil {
-		shared.LogError("error creating invoice", LogService, "CreateInvoice", err, order.Invoice)
+		shared.LogError("error creating invoice", LogService, "CreateInvoice", err, invoice)
 		return nil, fmt.Errorf(invoices.ErrorInvoiceCreation)
 	}
 
-	if order.InvoiceID != nil {
-		return invoice, nil
-	}
-
-	order.InvoiceID = &invoice.ID
-	if _, err = s.repository.Update(order); err != nil {
-		shared.LogError("error updating order", LogService, "CreateInvoice", err, *order)
-		return nil, fmt.Errorf(ErrorOrderUpdate)
-	}
-
-	return invoice, nil
+	return invoiceDB, nil
 }

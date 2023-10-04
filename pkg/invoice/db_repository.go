@@ -66,3 +66,25 @@ func (r *DBRepository) UpdateTip(invoice *Invoice) (*Invoice, error) {
 	}
 	return &invoiceDB, nil
 }
+
+// CreateBatch creates a batch of invoices in database.
+func (r *DBRepository) CreateBatch(invoices []Invoice) ([]Invoice, error) {
+	if err := r.db.Create(&invoices).Error; err != nil {
+		shared.LogError("error creating batch of invoices", LogRepository, "CreateBatch", err, invoices)
+		return nil, err
+	}
+	return invoices, nil
+}
+
+// Delete deletes an invoice in database.
+func (r *DBRepository) Delete(invoiceID string) error {
+	if invoiceID == "" {
+		shared.LogWarn("error deleting invoice", LogRepository, "Delete", shared.ErrorIDEmpty)
+		return shared.ErrorIDEmpty
+	}
+	if err := r.db.Delete(&Invoice{}, invoiceID).Error; err != nil {
+		shared.LogError("error deleting invoice", LogRepository, "Delete", err, invoiceID)
+		return err
+	}
+	return nil
+}

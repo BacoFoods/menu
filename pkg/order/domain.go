@@ -75,31 +75,30 @@ type Repository interface {
 }
 
 type Order struct {
-	ID            uint             `json:"id" gorm:"primaryKey"`
-	Statuses      []status.Status  `json:"status" gorm:"many2many:order_statuses" gorm:"foreignKey:OrderID" swaggerignore:"true"`
-	CurrentStatus string           `json:"current_status"`
-	OrderType     string           `json:"order_type"`
-	ClientName    string           `json:"client_name"`
-	BrandID       *uint            `json:"brand_id" binding:"required"`
-	Brand         *brand.Brand     `json:"brand,omitempty" swaggerignore:"true"`
-	StoreID       *uint            `json:"store_id" binding:"required"`
-	Store         *store.Store     `json:"store,omitempty" swaggerignore:"true"`
-	ChannelID     *uint            `json:"channel_id" binding:"required"`
-	TableID       *uint            `json:"table_id"`
-	Table         *tables.Table    `json:"table,omitempty" swaggerignore:"true"`
-	TypeID        *uint            `json:"type_id"`
-	Type          *OrderType       `json:"type"`
-	Comments      string           `json:"comments"`
-	Items         []OrderItem      `json:"items"  gorm:"foreignKey:OrderID"`
-	CookingTime   int              `json:"cooking_time"`
-	Seats         int              `json:"seats"`
-	ExternalCode  string           `json:"external_code"`
-	InvoiceID     *uint            `json:"invoice_id"`
-	Invoice       *invoice.Invoice `json:"invoice" swaggerignore:"true"`
-	Attendees     []Attendee       `json:"attendees" gorm:"foreignKey:OrderID"`
-	CreatedAt     *time.Time       `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt     *time.Time       `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt     *gorm.DeletedAt  `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID            uint              `json:"id" gorm:"primaryKey"`
+	Statuses      []status.Status   `json:"status" gorm:"many2many:order_statuses" gorm:"foreignKey:OrderID" swaggerignore:"true"`
+	CurrentStatus string            `json:"current_status"`
+	OrderType     string            `json:"order_type"`
+	ClientName    string            `json:"client_name"`
+	BrandID       *uint             `json:"brand_id" binding:"required"`
+	Brand         *brand.Brand      `json:"brand,omitempty" swaggerignore:"true"`
+	StoreID       *uint             `json:"store_id" binding:"required"`
+	Store         *store.Store      `json:"store,omitempty" swaggerignore:"true"`
+	ChannelID     *uint             `json:"channel_id" binding:"required"`
+	TableID       *uint             `json:"table_id"`
+	Table         *tables.Table     `json:"table,omitempty" swaggerignore:"true"`
+	TypeID        *uint             `json:"type_id"`
+	Type          *OrderType        `json:"type"`
+	Comments      string            `json:"comments"`
+	Items         []OrderItem       `json:"items"  gorm:"foreignKey:OrderID"`
+	CookingTime   int               `json:"cooking_time"`
+	Seats         int               `json:"seats"`
+	ExternalCode  string            `json:"external_code"`
+	Invoices      []invoice.Invoice `json:"invoices"  gorm:"foreignKey:OrderID" swaggerignore:"true"`
+	Attendees     []Attendee        `json:"attendees" gorm:"foreignKey:OrderID"`
+	CreatedAt     *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt     *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt     *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 func (o *Order) GetProductIDs() []string {
@@ -156,8 +155,8 @@ func (o *Order) ToInvoice() {
 		Items:     make([]invoice.Item, 0),
 	}
 
-	if o.InvoiceID != nil {
-		newInvoice.ID = *o.InvoiceID
+	if len(o.Invoices) != 0 {
+		return
 	}
 
 	// Adding items to invoice
@@ -204,7 +203,7 @@ func (o *Order) ToInvoice() {
 	newInvoice.Total = subtotal + tax
 
 	// Setting invoice
-	o.Invoice = &newInvoice
+	o.Invoices = append(o.Invoices, newInvoice)
 }
 
 func (o *Order) UpdateStatus(status *status.Status) error {

@@ -18,6 +18,10 @@ type RequestUpdateTip struct {
 	Value float64 `json:"value"`
 }
 
+type RequestInvoiceSeparate struct {
+	Invoices [][]uint `json:"invoices" binding:"required"`
+}
+
 type Handler struct {
 	service Service
 }
@@ -166,4 +170,36 @@ func (h *Handler) RemoveClient(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+}
+
+// Separate to handle a request to separate an invoice
+// @Tags Invoice
+// @Summary To separate an invoice
+// @Description To separate an invoice
+// @Param id path string true "invoice id"
+// @Param invoices body RequestInvoiceSeparate true "invoices for separation"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=object{invoices=[]Invoice}}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /invoice/{id}/separate [post]
+func (h *Handler) Separate(c *gin.Context) {
+	invoiceID := c.Param("id")
+	var body RequestInvoiceSeparate
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "Separate", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	invoices, err := h.service.Separate(invoiceID, body.Invoices)
+	if err != nil {
+		shared.LogError("error separating invoice", LogHandler, "Separate", err, invoices)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceSeparating))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(invoices))
 }

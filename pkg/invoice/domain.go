@@ -23,6 +23,8 @@ const (
 	ErrorInvoiceAddingClient       = "error adding client to invoice"
 	ErrorInvoiceRemovingClient     = "error removing client from invoice"
 	ErrorInvoiceWrongClient        = "error wrong client for invoice"
+	ErrorInvoiceSeparating         = "error separating invoice"
+	ErrorItemNotFound              = "error item not found"
 
 	TaxPercentage     = 0.08
 	TipTypePercentage = "PERCENTAGE"
@@ -35,6 +37,8 @@ type Repository interface {
 	Get(invoiceID string) (*Invoice, error)
 	Find(filter map[string]any) ([]Invoice, error)
 	UpdateTip(invoice *Invoice) (*Invoice, error)
+	CreateBatch(invoices []Invoice) ([]Invoice, error)
+	Delete(invoiceID string) error
 }
 
 type Invoice struct {
@@ -60,6 +64,37 @@ type Invoice struct {
 	CreatedAt       *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt       *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt       *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+func (i *Invoice) CalculateTip(value float64, tipType string) error {
+	i.BaseTax = math.Ceil(i.SubTotal / (1 + TaxPercentage))
+	i.Taxes = i.SubTotal - i.BaseTax
+
+	switch tipType {
+	case TipTypePercentage:
+		if value > TipPercentageMax {
+			return fmt.Errorf(ErrorTipPercentageExceedsLimit)
+		} else if !(value == 0.05) && !(value == 0.1) {
+			return fmt.Errorf(ErrorTipPercentageValue)
+		}
+		i.Tips = math.Floor(value * i.BaseTax)
+	case TipTypeAmount:
+		if value < 0 {
+			return fmt.Errorf(ErrorInvalidTipAmount)
+		}
+		i.Tips = math.Floor(value + i.BaseTax)
+	}
+
+	i.Total = i.BaseTax + i.Taxes + i.TotalSurcharges - i.TotalDiscounts + i.Tips
+	return nil
+}
+
+func (i *Invoice) MapItems() map[uint]Item {
+	items := make(map[uint]Item)
+	for _, item := range i.Items {
+		items[item.ID] = item
+	}
+	return items
 }
 
 type Item struct {
@@ -107,27 +142,4 @@ type Surcharge struct {
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
-}
-
-func (i *Invoice) CalculateTip(value float64, tipType string) error {
-	i.BaseTax = math.Ceil(i.SubTotal / (1 + TaxPercentage))
-	i.Taxes = i.SubTotal - i.BaseTax
-
-	switch tipType {
-	case TipTypePercentage:
-		if value > TipPercentageMax {
-			return fmt.Errorf(ErrorTipPercentageExceedsLimit)
-		} else if !(value == 0.05) && !(value == 0.1) {
-			return fmt.Errorf(ErrorTipPercentageValue)
-		}
-		i.Tips = math.Floor(value * i.BaseTax)
-	case TipTypeAmount:
-		if value < 0 {
-			return fmt.Errorf(ErrorInvalidTipAmount)
-		}
-		i.Tips = math.Floor(value + i.BaseTax)
-	}
-
-	i.Total = i.BaseTax + i.Taxes + i.TotalSurcharges - i.TotalDiscounts + i.Tips
-	return nil
 }
