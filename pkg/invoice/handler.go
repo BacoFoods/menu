@@ -174,8 +174,8 @@ func (h *Handler) RemoveClient(c *gin.Context) {
 
 // Separate to handle a request to separate an invoice
 // @Tags Invoice
-// @Summary To separate an invoice
-// @Description To separate an invoice
+// @Summary To separate an invoice using items ids
+// @Description To separate an invoice using items ids
 // @Param id path string true "invoice id"
 // @Param invoices body RequestInvoiceSeparate true "invoices for separation"
 // @Accept json
@@ -198,7 +198,7 @@ func (h *Handler) Separate(c *gin.Context) {
 	invoices, err := h.service.Separate(invoiceID, body.Invoices)
 	if err != nil {
 		shared.LogError("error separating invoice", LogHandler, "Separate", err, invoices)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoiceSeparating))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoices))

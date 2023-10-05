@@ -116,7 +116,7 @@ func (s service) Separate(invoiceID string, invoices [][]uint) ([]Invoice, error
 			Taxes:           0,
 			Total:           0,
 			Payments:        nil,
-			ClientID:        invoiceDB.ClientID,
+			Client:          clientPKG.DefaultClient(),
 		}
 		for _, itemID := range invoice {
 			item, ok := mapItems[itemID]
@@ -125,6 +125,7 @@ func (s service) Separate(invoiceID string, invoices [][]uint) ([]Invoice, error
 				shared.LogError("error separating invoice", LogService, "Separate", err, itemID)
 				return nil, err
 			}
+			delete(mapItems, itemID) // remove item from map to validate that all items are separated
 			newInvoice.Items = append(newInvoice.Items, item)
 			newInvoice.SubTotal += item.Price
 			tax := newInvoice.SubTotal * TaxPercentage
@@ -133,6 +134,12 @@ func (s service) Separate(invoiceID string, invoices [][]uint) ([]Invoice, error
 			newInvoice.Total = newInvoice.SubTotal + tax
 		}
 		newInvoices = append(newInvoices, newInvoice)
+	}
+
+	if len(mapItems) != 0 {
+		err := fmt.Errorf(ErrorInvoiceSeparatingNotEnoughItems)
+		shared.LogError("error separating invoice", LogService, "Separate", err, mapItems)
+		return nil, err
 	}
 
 	invoicesBatch, err := s.repository.CreateBatch(newInvoices)

@@ -12,19 +12,20 @@ import (
 )
 
 const (
-	ErrorBadRequest                = "error bad request"
-	ErrorInvoiceCreation           = "error creating invoice"
-	ErrorGettingInvoice            = "error getting invoice"
-	ErrorInvoiceFinding            = "error finding invoices"
-	ErrorInvoiceUpdate             = "error updating invoice"
-	ErrorInvalidTipAmount          = "error invalid tip amount"
-	ErrorTipPercentageExceedsLimit = "error tip percentage exceeds limit"
-	ErrorTipPercentageValue        = "error tip percentage wrong value"
-	ErrorInvoiceAddingClient       = "error adding client to invoice"
-	ErrorInvoiceRemovingClient     = "error removing client from invoice"
-	ErrorInvoiceWrongClient        = "error wrong client for invoice"
-	ErrorInvoiceSeparating         = "error separating invoice"
-	ErrorItemNotFound              = "error item not found"
+	ErrorBadRequest                      = "error bad request"
+	ErrorInvoiceCreation                 = "error creating invoice"
+	ErrorGettingInvoice                  = "error getting invoice"
+	ErrorInvoiceFinding                  = "error finding invoices"
+	ErrorInvoiceUpdate                   = "error updating invoice"
+	ErrorInvalidTipAmount                = "error invalid tip amount"
+	ErrorTipPercentageExceedsLimit       = "error tip percentage exceeds limit"
+	ErrorTipPercentageValue              = "error tip percentage wrong value"
+	ErrorInvoiceAddingClient             = "error adding client to invoice"
+	ErrorInvoiceRemovingClient           = "error removing client from invoice"
+	ErrorInvoiceWrongClient              = "error wrong client for invoice"
+	ErrorInvoiceSeparating               = "error separating invoice"
+	ErrorItemNotFound                    = "error item not found"
+	ErrorInvoiceSeparatingNotEnoughItems = "error separating invoice not enough items sent"
 
 	TaxPercentage     = 0.08
 	TipTypePercentage = "PERCENTAGE"

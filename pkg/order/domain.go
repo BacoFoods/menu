@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/BacoFoods/menu/pkg/brand"
+	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/status"
@@ -145,7 +146,6 @@ func (o *Order) RemoveProduct(product *product.Product) {
 
 func (o *Order) ToInvoice() {
 	subtotal := 0.0
-
 	newInvoice := invoice.Invoice{
 		OrderID:   &o.ID,
 		BrandID:   o.BrandID,
@@ -153,6 +153,7 @@ func (o *Order) ToInvoice() {
 		ChannelID: o.ChannelID,
 		TableID:   o.TableID,
 		Items:     make([]invoice.Item, 0),
+		Client:    client.DefaultClient(),
 	}
 
 	if len(o.Invoices) != 0 {

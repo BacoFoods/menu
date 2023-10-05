@@ -31,3 +31,10 @@ type Client struct {
 	UpdatedAt    *time.Time      `json:"updated_at" swaggerignore:"true"`
 	DeletedAt    *gorm.DeletedAt `json:"deleted_at" swaggerignore:"true"`
 }
+
+func DefaultClient() *Client {
+	return &Client{
+		Name:     "consumidor final",
+		Document: "222222222222",
+	}
+}
