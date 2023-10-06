@@ -125,6 +125,7 @@ func (o *Order) SetItems(products []product.Product) {
 			item.SKU = p.SKU
 			item.Price = p.Price
 			item.Unit = p.Unit
+			item.SetHash()
 			items = append(items, item)
 		}
 	}
@@ -169,6 +170,7 @@ func (o *Order) ToInvoice() {
 			SKU:         item.SKU,
 			Price:       item.Price,
 			Comments:    item.Comments,
+			Hash:        item.Hash,
 		})
 
 		// Adding item price to subtotal
@@ -233,10 +235,19 @@ type OrderItem struct {
 	SurchargeReason string          `json:"surcharge_reason,omitempty"`
 	Comments        string          `json:"comments"`
 	Course          string          `json:"course"`
+	Hash            string          `json:"hash"`
 	Modifiers       []OrderModifier `json:"modifiers"  gorm:"foreignKey:OrderItemID"`
 	CreatedAt       *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt       *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt       *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+func (oi *OrderItem) SetHash() {
+	orderItemString := fmt.Sprintf("%v%v%v%v%v%v%v%v%v%v%v%v%v", oi.ID, oi.OrderID, oi.Name, oi.Description, oi.Image, oi.Price, oi.Unit, oi.Discount, oi.DiscountReason, oi.Surcharge, oi.SurchargeReason, oi.Comments, oi.Course)
+	for _, modifier := range oi.Modifiers {
+		orderItemString += fmt.Sprintf("%v%v%v%v%v%v%v%v", modifier.ID, modifier.OrderItemID, modifier.Name, modifier.Description, modifier.Image, modifier.Price, modifier.Unit, modifier.Comments)
+	}
+	oi.Hash = fmt.Sprintf("%x", orderItemString)
 }
 
 func (oi *OrderItem) AddModifiers(modifier []OrderModifier) {

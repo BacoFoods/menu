@@ -122,6 +122,7 @@ func (r DBRepository) RemoveOrder(tableID *uint) (*Table, error) {
 		return &table, nil
 	}
 
+	table.OrderID = nil
 	if err := r.db.Model(&table).Update("order_id", nil).Error; err != nil {
 		shared.LogError(ErrorTableUpdating, LogRepository, "RemoveOrder", err, *tableID)
 		return nil, err

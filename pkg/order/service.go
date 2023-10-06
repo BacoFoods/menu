@@ -384,11 +384,17 @@ func (s service) ReleaseTable(orderID string) (*Order, error) {
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	if _, err := s.table.RemoveOrder(order.TableID); err != nil {
+	tableID := order.TableID
+	if order.Table != nil {
+		tableID = &order.Table.ID
+	}
+
+	if _, err := s.table.RemoveOrder(tableID); err != nil {
 		return nil, err
 	}
 
 	order.TableID = nil
+	order.Table = nil
 	orderDB, err := s.repository.Update(order)
 	if err != nil {
 		shared.LogError("error updating order", LogService, "ReleaseTable", err, *order)
@@ -405,6 +411,7 @@ func (s service) AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderIte
 	}
 
 	orderItem.AddModifiers(modifiers)
+	orderItem.SetHash()
 
 	orderItemUpdated, err := s.repository.UpdateOrderItem(orderItem)
 	if err != nil {
@@ -421,6 +428,7 @@ func (s service) RemoveModifiers(itemID uint, modifiers []OrderModifier) (*Order
 	}
 
 	orderItem.RemoveModifiers(modifiers)
+	orderItem.SetHash()
 
 	orderItemUpdated, err := s.repository.UpdateOrderItem(orderItem)
 	if err != nil {
@@ -431,6 +439,7 @@ func (s service) RemoveModifiers(itemID uint, modifiers []OrderModifier) (*Order
 }
 
 func (s service) OrderItemUpdateCourse(orderItem *OrderItem) (*OrderItem, error) {
+	orderItem.SetHash()
 	orderItemUpdated, err := s.repository.UpdateOrderItem(orderItem)
 	if err != nil {
 		return nil, fmt.Errorf(ErrorOrderItemUpdate)
@@ -447,7 +456,6 @@ func (s service) UpdateComments(orderID, comments string) (*Order, error) {
 	}
 
 	order.Comments = comments
-
 	return s.repository.Update(order)
 }
 

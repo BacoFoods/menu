@@ -23,7 +23,6 @@ const (
 	ErrorInvoiceAddingClient             = "error adding client to invoice"
 	ErrorInvoiceRemovingClient           = "error removing client from invoice"
 	ErrorInvoiceWrongClient              = "error wrong client for invoice"
-	ErrorInvoiceSeparating               = "error separating invoice"
 	ErrorItemNotFound                    = "error item not found"
 	ErrorInvoiceSeparatingNotEnoughItems = "error separating invoice not enough items sent"
 
@@ -107,6 +106,7 @@ type Item struct {
 	SKU         string          `json:"sku"`
 	Price       float64         `json:"price" gorm:"precision:18;scale:2"`
 	Comments    string          `json:"comments"`
+	Hash        string          `json:"hash"`
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
