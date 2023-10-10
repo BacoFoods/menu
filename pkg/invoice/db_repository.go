@@ -44,8 +44,19 @@ func (r *DBRepository) Get(invoiceID string) (*Invoice, error) {
 
 // Find method for find invoices in database
 func (r *DBRepository) Find(filter map[string]interface{}) ([]Invoice, error) {
+	tx := r.db.
+		Preload(clause.Associations)
+
+	if paid, ok := filter["paid"]; ok {
+		if paid == "true" {
+			tx = tx.Joins("JOIN payments ON payments.invoice_id = invoices.id").
+				Where("payments.deleted_at IS NULL")
+		}
+		delete(filter, "paid")
+	}
+
 	var invoices []Invoice
-	if err := r.db.Preload(clause.Associations).Find(&invoices, filter).Error; err != nil {
+	if err := tx.Find(&invoices, filter).Error; err != nil {
 		shared.LogError("error finding invoices", LogRepository, "Find", err, filter)
 		return nil, err
 	}

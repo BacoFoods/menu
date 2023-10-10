@@ -42,6 +42,16 @@ func (s service) Create(account *Account) (*Account, error) {
 }
 
 func (s service) CreatePinUser(account *Account) (*Account, error) {
+	pinDB, err := s.repository.Find(map[string]any{"brand_id": account.BrandID, "store_id": account.StoreID})
+	if err != nil {
+		shared.LogError(ErrorAccountPinCreation, LogService, "CreatePinUser", err, account)
+		return nil, fmt.Errorf(ErrorAccountPinCreation)
+	}
+
+	if len(pinDB) > 0 {
+		return nil, fmt.Errorf(ErrorAccountPinAlreadyExist)
+	}
+
 	account.HashPin()
 
 	return s.repository.Create(account)

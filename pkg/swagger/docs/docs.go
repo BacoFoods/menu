@@ -3635,6 +3635,12 @@ const docTemplate = `{
                         "description": "order id",
                         "name": "order_id",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "paid",
+                        "name": "paid",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3702,7 +3708,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To get a invoice",
+                "description": "To get an invoice",
                 "consumes": [
                     "application/json"
                 ],
@@ -3712,7 +3718,7 @@ const docTemplate = `{
                 "tags": [
                     "Invoice"
                 ],
-                "summary": "To get a invoice",
+                "summary": "To get an invoice",
                 "parameters": [
                     {
                         "type": "string",
@@ -4003,7 +4009,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To separate an invoice",
+                "description": "To separate an invoice using items ids",
                 "consumes": [
                     "application/json"
                 ],
@@ -4013,7 +4019,7 @@ const docTemplate = `{
                 "tags": [
                     "Invoice"
                 ],
-                "summary": "To separate an invoice",
+                "summary": "To separate an invoice using items ids",
                 "parameters": [
                     {
                         "type": "string",
@@ -5324,6 +5330,18 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Status",
                         "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Is Active",
+                        "name": "active",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Is Closed",
+                        "name": "closed",
                         "in": "query"
                     },
                     {
@@ -11776,6 +11794,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "hash": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -11971,6 +11992,9 @@ const docTemplate = `{
                 "store_id"
             ],
             "properties": {
+                "active": {
+                    "type": "boolean"
+                },
                 "attendees": {
                     "type": "array",
                     "items": {
@@ -11985,6 +12009,9 @@ const docTemplate = `{
                 },
                 "client_name": {
                     "type": "string"
+                },
+                "closed": {
+                    "type": "boolean"
                 },
                 "comments": {
                     "type": "string"
@@ -12080,6 +12107,9 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "discount_reason": {
+                    "type": "string"
+                },
+                "hash": {
                     "type": "string"
                 },
                 "id": {

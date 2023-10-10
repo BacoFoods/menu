@@ -69,7 +69,7 @@ func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 		Preload("Items.Modifiers")
 
 	if status, ok := filter["status"]; ok && status == StatusActive {
-		tx.Where("status = ? OR status = ? OR status", StatusCreate, StatusCreate, StatusCreate)
+		tx.Where("current_status = ? OR current_status = ? OR current_status", StatusCreate, StatusCreate, StatusCreate)
 		delete(filter, "status")
 	}
 

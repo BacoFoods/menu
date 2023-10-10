@@ -126,6 +126,8 @@ func (h *Handler) Get(c *gin.Context) {
 // @Param store query string false "Store ID"
 // @Param table query string false "Table ID"
 // @Param status query string false "Status"
+// @Param active query string false "Is Active"
+// @Param closed query string false "Is Closed"
 // @Param days query string false "Days before"
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
@@ -145,6 +147,14 @@ func (h *Handler) Find(c *gin.Context) {
 
 	if status := c.Query("status"); status != "" {
 		filters["status"] = status
+	}
+
+	if active := c.Query("active"); active != "" {
+		filters["active"] = active
+	}
+
+	if closed := c.Query("closed"); closed != "" {
+		filters["closed"] = closed
 	}
 
 	if days := c.Query("days"); days != "" {

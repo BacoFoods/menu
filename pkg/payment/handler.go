@@ -88,14 +88,14 @@ func (h *Handler) Find(ctx *gin.Context) {
 // @Failure 401 {object} shared.Response
 // @Router /payment [post]
 func (h *Handler) Create(ctx *gin.Context) {
-	var body Payment
+	var body DTOPayment
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		shared.LogError("error binding json", LogHandler, "Create", err)
 		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorPaymentCreating))
 		return
 	}
 
-	payment, err := h.service.Create(&body)
+	payment, err := h.service.Create(body.ToPayment())
 	if err != nil {
 		shared.LogError("error creating payment", LogHandler, "Create", err, body)
 		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorPaymentCreating))

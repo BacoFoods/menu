@@ -82,6 +82,7 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 
 	order.SetItems(prods)
 	order.ToInvoice()
+	order.SetActive()
 
 	newOrder, err := s.repository.Create(order)
 	if err != nil {

@@ -3627,6 +3627,12 @@
                         "description": "order id",
                         "name": "order_id",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "paid",
+                        "name": "paid",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3694,7 +3700,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To get a invoice",
+                "description": "To get an invoice",
                 "consumes": [
                     "application/json"
                 ],
@@ -3704,7 +3710,7 @@
                 "tags": [
                     "Invoice"
                 ],
-                "summary": "To get a invoice",
+                "summary": "To get an invoice",
                 "parameters": [
                     {
                         "type": "string",
@@ -3995,7 +4001,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To separate an invoice",
+                "description": "To separate an invoice using items ids",
                 "consumes": [
                     "application/json"
                 ],
@@ -4005,7 +4011,7 @@
                 "tags": [
                     "Invoice"
                 ],
-                "summary": "To separate an invoice",
+                "summary": "To separate an invoice using items ids",
                 "parameters": [
                     {
                         "type": "string",
@@ -5316,6 +5322,18 @@
                         "type": "string",
                         "description": "Status",
                         "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Is Active",
+                        "name": "active",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Is Closed",
+                        "name": "closed",
                         "in": "query"
                     },
                     {
@@ -11768,6 +11786,9 @@
                 "description": {
                     "type": "string"
                 },
+                "hash": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -11963,6 +11984,9 @@
                 "store_id"
             ],
             "properties": {
+                "active": {
+                    "type": "boolean"
+                },
                 "attendees": {
                     "type": "array",
                     "items": {
@@ -11977,6 +12001,9 @@
                 },
                 "client_name": {
                     "type": "string"
+                },
+                "closed": {
+                    "type": "boolean"
                 },
                 "comments": {
                     "type": "string"
@@ -12072,6 +12099,9 @@
                     "type": "number"
                 },
                 "discount_reason": {
+                    "type": "string"
+                },
+                "hash": {
                     "type": "string"
                 },
                 "id": {

@@ -73,9 +73,10 @@ func (h *Handler) CreatePinUser(ctx *gin.Context) {
 	account, err := h.service.CreatePinUser(request.ToAccount())
 	if err != nil {
 		shared.LogError("error creating account", LogHandler, "CreatePinUser", err, request)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAccountCreation))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
+
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(account))
 }
 

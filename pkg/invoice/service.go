@@ -34,6 +34,7 @@ func (s service) Get(invoiceID string) (*Invoice, error) {
 
 // Find returns a list of Invoice objects.
 func (s service) Find(filter map[string]any) ([]Invoice, error) {
+
 	return s.repository.Find(filter)
 }
 

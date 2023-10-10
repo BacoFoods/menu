@@ -32,8 +32,8 @@ func NewHandler(service Service) *Handler {
 
 // Get to handle a request to get a invoice
 // @Tags Invoice
-// @Summary To get a invoice
-// @Description To get a invoice
+// @Summary To get an invoice
+// @Description To get an invoice
 // @Param id path string true "invoice id"
 // @Accept json
 // @Produce json
@@ -60,6 +60,7 @@ func (h *Handler) Get(c *gin.Context) {
 // @Summary To find invoices
 // @Description To find invoices
 // @Param order_id query string false "order id"
+// @Param paid query string false "paid"
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -70,9 +71,13 @@ func (h *Handler) Get(c *gin.Context) {
 // @Router /invoice [get]
 func (h *Handler) Find(c *gin.Context) {
 	filter := make(map[string]any)
-	orderID := c.Query("order_id")
-	if orderID != "" {
+
+	if orderID := c.Query("order_id"); orderID != "" {
 		filter["order_id"] = orderID
+	}
+
+	if paid := c.Query("paid"); paid != "" {
+		filter["paid"] = paid
 	}
 
 	invoices, err := h.service.Find(filter)

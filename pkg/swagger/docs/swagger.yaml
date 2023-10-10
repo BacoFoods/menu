@@ -335,6 +335,8 @@ definitions:
         type: string
       description:
         type: string
+      hash:
+        type: string
       id:
         type: integer
       invoice_id:
@@ -460,6 +462,8 @@ definitions:
     type: object
   order.Order:
     properties:
+      active:
+        type: boolean
       attendees:
         items:
           $ref: '#/definitions/order.Attendee'
@@ -470,6 +474,8 @@ definitions:
         type: integer
       client_name:
         type: string
+      closed:
+        type: boolean
       comments:
         type: string
       cooking_time:
@@ -537,6 +543,8 @@ definitions:
       discount:
         type: number
       discount_reason:
+        type: string
+      hash:
         type: string
       id:
         type: integer
@@ -3222,6 +3230,10 @@ paths:
         in: query
         name: order_id
         type: string
+      - description: paid
+        in: query
+        name: paid
+        type: string
       produces:
       - application/json
       responses:
@@ -3264,7 +3276,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: To get a invoice
+      description: To get an invoice
       parameters:
       - description: invoice id
         in: path
@@ -3299,7 +3311,7 @@ paths:
             $ref: '#/definitions/shared.Response'
       security:
       - ApiKeyAuth: []
-      summary: To get a invoice
+      summary: To get an invoice
       tags:
       - Invoice
     post:
@@ -3447,7 +3459,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: To separate an invoice
+      description: To separate an invoice using items ids
       parameters:
       - description: invoice id
         in: path
@@ -3495,7 +3507,7 @@ paths:
             $ref: '#/definitions/shared.Response'
       security:
       - ApiKeyAuth: []
-      summary: To separate an invoice
+      summary: To separate an invoice using items ids
       tags:
       - Invoice
   /menu:
@@ -4246,6 +4258,14 @@ paths:
       - description: Status
         in: query
         name: status
+        type: string
+      - description: Is Active
+        in: query
+        name: active
+        type: string
+      - description: Is Closed
+        in: query
+        name: closed
         type: string
       - description: Days before
         in: query
