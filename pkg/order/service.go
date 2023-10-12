@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	LogService string = "pkg/order/service"
+	ErrorOrderFind string = "error finding orders"
+	LogService     string = "pkg/order/service"
 )
 
 type Service interface {
@@ -82,7 +83,6 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 
 	order.SetItems(prods)
 	order.ToInvoice()
-	order.SetActive()
 
 	newOrder, err := s.repository.Create(order)
 	if err != nil {
@@ -201,7 +201,12 @@ func (s service) Get(id string) (*Order, error) {
 }
 
 func (s service) Find(filter map[string]any) ([]Order, error) {
-	return s.repository.Find(filter)
+	orders, err := s.repository.Find(filter)
+	if err != nil {
+		return nil, fmt.Errorf(ErrorOrderFind)
+	}
+
+	return orders, nil
 }
 
 func (s service) UpdateSeats(orderID string, seats int) (*Order, error) {

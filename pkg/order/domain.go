@@ -95,8 +95,6 @@ type Order struct {
 	CookingTime   int               `json:"cooking_time"`
 	Seats         int               `json:"seats"`
 	ExternalCode  string            `json:"external_code"`
-	Active        bool              `json:"active"`
-	Closed        bool              `json:"closed"`
 	Invoices      []invoice.Invoice `json:"invoices"  gorm:"foreignKey:OrderID" swaggerignore:"true"`
 	Attendees     []Attendee        `json:"attendees" gorm:"foreignKey:OrderID"`
 	CreatedAt     *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
@@ -219,11 +217,6 @@ func (o *Order) UpdateStatus(status *status.Status) error {
 	o.CurrentStatus = status.Code
 	o.Statuses = append(o.Statuses, *status)
 	return nil
-}
-
-func (o *Order) SetActive() {
-	// TODO: Improve this logic based on order status
-	o.Active = true
 }
 
 type OrderItem struct {

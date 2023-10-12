@@ -115,7 +115,13 @@ definitions:
     type: object
   brand.Brand:
     properties:
+      city:
+        type: string
       description:
+        type: string
+      document:
+        type: string
+      document_type:
         type: string
       id:
         type: integer
@@ -124,8 +130,6 @@ definitions:
           $ref: '#/definitions/menu.Menu'
         type: array
       name:
-        type: string
-      nit:
         type: string
       social_name:
         type: string
@@ -174,6 +178,8 @@ definitions:
     type: object
   client.Client:
     properties:
+      address:
+        type: string
       document:
         type: string
       document_type:
@@ -282,6 +288,8 @@ definitions:
         type: number
       brand_id:
         type: integer
+      cashier:
+        type: string
       channel_id:
         type: integer
       client:
@@ -304,6 +312,8 @@ definitions:
         items:
           $ref: '#/definitions/payment.Payment'
         type: array
+      payments_observation:
+        type: string
       store_id:
         type: integer
       sub_total:
@@ -316,7 +326,9 @@ definitions:
         type: integer
       taxes:
         type: number
-      tips:
+      tip:
+        type: string
+      tip_amount:
         type: number
       total:
         type: number
@@ -324,6 +336,8 @@ definitions:
         type: number
       total_surcharges:
         type: number
+      waiter:
+        type: string
     required:
     - brand_id
     - channel_id
@@ -462,8 +476,6 @@ definitions:
     type: object
   order.Order:
     properties:
-      active:
-        type: boolean
       attendees:
         items:
           $ref: '#/definitions/order.Attendee'
@@ -474,8 +486,6 @@ definitions:
         type: integer
       client_name:
         type: string
-      closed:
-        type: boolean
       comments:
         type: string
       cooking_time:
@@ -3234,6 +3244,18 @@ paths:
         in: query
         name: paid
         type: string
+      - description: store id
+        in: query
+        name: store_id
+        type: string
+      - description: is closed
+        in: query
+        name: closed
+        type: string
+      - description: Days before
+        in: query
+        name: days
+        type: string
       produces:
       - application/json
       responses:
@@ -3453,6 +3475,48 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To remove a client from an invoice
+      tags:
+      - Invoice
+  /invoice/{id}/print:
+    get:
+      consumes:
+      - application/json
+      description: To print an invoice
+      parameters:
+      - description: invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Invoice'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To print an invoice
       tags:
       - Invoice
   /invoice/{id}/separate:
@@ -4262,10 +4326,6 @@ paths:
       - description: Is Active
         in: query
         name: active
-        type: string
-      - description: Is Closed
-        in: query
-        name: closed
         type: string
       - description: Days before
         in: query

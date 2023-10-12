@@ -33,7 +33,6 @@ func CORSMiddleware() gin.HandlerFunc {
 func AuthMiddleware(validator *idtoken.Validator) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenString := ctx.Request.Header.Get("Authorization")
-		shared.LogInfo("tokenString", LogMiddleware, "Authentication", nil, tokenString)
 
 		if tokenString == "" {
 			shared.LogWarn("token is empty", LogMiddleware, "Authentication", nil)

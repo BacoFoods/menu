@@ -3641,6 +3641,24 @@ const docTemplate = `{
                         "description": "paid",
                         "name": "paid",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "store id",
+                        "name": "store_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "is closed",
+                        "name": "closed",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Days before",
+                        "name": "days",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3955,6 +3973,76 @@ const docTemplate = `{
                         "type": "string",
                         "description": "client id",
                         "name": "clientID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Invoice"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/invoice/{id}/print": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To print an invoice",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invoice"
+                ],
+                "summary": "To print an invoice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "invoice id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -5336,12 +5424,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Is Active",
                         "name": "active",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Is Closed",
-                        "name": "closed",
                         "in": "query"
                     },
                     {
@@ -11460,7 +11542,16 @@ const docTemplate = `{
         "brand.Brand": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string"
+                },
                 "description": {
+                    "type": "string"
+                },
+                "document": {
+                    "type": "string"
+                },
+                "document_type": {
                     "type": "string"
                 },
                 "id": {
@@ -11473,9 +11564,6 @@ const docTemplate = `{
                     }
                 },
                 "name": {
-                    "type": "string"
-                },
-                "nit": {
                     "type": "string"
                 },
                 "social_name": {
@@ -11550,6 +11638,9 @@ const docTemplate = `{
         "client.Client": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "document": {
                     "type": "string"
                 },
@@ -11720,6 +11811,9 @@ const docTemplate = `{
                 "brand_id": {
                     "type": "integer"
                 },
+                "cashier": {
+                    "type": "string"
+                },
                 "channel_id": {
                     "type": "integer"
                 },
@@ -11753,6 +11847,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/payment.Payment"
                     }
                 },
+                "payments_observation": {
+                    "type": "string"
+                },
                 "store_id": {
                     "type": "integer"
                 },
@@ -11771,7 +11868,10 @@ const docTemplate = `{
                 "taxes": {
                     "type": "number"
                 },
-                "tips": {
+                "tip": {
+                    "type": "string"
+                },
+                "tip_amount": {
                     "type": "number"
                 },
                 "total": {
@@ -11782,6 +11882,9 @@ const docTemplate = `{
                 },
                 "total_surcharges": {
                     "type": "number"
+                },
+                "waiter": {
+                    "type": "string"
                 }
             }
         },
@@ -11992,9 +12095,6 @@ const docTemplate = `{
                 "store_id"
             ],
             "properties": {
-                "active": {
-                    "type": "boolean"
-                },
                 "attendees": {
                     "type": "array",
                     "items": {
@@ -12009,9 +12109,6 @@ const docTemplate = `{
                 },
                 "client_name": {
                     "type": "string"
-                },
-                "closed": {
-                    "type": "boolean"
                 },
                 "comments": {
                     "type": "string"

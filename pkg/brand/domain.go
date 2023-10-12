@@ -15,16 +15,18 @@ const (
 )
 
 type Brand struct {
-	ID          uint          `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
-	NIT         string        `json:"nit"`
-	SocialName  string        `json:"social_name"`
-	Menus       []menu.Menu   `json:"menus,omitempty" gorm:"foreignKey:BrandID"`
-	Stores      []store.Store `json:"stores,omitempty" gorm:"foreignKey:BrandID"`
-	CreatedAt   string        `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt   string        `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   string        `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID           uint          `json:"id"`
+	Name         string        `json:"name"`
+	Description  string        `json:"description"`
+	Document     string        `json:"document"`
+	DocumentType string        `json:"document_type"`
+	SocialName   string        `json:"social_name"`
+	Menus        []menu.Menu   `json:"menus,omitempty" gorm:"foreignKey:BrandID"`
+	Stores       []store.Store `json:"stores,omitempty" gorm:"foreignKey:BrandID"`
+	City         string        `json:"city"`
+	CreatedAt    string        `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt    string        `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt    string        `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type Repository interface {

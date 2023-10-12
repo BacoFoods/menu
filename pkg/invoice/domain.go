@@ -25,6 +25,7 @@ const (
 	ErrorInvoiceWrongClient              = "error wrong client for invoice"
 	ErrorItemNotFound                    = "error item not found"
 	ErrorInvoiceSeparatingNotEnoughItems = "error separating invoice not enough items sent"
+	ErrorInvoicePrinting                 = "error printing invoice"
 
 	TaxPercentage     = 0.08
 	TipTypePercentage = "PERCENTAGE"
@@ -39,31 +40,36 @@ type Repository interface {
 	UpdateTip(invoice *Invoice) (*Invoice, error)
 	CreateBatch(invoices []Invoice) ([]Invoice, error)
 	Delete(invoiceID string) error
+	Print(invoiceID string) (*DBDTOPrintInvoice, error)
 }
 
 type Invoice struct {
-	ID              uint              `json:"id"`
-	OrderID         *uint             `json:"order_id"`
-	BrandID         *uint             `json:"brand_id" binding:"required"`
-	StoreID         *uint             `json:"store_id" binding:"required"`
-	ChannelID       *uint             `json:"channel_id" binding:"required"`
-	TableID         *uint             `json:"table_id"`
-	Items           []Item            `json:"items"  gorm:"foreignKey:InvoiceID"`
-	Discounts       []Discount        `json:"discounts"  gorm:"foreignKey:InvoiceID"`
-	Surcharges      []Surcharge       `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
-	SubTotal        float64           `json:"sub_total"`
-	TotalDiscounts  float64           `json:"total_discounts,omitempty"`
-	TotalSurcharges float64           `json:"total_surcharges,omitempty"`
-	Tips            float64           `json:"tips"`
-	BaseTax         float64           `json:"base_tax"`
-	Taxes           float64           `json:"taxes"`
-	Total           float64           `json:"total"`
-	Payments        []payment.Payment `json:"payments" gorm:"foreignKey:InvoiceID"`
-	ClientID        *uint             `json:"client_id"`
-	Client          *client.Client    `json:"client,omitempty"`
-	CreatedAt       *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt       *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt       *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID                  uint              `json:"id"`
+	OrderID             *uint             `json:"order_id"`
+	BrandID             *uint             `json:"brand_id" binding:"required"`
+	StoreID             *uint             `json:"store_id" binding:"required"`
+	ChannelID           *uint             `json:"channel_id" binding:"required"`
+	TableID             *uint             `json:"table_id"`
+	Items               []Item            `json:"items"  gorm:"foreignKey:InvoiceID"`
+	Discounts           []Discount        `json:"discounts"  gorm:"foreignKey:InvoiceID"`
+	Surcharges          []Surcharge       `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
+	Cashier             string            `json:"cashier"`
+	Waiter              string            `json:"waiter"`
+	SubTotal            float64           `json:"sub_total"`
+	TotalDiscounts      float64           `json:"total_discounts,omitempty"`
+	TotalSurcharges     float64           `json:"total_surcharges,omitempty"`
+	Tip                 string            `json:"tip"`
+	TipAmount           float64           `json:"tip_amount"`
+	BaseTax             float64           `json:"base_tax"`
+	Taxes               float64           `json:"taxes"`
+	Total               float64           `json:"total"`
+	PaymentsObservation string            `json:"payments_observation"`
+	Payments            []payment.Payment `json:"payments" gorm:"foreignKey:InvoiceID"`
+	ClientID            *uint             `json:"client_id"`
+	Client              *client.Client    `json:"client,omitempty"`
+	CreatedAt           *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt           *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt           *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 func (i *Invoice) CalculateTip(value float64, tipType string) error {
@@ -72,20 +78,22 @@ func (i *Invoice) CalculateTip(value float64, tipType string) error {
 
 	switch tipType {
 	case TipTypePercentage:
+		i.Tip = TipTypePercentage
 		if value > TipPercentageMax {
 			return fmt.Errorf(ErrorTipPercentageExceedsLimit)
 		} else if !(value == 0.05) && !(value == 0.1) {
 			return fmt.Errorf(ErrorTipPercentageValue)
 		}
-		i.Tips = math.Floor(value * i.BaseTax)
+		i.TipAmount = math.Floor(value * i.BaseTax)
 	case TipTypeAmount:
+		i.Tip = TipTypeAmount
 		if value < 0 {
 			return fmt.Errorf(ErrorInvalidTipAmount)
 		}
-		i.Tips = math.Floor(value + i.BaseTax)
+		i.TipAmount = math.Floor(value + i.BaseTax)
 	}
 
-	i.Total = i.BaseTax + i.Taxes + i.TotalSurcharges - i.TotalDiscounts + i.Tips
+	i.Total = i.BaseTax + i.Taxes + i.TotalSurcharges - i.TotalDiscounts + i.TipAmount
 	return nil
 }
 

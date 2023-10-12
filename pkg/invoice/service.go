@@ -7,7 +7,10 @@ import (
 	clientPKG "github.com/BacoFoods/menu/pkg/client"
 )
 
-const LogService = "pkg/invoice/service"
+const (
+	ErrorInvoiceFind = "error finding invoices"
+	LogService       = "pkg/invoice/service"
+)
 
 type Service interface {
 	Get(invoiceID string) (*Invoice, error)
@@ -16,6 +19,7 @@ type Service interface {
 	AddClient(invoiceID string, clientID string) (*Invoice, error)
 	RemoveClient(invoiceID string, clientID string) (*Invoice, error)
 	Separate(invoiceID string, invoices [][]uint) ([]Invoice, error)
+	Print(invoiceID string) (*DBDTOPrintInvoice, error)
 }
 
 type service struct {
@@ -34,8 +38,12 @@ func (s service) Get(invoiceID string) (*Invoice, error) {
 
 // Find returns a list of Invoice objects.
 func (s service) Find(filter map[string]any) ([]Invoice, error) {
+	invoices, err := s.repository.Find(filter)
+	if err != nil {
+		return nil, fmt.Errorf(ErrorInvoiceFind)
+	}
 
-	return s.repository.Find(filter)
+	return invoices, nil
 }
 
 // UpdateTip update 'tips' field of an Invoice .y verifica si es un valor válido
@@ -112,7 +120,7 @@ func (s service) Separate(invoiceID string, invoices [][]uint) ([]Invoice, error
 			SubTotal:        0,
 			TotalDiscounts:  0,
 			TotalSurcharges: 0,
-			Tips:            0,
+			TipAmount:       0,
 			BaseTax:         0,
 			Taxes:           0,
 			Total:           0,
@@ -153,4 +161,9 @@ func (s service) Separate(invoiceID string, invoices [][]uint) ([]Invoice, error
 	}
 
 	return invoicesBatch, nil
+}
+
+// Print returns a printable invoice.
+func (s service) Print(invoiceID string) (*DBDTOPrintInvoice, error) {
+	return s.repository.Print(invoiceID)
 }

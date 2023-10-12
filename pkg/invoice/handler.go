@@ -30,7 +30,7 @@ func NewHandler(service Service) *Handler {
 	return &Handler{service}
 }
 
-// Get to handle a request to get a invoice
+// Get to handle a request to get an invoice
 // @Tags Invoice
 // @Summary To get an invoice
 // @Description To get an invoice
@@ -61,6 +61,9 @@ func (h *Handler) Get(c *gin.Context) {
 // @Description To find invoices
 // @Param order_id query string false "order id"
 // @Param paid query string false "paid"
+// @Param store_id query string false "store id"
+// @Param closed query string false "is closed"
+// @Param days query string false "Days before"
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -72,12 +75,24 @@ func (h *Handler) Get(c *gin.Context) {
 func (h *Handler) Find(c *gin.Context) {
 	filter := make(map[string]any)
 
+	if storeID := c.Query("store_id"); storeID != "" {
+		filter["store_id"] = storeID
+	}
+
+	if closed := c.Query("closed"); closed != "" {
+		filter["closed"] = closed
+	}
+
 	if orderID := c.Query("order_id"); orderID != "" {
 		filter["order_id"] = orderID
 	}
 
 	if paid := c.Query("paid"); paid != "" {
 		filter["paid"] = paid
+	}
+
+	if days := c.Query("days"); days != "" {
+		filter["days"] = days
 	}
 
 	invoices, err := h.service.Find(filter)
@@ -207,4 +222,29 @@ func (h *Handler) Separate(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoices))
+}
+
+// Print to handle a request to print an invoice
+// @Tags Invoice
+// @Summary To print an invoice
+// @Description To print an invoice
+// @Param id path string true "invoice id"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=Invoice}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /invoice/{id}/print [get]
+func (h *Handler) Print(c *gin.Context) {
+	invoiceID := c.Param("id")
+
+	printableInvoice, err := h.service.Print(invoiceID)
+	if err != nil {
+		shared.LogError("error printing invoice", LogHandler, "Print", err, *printableInvoice)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoicePrinting))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(printableInvoice))
 }
