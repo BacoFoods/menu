@@ -3637,6 +3637,10 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "true",
+                            "false"
+                        ],
                         "type": "string",
                         "description": "paid",
                         "name": "paid",
@@ -3649,6 +3653,10 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "true",
+                            "false"
+                        ],
                         "type": "string",
                         "description": "is closed",
                         "name": "closed",
@@ -5421,6 +5429,10 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "true",
+                            "false"
+                        ],
                         "type": "string",
                         "description": "Is Active",
                         "name": "active",
@@ -6232,6 +6244,58 @@ const docTemplate = `{
                     "Invoice"
                 ],
                 "summary": "To create an invoice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Invoice"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/order/{id}/invoice/calculate": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To calculate an invoice",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invoice"
+                ],
+                "summary": "To calculate an invoice",
                 "parameters": [
                     {
                         "type": "string",

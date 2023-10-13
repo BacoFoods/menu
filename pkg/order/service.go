@@ -39,6 +39,7 @@ type Service interface {
 	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
 	DeleteOrderType(orderTypeID string) error
 	CreateInvoice(orderID string) (*invoices.Invoice, error)
+	CalculateInvoice(orderID string) (*invoices.Invoice, error)
 }
 
 type service struct {
@@ -518,4 +519,17 @@ func (s service) CreateInvoice(orderID string) (*invoices.Invoice, error) {
 	}
 
 	return invoiceDB, nil
+}
+
+func (s service) CalculateInvoice(orderID string) (*invoices.Invoice, error) {
+	order, err := s.repository.Get(orderID)
+	if err != nil {
+		shared.LogError("error getting order", LogService, "CreateInvoice", err, orderID)
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	order.ToInvoice()
+	invoice := order.Invoices[0]
+
+	return &invoice, nil
 }

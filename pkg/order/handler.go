@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 )
@@ -126,7 +125,7 @@ func (h *Handler) Get(c *gin.Context) {
 // @Param store query string false "Store ID"
 // @Param table query string false "Table ID"
 // @Param status query string false "Status"
-// @Param active query string false "Is Active"
+// @Param active query string false "Is Active" Enums(true,false)
 // @Param days query string false "Days before"
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
@@ -743,7 +742,29 @@ func (h *Handler) CreateInvoice(c *gin.Context) {
 
 	invoice, err := h.service.CreateInvoice(orderID)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(invoices.ErrorInvoiceCreation))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCreation))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+}
+
+// CalculateInvoice to handle a request to calculate an invoice
+// @Tags Invoice
+// @Summary To calculate an invoice
+// @Description To calculate an invoice
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "Order ID"
+// @Success 200 {object} object{status=string,data=invoice.Invoice}
+// @Router /order/{id}/invoice/calculate [post]
+func (h *Handler) CalculateInvoice(c *gin.Context) {
+	orderID := c.Param("id")
+
+	invoice, err := h.service.CalculateInvoice(orderID)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCalculation))
 		return
 	}
 

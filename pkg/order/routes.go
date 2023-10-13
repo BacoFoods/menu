@@ -43,4 +43,5 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 
 	// Invoice
 	router.POST("/order/:id/invoice", r.handler.CreateInvoice)
+	router.POST("/order/:id/invoice/calculate", r.handler.CalculateInvoice)
 }

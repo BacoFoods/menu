@@ -60,9 +60,9 @@ func (h *Handler) Get(c *gin.Context) {
 // @Summary To find invoices
 // @Description To find invoices
 // @Param order_id query string false "order id"
-// @Param paid query string false "paid"
+// @Param paid query string false "paid" Enums(true,false)
 // @Param store_id query string false "store id"
-// @Param closed query string false "is closed"
+// @Param closed query string false "is closed" Enums(true,false)
 // @Param days query string false "Days before"
 // @Accept json
 // @Produce json
