@@ -24,8 +24,10 @@ const (
 	ErrorInvoiceRemovingClient           = "error removing client from invoice"
 	ErrorInvoiceWrongClient              = "error wrong client for invoice"
 	ErrorItemNotFound                    = "error item not found"
-	ErrorInvoiceSeparatingNotEnoughItems = "error separating invoice not enough items sent"
+	ErrorInvoiceSeparatingNotEnoughItems = "error splitting invoice not enough items sent"
 	ErrorInvoicePrinting                 = "error printing invoice"
+	ErrorInvoicePrintingHeader           = "error printing invoice header"
+	ErrorInvoicePrintingItems            = "error printing invoice items"
 
 	TaxPercentage     = 0.08
 	TipTypePercentage = "PERCENTAGE"
@@ -40,7 +42,7 @@ type Repository interface {
 	UpdateTip(invoice *Invoice) (*Invoice, error)
 	CreateBatch(invoices []Invoice) ([]Invoice, error)
 	Delete(invoiceID string) error
-	Print(invoiceID string) (*DBDTOPrintInvoice, error)
+	Print(invoiceID string) (*DTOPrintable, error)
 }
 
 type Invoice struct {
@@ -151,4 +153,7 @@ type Surcharge struct {
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+type Printable struct {
 }

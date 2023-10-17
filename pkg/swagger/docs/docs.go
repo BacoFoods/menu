@@ -4098,14 +4098,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/invoice/{id}/separate": {
+        "/invoice/{id}/split": {
             "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To separate an invoice using items ids",
+                "description": "To split an invoice using items ids",
                 "consumes": [
                     "application/json"
                 ],
@@ -4115,7 +4115,7 @@ const docTemplate = `{
                 "tags": [
                     "Invoice"
                 ],
-                "summary": "To separate an invoice using items ids",
+                "summary": "To split an invoice using items ids",
                 "parameters": [
                     {
                         "type": "string",
@@ -4125,12 +4125,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "invoices for separation",
+                        "description": "invoices for splitting",
                         "name": "invoices",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/invoice.RequestInvoiceSeparate"
+                            "$ref": "#/definitions/invoice.RequestInvoiceSplit"
                         }
                     }
                 ],
@@ -11984,7 +11984,7 @@ const docTemplate = `{
                 }
             }
         },
-        "invoice.RequestInvoiceSeparate": {
+        "invoice.RequestInvoiceSplit": {
             "type": "object",
             "required": [
                 "invoices"

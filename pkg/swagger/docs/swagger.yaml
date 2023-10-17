@@ -364,7 +364,7 @@ definitions:
       sku:
         type: string
     type: object
-  invoice.RequestInvoiceSeparate:
+  invoice.RequestInvoiceSplit:
     properties:
       invoices:
         items:
@@ -3525,23 +3525,23 @@ paths:
       summary: To print an invoice
       tags:
       - Invoice
-  /invoice/{id}/separate:
+  /invoice/{id}/split:
     post:
       consumes:
       - application/json
-      description: To separate an invoice using items ids
+      description: To split an invoice using items ids
       parameters:
       - description: invoice id
         in: path
         name: id
         required: true
         type: string
-      - description: invoices for separation
+      - description: invoices for splitting
         in: body
         name: invoices
         required: true
         schema:
-          $ref: '#/definitions/invoice.RequestInvoiceSeparate'
+          $ref: '#/definitions/invoice.RequestInvoiceSplit'
       produces:
       - application/json
       responses:
@@ -3577,7 +3577,7 @@ paths:
             $ref: '#/definitions/shared.Response'
       security:
       - ApiKeyAuth: []
-      summary: To separate an invoice using items ids
+      summary: To split an invoice using items ids
       tags:
       - Invoice
   /menu:

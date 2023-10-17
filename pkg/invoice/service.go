@@ -18,8 +18,8 @@ type Service interface {
 	UpdateTip(value float64, tipType string, invoiceID string) (*Invoice, error)
 	AddClient(invoiceID string, clientID string) (*Invoice, error)
 	RemoveClient(invoiceID string, clientID string) (*Invoice, error)
-	Separate(invoiceID string, invoices [][]uint) ([]Invoice, error)
-	Print(invoiceID string) (*DBDTOPrintInvoice, error)
+	Split(invoiceID string, invoices [][]uint) ([]Invoice, error)
+	Print(invoiceID string) (*DTOPrintable, error)
 }
 
 type service struct {
@@ -97,8 +97,8 @@ func (s service) RemoveClient(invoiceID string, clientID string) (*Invoice, erro
 	return s.repository.CreateUpdate(invoice)
 }
 
-// Separate separates an invoice into multiple invoices.
-func (s service) Separate(invoiceID string, invoices [][]uint) ([]Invoice, error) {
+// Split separates an invoice into multiple invoices.
+func (s service) Split(invoiceID string, invoices [][]uint) ([]Invoice, error) {
 	invoiceDB, err := s.repository.Get(invoiceID)
 	if err != nil {
 		return nil, err
@@ -131,10 +131,10 @@ func (s service) Separate(invoiceID string, invoices [][]uint) ([]Invoice, error
 			item, ok := mapItems[itemID]
 			if !ok {
 				err := fmt.Errorf(ErrorItemNotFound)
-				shared.LogError("error separating invoice", LogService, "Separate", err, itemID)
+				shared.LogError("error separating invoice", LogService, "Split", err, itemID)
 				return nil, err
 			}
-			delete(mapItems, itemID) // remove item from map to validate that all items are separated
+			delete(mapItems, itemID) // remove item from map to validate that all items are split
 			newInvoice.Items = append(newInvoice.Items, item)
 			newInvoice.SubTotal += item.Price
 			tax := newInvoice.SubTotal * TaxPercentage
@@ -147,7 +147,7 @@ func (s service) Separate(invoiceID string, invoices [][]uint) ([]Invoice, error
 
 	if len(mapItems) != 0 {
 		err := fmt.Errorf(ErrorInvoiceSeparatingNotEnoughItems)
-		shared.LogError("error separating invoice", LogService, "Separate", err, mapItems)
+		shared.LogError("error separating invoice", LogService, "Split", err, mapItems)
 		return nil, err
 	}
 
@@ -164,6 +164,38 @@ func (s service) Separate(invoiceID string, invoices [][]uint) ([]Invoice, error
 }
 
 // Print returns a printable invoice.
-func (s service) Print(invoiceID string) (*DBDTOPrintInvoice, error) {
-	return s.repository.Print(invoiceID)
+func (s service) Print(invoiceID string) (*DTOPrintable, error) {
+	header, err := s.repository.Print(invoiceID)
+	if err != nil {
+		return nil, fmt.Errorf(ErrorInvoicePrintingHeader)
+	}
+
+	invoice, err := s.repository.Get(invoiceID)
+	if err != nil {
+		return nil, fmt.Errorf(ErrorInvoicePrintingItems)
+	}
+
+	var itemsMap = make(map[string]*DTOPrintableItem)
+	for _, item := range invoice.Items {
+		productID := fmt.Sprintf("%d", *item.ProductID)
+		if i, ok := itemsMap[productID]; ok {
+			i.Quantity++
+			i.Total += item.Price
+		} else {
+			itemsMap[productID] = &DTOPrintableItem{
+				Name:     item.Name,
+				Quantity: 1,
+				Price:    item.Price,
+				Total:    item.Price,
+			}
+		}
+	}
+
+	var items []DTOPrintableItem
+	for _, item := range itemsMap {
+		items = append(items, *item)
+	}
+
+	header.Items = items
+	return header, nil
 }

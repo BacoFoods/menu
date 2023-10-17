@@ -18,7 +18,7 @@ type RequestUpdateTip struct {
 	Value float64 `json:"value"`
 }
 
-type RequestInvoiceSeparate struct {
+type RequestInvoiceSplit struct {
 	Invoices [][]uint `json:"invoices" binding:"required"`
 }
 
@@ -192,12 +192,12 @@ func (h *Handler) RemoveClient(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
 }
 
-// Separate to handle a request to separate an invoice
+// Split to handle a request to split an invoice
 // @Tags Invoice
-// @Summary To separate an invoice using items ids
-// @Description To separate an invoice using items ids
+// @Summary To split an invoice using items ids
+// @Description To split an invoice using items ids
 // @Param id path string true "invoice id"
-// @Param invoices body RequestInvoiceSeparate true "invoices for separation"
+// @Param invoices body RequestInvoiceSplit true "invoices for splitting"
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -205,19 +205,19 @@ func (h *Handler) RemoveClient(c *gin.Context) {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 401 {object} shared.Response
-// @Router /invoice/{id}/separate [post]
-func (h *Handler) Separate(c *gin.Context) {
+// @Router /invoice/{id}/split [post]
+func (h *Handler) Split(c *gin.Context) {
 	invoiceID := c.Param("id")
-	var body RequestInvoiceSeparate
+	var body RequestInvoiceSplit
 	if err := c.ShouldBindJSON(&body); err != nil {
-		shared.LogError("error binding request body", LogHandler, "Separate", err, body)
+		shared.LogError("error binding request body", LogHandler, "Split", err, body)
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
 
-	invoices, err := h.service.Separate(invoiceID, body.Invoices)
+	invoices, err := h.service.Split(invoiceID, body.Invoices)
 	if err != nil {
-		shared.LogError("error separating invoice", LogHandler, "Separate", err, invoices)
+		shared.LogError("error separating invoice", LogHandler, "Split", err, invoices)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}

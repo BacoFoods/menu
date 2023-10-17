@@ -114,13 +114,13 @@ func (r *DBRepository) Delete(invoiceID string) error {
 }
 
 // Print to get a printable invoice from database
-func (r *DBRepository) Print(invoiceID string) (*DBDTOPrintInvoice, error) {
+func (r *DBRepository) Print(invoiceID string) (*DTOPrintable, error) {
 	if invoiceID == "" {
 		shared.LogWarn("error printing invoice", LogRepository, "Print", shared.ErrorIDEmpty)
 		return nil, shared.ErrorIDEmpty
 	}
 
-	var invoice DBDTOPrintInvoice
+	var invoice DTOPrintable
 
 	if err := r.db.Table("invoices as i").
 		Select("s.name as store_name, s.address as store_address, s.phone as store_phone, b.name as brand_name, b.document as brand_document, b.city as brand_city, i.created_at as date, i.waiter, i.cashier, c.name as client_name, c.document as client_document, c.email as client_email, c.address as client_address, o.id as order_id, t.display_name as table_name, i.sub_total as subtotal, i.total_discounts as discount, i.tip, i.tip_amount, i.total_surcharges as surcharge, i.base_tax, i.taxes").
@@ -135,8 +135,8 @@ func (r *DBRepository) Print(invoiceID string) (*DBDTOPrintInvoice, error) {
 		return nil, err
 	}
 
-	var items []DBDTOPrintInvoiceItem
-	if err := r.db.Model(Item{}).Find(&items, "invoice_id = ?", invoiceID).Error; err != nil {
+	var items []Item
+	if err := r.db.Find(&items, "invoice_id = ?", invoiceID).Error; err != nil {
 		shared.LogError("error printing invoice", LogRepository, "Print", err, invoiceID)
 		return nil, err
 	}

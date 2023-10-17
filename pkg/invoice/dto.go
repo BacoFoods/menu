@@ -1,6 +1,6 @@
 package invoice
 
-type DBDTOPrintInvoice struct {
+type DTOPrintable struct {
 	StoreName    string `json:"store_name"`
 	StoreAddress string `json:"store_address"`
 	StorePhone   string `json:"store_phone"`
@@ -23,6 +23,7 @@ type DBDTOPrintInvoice struct {
 	OrderID string `json:"order_id"`
 	Table   string `json:"table_name"`
 	//-------------------------------------------//
+	Items []DTOPrintableItem `json:"items" gorm:"-"`
 	//-------------------------------------------//
 	Subtotal  float64 `json:"subtotal"`
 	Discount  float64 `json:"discount"`
@@ -37,9 +38,9 @@ type DBDTOPrintInvoice struct {
 	//-------------------------------------------//
 }
 
-type DBDTOPrintInvoiceItem struct {
-	Quantity float64 `json:"quantity"`
+type DTOPrintableItem struct {
 	Name     string  `json:"name"`
+	Quantity uint    `json:"quantity"`
 	Price    float64 `json:"price"`
 	Total    float64 `json:"total"`
 }
