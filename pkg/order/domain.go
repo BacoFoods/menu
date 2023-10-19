@@ -1,7 +1,6 @@
 package order
 
 import (
-	"context"
 	"fmt"
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/client"
@@ -49,10 +48,8 @@ const (
 	TaxPercentage = 0.08
 
 	OrderStepCreated OrderStep = "created"
-	OrderStepPaid    OrderStep = "paid"
 
 	OrderActionCreated OrderAction = "fue atendido por"
-	OrderActionPaid    OrderAction = "registró su pago"
 )
 
 type OrderStep string
@@ -112,10 +109,25 @@ func (o *Order) GetProductIDs() []string {
 	return ids
 }
 
-func (o *Order) SetItems(products []product.Product) {
+func (o *Order) GetModifierIDs() []string {
+	ids := make([]string, 0)
+	for _, item := range o.Items {
+		for _, modifier := range item.Modifiers {
+			ids = append(ids, fmt.Sprintf("%d", *modifier.ProductID))
+		}
+	}
+	return ids
+}
+
+func (o *Order) SetItems(products []product.Product, modifiers []product.Product) {
 	productsMap := make(map[string]product.Product)
 	for _, p := range products {
 		productsMap[fmt.Sprintf("%d", p.ID)] = p
+	}
+
+	modifiersMap := make(map[string]product.Product)
+	for _, m := range modifiers {
+		modifiersMap[fmt.Sprintf("%d", m.ID)] = m
 	}
 
 	items := make([]OrderItem, 0)
@@ -128,6 +140,21 @@ func (o *Order) SetItems(products []product.Product) {
 			item.Price = p.Price
 			item.Unit = p.Unit
 			item.SetHash()
+
+			modifierList := make([]OrderModifier, 0)
+			for _, modifier := range item.Modifiers {
+				if m, ok := modifiersMap[fmt.Sprintf("%d", *modifier.ProductID)]; ok {
+					modifier.Name = m.Name
+					modifier.Description = m.Description
+					modifier.Image = m.Image
+					modifier.SKU = m.SKU
+					modifier.Price = m.Price
+					modifier.Unit = m.Unit
+					modifier.ProductID = &m.ID
+					modifierList = append(modifierList, modifier)
+				}
+			}
+			item.Modifiers = modifierList
 			items = append(items, item)
 		}
 	}
@@ -310,5 +337,3 @@ type Attendee struct {
 	UpdatedAt *time.Time      `json:"updated_at" swaggerignore:"true"`
 	DeletedAt *gorm.DeletedAt `json:"deleted_at" swaggerignore:"true"`
 }
-
-type OrderCtx context.Context

@@ -6,6 +6,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/course"
 	"github.com/BacoFoods/menu/pkg/payment"
+	"github.com/BacoFoods/menu/pkg/shift"
 
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/availability"
@@ -71,6 +72,7 @@ func main() {
 		&payment.Payment{},
 		&payment.PaymentMethod{},
 		&order.Attendee{},
+		&shift.CashierShift{},
 	)
 
 	// Healthcheck
@@ -211,6 +213,12 @@ func main() {
 	paymentHandler := payment.NewHandler(paymentService)
 	paymentRoutes := payment.NewRoutes(paymentHandler)
 
+	// Shifts
+	shiftRepository := shift.NewDBRepository(gormDB)
+	shiftService := shift.NewService(shiftRepository)
+	shiftHandler := shift.NewHandler(shiftService)
+	shiftRoutes := shift.NewRoutes(shiftHandler)
+
 	// Routes
 	routes := &router.RoutesGroup{
 		HealthCheck:  healthcheckRoutes,
@@ -236,6 +244,7 @@ func main() {
 		Course:       courseRoutes,
 		Client:       clientRoutes,
 		Payment:      paymentRoutes,
+		Shift:        shiftRoutes,
 	}
 
 	// Run server

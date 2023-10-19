@@ -71,10 +71,16 @@ func NewService(repository Repository,
 func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	// Setting product items
 	productIDs := order.GetProductIDs()
-
 	prods, err := s.product.GetByIDs(productIDs)
 	if err != nil {
 		shared.LogError("error getting products", LogService, "Create", err, productIDs)
+		return nil, fmt.Errorf(ErrorOrderCreation)
+	}
+
+	modifierIDs := order.GetModifierIDs()
+	modifiers, err := s.product.GetByIDs(modifierIDs)
+	if err != nil {
+		shared.LogError("error getting modifiers", LogService, "Create", err, modifierIDs)
 		return nil, fmt.Errorf(ErrorOrderCreation)
 	}
 
@@ -82,7 +88,7 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 		return nil, fmt.Errorf(ErrorOrderProductsNotFound)
 	}
 
-	order.SetItems(prods)
+	order.SetItems(prods, modifiers)
 	order.ToInvoice()
 
 	newOrder, err := s.repository.Create(order)
