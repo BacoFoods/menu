@@ -157,6 +157,7 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	}
 
 	// Setting table
+	// TODO: Send create order and set table to repository to make a trx and rollback if error to avoid has order without table
 	if _, err := s.table.SetOrder(newOrder.TableID, &newOrder.ID); err != nil {
 		return nil, err
 	}

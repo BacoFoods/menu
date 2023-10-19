@@ -151,6 +151,7 @@ func (o *Order) SetItems(products []product.Product, modifiers []product.Product
 					modifier.Price = m.Price
 					modifier.Unit = m.Unit
 					modifier.ProductID = &m.ID
+					modifier.OrderID = o.ID
 					modifierList = append(modifierList, modifier)
 				}
 			}
