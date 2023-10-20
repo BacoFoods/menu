@@ -13,5 +13,6 @@ func NewRoutes(handler *Handler) Routes {
 }
 
 func (r *Routes) RegisterRoutes(routes *gin.RouterGroup) {
+	routes.GET("/temporal/locales", r.handler.GetLocales)
 	routes.GET("/temporal/arqueo", r.handler.GetArqueo)
 }

@@ -20,6 +20,11 @@ func NewHandler() *Handler {
 	return &Handler{}
 }
 
+const (
+	LogHandler                     = "pkg/temporal/handler"
+	ErrorTemporalArqueoInvalidDate = "invalid date format"
+)
+
 var mapLocalesNombres = map[string]string{
 	"ZonaG - PC1":      "bacuzonagc14",
 	"ZonaG - PC2":      "bacuzonag",
@@ -51,8 +56,8 @@ type Order struct {
 		Total     float64 `firestore:"total"`
 		FormaPago string  `firestore:"formaPago"`
 	} `firestore:"payments"`
-	Pagado        bool      `firestore:"pagado"`
-	FechaCreacion time.Time `firestore:"fechaCreacion"`
+	Pagado        bool   `firestore:"pagado"`
+	FechaCreacion string `firestore:"fechaCreacion"`
 }
 
 // GetLocales to handle the request to get the locales for arqueo
@@ -76,6 +81,8 @@ func (h *Handler) GetLocales(c *gin.Context) {
 // @Tags Temporal
 // @Accept json
 // @Produce json
+// @Param local query string true "Local"
+// @Param date query string true "Date"
 // @Security ApiKeyAuth
 // @Success 200 {object} object{status=string}
 // @Failure 401 {object} shared.Response
@@ -86,6 +93,13 @@ func (h *Handler) GetArqueo(c *gin.Context) {
 	keyLocal := c.Query("local")
 	date := c.Query("date") // format 2023-12-30
 
+	_, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		shared.LogWarn("Invalid date format", LogHandler, "GetArqueo", fmt.Errorf(ErrorTemporalArqueoInvalidDate), date)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorTemporalArqueoInvalidDate))
+		return
+	}
+
 	minDate := fmt.Sprintf("%s 00:00:00", date)
 	maxDate := fmt.Sprintf("%s 23:59:59", date)
 
@@ -94,8 +108,6 @@ func (h *Handler) GetArqueo(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
-
-	db := make(map[string]map[string]any)
 
 	path := fmt.Sprintf("confLocalPO/%s/pedidos", keyLocal)
 	iter := firestore.Client.Collection(path).
@@ -171,5 +183,5 @@ func (h *Handler) GetArqueo(c *gin.Context) {
 		data["propinaPorMetodoPago"] = propinaPorMetodo
 	}
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(db))
+	c.JSON(http.StatusOK, shared.SuccessResponse(data))
 }
