@@ -14,6 +14,7 @@ const (
 type config struct {
 	AppConfig
 	DBConfig
+	FirestoreConfig
 }
 
 // Config is the global variable that holds the configuration for parse the environment variables
@@ -33,4 +34,10 @@ type AppConfig struct {
 	TokenExpireHours string `env:"TOKEN_EXPIRE_HOURS"`
 	TokenSecret      string `env:"TOKEN_SECRET"`
 	GoogleConfig     string `env:"GOOGLE_CONFIG"`
+}
+
+// FirestoreConfig is the struct that holds the configuration for the firestore
+type FirestoreConfig struct {
+	AuthB64   string `env:"FIRESTORE_AUTH_BASE64"`
+	ProjectID string `env:"FIRESTORE_PROJECT_ID"`
 }

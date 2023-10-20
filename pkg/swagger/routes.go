@@ -19,6 +19,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
 	_ "github.com/BacoFoods/menu/pkg/swagger/docs" //documentation
+	"github.com/BacoFoods/menu/pkg/temporal"
 	"github.com/BacoFoods/menu/pkg/zones"
 	"github.com/gin-gonic/gin"
 
@@ -71,5 +72,6 @@ func (r *Routes) Register(group *gin.RouterGroup) {
 	_ = client.Handler{}
 	_ = payment.Handler{}
 	_ = shift.Handler{}
+	_ = temporal.Handler{}
 	group.GET("/swagger/*any", swaggerGin.WrapHandler(swaggerFiles.Handler))
 }

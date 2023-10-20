@@ -7,6 +7,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/course"
 	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/shift"
+	"github.com/BacoFoods/menu/pkg/temporal"
 
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/availability"
@@ -219,6 +220,10 @@ func main() {
 	shiftHandler := shift.NewHandler(shiftService)
 	shiftRoutes := shift.NewRoutes(shiftHandler)
 
+	// Temporal
+	temporalHandler := temporal.NewHandler()
+	temporalRoutes := temporal.NewRoutes(temporalHandler)
+
 	// Routes
 	routes := &router.RoutesGroup{
 		HealthCheck:  healthcheckRoutes,
@@ -245,6 +250,7 @@ func main() {
 		Client:       clientRoutes,
 		Payment:      paymentRoutes,
 		Shift:        shiftRoutes,
+		Temporal:     temporalRoutes,
 	}
 
 	// Run server

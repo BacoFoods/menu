@@ -7689,6 +7689,36 @@ paths:
       summary: To find tax by id
       tags:
       - Tax
+  /temporal/arqueo:
+    get:
+      consumes:
+      - application/json
+      description: Get the arqueo
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                status:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get the arqueo
+      tags:
+      - Temporal
   /zone:
     get:
       consumes:

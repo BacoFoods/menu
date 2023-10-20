@@ -12,7 +12,6 @@ type Repository interface {
 
 type CashierShift struct {
 	ID        uint            `json:"id" gorm:"primaryKey"`
-	ChannelID uint            `json:"channel_id"`
 	StoreID   uint            `json:"store_id"`
 	BrandID   uint            `json:"brand_id"`
 	StartTime *time.Time      `json:"start_time"`

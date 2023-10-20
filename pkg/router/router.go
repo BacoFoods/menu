@@ -29,6 +29,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/swagger"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/BacoFoods/menu/pkg/taxes"
+	"github.com/BacoFoods/menu/pkg/temporal"
 	"github.com/BacoFoods/menu/pkg/zones"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/api/idtoken"
@@ -90,6 +91,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Client.RegisterRoutes(private)
 	routes.Payment.RegisterRoutes(private)
 	routes.Shift.RegisterRoutes(private)
+	routes.Temporal.RegisterRoutes(private)
 
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
@@ -126,4 +128,5 @@ type RoutesGroup struct {
 	Client       client.Routes
 	Payment      payment.Routes
 	Shift        shift.Routes
+	Temporal     temporal.Routes
 }
