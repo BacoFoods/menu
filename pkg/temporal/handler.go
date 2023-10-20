@@ -21,8 +21,23 @@ const minDate = "2023-10-07 00:00:00"
 const maxDate = "2023-10-07 23:59:59"
 
 var mapLocales = map[string]string{
-	"bacucolinapc110881": "Colina",
-	// Agrega otros locales si es necesario
+	"bacuzonagc14":        "ZonaG",
+	"bacuzonag":           "ZonaG",
+	"bacuflormoradopc2":   "Flormorado",
+	"bacuflormorado":      "Flormorado",
+	"bacucalle109":        "CL109",
+	"bacu109":             "CL109",
+	"feriadelmillon2":     "CL90",
+	"bacucalle90delivery": "CL90",
+	"connectasalon110665": "Connecta",
+	"bacuconnecta":        "Connecta",
+	"connectasalon210666": "Connecta",
+	"cityusalon1":         "CityU",
+	"cityusalon2":         "CityU",
+	"bacucityu":           "CityU",
+	"bacucolinapc110881":  "Colina",
+	"bacutitansalon10883": "Titan",
+	"bacunogalespc110884": "Nogal",
 }
 
 type Order struct {
@@ -118,5 +133,5 @@ func (h *Handler) GetArqueo(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(c))
+	c.JSON(http.StatusOK, shared.SuccessResponse(db))
 }
