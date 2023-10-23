@@ -45,19 +45,22 @@ var mapLocalesNombres = map[string]string{
 	"Nogal":            "bacunogalespc110884",
 }
 
+type OrderPayment struct {
+	Total     float64 `firestore:"total"`
+	FormaPago string  `firestore:"formaPago"`
+}
+
 type Order struct {
 	Total struct {
 		TotalItems float64 `firestore:"totalItems"`
 		Total      float64 `firestore:"total"`
 		Propina    float64 `firestore:"propina"`
 	} `firestore:"total"`
-	Origins  string `firestore:"origen"`
-	Payments []struct {
-		Total     float64 `firestore:"total"`
-		FormaPago string  `firestore:"formaPago"`
-	} `firestore:"payments"`
-	Pagado        bool   `firestore:"pagado"`
-	FechaCreacion string `firestore:"fechaCreacion"`
+	Origins       string         `firestore:"origen"`
+	Plataforma    string         `firestore:"plataforma"`
+	Payments      []OrderPayment `firestore:"payments"`
+	Pagado        bool           `firestore:"pagado"`
+	FechaCreacion string         `firestore:"fechaCreacion"`
 }
 
 // GetLocales to handle the request to get the locales for arqueo
@@ -135,7 +138,7 @@ func (h *Handler) GetArqueo(c *gin.Context) {
 	}
 
 	data := make(map[string]any)
-	data["orders"] = len(orders)
+	data["Ordenes"] = len(orders)
 
 	var neto1, propinas, bruto float64
 
@@ -148,39 +151,37 @@ func (h *Handler) GetArqueo(c *gin.Context) {
 		porMetodo := make(map[string]float64)
 		propinaPorMetodo := make(map[string]float64)
 
-		if v, ok := porPlataforma[order.Origins]; ok {
-			porPlataforma[order.Origins] = v + order.Total.Total
-		} else {
-			porPlataforma[order.Origins] = order.Total.Total
+		porPlataforma[order.Origins] = porPlataforma[order.Origins] + order.Total.Total
+
+		orderPayments := order.Payments
+		if len(orderPayments) == 0 {
+			orderPayments = []OrderPayment{
+				{
+					Total:     order.Total.Total,
+					FormaPago: order.Plataforma,
+				},
+			}
 		}
 
-		for _, payment := range order.Payments {
-			if v, ok := porMetodo[payment.FormaPago]; ok {
-				porMetodo[payment.FormaPago] = v + payment.Total
-			} else {
-				porMetodo[payment.FormaPago] = payment.Total
-			}
+		for _, payment := range orderPayments {
+			porMetodo[payment.FormaPago] = porMetodo[payment.FormaPago] + payment.Total
 
-			propina := 0.0
+			propinaMP := 0.0
 			if order.Total.Propina > 0 {
-				propina = math.Round((0.1 / 1.08) * payment.Total)
+				propinaMP = math.Round((0.1 / 1.08) * payment.Total)
 			}
 
-			if v, ok := propinaPorMetodo[payment.FormaPago]; ok {
-				propinaPorMetodo[payment.FormaPago] = v + propina
-			} else {
-				propinaPorMetodo[payment.FormaPago] = propina
-			}
+			propinaPorMetodo[payment.FormaPago] = propinaPorMetodo[payment.FormaPago] + propinaMP
 		}
 
-		data["neto_1"] = neto1
-		data["propinas"] = propinas
-		data["bruto"] = bruto
-		data["descuentos"] = bruto - neto1
-		data["ingresos"] = neto1 + propinas
-		data["porPlataforma"] = porPlataforma
-		data["porMetodoPago"] = porMetodo
-		data["propinaPorMetodoPago"] = propinaPorMetodo
+		data["Neto 1"] = neto1
+		data["Total propinas"] = propinas
+		data["Bruto"] = bruto
+		data["Descuentos"] = bruto - neto1
+		data["Neto + Propinas"] = neto1 + propinas
+		data["Por Plataforma"] = porPlataforma
+		data["Por Metodo de Pago"] = porMetodo
+		data["Propinas Por Metodo de Pago"] = propinaPorMetodo
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(data))
