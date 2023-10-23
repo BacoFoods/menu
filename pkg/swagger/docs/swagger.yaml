@@ -7694,6 +7694,17 @@ paths:
       consumes:
       - application/json
       description: Get the arqueo
+      parameters:
+      - description: Local
+        in: query
+        name: local
+        required: true
+        type: string
+      - description: Date
+        in: query
+        name: date
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -7717,6 +7728,36 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get the arqueo
+      tags:
+      - Temporal
+  /temporal/locales:
+    get:
+      consumes:
+      - application/json
+      description: Get the locales for arqueo
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                status:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get the locales for arqueo
       tags:
       - Temporal
   /zone:
