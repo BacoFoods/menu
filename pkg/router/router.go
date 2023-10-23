@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/availability"
@@ -77,7 +78,6 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Country.RegisterRoutes(private)
 	routes.Currency.RegisterRoutes(private)
 	routes.Discount.RegisterRoutes(private)
-	routes.Menu.RegisterRoutes(private)
 	routes.Order.RegisterRoutes(private)
 	routes.Status.RegisterRoutes(private)
 	routes.Product.RegisterRoutes(private)
@@ -96,6 +96,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
 
+	routes.Menu.RegisterRoutes(private, public)
 	routes.Account.RegisterRoutes(private, public)
 	routes.Swagger.Register(public)
 

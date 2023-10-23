@@ -10,7 +10,8 @@ func NewRoutes(handler *Handler) Routes {
 	return Routes{handler: handler}
 }
 
-func (r Routes) RegisterRoutes(private *gin.RouterGroup) {
+func (r Routes) RegisterRoutes(private *gin.RouterGroup, public *gin.RouterGroup) {
+	// routes requiring authentication
 	private.GET("/menu", r.handler.Find)
 	private.GET("/menu/:id", r.handler.Get)
 	private.GET("/menu/place/:place/:place-id/list", r.handler.ListByPlace)
@@ -22,4 +23,6 @@ func (r Routes) RegisterRoutes(private *gin.RouterGroup) {
 	private.PATCH("/menu/:id/category/:categoryID/add", r.handler.AddCategory)
 	private.PATCH("/menu/:id/category/:categoryID/remove", r.handler.RemoveCategory)
 	private.DELETE("/menu/:id", r.handler.Delete)
+
+	private.GET("/menu/store/:storeId/list", r.handler.PublicStoreMenu)
 }

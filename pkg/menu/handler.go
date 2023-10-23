@@ -1,10 +1,11 @@
 package menu
 
 import (
+	"net/http"
+
 	availabilityPkg "github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 const LogHandler string = "pkg/menu/handler"
@@ -199,6 +200,30 @@ func (h *Handler) ListByPlace(c *gin.Context) {
 	menus, err := h.service.FindByPlace(place, placeID)
 	if err != nil {
 		shared.LogError("error finding menus", LogHandler, "FindByPlace", err, menus)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingByPlace))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(menus))
+}
+
+// PublicStoreMenu to handle a request to list menus for a store
+// @Tags Menu
+// @Summary To list menus by place
+// @Description To list menus by place
+// @Param place path string true "place"
+// @Param place-id path string true "place id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=[]Menu}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /public/menu/store/{storeId}/list [get]
+func (h *Handler) PublicStoreMenu(c *gin.Context) {
+	storeID := c.Param("storeId")
+	menus, err := h.service.FindByPlace("store", storeID)
+	if err != nil {
+		shared.LogError("error finding menus", LogHandler, "PublicStoreMenu", err, menus)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingByPlace))
 		return
 	}
