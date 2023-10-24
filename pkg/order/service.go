@@ -91,6 +91,8 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	order.SetItems(prods, modifiers)
 	order.ToInvoice()
 
+	order.CurrentStatus = StatusCreate
+
 	newOrder, err := s.repository.Create(order)
 	if err != nil {
 		shared.LogError("error creating order", LogService, "Create", err, *order)
