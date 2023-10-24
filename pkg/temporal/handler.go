@@ -141,15 +141,14 @@ func (h *Handler) GetArqueo(c *gin.Context) {
 	data["Ordenes"] = len(orders)
 
 	var neto1, propinas, bruto float64
+	porPlataforma := make(map[string]float64)
+	porMetodo := make(map[string]float64)
+	propinaPorMetodo := make(map[string]float64)
 
 	for _, order := range orders {
 		neto1 += order.Total.Total
 		propinas += order.Total.Propina
 		bruto += order.Total.TotalItems
-
-		porPlataforma := make(map[string]float64)
-		porMetodo := make(map[string]float64)
-		propinaPorMetodo := make(map[string]float64)
 
 		porPlataforma[order.Origins] = porPlataforma[order.Origins] + order.Total.Total
 
