@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
-	"fmt"
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/channel"
@@ -114,12 +113,7 @@ func (a *Account) JWT() (string, error) {
 		brandName = a.Brand.Name
 	}
 
-	tokenDuration, err := time.ParseDuration(fmt.Sprintf("%v", internal.Config.TokenExpireHours))
-	if err != nil {
-		shared.LogError("error parsing token duration", LogDomain, "JWT", err, internal.Config.TokenExpireHours)
-		return "", err
-	}
-
+	exp := time.Now().Add(time.Hour * 12) // 12 hours expiration
 	claims := jwt.MapClaims{
 		"uuid":         a.UUID,
 		"name":         a.DisplayName,
@@ -131,7 +125,7 @@ func (a *Account) JWT() (string, error) {
 		"store_name":   storeName,
 		"brand":        a.BrandID,
 		"brand_name":   brandName,
-		"exp":          tokenDuration, // 12 hours expiration
+		"exp":          exp.Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

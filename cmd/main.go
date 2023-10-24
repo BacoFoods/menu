@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/cashier"
 	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/course"
 	"github.com/BacoFoods/menu/pkg/payment"
-	"github.com/BacoFoods/menu/pkg/shift"
 	"github.com/BacoFoods/menu/pkg/temporal"
 
 	"github.com/BacoFoods/menu/internal"
@@ -73,7 +73,7 @@ func main() {
 		&payment.Payment{},
 		&payment.PaymentMethod{},
 		&order.Attendee{},
-		&shift.CashierShift{},
+		&cashier.Cashier{},
 	)
 
 	// Healthcheck
@@ -215,10 +215,10 @@ func main() {
 	paymentRoutes := payment.NewRoutes(paymentHandler)
 
 	// Shifts
-	shiftRepository := shift.NewDBRepository(gormDB)
-	shiftService := shift.NewService(shiftRepository)
-	shiftHandler := shift.NewHandler(shiftService)
-	shiftRoutes := shift.NewRoutes(shiftHandler)
+	shiftRepository := cashier.NewDBRepository(gormDB)
+	shiftService := cashier.NewService(shiftRepository)
+	shiftHandler := cashier.NewHandler(shiftService)
+	shiftRoutes := cashier.NewRoutes(shiftHandler)
 
 	// Temporal
 	temporalHandler := temporal.NewHandler()
@@ -249,7 +249,7 @@ func main() {
 		Course:       courseRoutes,
 		Client:       clientRoutes,
 		Payment:      paymentRoutes,
-		Shift:        shiftRoutes,
+		Cashier:      shiftRoutes,
 		Temporal:     temporalRoutes,
 	}
 

@@ -1,4 +1,4 @@
-package shift
+package cashier
 
 import "github.com/gin-gonic/gin"
 
@@ -11,6 +11,6 @@ func NewRoutes(handler *Handler) Routes {
 }
 
 func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
-	router.POST("/shift-cashier/open", r.handler.OpenShift)
-	router.POST("/shift-cashier/close", r.handler.CloseShift)
+	router.POST("/cashier/open", r.handler.Open)
+	router.POST("/cashier/close", r.handler.Close)
 }

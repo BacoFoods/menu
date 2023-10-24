@@ -1,4 +1,4 @@
-package shift
+package cashier
 
 import "gorm.io/gorm"
 
@@ -10,10 +10,10 @@ func NewDBRepository(db *gorm.DB) *DBRepository {
 	return &DBRepository{db}
 }
 
-func (r *DBRepository) OpenShift() error {
+func (r *DBRepository) Open() error {
 	return nil
 }
 
-func (r *DBRepository) CloseShift() error {
+func (r *DBRepository) Close() error {
 	return nil
 }

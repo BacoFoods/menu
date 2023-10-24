@@ -1,4 +1,4 @@
-package shift
+package cashier
 
 import (
 	"github.com/BacoFoods/menu/pkg/shared"
@@ -14,19 +14,19 @@ func NewHandler(service Service) *Handler {
 	return &Handler{service}
 }
 
-// OpenShift to handle open cashier shift request
-// @Tags Shift
-// @Summary Open cashier shift
-// @Description Open cashier shift
+// Open to handle open cashier request
+// @Tags Cashier
+// @Summary Open cashier
+// @Description Open cashier
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} object{status=string}
 // @Failure 401 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Router /shift-cashier/open [post]
-func (h *Handler) OpenShift(c *gin.Context) {
-	if err := h.service.OpenShift(); err != nil {
+// @Router /cashier/open [post]
+func (h *Handler) Open(c *gin.Context) {
+	if err := h.service.Open(); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
@@ -34,19 +34,19 @@ func (h *Handler) OpenShift(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse("cashier opened successfully"))
 }
 
-// CloseShift to handle close cashier shift request
-// @Tags Shift
-// @Summary Close cashier shift
-// @Description Close cashier shift
+// Close to handle close cashier request
+// @Tags Cashier
+// @Summary Close cashier
+// @Description Close cashier
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} object{status=string}
 // @Failure 401 {object} shared.Response
 // @Failure 422 {object} shared.Response
-// @Router /shift-cashier/close [post]
-func (h *Handler) CloseShift(c *gin.Context) {
-	if err := h.service.CloseShift(); err != nil {
+// @Router /cashier/close [post]
+func (h *Handler) Close(c *gin.Context) {
+	if err := h.service.Close(); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}

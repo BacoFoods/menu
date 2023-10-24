@@ -9,6 +9,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
+	"github.com/BacoFoods/menu/pkg/cashier"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/client"
@@ -23,7 +24,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
-	"github.com/BacoFoods/menu/pkg/shift"
 	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
@@ -90,7 +90,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Course.RegisterRoutes(private)
 	routes.Client.RegisterRoutes(private)
 	routes.Payment.RegisterRoutes(private)
-	routes.Shift.RegisterRoutes(private)
+	routes.Cashier.RegisterRoutes(private)
 	routes.Temporal.RegisterRoutes(private)
 
 	// Register public routes
@@ -128,6 +128,6 @@ type RoutesGroup struct {
 	Course       course.Routes
 	Client       client.Routes
 	Payment      payment.Routes
-	Shift        shift.Routes
+	Cashier      cashier.Routes
 	Temporal     temporal.Routes
 }
