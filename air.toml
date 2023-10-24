@@ -1,0 +1,53 @@
+# .air.toml
+root = "."
+tmp_dir = "tmp"
+[build]
+# Just plain old shell command. You could use `make` as well.
+cmd = "go build -o ./tmp/main cmd/main.go"
+# Binary file yields from `build_cmd`
+bin = "tmp/main"
+full_bin = "tmp/main"
+# Customize binary.
+include_ext = ["go", "tpl", "tmpl", "html"]
+
+[watch]
+# Watch these files
+includes = [
+  
+]
+# Ignore these files
+excludes = [
+  "tmp/*"
+]
+
+delay = 1000
+
+# Send Interrupt signal before killing process.
+# Optional, default is false.
+send_interrupt = false
+
+# Kill process if bind port is used.
+# It's not an error if it fails.
+# Optional, default is false.
+kill_port = false
+
+# Stop to run old binary when build errors occur.
+# Optional, default is false.
+stop_on_error = true
+
+# This log is printed to the `tmp` directory of your project.
+log = "air.log"
+
+[log]
+# Show log time
+time = true
+
+color = true
+
+[misc]
+# Delete tmp directory on exit
+clean_on_exit = true
+
+[screen]
+clear_on_rebuild = true
+keep_scroll = true

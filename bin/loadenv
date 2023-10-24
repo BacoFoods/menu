@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+
+import os
+import subprocess
+import sys
+
+def load_dotenv(file_path=".env"):
+    """Load key-value pairs from a .env file and set them as environment variables."""
+    
+    if not os.path.exists(file_path):
+        print(f"No .env file found at {file_path}.")
+        return
+    
+    with open(file_path, "r") as f:
+        for line in f:
+            line = line.strip()
+            
+            # Ignore comments and empty lines
+            if line.startswith("#") or not line:
+                continue
+            
+            key, value = line.split("=", 1)
+            os.environ[key.strip()] = value.strip()
+
+def execute_command(command, env_vars):
+    """Execute a shell command."""
+    subprocess.run(command, shell=True, env=env_vars)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: ./script_name 'your shell command'")
+        sys.exit(1)
+
+    # Load environment variables
+    load_dotenv()
+
+    # Get and execute the shell command
+    shell_command = " ".join(sys.argv[1:])
+    execute_command(shell_command, os.environ)
