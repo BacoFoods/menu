@@ -47,11 +47,11 @@ type Account struct {
 	Username    string           `json:"username"`
 	Password    string           `json:"-" swaggerignore:"true"`
 	Email       string           `json:"email"`
-	ChannelID   *int64           `json:"channel_id"`
+	ChannelID   *uint            `json:"channel_id"`
 	Channel     *channel.Channel `json:"channel,omitempty"`
-	StoreID     *int64           `json:"store_id"`
+	StoreID     *uint            `json:"store_id"`
 	Store       *store.Store     `json:"store,omitempty"`
-	BrandID     *int64           `json:"brand_id"`
+	BrandID     *uint            `json:"brand_id"`
 	Brand       *brand.Brand     `json:"brand,omitempty"`
 	Role        string           `json:"role"`
 	Disabled    bool             `json:"disabled"`
@@ -115,6 +115,7 @@ func (a *Account) JWT() (string, error) {
 
 	exp := time.Now().Add(time.Hour * 12) // 12 hours expiration
 	claims := jwt.MapClaims{
+		"account_id":   a.Id,
 		"uuid":         a.UUID,
 		"name":         a.DisplayName,
 		"email":        a.Email,

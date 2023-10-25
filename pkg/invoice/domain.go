@@ -55,7 +55,7 @@ type Invoice struct {
 	Items               []Item            `json:"items"  gorm:"foreignKey:InvoiceID"`
 	Discounts           []Discount        `json:"discounts"  gorm:"foreignKey:InvoiceID"`
 	Surcharges          []Surcharge       `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
-	Cashier             string            `json:"cashier"`
+	Cashier             string            `json:"shift"`
 	Waiter              string            `json:"waiter"`
 	SubTotal            float64           `json:"sub_total"`
 	TotalDiscounts      float64           `json:"total_discounts,omitempty"`

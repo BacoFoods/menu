@@ -288,8 +288,6 @@ definitions:
         type: number
       brand_id:
         type: integer
-      cashier:
-        type: string
       channel_id:
         type: integer
       client:
@@ -313,6 +311,8 @@ definitions:
           $ref: '#/definitions/payment.Payment'
         type: array
       payments_observation:
+        type: string
+      shift:
         type: string
       store_id:
         type: integer
@@ -859,6 +859,20 @@ definitions:
       data: {}
       message:
         type: string
+    type: object
+  shift.RequestCloseShift:
+    properties:
+      end_balance:
+        type: number
+    required:
+    - end_balance
+    type: object
+  shift.RequestOpenShift:
+    properties:
+      start_balance:
+        type: number
+    required:
+    - start_balance
     type: object
   status.CreateStatus:
     properties:
@@ -1698,66 +1712,6 @@ paths:
       summary: To update a brand
       tags:
       - Brand
-  /cashier/close:
-    post:
-      consumes:
-      - application/json
-      description: Close cashier
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                status:
-                  type: string
-              type: object
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Close cashier
-      tags:
-      - Cashier
-  /cashier/open:
-    post:
-      consumes:
-      - application/json
-      description: Open cashier
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                status:
-                  type: string
-              type: object
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Open cashier
-      tags:
-      - Cashier
   /category:
     get:
       consumes:
@@ -6452,6 +6406,127 @@ paths:
       summary: To login
       tags:
       - Account
+  /public/menu/store/{storeId}/list:
+    get:
+      consumes:
+      - application/json
+      description: To list menus by place
+      parameters:
+      - description: place
+        in: path
+        name: place
+        required: true
+        type: string
+      - description: place id
+        in: path
+        name: place-id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/menu.Menu'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To list menus by place
+      tags:
+      - Menu
+  /shift/close:
+    post:
+      consumes:
+      - application/json
+      description: Close shift
+      parameters:
+      - description: Request body
+        in: body
+        name: closeShift
+        required: true
+        schema:
+          $ref: '#/definitions/shift.RequestCloseShift'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                status:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Close shift
+      tags:
+      - Shift
+  /shift/open:
+    post:
+      consumes:
+      - application/json
+      description: Open shift
+      parameters:
+      - description: Request body
+        in: body
+        name: openShift
+        required: true
+        schema:
+          $ref: '#/definitions/shift.RequestOpenShift'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                status:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Open shift
+      tags:
+      - Shift
   /status:
     get:
       consumes:

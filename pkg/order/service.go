@@ -112,17 +112,20 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	if ctx.Value("account_uuid") != nil {
 		accountUUID = ctx.Value("account_uuid").(string)
 	}
-	channelID := int64(0)
+	channelID := uint(0)
 	if value := ctx.Value("channel_id"); value != nil {
-		channelID, _ = strconv.ParseInt(value.(string), 10, 64)
+		channelIDInt, _ := strconv.Atoi(value.(string))
+		channelID = uint(channelIDInt)
 	}
-	brandID := int64(0)
+	brandID := uint(0)
 	if value := ctx.Value("brand_id"); value != nil {
-		brandID, _ = strconv.ParseInt(value.(string), 10, 64)
+		brandIDInt, _ := strconv.Atoi(value.(string))
+		brandID = uint(brandIDInt)
 	}
-	storeID := int64(0)
+	storeID := uint(0)
 	if value := ctx.Value("store_id"); value != nil {
-		storeID, _ = strconv.ParseInt(value.(string), 10, 64)
+		storeIDInt, _ := strconv.Atoi(value.(string))
+		storeID = uint(storeIDInt)
 	}
 	accountID := uint(0)
 

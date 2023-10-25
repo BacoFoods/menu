@@ -82,7 +82,7 @@ func CerebroAuth(credential string, ctx *gin.Context) bool {
 	if _, ok := token.Claims.(jwt.MapClaims); !ok && !token.Valid {
 		return false
 	}
-
+	ctx.Set("account_id", fmt.Sprintf("%v", token.Claims.(jwt.MapClaims)["account_id"]))
 	ctx.Set("account_uuid", token.Claims.(jwt.MapClaims)["uuid"])
 	ctx.Set("account_role", token.Claims.(jwt.MapClaims)["role"])
 	ctx.Set("account_name", token.Claims.(jwt.MapClaims)["name"])
