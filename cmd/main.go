@@ -191,6 +191,12 @@ func main() {
 	accountHandler := account.NewHandler(accountService)
 	accountRoutes := account.NewRoutes(accountHandler)
 
+	// Shifts
+	shiftRepository := shift.NewDBRepository(gormDB)
+	shiftService := shift.NewService(shiftRepository, accountRepository)
+	shiftHandler := shift.NewHandler(shiftService)
+	shiftRoutes := shift.NewRoutes(shiftHandler)
+
 	// Order
 	orderRepository := order.NewDBRepository(gormDB)
 	orderService := order.NewService(orderRepository,
@@ -198,7 +204,8 @@ func main() {
 		productRepository,
 		invoiceRepository,
 		statusRepository,
-		accountRepository)
+		accountRepository,
+		shiftRepository)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)
 
@@ -213,12 +220,6 @@ func main() {
 	paymentService := payment.NewService(paymentRepository)
 	paymentHandler := payment.NewHandler(paymentService)
 	paymentRoutes := payment.NewRoutes(paymentHandler)
-
-	// Shifts
-	shiftRepository := shift.NewDBRepository(gormDB)
-	shiftService := shift.NewService(shiftRepository, accountRepository)
-	shiftHandler := shift.NewHandler(shiftService)
-	shiftRoutes := shift.NewRoutes(shiftHandler)
 
 	// Temporal
 	temporalHandler := temporal.NewHandler()

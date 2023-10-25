@@ -96,6 +96,7 @@ type Order struct {
 	ExternalCode  string            `json:"external_code"`
 	Invoices      []invoice.Invoice `json:"invoices"  gorm:"foreignKey:OrderID" swaggerignore:"true"`
 	Attendees     []Attendee        `json:"attendees" gorm:"foreignKey:OrderID"`
+	ShiftID       *uint             `json:"shift_id"`
 	CreatedAt     *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt     *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt     *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
