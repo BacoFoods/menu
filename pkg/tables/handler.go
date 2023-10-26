@@ -216,6 +216,7 @@ func (h Handler) ScanQR(ctx *gin.Context) {
 
 	if table == nil {
 		ctx.JSON(http.StatusNotFound, shared.ErrorResponse(ErrorTableNotFound))
+		return
 	}
 
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(table))

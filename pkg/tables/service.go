@@ -63,7 +63,16 @@ func (s service) Delete(id string) error {
 }
 
 func (s service) ScanQR(qrID string) (*Table, error) {
-	return s.repository.ScanQR(qrID)
+	table, err := s.repository.ScanQR(qrID)
+	if err != nil {
+		return nil, err
+	}
+
+	if table == nil || table.Zone == nil || table.Zone.StoreID == nil {
+		return nil, nil
+	}
+
+	return table, nil
 }
 
 func (s service) GenerateQR(tableId string) (*Table, error) {

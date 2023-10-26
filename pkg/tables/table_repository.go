@@ -137,7 +137,7 @@ func (r tableRepository) ScanQR(qrID string) (*Table, error) {
 	q := r.db.Where("display_id = ?", qrID).
 		Where("deleted_at is null").
 		Where("is_active").
-		Preload("Table.").
+		Preload("Table.Zone").
 		First(&qr)
 
 	if err := q.Error; err != nil {
