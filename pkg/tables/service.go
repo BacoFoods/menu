@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/google/uuid"
 )
 
@@ -20,15 +21,25 @@ type Service interface {
 	Delete(id string) error
 	ScanQR(qrID string) (*Table, error)
 	GenerateQR(tableId string) (*Table, error)
+
+	FindZones(filters map[string]any) ([]Zone, error)
+	GetZone(zoneID string) (*Zone, error)
+	CreateZone(zone *Zone, tableNumber, tableAmount int) (*Zone, error)
+	UpdateZone(zonID string, zone *Zone) (*Zone, error)
+	DeleteZone(zoneID string) error
+	AddTables(zoneID string, tables []uint) error
+	RemoveTables(zoneID string, tables []uint) error
+	EnableZone(zoneID string) (*Zone, error)
 }
 
 type service struct {
-	repository Repository
+	zones      *zoneRepository
+	repository *tableRepository
 	oitHost    string
 }
 
-func NewService(repository Repository, oitHost string) service {
-	return service{repository, oitHost}
+func NewService(repository *tableRepository, zones *zoneRepository, oitHost string) service {
+	return service{zones, repository, oitHost}
 }
 
 func (s service) Get(id string) (*Table, error) {
@@ -89,3 +100,60 @@ func (s service) GenerateQR(tableId string) (*Table, error) {
 func (s service) buildQRURL(qrID string) string {
 	return fmt.Sprintf("%s/%s", s.oitHost, qrID)
 }
+
+func (s service) FindZones(filters map[string]any) ([]Zone, error) {
+	return s.zones.Find(filters)
+}
+
+func (s service) GetZone(zoneID string) (*Zone, error) {
+	return s.zones.GetZone(zoneID)
+}
+
+func (s service) CreateZone(zone *Zone, tableNumber, tableAmount int) (*Zone, error) {
+	SetTables(zone, tableNumber, tableAmount)
+	return s.zones.Create(zone)
+}
+
+func (s service) UpdateZone(zoneID string, zone *Zone) (*Zone, error) {
+	return s.zones.Update(zoneID, zone)
+}
+
+func (s service) DeleteZone(zoneID string) error {
+	return s.zones.Delete(zoneID)
+}
+
+func (s service) AddTables(zoneID string, tables []uint) error {
+	zone, err := s.zones.GetZone(zoneID)
+	if err != nil {
+		return err
+	}
+
+	if zone == nil {
+		err := fmt.Errorf(ErrorZoneNotFound)
+		shared.LogError("error finding zone", LogService, "AddTablesToZone", err, zoneID)
+		return err
+	}
+
+	return s.zones.AddTables(zone, tables)
+}
+
+func (s service) RemoveTables(zoneID string, tables []uint) error {
+	zone, err := s.zones.GetZone(zoneID)
+	if err != nil {
+		return err
+	}
+
+	if zone == nil {
+		err := fmt.Errorf(ErrorZoneNotFound)
+		shared.LogError("error finding zone", LogService, "RemoveTablesFromZone", err, zoneID)
+		return err
+	}
+
+	return s.zones.RemoveTables(zone, tables)
+}
+
+func (s service) EnableZone(zoneID string) (*Zone, error) {
+	return s.zones.Enable(zoneID)
+}
+
+var _ Service = &service{}
