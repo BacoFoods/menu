@@ -154,6 +154,3 @@ type Surcharge struct {
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
-
-type Printable struct {
-}

@@ -257,6 +257,14 @@ definitions:
       value:
         type: number
     type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
   invoice.Discount:
     properties:
       amount:
@@ -503,6 +511,8 @@ definitions:
       order_type:
         type: string
       seats:
+        type: integer
+      shift_id:
         type: integer
       store_id:
         type: integer
@@ -966,47 +976,31 @@ definitions:
       store_id:
         type: integer
     type: object
-  tables.Table:
+  tables.QR:
     properties:
-      display_id:
+      createdAt:
         type: string
-      display_name:
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      display_id:
         type: string
       id:
         type: integer
       is_active:
         type: boolean
-      number:
+      table:
+        $ref: '#/definitions/tables.Table'
+      table_id:
         type: integer
-      order_id:
-        type: integer
-      xlocation:
-        type: number
-      ylocation:
-        type: number
-      zone_id:
-        type: integer
+      updatedAt:
+        type: string
+      url:
+        type: string
     required:
     - display_id
-    - display_name
-    - number
+    - table_id
     type: object
-  taxes.Tax:
-    properties:
-      country:
-        $ref: '#/definitions/country.Country'
-      country_id:
-        type: integer
-      description:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      percentage:
-        type: number
-    type: object
-  zones.RequestAddTable:
+  tables.RequestAddTable:
     properties:
       tables:
         items:
@@ -1015,7 +1009,7 @@ definitions:
     required:
     - tables
     type: object
-  zones.RequestZoneCreate:
+  tables.RequestZoneCreate:
     properties:
       active:
         type: boolean
@@ -1031,14 +1025,43 @@ definitions:
     - name
     - store_id
     type: object
-  zones.RequestZoneUpdate:
+  tables.RequestZoneUpdate:
     properties:
       name:
         type: string
       store_id:
         type: integer
     type: object
-  zones.Zone:
+  tables.Table:
+    properties:
+      display_id:
+        type: string
+      display_name:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      number:
+        type: integer
+      order_id:
+        type: integer
+      qr:
+        $ref: '#/definitions/tables.QR'
+      xlocation:
+        type: number
+      ylocation:
+        type: number
+      zone:
+        $ref: '#/definitions/tables.Zone'
+      zone_id:
+        type: integer
+    required:
+    - display_id
+    - display_name
+    - number
+    type: object
+  tables.Zone:
     properties:
       active:
         type: boolean
@@ -1052,6 +1075,21 @@ definitions:
         items:
           $ref: '#/definitions/tables.Table'
         type: array
+    type: object
+  taxes.Tax:
+    properties:
+      country:
+        $ref: '#/definitions/country.Country'
+      country_id:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      percentage:
+        type: number
     type: object
 info:
   contact:
@@ -6453,6 +6491,46 @@ paths:
       summary: To list menus by place
       tags:
       - Menu
+  /public/tables/scan/{qrId}:
+    get:
+      consumes:
+      - application/json
+      description: Scan QR
+      parameters:
+      - description: qr id
+        in: path
+        name: qrId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/tables.Table'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Scan QR
+      tags:
+      - Tables
   /shift/close:
     post:
       consumes:
@@ -7562,6 +7640,48 @@ paths:
       summary: Update table
       tags:
       - Tables
+  /tables/{id}/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generate QR
+      parameters:
+      - description: table id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/tables.Table'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Generate QR
+      tags:
+      - Tables
   /tax:
     get:
       consumes:
@@ -7860,7 +7980,7 @@ paths:
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/zones.Zone'
+                    $ref: '#/definitions/tables.Zone'
                   type: array
                 status:
                   type: string
@@ -7892,7 +8012,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/zones.RequestZoneCreate'
+          $ref: '#/definitions/tables.RequestZoneCreate'
       produces:
       - application/json
       responses:
@@ -7903,7 +8023,7 @@ paths:
             - type: object
             - properties:
                 data:
-                  $ref: '#/definitions/zones.Zone'
+                  $ref: '#/definitions/tables.Zone'
                 status:
                   type: string
               type: object
@@ -7979,7 +8099,7 @@ paths:
             - type: object
             - properties:
                 data:
-                  $ref: '#/definitions/zones.Zone'
+                  $ref: '#/definitions/tables.Zone'
                 status:
                   type: string
               type: object
@@ -8015,7 +8135,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/zones.RequestZoneUpdate'
+          $ref: '#/definitions/tables.RequestZoneUpdate'
       produces:
       - application/json
       responses:
@@ -8026,7 +8146,7 @@ paths:
             - type: object
             - properties:
                 data:
-                  $ref: '#/definitions/zones.Zone'
+                  $ref: '#/definitions/tables.Zone'
                 status:
                   type: string
               type: object
@@ -8068,7 +8188,7 @@ paths:
             - type: object
             - properties:
                 data:
-                  $ref: '#/definitions/zones.Zone'
+                  $ref: '#/definitions/tables.Zone'
                 status:
                   type: string
               type: object
@@ -8105,7 +8225,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/zones.RequestAddTable'
+          $ref: '#/definitions/tables.RequestAddTable'
       produces:
       - application/json
       responses:
@@ -8146,7 +8266,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/zones.RequestAddTable'
+          $ref: '#/definitions/tables.RequestAddTable'
       produces:
       - application/json
       responses:

@@ -19,8 +19,8 @@ import (
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
 	_ "github.com/BacoFoods/menu/pkg/swagger/docs" //documentation
+	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/BacoFoods/menu/pkg/temporal"
-	"github.com/BacoFoods/menu/pkg/zones"
 	"github.com/gin-gonic/gin"
 
 	swaggerFiles "github.com/swaggo/files"
@@ -61,7 +61,7 @@ func (r *Routes) Register(group *gin.RouterGroup) {
 	_ = surcharge.Handler{}
 	_ = brand.Handler{}
 	_ = store.Handler{}
-	_ = zones.Handler{}
+	_ = tables.Handler{}
 	_ = channel.Handler{}
 	_ = availability.Handler{}
 	_ = order.Handler{}

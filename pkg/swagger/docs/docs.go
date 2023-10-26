@@ -8909,6 +8909,71 @@ const docTemplate = `{
                 }
             }
         },
+        "/public/tables/scan/{qrId}": {
+            "get": {
+                "description": "Scan QR",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tables"
+                ],
+                "summary": "Scan QR",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "qr id",
+                        "name": "qrId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/tables.Table"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/shift/close": {
             "post": {
                 "security": [
@@ -10748,6 +10813,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/tables/{id}/generate": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Generate QR",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tables"
+                ],
+                "summary": "Generate QR",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "table id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/tables.Table"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/tax": {
             "get": {
                 "security": [
@@ -11252,7 +11387,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/zones.Zone"
+                                                "$ref": "#/definitions/tables.Zone"
                                             }
                                         },
                                         "status": {
@@ -11307,7 +11442,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/zones.RequestZoneCreate"
+                            "$ref": "#/definitions/tables.RequestZoneCreate"
                         }
                     }
                 ],
@@ -11323,7 +11458,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/zones.Zone"
+                                            "$ref": "#/definitions/tables.Zone"
                                         },
                                         "status": {
                                             "type": "string"
@@ -11393,7 +11528,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/zones.Zone"
+                                            "$ref": "#/definitions/tables.Zone"
                                         },
                                         "status": {
                                             "type": "string"
@@ -11507,7 +11642,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/zones.RequestZoneUpdate"
+                            "$ref": "#/definitions/tables.RequestZoneUpdate"
                         }
                     }
                 ],
@@ -11523,7 +11658,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/zones.Zone"
+                                            "$ref": "#/definitions/tables.Zone"
                                         },
                                         "status": {
                                             "type": "string"
@@ -11593,7 +11728,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/zones.Zone"
+                                            "$ref": "#/definitions/tables.Zone"
                                         },
                                         "status": {
                                             "type": "string"
@@ -11656,7 +11791,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/zones.RequestAddTable"
+                            "$ref": "#/definitions/tables.RequestAddTable"
                         }
                     }
                 ],
@@ -11720,7 +11855,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/zones.RequestAddTable"
+                            "$ref": "#/definitions/tables.RequestAddTable"
                         }
                     }
                 ],
@@ -12144,6 +12279,18 @@ const docTemplate = `{
                 }
             }
         },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
         "invoice.Discount": {
             "type": "object",
             "properties": {
@@ -12520,6 +12667,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "seats": {
+                    "type": "integer"
+                },
+                "shift_id": {
                     "type": "integer"
                 },
                 "store_id": {
@@ -13219,6 +13369,91 @@ const docTemplate = `{
                 }
             }
         },
+        "tables.QR": {
+            "type": "object",
+            "required": [
+                "display_id",
+                "table_id"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "display_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "table": {
+                    "$ref": "#/definitions/tables.Table"
+                },
+                "table_id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "tables.RequestAddTable": {
+            "type": "object",
+            "required": [
+                "tables"
+            ],
+            "properties": {
+                "tables": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "tables.RequestZoneCreate": {
+            "type": "object",
+            "required": [
+                "name",
+                "store_id"
+            ],
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "table_amount": {
+                    "type": "integer"
+                },
+                "table_number": {
+                    "type": "integer"
+                }
+            }
+        },
+        "tables.RequestZoneUpdate": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "tables.Table": {
             "type": "object",
             "required": [
@@ -13245,14 +13480,43 @@ const docTemplate = `{
                 "order_id": {
                     "type": "integer"
                 },
+                "qr": {
+                    "$ref": "#/definitions/tables.QR"
+                },
                 "xlocation": {
                     "type": "number"
                 },
                 "ylocation": {
                     "type": "number"
                 },
+                "zone": {
+                    "$ref": "#/definitions/tables.Zone"
+                },
                 "zone_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "tables.Zone": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "tables": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tables.Table"
+                    }
                 }
             }
         },
@@ -13276,78 +13540,6 @@ const docTemplate = `{
                 },
                 "percentage": {
                     "type": "number"
-                }
-            }
-        },
-        "zones.RequestAddTable": {
-            "type": "object",
-            "required": [
-                "tables"
-            ],
-            "properties": {
-                "tables": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                }
-            }
-        },
-        "zones.RequestZoneCreate": {
-            "type": "object",
-            "required": [
-                "name",
-                "store_id"
-            ],
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "store_id": {
-                    "type": "integer"
-                },
-                "table_amount": {
-                    "type": "integer"
-                },
-                "table_number": {
-                    "type": "integer"
-                }
-            }
-        },
-        "zones.RequestZoneUpdate": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "store_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "zones.Zone": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "store_id": {
-                    "type": "integer"
-                },
-                "tables": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/tables.Table"
-                    }
                 }
             }
         }
