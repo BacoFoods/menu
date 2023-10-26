@@ -1,10 +1,11 @@
 package store
 
 import (
-	"github.com/BacoFoods/menu/pkg/channel"
-	"github.com/BacoFoods/menu/pkg/zones"
-	"gorm.io/gorm"
 	"time"
+
+	"github.com/BacoFoods/menu/pkg/channel"
+	"github.com/BacoFoods/menu/pkg/tables"
+	"gorm.io/gorm"
 )
 
 const (
@@ -48,6 +49,6 @@ type Repository interface {
 	Enable(storeID string) (*Store, error)
 	AddChannel(storeID string, channel *channel.Channel) (*Store, error)
 
-	FindZonesByStore(storeID string) ([]zones.Zone, error)
-	GetZoneByStore(storeID, zoneID string) (*zones.Zone, error)
+	FindZonesByStore(storeID string) ([]tables.Zone, error)
+	GetZoneByStore(storeID, zoneID string) (*tables.Zone, error)
 }

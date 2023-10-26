@@ -1,27 +1,27 @@
-package zones
+package tables
 
 import (
 	"fmt"
+
 	"github.com/BacoFoods/menu/pkg/shared"
-	tablesPKG "github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-const (
-	LogDBRepository = "pkg/zones/db_repository.go"
-)
-
-type DBRepository struct {
+type zoneRepository struct {
 	db *gorm.DB
 }
 
-func NewDBRepository(db *gorm.DB) *DBRepository {
-	return &DBRepository{db: db}
+const (
+	LogDBRepository = "pkg/tables/db_repository.go"
+)
+
+func NewZoneRepository(db *gorm.DB) *zoneRepository {
+	return &zoneRepository{db: db}
 }
 
 // Find method for find zones in database
-func (r *DBRepository) Find(filters map[string]any) ([]Zone, error) {
+func (r *zoneRepository) Find(filters map[string]any) ([]Zone, error) {
 	var zones []Zone
 	if err := r.db.Preload(clause.Associations).Find(&zones, filters).Error; err != nil {
 		shared.LogError("Error finding zones", LogDBRepository, "Find", err, filters)
@@ -31,7 +31,7 @@ func (r *DBRepository) Find(filters map[string]any) ([]Zone, error) {
 }
 
 // GetZone method for get a zone in database
-func (r *DBRepository) GetZone(zoneID string) (*Zone, error) {
+func (r *zoneRepository) GetZone(zoneID string) (*Zone, error) {
 	var zone Zone
 	if err := r.db.Preload(clause.Associations).First(&zone, zoneID).Error; err != nil {
 		shared.LogError("Error finding zone", LogDBRepository, "GetZone", err, zoneID)
@@ -41,7 +41,7 @@ func (r *DBRepository) GetZone(zoneID string) (*Zone, error) {
 }
 
 // Create method for create a zone in database
-func (r *DBRepository) Create(zone *Zone) (*Zone, error) {
+func (r *zoneRepository) Create(zone *Zone) (*Zone, error) {
 	if err := r.db.Save(zone).Error; err != nil {
 		shared.LogError("Error creating zone", LogDBRepository, "Create", nil, *zone)
 		return nil, err
@@ -50,7 +50,7 @@ func (r *DBRepository) Create(zone *Zone) (*Zone, error) {
 }
 
 // Update method for update a zone in database
-func (r *DBRepository) Update(zoneID string, zone *Zone) (*Zone, error) {
+func (r *zoneRepository) Update(zoneID string, zone *Zone) (*Zone, error) {
 	var zoneDB Zone
 	if err := r.db.First(&zoneDB, zoneID).Error; err != nil {
 		shared.LogError("Error finding zone", LogDBRepository, "Update", err, zoneID)
@@ -66,7 +66,7 @@ func (r *DBRepository) Update(zoneID string, zone *Zone) (*Zone, error) {
 }
 
 // Delete method for delete a zone in database
-func (r *DBRepository) Delete(zoneID string) error {
+func (r *zoneRepository) Delete(zoneID string) error {
 	var zone Zone
 	if err := r.db.First(&zone, zoneID).Error; err != nil {
 		shared.LogError("Error finding zone", LogDBRepository, "Delete", err, zoneID)
@@ -82,8 +82,8 @@ func (r *DBRepository) Delete(zoneID string) error {
 }
 
 // AddTables method for add tables to zone in database
-func (r *DBRepository) AddTables(zone *Zone, tables []uint) error {
-	var tablesDB []tablesPKG.Table
+func (r *zoneRepository) AddTables(zone *Zone, tables []uint) error {
+	var tablesDB []Table
 	if err := r.db.Find(&tablesDB, tables).Error; err != nil {
 		shared.LogError("Error finding tables", LogDBRepository, "AddTables", err, tables)
 		return err
@@ -104,8 +104,8 @@ func (r *DBRepository) AddTables(zone *Zone, tables []uint) error {
 }
 
 // RemoveTables method for remove tables to zone in database
-func (r *DBRepository) RemoveTables(zone *Zone, tables []uint) error {
-	var tablesDB []tablesPKG.Table
+func (r *zoneRepository) RemoveTables(zone *Zone, tables []uint) error {
+	var tablesDB []Table
 	if err := r.db.Where("zone_id = ?", zone.ID).Find(&tablesDB, tables).Error; err != nil {
 		shared.LogError("Error finding tables", LogDBRepository, "RemoveTables", err, tables)
 		return err
@@ -126,7 +126,7 @@ func (r *DBRepository) RemoveTables(zone *Zone, tables []uint) error {
 }
 
 // Enable method for enable a zone in database
-func (r *DBRepository) Enable(zoneID string) (*Zone, error) {
+func (r *zoneRepository) Enable(zoneID string) (*Zone, error) {
 	var zone Zone
 	if err := r.db.First(&zone, zoneID).Error; err != nil {
 		shared.LogError("Error finding zone", LogDBRepository, "Enable", err, zoneID)
