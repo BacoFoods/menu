@@ -38,7 +38,7 @@ type Table struct {
 
 type QR struct {
 	ID        uint   `json:"id,omitempty"`
-	TableID   uint   `json:"table_id" binding:"required"`
+	TableID   *uint  `json:"table_id" binding:"required"`
 	Table     *Table `json:"table,omitempty"`
 	DisplayID string `json:"display_id" binding:"required"`
 	IsActive  bool   `json:"is_active"`

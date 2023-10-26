@@ -68,7 +68,7 @@ func (s service) GenerateQR(tableId string) (*Table, error) {
 	now := time.Now()
 	qrID := uuid.New().String()
 	qr := QR{
-		TableID:   table.ID,
+		TableID:   &table.ID,
 		IsActive:  true,
 		DisplayID: qrID,
 		CreatedAt: &now,
