@@ -2,6 +2,7 @@ package tables
 
 import (
 	"fmt"
+
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 )
@@ -35,7 +36,7 @@ func (r DBRepository) Get(id string) (*Table, error) {
 func (r DBRepository) Find(query map[string]any) ([]Table, error) {
 	var tables []Table
 
-	if err := r.db.Where(query).Find(&tables).Error; err != nil {
+	if err := r.db.Where(query).Preload("QR").Find(&tables).Error; err != nil {
 		shared.LogError(ErrorTableFinding, LogRepository, "Find", err, query)
 		return nil, err
 	}
@@ -129,4 +130,29 @@ func (r DBRepository) RemoveOrder(tableID *uint) (*Table, error) {
 	}
 
 	return &table, nil
+}
+
+func (r DBRepository) ScanQR(qrID string) (*Table, error) {
+	var qr QR
+	q := r.db.Where("display_id = ?", qrID).
+		Where("deleted_at is null").
+		Where("is_active").
+		Preload("Table").
+		First(&qr)
+
+	if err := q.Error; err != nil {
+		shared.LogError(ErrorTableScanningQR, LogRepository, "ScanQR", err, qrID)
+		return nil, err
+	}
+
+	return qr.Table, nil
+}
+
+func (r DBRepository) CreateQR(qr QR) (*QR, error) {
+	if err := r.db.Create(&qr).Error; err != nil {
+		shared.LogError(ErrorTableGeneratingQR, LogRepository, "CreateQR", err, qr)
+		return nil, err
+	}
+
+	return &qr, nil
 }

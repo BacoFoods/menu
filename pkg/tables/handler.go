@@ -1,9 +1,10 @@
 package tables
 
 import (
+	"net/http"
+
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 const (
@@ -168,4 +169,59 @@ func (h Handler) Delete(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(nil))
+}
+
+// ScanQR to handle scan qr request
+// @Tags Tables
+// @Summary Scan QR
+// @Description Scan QR
+// @Param qrId path string true "qr id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=Table}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /public/tables/scan/{qrId} [get]
+func (h Handler) ScanQR(ctx *gin.Context) {
+	qrID := ctx.Param("qrId")
+
+	table, err := h.service.ScanQR(qrID)
+	if err != nil {
+		shared.LogError("error scanning qr", LogHandler, "ScanQR", err, qrID)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorTableScanningQR))
+		return
+	}
+
+	if table == nil {
+		ctx.JSON(http.StatusNotFound, shared.ErrorResponse(ErrorTableNotFound))
+	}
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(table))
+}
+
+// GenerateQR to handle qr generation request
+// @Tags Tables
+// @Summary Generate QR
+// @Description Generate QR
+// @Param id path string true "table id"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=Table}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /tables/{id}/generate [post]
+func (h Handler) GenerateQR(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	table, err := h.service.GenerateQR(id)
+	if err != nil {
+		shared.LogError("error generating qr", LogHandler, "GenerateQR", err, id)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorTableGeneratingQR))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(table))
 }

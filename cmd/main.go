@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/course"
@@ -74,6 +75,7 @@ func main() {
 		&payment.PaymentMethod{},
 		&order.Attendee{},
 		&shift.Shift{},
+		&tables.QR{},
 	)
 
 	// Healthcheck
@@ -103,7 +105,7 @@ func main() {
 
 	// Tables
 	tablesRepository := tables.NewDBRepository(gormDB)
-	tablesService := tables.NewService(tablesRepository)
+	tablesService := tables.NewService(tablesRepository, internal.Config.OITHost)
 	tablesHandler := tables.NewHandler(tablesService)
 	tablesRoutes := tables.NewRoutes(tablesHandler)
 

@@ -84,7 +84,6 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Store.RegisterRoutes(private)
 	routes.Surcharge.RegisterRoutes(private)
 	routes.Taxes.RegisterRoutes(private)
-	routes.Table.RegisterRoutes(private)
 	routes.Zone.RegisterRoutes(private)
 	routes.Invoice.RegisterRoutes(private)
 	routes.Course.RegisterRoutes(private)
@@ -96,6 +95,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
 
+	routes.Table.RegisterRoutes(private, public)
 	routes.Menu.RegisterRoutes(private, public)
 	routes.Account.RegisterRoutes(private, public)
 	routes.Swagger.Register(public)
