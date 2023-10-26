@@ -31,7 +31,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/BacoFoods/menu/pkg/taxes"
 	"github.com/BacoFoods/menu/pkg/temporal"
-	"github.com/BacoFoods/menu/pkg/zones"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/api/idtoken"
 	"google.golang.org/api/option"
@@ -84,8 +83,6 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Store.RegisterRoutes(private)
 	routes.Surcharge.RegisterRoutes(private)
 	routes.Taxes.RegisterRoutes(private)
-	routes.Table.RegisterRoutes(private)
-	routes.Zone.RegisterRoutes(private)
 	routes.Invoice.RegisterRoutes(private)
 	routes.Course.RegisterRoutes(private)
 	routes.Client.RegisterRoutes(private)
@@ -96,6 +93,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
 
+	routes.Table.RegisterRoutes(private, public)
 	routes.Menu.RegisterRoutes(private, public)
 	routes.Account.RegisterRoutes(private, public)
 	routes.Swagger.Register(public)
@@ -122,7 +120,6 @@ type RoutesGroup struct {
 	Swagger      swagger.Routes
 	Table        tables.Routes
 	Taxes        taxes.Routes
-	Zone         zones.Routes
 	Invoice      invoice.Routes
 	Account      account.Routes
 	Course       course.Routes

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/course"
@@ -30,7 +31,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/swagger"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/BacoFoods/menu/pkg/taxes"
-	"github.com/BacoFoods/menu/pkg/zones"
 	"github.com/sirupsen/logrus"
 )
 
@@ -54,7 +54,7 @@ func main() {
 		&currency.Currency{},
 		&brand.Brand{},
 		&store.Store{},
-		&zones.Zone{},
+		&tables.Zone{},
 		&tables.Table{},
 		&channel.Channel{},
 		&availability.Availability{},
@@ -74,6 +74,7 @@ func main() {
 		&payment.PaymentMethod{},
 		&order.Attendee{},
 		&shift.Shift{},
+		&tables.QR{},
 	)
 
 	// Healthcheck
@@ -95,15 +96,10 @@ func main() {
 	storeHandler := store.NewHandler(storeService)
 	storeRoutes := store.NewRoutes(storeHandler)
 
-	// Zone
-	zoneRepository := zones.NewDBRepository(gormDB)
-	zoneService := zones.NewService(zoneRepository)
-	zoneHandler := zones.NewHandler(zoneService)
-	zoneRoutes := zones.NewRoutes(zoneHandler)
-
 	// Tables
-	tablesRepository := tables.NewDBRepository(gormDB)
-	tablesService := tables.NewService(tablesRepository)
+	zoneRepository := tables.NewZoneRepository(gormDB)
+	tableRepository := tables.NewTableRepository(gormDB)
+	tablesService := tables.NewService(tableRepository, zoneRepository, internal.Config.OITHost)
 	tablesHandler := tables.NewHandler(tablesService)
 	tablesRoutes := tables.NewRoutes(tablesHandler)
 
@@ -200,7 +196,7 @@ func main() {
 	// Order
 	orderRepository := order.NewDBRepository(gormDB)
 	orderService := order.NewService(orderRepository,
-		tablesRepository,
+		tableRepository,
 		productRepository,
 		invoiceRepository,
 		statusRepository,
@@ -239,7 +235,6 @@ func main() {
 		Currency:     currencyRoutes,
 		Brand:        brandRoutes,
 		Store:        storeRoutes,
-		Zone:         zoneRoutes,
 		Table:        tablesRoutes,
 		Channel:      channelRoutes,
 		Availability: availabilityRoutes,

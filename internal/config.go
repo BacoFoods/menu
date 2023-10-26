@@ -34,6 +34,7 @@ type AppConfig struct {
 	TokenExpireHours string `env:"TOKEN_EXPIRE_HOURS"`
 	TokenSecret      string `env:"TOKEN_SECRET"`
 	GoogleConfig     string `env:"GOOGLE_CONFIG"`
+	OITHost          string `env:"OIT_HOST"`
 }
 
 // FirestoreConfig is the struct that holds the configuration for the firestore
