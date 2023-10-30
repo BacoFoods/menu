@@ -12,8 +12,8 @@ const (
 )
 
 type Service interface {
-	Open(accountUUID string, startBalance float32) (*Shift, error)
-	Close(accountUUID string, endBalance float32) (*Shift, error)
+	Open(accountUUID string, startBalance float64) (*Shift, error)
+	Close(accountUUID string, endBalance float64) (*Shift, error)
 }
 
 type service struct {
@@ -25,7 +25,7 @@ func NewService(repository Repository, accountRepository account.Repository) ser
 	return service{repository, accountRepository}
 }
 
-func (s service) Open(accountUUID string, startBalance float32) (*Shift, error) {
+func (s service) Open(accountUUID string, startBalance float64) (*Shift, error) {
 	acc, err := s.accountRepository.GetByUUID(accountUUID)
 	if err != nil {
 		shared.LogError("failed to get account", LogService, "Open", err)
@@ -46,7 +46,7 @@ func (s service) Open(accountUUID string, startBalance float32) (*Shift, error) 
 	return s.repository.Create(shift)
 }
 
-func (s service) Close(accountUUID string, endBalance float32) (*Shift, error) {
+func (s service) Close(accountUUID string, endBalance float64) (*Shift, error) {
 	acc, err := s.accountRepository.GetByUUID(accountUUID)
 	if err != nil {
 		shared.LogError("failed to get account", LogService, "Close", err)

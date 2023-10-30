@@ -44,3 +44,13 @@ func (r *DBRepository) GetOpenShift(storeID *uint) (*Shift, error) {
 
 	return &shift, nil
 }
+
+func (r *DBRepository) GetLastShift(storeID string) (*Shift, error) {
+	var shift Shift
+	if err := r.db.Where("store_id = ?", storeID).Last(&shift).Error; err != nil {
+		shared.LogError("failed to get last shift", LogDBRepository, "GetLastShift", err)
+		return nil, err
+	}
+
+	return &shift, nil
+}

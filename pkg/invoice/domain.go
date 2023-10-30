@@ -69,6 +69,7 @@ type Invoice struct {
 	Payments            []payment.Payment `json:"payments" gorm:"foreignKey:InvoiceID"`
 	ClientID            *uint             `json:"client_id"`
 	Client              *client.Client    `json:"client,omitempty"`
+	ShiftID             *uint             `json:"shift_id"`
 	CreatedAt           *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt           *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt           *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`

@@ -15,11 +15,11 @@ type Handler struct {
 }
 
 type RequestOpenShift struct {
-	StartBalance float32 `json:"start_balance" binding:"required"`
+	StartBalance float64 `json:"start_balance" binding:"required"`
 }
 
 type RequestCloseShift struct {
-	EndBalance float32 `json:"end_balance" binding:"required"`
+	EndBalance float64 `json:"end_balance" binding:"required"`
 }
 
 func NewHandler(service Service) *Handler {

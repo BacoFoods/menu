@@ -1070,6 +1070,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/cash-audit": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To get cash audit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cash Audit"
+                ],
+                "summary": "To get cash audit",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/cashaudit.CashAudit"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/category": {
             "get": {
                 "security": [
@@ -12097,6 +12158,53 @@ const docTemplate = `{
                 }
             }
         },
+        "cashaudit.CashAudit": {
+            "type": "object",
+            "properties": {
+                "card_incomes": {
+                    "type": "number"
+                },
+                "cash_incomes": {
+                    "type": "number"
+                },
+                "discounts": {
+                    "type": "number"
+                },
+                "eaters": {
+                    "type": "integer"
+                },
+                "online_incomes": {
+                    "type": "number"
+                },
+                "orders": {
+                    "type": "integer"
+                },
+                "shift_close": {
+                    "type": "string"
+                },
+                "shift_end_balance": {
+                    "type": "number"
+                },
+                "shift_open": {
+                    "type": "string"
+                },
+                "shift_start_balance": {
+                    "type": "number"
+                },
+                "store_name": {
+                    "type": "string"
+                },
+                "surcharges": {
+                    "type": "number"
+                },
+                "tips": {
+                    "type": "number"
+                },
+                "total_sell": {
+                    "type": "number"
+                }
+            }
+        },
         "category.Category": {
             "type": "object",
             "required": [
@@ -12381,6 +12489,9 @@ const docTemplate = `{
                 },
                 "shift": {
                     "type": "string"
+                },
+                "shift_id": {
+                    "type": "integer"
                 },
                 "store_id": {
                     "type": "integer"
@@ -13160,6 +13271,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "image": {
+                    "type": "string"
+                },
+                "image_url": {
                     "type": "string"
                 },
                 "modifiers": {

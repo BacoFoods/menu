@@ -138,6 +138,37 @@ definitions:
           $ref: '#/definitions/store.Store'
         type: array
     type: object
+  cashaudit.CashAudit:
+    properties:
+      card_incomes:
+        type: number
+      cash_incomes:
+        type: number
+      discounts:
+        type: number
+      eaters:
+        type: integer
+      online_incomes:
+        type: number
+      orders:
+        type: integer
+      shift_close:
+        type: string
+      shift_end_balance:
+        type: number
+      shift_open:
+        type: string
+      shift_start_balance:
+        type: number
+      store_name:
+        type: string
+      surcharges:
+        type: number
+      tips:
+        type: number
+      total_sell:
+        type: number
+    type: object
   category.Category:
     properties:
       brand_id:
@@ -322,6 +353,8 @@ definitions:
         type: string
       shift:
         type: string
+      shift_id:
+        type: integer
       store_id:
         type: integer
       sub_total:
@@ -837,6 +870,8 @@ definitions:
       id:
         type: integer
       image:
+        type: string
+      image_url:
         type: string
       modifiers:
         items:
@@ -1750,6 +1785,42 @@ paths:
       summary: To update a brand
       tags:
       - Brand
+  /cash-audit:
+    get:
+      consumes:
+      - application/json
+      description: To get cash audit
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/cashaudit.CashAudit'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To get cash audit
+      tags:
+      - Cash Audit
   /category:
     get:
       consumes:

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/cashaudit"
 
 	"github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/client"
@@ -221,6 +222,11 @@ func main() {
 	temporalHandler := temporal.NewHandler()
 	temporalRoutes := temporal.NewRoutes(temporalHandler)
 
+	// CashAudit
+	cashAuditRepository := cashaudit.NewService(storeRepository, orderRepository, invoiceRepository, shiftRepository)
+	cashAuditHandler := cashaudit.NewHandler(cashAuditRepository)
+	cashAuditRoutes := cashaudit.NewRoutes(cashAuditHandler)
+
 	// Routes
 	routes := &router.RoutesGroup{
 		HealthCheck:  healthcheckRoutes,
@@ -247,6 +253,7 @@ func main() {
 		Payment:      paymentRoutes,
 		Cashier:      shiftRoutes,
 		Temporal:     temporalRoutes,
+		CashAudit:    cashAuditRoutes,
 	}
 
 	// Run server

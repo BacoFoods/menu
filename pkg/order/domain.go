@@ -57,20 +57,25 @@ type OrderStep string
 type OrderAction string
 
 type Repository interface {
+	// Order
 	Create(order *Order) (*Order, error)
 	Get(orderID string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
 	Update(order *Order) (*Order, error)
+	FindByShift(shiftID uint) ([]Order, error)
 
+	// OrderItem
 	UpdateOrderItem(orderItem *OrderItem) (*OrderItem, error)
 	GetOrderItem(orderItemID string) (*OrderItem, error)
 
+	// OrderType
 	CreateOrderType(*OrderType) (*OrderType, error)
 	FindOrderType(filter map[string]any) ([]OrderType, error)
 	GetOrderType(orderTypeID string) (*OrderType, error)
 	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
 	DeleteOrderType(orderTypeID string) error
 
+	// Attendee
 	CreateAttendee(attendee *Attendee) (*Attendee, error)
 }
 
@@ -184,6 +189,7 @@ func (o *Order) ToInvoice() {
 		StoreID:   o.StoreID,
 		ChannelID: o.ChannelID,
 		TableID:   o.TableID,
+		ShiftID:   o.ShiftID,
 		Items:     make([]invoice.Item, 0),
 		Client:    client.DefaultClient(),
 	}
