@@ -242,9 +242,10 @@ func (h *Handler) Print(c *gin.Context) {
 
 	printableInvoice, err := h.service.Print(invoiceID)
 	if err != nil {
-		shared.LogError("error printing invoice", LogHandler, "Print", err, *printableInvoice)
+		shared.LogError("error printing invoice", LogHandler, "Print", err, invoiceID)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorInvoicePrinting))
 		return
 	}
+
 	c.JSON(http.StatusOK, shared.SuccessResponse(printableInvoice))
 }

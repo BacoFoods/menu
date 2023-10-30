@@ -28,6 +28,7 @@ const (
 	ErrorInvoicePrinting                 = "error printing invoice"
 	ErrorInvoicePrintingHeader           = "error printing invoice header"
 	ErrorInvoicePrintingItems            = "error printing invoice items"
+	ErrorInvoiceGettingByID              = "error getting invoice by id"
 
 	TaxPercentage     = 0.08
 	TipTypePercentage = "PERCENTAGE"
@@ -64,6 +65,7 @@ type Invoice struct {
 	TipAmount           float64           `json:"tip_amount"`
 	BaseTax             float64           `json:"base_tax"`
 	Taxes               float64           `json:"taxes"`
+	TaxDetails          []TaxDetail       `json:"tax_details" gorm:"-"` // gorm ignore
 	Total               float64           `json:"total"`
 	PaymentsObservation string            `json:"payments_observation"`
 	Payments            []payment.Payment `json:"payments" gorm:"foreignKey:InvoiceID"`
@@ -108,19 +110,42 @@ func (i *Invoice) MapItems() map[uint]Item {
 	return items
 }
 
+func (i *Invoice) CalculateTaxDetails() {
+	i.TaxDetails = make([]TaxDetail, 0)
+
+	taxTypes := make(map[string]float64)
+
+	for _, item := range i.Items {
+		if _, ok := taxTypes[item.Tax]; !ok {
+			taxTypes[item.Tax] = item.Price * item.TaxPercentage
+		} else {
+			taxTypes[item.Tax] += item.Price * item.TaxPercentage
+		}
+	}
+
+	for taxType, taxAmount := range taxTypes {
+		i.TaxDetails = append(i.TaxDetails, TaxDetail{
+			Name:   taxType,
+			Amount: taxAmount,
+		})
+	}
+}
+
 type Item struct {
-	ID          uint            `json:"id"`
-	InvoiceID   *uint           `json:"invoice_id"`
-	ProductID   *uint           `json:"product_id"`
-	Name        string          `json:"name"`
-	Description string          `json:"description"`
-	SKU         string          `json:"sku"`
-	Price       float64         `json:"price" gorm:"precision:18;scale:2"`
-	Comments    string          `json:"comments"`
-	Hash        string          `json:"hash"`
-	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID            uint            `json:"id"`
+	InvoiceID     *uint           `json:"invoice_id"`
+	ProductID     *uint           `json:"product_id"`
+	Name          string          `json:"name"`
+	Description   string          `json:"description"`
+	SKU           string          `json:"sku"`
+	Price         float64         `json:"price" gorm:"precision:18;scale:2"`
+	Comments      string          `json:"comments"`
+	Hash          string          `json:"hash"`
+	Tax           string          `json:"tax"`
+	TaxPercentage float64         `json:"tax_percentage"`
+	CreatedAt     *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt     *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt     *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type Discount struct {
@@ -154,4 +179,9 @@ type Surcharge struct {
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+type TaxDetail struct {
+	Name   string  `json:"name"`
+	Amount float64 `json:"amount"`
 }
