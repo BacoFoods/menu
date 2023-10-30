@@ -1,6 +1,7 @@
 package cashaudit
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/order"
 	"github.com/BacoFoods/menu/pkg/shared"
@@ -42,7 +43,7 @@ func (s service) Get(storeID string) (*CashAudit, error) {
 	auditStore, err := s.stores.Get(storeID)
 	if err != nil {
 		shared.LogError("error getting store", LogService, "Get", err, storeID)
-		return nil, err
+		return nil, fmt.Errorf(ErrorCashAuditGettingStore)
 	}
 	cashAudit.StoreName = auditStore.Name
 
@@ -50,7 +51,7 @@ func (s service) Get(storeID string) (*CashAudit, error) {
 	lastShift, err := s.shifts.GetLastShift(storeID)
 	if err != nil {
 		shared.LogError("error getting last shift", LogService, "Get", err, storeID)
-		return nil, err
+		return nil, fmt.Errorf(ErrorCashAuditGettingLastShift)
 	}
 	cashAudit.ShiftOpen = lastShift.StartTime
 	cashAudit.ShiftStartBalance = lastShift.StartBalance
@@ -61,7 +62,7 @@ func (s service) Get(storeID string) (*CashAudit, error) {
 	orderList, err := s.orders.FindByShift(lastShift.ID)
 	if err != nil {
 		shared.LogError("error getting orders by shift", LogService, "Get", err, lastShift.ID)
-		return nil, err
+		return nil, fmt.Errorf(ErrorCashAuditGettingOrders)
 	}
 	cashAudit.Orders = uint(len(orderList))
 	cashAudit.Eaters = GetTotalEaters(orderList)

@@ -7,8 +7,11 @@ import (
 )
 
 const (
-	ErrorGettingCashAudit = "error getting cash audit"
-	ErrorGettingStoreID   = "error getting store id"
+	ErrorCashAuditGetting          = "error getting cash audit"
+	ErrorCashAuditGettingStore     = "error getting store"
+	ErrorCashAuditGettingStoreID   = "error getting store id"
+	ErrorCashAuditGettingLastShift = "error getting last shift"
+	ErrorCashAuditGettingOrders    = "error getting orders"
 )
 
 type CashAudit struct {

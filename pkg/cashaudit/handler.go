@@ -34,13 +34,13 @@ func NewHandler(service Service) *Handler {
 func (h Handler) Get(c *gin.Context) {
 	storeID, ok := c.Get("store_id")
 	if !ok {
-		shared.LogWarn("error getting store id", LogHandler, "Get", fmt.Errorf(ErrorGettingStoreID))
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorGettingStoreID))
+		shared.LogWarn("error getting store id", LogHandler, "Get", fmt.Errorf(ErrorCashAuditGettingStoreID))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorCashAuditGettingStoreID))
 	}
 
 	cashAudit, err := h.service.Get(storeID.(string))
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingCashAudit))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
 
