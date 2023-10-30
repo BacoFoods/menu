@@ -178,7 +178,7 @@ func (h *Handler) Delete(ctx *gin.Context) {
 // @Failure 401 {object} shared.Response
 // @Router /payment-method [get]
 func (h *Handler) FindPaymentMethod(ctx *gin.Context) {
-	var filter map[string]any
+	filter := make(map[string]any)
 
 	if brandID := ctx.Query("brand_id"); brandID != "" {
 		filter["brand_id"] = brandID
