@@ -10,3 +10,4 @@
 
 # Env files
 .env
+tmp/

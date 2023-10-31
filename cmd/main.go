@@ -2,21 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/BacoFoods/menu/pkg/cashaudit"
-
-	"github.com/BacoFoods/menu/pkg/account"
-	"github.com/BacoFoods/menu/pkg/client"
-	"github.com/BacoFoods/menu/pkg/course"
-	"github.com/BacoFoods/menu/pkg/payment"
-	"github.com/BacoFoods/menu/pkg/shift"
-	"github.com/BacoFoods/menu/pkg/temporal"
 
 	"github.com/BacoFoods/menu/internal"
+	"github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/assets"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
+	"github.com/BacoFoods/menu/pkg/cashaudit"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
+	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/country"
+	"github.com/BacoFoods/menu/pkg/course"
 	"github.com/BacoFoods/menu/pkg/currency"
 	"github.com/BacoFoods/menu/pkg/database"
 	"github.com/BacoFoods/menu/pkg/discount"
@@ -24,14 +21,17 @@ import (
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/order"
+	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/router"
+	"github.com/BacoFoods/menu/pkg/shift"
 	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
 	"github.com/BacoFoods/menu/pkg/swagger"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/BacoFoods/menu/pkg/taxes"
+	"github.com/BacoFoods/menu/pkg/temporal"
 	"github.com/sirupsen/logrus"
 )
 
@@ -76,6 +76,7 @@ func main() {
 		&order.Attendee{},
 		&shift.Shift{},
 		&tables.QR{},
+		&assets.Asset{},
 	)
 
 	// Healthcheck
@@ -227,6 +228,12 @@ func main() {
 	cashAuditHandler := cashaudit.NewHandler(cashAuditRepository)
 	cashAuditRoutes := cashaudit.NewRoutes(cashAuditHandler)
 
+	// Assets
+	assetsRepository := assets.NewAssetRepository(gormDB)
+	assetsService := assets.NewAssetService(assetsRepository)
+	assetsHandler := assets.NewHandler(assetsService)
+	assetsRoutes := assets.NewRoutes(assetsHandler)
+
 	// Routes
 	routes := &router.RoutesGroup{
 		HealthCheck:  healthcheckRoutes,
@@ -254,6 +261,7 @@ func main() {
 		Cashier:      shiftRoutes,
 		Temporal:     temporalRoutes,
 		CashAudit:    cashAuditRoutes,
+		Assets:       assetsRoutes,
 	}
 
 	// Run server

@@ -92,7 +92,7 @@ type QR struct {
 	URL       string `json:"url"`
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
-	DeletedAt *gorm.DeletedAt
+	DeletedAt *gorm.DeletedAt `swaggerignore:"true"`
 }
 
 type Repository interface {
