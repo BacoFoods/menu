@@ -113,20 +113,27 @@ func (i *Invoice) MapItems() map[uint]Item {
 func (i *Invoice) CalculateTaxDetails() {
 	i.TaxDetails = make([]TaxDetail, 0)
 
-	taxTypes := make(map[string]float64)
+	taxTypes := make(map[string]*TaxDetail)
 
 	for _, item := range i.Items {
 		if _, ok := taxTypes[item.Tax]; !ok {
-			taxTypes[item.Tax] = item.Price * item.TaxPercentage
+			taxTypes[item.Tax] = &TaxDetail{
+				Name:   item.Tax,
+				Amount: item.Price * item.TaxPercentage,
+				Base:   item.Price - (item.Price * item.TaxPercentage),
+			}
 		} else {
-			taxTypes[item.Tax] += item.Price * item.TaxPercentage
+			taxDetails := taxTypes[item.Tax]
+			taxDetails.Amount += item.Price * item.TaxPercentage
+			taxDetails.Base += item.Price - (item.Price * item.TaxPercentage)
 		}
 	}
 
-	for taxType, taxAmount := range taxTypes {
+	for taxType, taxDetail := range taxTypes {
 		i.TaxDetails = append(i.TaxDetails, TaxDetail{
 			Name:   taxType,
-			Amount: taxAmount,
+			Amount: taxDetail.Amount,
+			Base:   taxDetail.Base,
 		})
 	}
 }
@@ -184,4 +191,5 @@ type Surcharge struct {
 type TaxDetail struct {
 	Name   string  `json:"name"`
 	Amount float64 `json:"amount"`
+	Base   float64 `json:"base"`
 }

@@ -554,6 +554,7 @@ func (s service) CalculateInvoice(orderID string) (*invoices.Invoice, error) {
 
 	order.ToInvoice()
 	invoice := order.Invoices[0]
+	invoice.CalculateTaxDetails()
 
 	return &invoice, nil
 }
