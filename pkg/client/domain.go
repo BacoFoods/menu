@@ -17,7 +17,7 @@ type Repository interface {
 	Create(client *Client) (*Client, error)
 	Update(client *Client) (*Client, error)
 	Delete(id string) (*Client, error)
-	List() ([]Client, error)
+	List(map[string]any) ([]Client, error)
 	Get(id string) (*Client, error)
 }
 

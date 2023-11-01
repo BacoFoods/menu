@@ -18,5 +18,4 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 	router.POST("/invoice/:id/client/:clientID/add", r.handler.AddClient)
 	router.POST("/invoice/:id/client/:clientID/remove", r.handler.RemoveClient)
 	router.POST("/invoice/:id/split", r.handler.Split)
-	router.POST("")
 }
