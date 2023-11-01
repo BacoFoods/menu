@@ -1,12 +1,21 @@
 on: push
 name: e2e tests
+env:
+  GOPRIVATE: github.com/BacoFoods
 jobs:
   tests:
     name: 'e2e tests'
     runs-on: ubuntu-latest
     steps:
+      - name: Fix up git URLs
+        run: echo -e '[url "git@github.com:"]\n  insteadOf = "https://github.com/"' >> ~/.gitconfig
+
+      - uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Checkout del repositorio de pruebas
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: BacoFoods/tests
           ref: master
