@@ -2383,6 +2383,11 @@ paths:
       consumes:
       - application/json
       description: To list all clients
+      parameters:
+      - description: document
+        in: query
+        name: document
+        type: string
       produces:
       - application/json
       responses:

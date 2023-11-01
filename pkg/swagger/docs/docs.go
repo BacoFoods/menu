@@ -2042,6 +2042,14 @@ const docTemplate = `{
                     "Client"
                 ],
                 "summary": "To list all clients",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "document",
+                        "name": "document",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
