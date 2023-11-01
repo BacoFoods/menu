@@ -10,8 +10,8 @@ jobs:
         with:
           repository: BacoFoods/tests
           ref: master
-          env:
-            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Ejecutar ambiente QA
         run: |
