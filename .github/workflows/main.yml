@@ -4,4 +4,15 @@ jobs:
   tests:
     name: 'e2e tests'
     runs-on: ubuntu-latest
-    
+    steps:
+      - name: Checkout del repositorio de pruebas
+        uses: actions/checkout@v2
+        with:
+          repository: BacoFoods/tests
+          ref: master
+
+      - name: Ejecutar ambiente QA
+        run: docker-compose up -d
+        working-directory: ./tests
+
+
