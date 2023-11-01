@@ -1,0 +1,7 @@
+on: push
+name: e2e tests
+jobs:
+  tests:
+    name: 'e2e tests'
+    runs-on: ubuntu-latest
+    
