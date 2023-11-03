@@ -19,6 +19,7 @@ const (
 	ErrorBadRequest             = "bad request"
 	ErrorAccountPinBadRequest   = "bad request pin must have 4 digits"
 	ErrorAccountCreation        = "error creating account"
+	ErrorAccountPinFinding      = "error finding pin account"
 	ErrorAccountPinCreation     = "error creating pin account"
 	ErrorAccountPinAlreadyExist = "error pin already exist"
 	ErrorAccountDeleting        = "error deleting account"
