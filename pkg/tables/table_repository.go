@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const LogRepository = "pkg/tables/repository"
+const LogRepository = "pkg/tables/table_repository.go"
 
 type tableRepository struct {
 	db *gorm.DB

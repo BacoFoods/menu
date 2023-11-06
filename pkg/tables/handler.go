@@ -274,9 +274,9 @@ func (h Handler) FindZones(c *gin.Context) {
 		filters["store_id"] = storeID
 	}
 
-	zones, err := h.service.Find(filters)
+	zones, err := h.service.FindZones(filters)
 	if err != nil {
-		shared.LogError("error finding zones", LogHandler, "Find", err, zones)
+		shared.LogError("error finding zones", LogHandler, "FindZones", err, zones)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorZoneFinding))
 		return
 	}

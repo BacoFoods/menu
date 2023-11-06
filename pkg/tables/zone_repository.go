@@ -13,7 +13,7 @@ type zoneRepository struct {
 }
 
 const (
-	LogDBRepository = "pkg/tables/db_repository.go"
+	LogDBRepository = "pkg/tables/zone_repository.go"
 )
 
 func NewZoneRepository(db *gorm.DB) *zoneRepository {
