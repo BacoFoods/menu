@@ -1,4 +1,3 @@
-basePath: /api/menu/v1
 definitions:
   account.Account:
     properties:
@@ -107,6 +106,81 @@ definitions:
     - email
     - pin
     - store_id
+    type: object
+  assets.Asset:
+    properties:
+      actual_purchase_date:
+        example: "2022-10-01"
+        type: string
+      asset_name:
+        example: Asset Name
+        type: string
+      asset_name_siesa:
+        example: Asset Siesa
+        type: string
+      barcode:
+        example: BARCODE001
+        type: string
+      category:
+        example: Category A
+        type: string
+      contract:
+        example: CON001
+        type: string
+      current_cost_center:
+        example: 1001
+        type: integer
+      current_location:
+        example: Location A
+        type: string
+      custodian:
+        example: John Doe
+        type: string
+      invoice:
+        example: INV123
+        type: string
+      invoice_initial_location:
+        example: Location A
+        type: string
+      invoice_link:
+        example: http://example.com/invoice/INV123
+        type: string
+      official_placa:
+        example: OFFPLACA123
+        type: string
+      operation_code_siesa:
+        example: OP123
+        type: string
+      operation_name_siesa:
+        example: Operation
+        type: string
+      placa:
+        example: PLACA123
+        type: string
+      price:
+        example: 1000.5
+        type: number
+      provider_name:
+        example: Provider Inc.
+        type: string
+      provider_nit:
+        example: "123456789"
+        type: string
+      purchase_date:
+        example: "2022-10-10"
+        type: string
+      purchase_invoice:
+        example: INV001
+        type: string
+      reference:
+        example: REF001
+        type: string
+      renting:
+        example: false
+        type: boolean
+      type:
+        example: SIESA
+        type: string
     type: object
   availability.EnableRequest:
     properties:
@@ -231,12 +305,24 @@ definitions:
       id:
         type: integer
       iso_code:
-        type: string
+        $ref: '#/definitions/country.CountryISO'
       name:
         type: string
       phone_code:
         type: string
     type: object
+  country.CountryISO:
+    enum:
+    - AR
+    - CO
+    - MX
+    - PE
+    type: string
+    x-enum-varnames:
+    - AR
+    - CO
+    - MX
+    - PE
   course.Course:
     properties:
       brand_id:
@@ -284,10 +370,18 @@ definitions:
       terms:
         type: string
       type:
-        type: string
+        $ref: '#/definitions/discount.DiscountType'
       value:
         type: number
     type: object
+  discount.DiscountType:
+    enum:
+    - percentage
+    - value
+    type: string
+    x-enum-varnames:
+    - DiscountTypePercentage
+    - DiscountTypeValue
   invoice.Discount:
     properties:
       amount:
@@ -519,9 +613,9 @@ definitions:
       name:
         type: string
       order_action:
-        type: string
+        $ref: '#/definitions/order.OrderAction'
       order_step:
-        type: string
+        $ref: '#/definitions/order.OrderStep'
       role:
         type: string
     type: object
@@ -570,6 +664,12 @@ definitions:
     - channel_id
     - store_id
     type: object
+  order.OrderAction:
+    enum:
+    - fue atendido por
+    type: string
+    x-enum-varnames:
+    - OrderActionCreated
   order.OrderDTO:
     properties:
       brand_id:
@@ -692,6 +792,12 @@ definitions:
     required:
     - product_id
     type: object
+  order.OrderStep:
+    enum:
+    - created
+    type: string
+    x-enum-varnames:
+    - OrderStepCreated
   order.OrderType:
     properties:
       brand_id:
@@ -1139,17 +1245,7 @@ definitions:
         type: number
     type: object
 info:
-  contact:
-    email: andersonrodriguezce@gmail.com
-    name: Anderson Rodriguez
-    url: https://www.bacu.co/quienes-somos
-  description: Microservices for MENU.
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: https://www.bacu.co/
-  title: MENU-MS API Rest
-  version: "1.0"
+  contact: {}
 paths:
   /account:
     get:
@@ -1183,14 +1279,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/account.Account'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/account.Account'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -1225,14 +1319,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/account.Account'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/account.Account'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -1263,14 +1355,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/account.Account'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/account.Account'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -1301,14 +1391,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/account.Account'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/account.Account'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -1322,6 +1410,62 @@ paths:
       summary: To delete an account
       tags:
       - Account
+  /assets:
+    post:
+      consumes:
+      - application/json
+      description: Create a new asset
+      parameters:
+      - description: Asset to be created
+        in: body
+        name: asset
+        required: true
+        schema:
+          $ref: '#/definitions/assets.Asset'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/assets.Asset'
+      summary: Create a new asset
+      tags:
+      - Assets
+  /assets/{code}:
+    get:
+      consumes:
+      - application/json
+      description: Find assets by code
+      parameters:
+      - description: placa of the asset
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              status:
+                type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Find assets by code
+      tags:
+      - Assets
   /availability/{entity}/{entity-id}/{place}:
     get:
       consumes:
@@ -1587,16 +1731,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/brand.Brand'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/brand.Brand'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -1624,32 +1766,28 @@ paths:
         name: brand
         required: true
         schema:
-          allOf:
-          - type: object
-          - properties:
-              description:
-                type: string
-              name:
-                type: string
-              nit:
-                type: string
-              social_name:
-                type: string
-            type: object
+          properties:
+            description:
+              type: string
+            name:
+              type: string
+            nit:
+              type: string
+            social_name:
+              type: string
+          type: object
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/brand.Brand'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/brand.Brand'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -1684,14 +1822,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/brand.Brand'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/brand.Brand'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -1725,14 +1861,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/brand.Brand'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/brand.Brand'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -1772,14 +1906,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/brand.Brand'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/brand.Brand'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -1808,14 +1940,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/cashaudit.CashAudit'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/cashaudit.CashAudit'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -1857,16 +1987,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/category.Category'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/category.Category'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -1901,14 +2029,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/category.Category'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/category.Category'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -1939,14 +2065,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/category.Category'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/category.Category'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -1976,14 +2100,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/category.Category'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/category.Category'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2023,14 +2145,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/category.Category'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/category.Category'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2179,16 +2299,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/channel.Channel'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/channel.Channel'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2223,14 +2341,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/channel.Channel'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/channel.Channel'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2265,14 +2381,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/channel.Channel'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/channel.Channel'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2306,14 +2420,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/channel.Channel'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/channel.Channel'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2353,14 +2465,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/channel.Channel'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/channel.Channel'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2394,16 +2504,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/client.Client'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/client.Client'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2438,14 +2546,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/client.Client'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/client.Client'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2480,14 +2586,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/client.Client'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/client.Client'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2521,14 +2625,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/client.Client'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/client.Client'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2563,14 +2665,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/client.Client'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/client.Client'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2604,16 +2704,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/country.Country'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/country.Country'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2648,14 +2746,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/country.Country'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/country.Country'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2690,14 +2786,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/country.Country'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/country.Country'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2728,14 +2822,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/country.Country'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/country.Country'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2765,14 +2857,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/country.Country'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/country.Country'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2810,16 +2900,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/course.Course'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/course.Course'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2854,14 +2942,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/course.Course'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/course.Course'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2896,14 +2982,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/course.Course'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/course.Course'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2937,14 +3021,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/course.Course'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/course.Course'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -2978,16 +3060,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/currency.Currency'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/currency.Currency'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3022,14 +3102,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/currency.Currency'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/currency.Currency'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3064,14 +3142,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/currency.Currency'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/currency.Currency'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3102,14 +3178,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/currency.Currency'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/currency.Currency'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3139,14 +3213,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/currency.Currency'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/currency.Currency'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3184,16 +3256,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/discount.Discount'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/discount.Discount'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3228,14 +3298,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/discount.Discount'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/discount.Discount'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3270,14 +3338,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/discount.Discount'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/discount.Discount'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3308,14 +3374,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/discount.Discount'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/discount.Discount'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3345,14 +3409,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/discount.Discount'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/discount.Discount'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3408,21 +3470,17 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  allOf:
-                  - type: object
-                  - properties:
-                      invoices:
-                        items:
-                          $ref: '#/definitions/invoice.Invoice'
-                        type: array
-                    type: object
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                properties:
+                  invoices:
+                    items:
+                      $ref: '#/definitions/invoice.Invoice'
+                    type: array
+                type: object
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3457,14 +3515,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/invoice.Invoice'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/invoice.Invoice'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3504,14 +3560,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/invoice.Invoice'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/invoice.Invoice'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3551,14 +3605,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/invoice.Invoice'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/invoice.Invoice'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3598,14 +3650,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/invoice.Invoice'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/invoice.Invoice'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3640,14 +3690,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/invoice.Invoice'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/invoice.Invoice'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3688,21 +3736,17 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  allOf:
-                  - type: object
-                  - properties:
-                      invoices:
-                        items:
-                          $ref: '#/definitions/invoice.Invoice'
-                        type: array
-                    type: object
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                properties:
+                  invoices:
+                    items:
+                      $ref: '#/definitions/invoice.Invoice'
+                    type: array
+                type: object
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3740,16 +3784,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/menu.Menu'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/menu.Menu'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3784,14 +3826,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/menu.Menu'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/menu.Menu'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3826,14 +3866,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/menu.Menu'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/menu.Menu'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3867,14 +3905,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/menu.Menu'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/menu.Menu'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3914,14 +3950,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/menu.Menu'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/menu.Menu'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -3961,14 +3995,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/menu.Menu'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/menu.Menu'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4008,14 +4040,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/menu.Menu'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/menu.Menu'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4101,14 +4131,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/menu.Menu'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/menu.Menu'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4148,16 +4176,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/menu.Menu'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/menu.Menu'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4202,14 +4228,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/menu.Menu'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/menu.Menu'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4247,14 +4271,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Modifier'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Modifier'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4289,14 +4311,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Modifier'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Modifier'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4337,14 +4357,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Modifier'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Modifier'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4380,14 +4398,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Modifier'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Modifier'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4426,14 +4442,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Modifier'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Modifier'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4486,14 +4500,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4528,14 +4540,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4576,14 +4586,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4624,14 +4632,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4672,14 +4678,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
       security:
       - ApiKeyAuth: []
       summary: To update an order item
@@ -4713,14 +4717,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.OrderType'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.OrderType'
+              status:
+                type: string
+            type: object
       security:
       - ApiKeyAuth: []
       summary: To find order types
@@ -4743,14 +4745,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.OrderType'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.OrderType'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4785,14 +4785,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.OrderType'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.OrderType'
+              status:
+                type: string
+            type: object
       security:
       - ApiKeyAuth: []
       summary: To delete an order type
@@ -4814,14 +4812,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.OrderType'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.OrderType'
+              status:
+                type: string
+            type: object
       security:
       - ApiKeyAuth: []
       summary: To get an order type
@@ -4849,14 +4845,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.OrderType'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.OrderType'
+              status:
+                type: string
+            type: object
       security:
       - ApiKeyAuth: []
       summary: To update an order type
@@ -4879,14 +4873,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4927,14 +4919,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -4969,14 +4959,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/invoice.Invoice'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/invoice.Invoice'
+              status:
+                type: string
+            type: object
       security:
       - ApiKeyAuth: []
       summary: To create an invoice
@@ -4999,14 +4987,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/invoice.Invoice'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/invoice.Invoice'
+              status:
+                type: string
+            type: object
       security:
       - ApiKeyAuth: []
       summary: To calculate an invoice
@@ -5029,14 +5015,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5076,14 +5060,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5124,14 +5106,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5171,14 +5151,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5219,14 +5197,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
       security:
       - ApiKeyAuth: []
       summary: To update an order's client name
@@ -5255,14 +5231,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
       security:
       - ApiKeyAuth: []
       summary: To update an order's comments
@@ -5296,14 +5270,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5344,14 +5316,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
       security:
       - ApiKeyAuth: []
       summary: To update the status of an order
@@ -5373,16 +5343,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/product.Overrider'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/product.Overrider'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5417,14 +5385,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Overrider'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Overrider'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5459,14 +5425,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Overrider'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Overrider'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5500,14 +5464,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Overrider'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Overrider'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5547,14 +5509,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Overrider'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Overrider'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5588,16 +5548,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/payment.Payment'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/payment.Payment'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5632,14 +5590,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/payment.Payment'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/payment.Payment'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5674,14 +5630,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/payment.Payment'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/payment.Payment'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5723,16 +5677,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/payment.PaymentMethod'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/payment.PaymentMethod'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5767,14 +5719,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/payment.PaymentMethod'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/payment.PaymentMethod'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5809,14 +5759,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/payment.PaymentMethod'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/payment.PaymentMethod'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5851,14 +5799,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/payment.PaymentMethod'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/payment.PaymentMethod'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5892,14 +5838,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/payment.PaymentMethod'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/payment.PaymentMethod'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5934,14 +5878,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/payment.Payment'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/payment.Payment'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -5975,14 +5917,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/payment.Payment'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/payment.Payment'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6020,16 +5960,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/product.Product'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/product.Product'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6065,14 +6003,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Product'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Product'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6107,14 +6043,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Product'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Product'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6148,14 +6082,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Product'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Product'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6195,14 +6127,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Product'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Product'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6277,14 +6207,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Product'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Product'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6323,14 +6251,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Product'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Product'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6410,14 +6336,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/product.Product'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/product.Product'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6453,14 +6377,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/account.Account'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/account.Account'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6554,16 +6476,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/menu.Menu'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/menu.Menu'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6597,14 +6517,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6620,6 +6538,40 @@ paths:
       summary: To create an order
       tags:
       - Order
+  /public/tables/{id}/order:
+    get:
+      consumes:
+      - application/json
+      description: Get table order
+      parameters:
+      - description: table id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              data:
+                $ref: '#/definitions/order.Order'
+              status:
+                type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Get table order
+      tags:
+      - Tables
   /public/tables/scan/{qrId}:
     get:
       consumes:
@@ -6637,14 +6589,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/tables.Table'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/tables.Table'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6678,12 +6628,10 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                status:
-                  type: string
-              type: object
+            properties:
+              status:
+                type: string
+            type: object
         "401":
           description: Unauthorized
           schema:
@@ -6715,12 +6663,10 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                status:
-                  type: string
-              type: object
+            properties:
+              status:
+                type: string
+            type: object
         "401":
           description: Unauthorized
           schema:
@@ -6745,16 +6691,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/status.Status'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/status.Status'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6789,14 +6733,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/status.Status'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/status.Status'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6831,14 +6773,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/status.Status'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/status.Status'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6875,14 +6815,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  type: string
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                type: string
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6912,14 +6850,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/status.Status'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/status.Status'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -6961,16 +6897,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/store.Store'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/store.Store'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7005,14 +6939,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/store.Store'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/store.Store'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7047,14 +6979,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/store.Store'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/store.Store'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7088,14 +7018,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/store.Store'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/store.Store'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7135,14 +7063,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/store.Store'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/store.Store'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7182,14 +7108,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/store.Store'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/store.Store'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7224,14 +7148,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/store.Store'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/store.Store'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7266,16 +7188,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    type: object
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  type: object
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7315,14 +7235,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  type: object
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                type: object
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7364,16 +7282,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/surcharge.Surcharge'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/surcharge.Surcharge'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7408,14 +7324,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/surcharge.Surcharge'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/surcharge.Surcharge'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7450,14 +7364,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/surcharge.Surcharge'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/surcharge.Surcharge'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7491,14 +7403,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/surcharge.Surcharge'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/surcharge.Surcharge'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7538,14 +7448,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/surcharge.Surcharge'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/surcharge.Surcharge'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7583,16 +7491,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/tables.Table'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/tables.Table'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7627,14 +7533,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/tables.Table'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/tables.Table'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7703,14 +7607,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/tables.Table'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/tables.Table'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7744,14 +7646,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/tables.Table'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/tables.Table'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7786,14 +7686,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/tables.Table'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/tables.Table'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7827,16 +7725,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/taxes.Tax'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/taxes.Tax'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7871,14 +7767,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/taxes.Tax'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/taxes.Tax'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7913,14 +7807,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/taxes.Tax'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/taxes.Tax'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7951,14 +7843,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/taxes.Tax'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/taxes.Tax'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -7988,14 +7878,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/taxes.Tax'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/taxes.Tax'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -8035,12 +7923,10 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                status:
-                  type: string
-              type: object
+            properties:
+              status:
+                type: string
+            type: object
         "401":
           description: Unauthorized
           schema:
@@ -8065,12 +7951,10 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                status:
-                  type: string
-              type: object
+            properties:
+              status:
+                type: string
+            type: object
         "401":
           description: Unauthorized
           schema:
@@ -8104,16 +7988,14 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/tables.Zone'
-                  type: array
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/tables.Zone'
+                type: array
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -8148,14 +8030,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/tables.Zone'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/tables.Zone'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -8224,14 +8104,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/tables.Zone'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/tables.Zone'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -8271,14 +8149,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/tables.Zone'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/tables.Zone'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -8313,14 +8189,12 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/tables.Zone'
-                status:
-                  type: string
-              type: object
+            properties:
+              data:
+                $ref: '#/definitions/tables.Zone'
+              status:
+                type: string
+            type: object
         "400":
           description: Bad Request
           schema:
@@ -8420,9 +8294,4 @@ paths:
       summary: To remove tables from a zone
       tags:
       - Zones
-securityDefinitions:
-  ApiKeyAuth:
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"

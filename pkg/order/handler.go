@@ -800,3 +800,27 @@ func (h *Handler) CalculateInvoice(c *gin.Context) {
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
 }
+
+// GetTableOrder to get the order in a table
+// @Tags Tables
+// @Summary Get table order
+// @Description Get table order
+// @Param id path string true "table id"
+// @Accept json
+// @Produce json
+// @Success 200 {object} object{status=string,data=Order}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /public/tables/{id}/order [get]
+func (h Handler) GetTableOrder(ctx *gin.Context) {
+	id := ctx.Param("tableId")
+
+	order, err := h.service.GetTableOrder(id)
+	if err != nil {
+		shared.LogError("error getting table order", LogHandler, "GetTableOrder", err, id)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderFind))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(order))
+}

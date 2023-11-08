@@ -44,4 +44,7 @@ func (r Routes) RegisterRoutes(private, public *gin.RouterGroup) {
 	// Invoice
 	private.POST("/order/:id/invoice", r.handler.CreateInvoice)
 	private.POST("/order/:id/invoice/calculate", r.handler.CalculateInvoice)
+
+	// Tables
+	public.GET("/tables/:tableId/order", r.handler.GetTableOrder)
 }
