@@ -2,6 +2,8 @@ package order
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/invoice"
@@ -10,7 +12,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
-	"time"
 )
 
 const (
@@ -145,7 +146,10 @@ func (o *Order) SetItems(products []product.Product, modifiers []product.Product
 			item.SKU = p.SKU
 			item.Price = p.Price
 			item.Unit = p.Unit
-			item.Tax = p.Tax.Name
+			// TODO: add default tax value if Tax is nil
+			if p.Tax != nil {
+				item.Tax = p.Tax.Name
+			}
 			item.TaxPercentage = p.Tax.Percentage
 			item.SetHash()
 
