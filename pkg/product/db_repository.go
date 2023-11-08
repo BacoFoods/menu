@@ -60,7 +60,7 @@ func (r *DBRepository) Get(productID string) (*Product, error) {
 // GetByIDs method for get products by ids in database
 func (r *DBRepository) GetByIDs(productIDs []string) ([]Product, error) {
 	var products []Product
-	if err := r.db.Find(&products, productIDs).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).Find(&products, productIDs).Error; err != nil {
 		shared.LogError("error getting products", LogDBRepository, "GetByIDs", err, productIDs)
 		return nil, err
 	}
