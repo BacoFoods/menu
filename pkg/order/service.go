@@ -3,6 +3,8 @@ package order
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	accounts "github.com/BacoFoods/menu/pkg/account"
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	products "github.com/BacoFoods/menu/pkg/product"
@@ -10,7 +12,6 @@ import (
 	shifts "github.com/BacoFoods/menu/pkg/shift"
 	statuses "github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/tables"
-	"strconv"
 )
 
 const (
@@ -133,7 +134,9 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	if err != nil {
 		shared.LogWarn("error getting shift", LogService, "Create", err, storeID)
 	}
-	order.ShiftID = &shift.ID
+	if shift != nil {
+		order.ShiftID = &shift.ID
+	}
 
 	newOrder, err := s.repository.Create(order)
 	if err != nil {
