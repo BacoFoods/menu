@@ -24,5 +24,5 @@ func (r Routes) RegisterRoutes(private *gin.RouterGroup, public *gin.RouterGroup
 	private.PATCH("/menu/:id/category/:categoryID/remove", r.handler.RemoveCategory)
 	private.DELETE("/menu/:id", r.handler.Delete)
 
-	public.GET("/menu/store/:storeId/list", r.handler.PublicStoreMenu)
+	public.GET("/menu/place/:place/:place-id/list", r.handler.PublicStoreMenu)
 }

@@ -80,7 +80,6 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Country.RegisterRoutes(private)
 	routes.Currency.RegisterRoutes(private)
 	routes.Discount.RegisterRoutes(private)
-	routes.Order.RegisterRoutes(private)
 	routes.Status.RegisterRoutes(private)
 	routes.Product.RegisterRoutes(private)
 	routes.Store.RegisterRoutes(private)
@@ -101,6 +100,8 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Table.RegisterRoutes(private, public)
 	routes.Menu.RegisterRoutes(private, public)
 	routes.Account.RegisterRoutes(private, public)
+	routes.Order.RegisterRoutes(private, public)
+
 	routes.Swagger.Register(public)
 
 	return router

@@ -6532,7 +6532,7 @@ paths:
       summary: To login
       tags:
       - Account
-  /public/menu/store/{storeId}/list:
+  /public/menu/place/{place}/{place-id}/list:
     get:
       consumes:
       - application/json
@@ -6579,6 +6579,47 @@ paths:
       summary: To list menus by place
       tags:
       - Menu
+  /public/order:
+    post:
+      consumes:
+      - application/json
+      description: To create an order
+      parameters:
+      - description: Order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/order.OrderDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create an order
+      tags:
+      - Order
   /public/tables/scan/{qrId}:
     get:
       consumes:

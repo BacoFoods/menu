@@ -218,10 +218,11 @@ func (h *Handler) ListByPlace(c *gin.Context) {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 401 {object} shared.Response
-// @Router /public/menu/store/{storeId}/list [get]
+// @Router /public/menu/place/{place}/{place-id}/list [get]
 func (h *Handler) PublicStoreMenu(c *gin.Context) {
-	storeID := c.Param("storeId")
-	menus, err := h.service.FindByPlace("store", storeID)
+	place := c.Param("place")
+	placeID := c.Param("place-id")
+	menus, err := h.service.FindByPlace(place, placeID)
 	if err != nil {
 		shared.LogError("error finding menus", LogHandler, "PublicStoreMenu", err, menus)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingByPlace))

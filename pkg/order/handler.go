@@ -52,6 +52,36 @@ func (h *Handler) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(orderDB))
 }
 
+// CreatePublic to handle a request to create an order
+// @Tags Order
+// @Summary To create an order
+// @Description To create an order
+// @Accept json
+// @Produce json
+// @Param order body OrderDTO true "Order"
+// @Success 200 {object} object{status=string,data=Order}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /public/order [post]
+func (h *Handler) CreatePublic(c *gin.Context) {
+	var body OrderDTO
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "Create", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	order := body.ToOrder()
+	orderDB, err := h.service.Create(&order, c)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(orderDB))
+}
+
 // UpdateTable to handle a request to update the table of an order
 // @Tags Order
 // @Summary To update the table of an order

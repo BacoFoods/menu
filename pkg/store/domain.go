@@ -9,15 +9,16 @@ import (
 )
 
 const (
-	ErrorCreatingStore         = "error creating store"
-	ErrorGettingStore          = "error getting store"
-	ErrorUpdatingStore         = "error updating store"
-	ErrorDeletingStore         = "error deleting store"
-	ErrorFindingStore          = "error finding store"
-	ErrorBadRequest            = "error bad request"
-	ErrorEnablingStore         = "error enabling store"
-	ErrorAddingChannel         = "error adding channel"
-	ErrorZonesGettingByStoreID = "error getting zones by store id"
+	ErrorStoreCreation              = "error creating store"
+	ErrorStoreGet                   = "error getting store"
+	ErrorStoreUpdate                = "error updating store"
+	ErrorStoreDelete                = "error deleting store"
+	ErrorStoreFind                  = "error finding store"
+	ErrorBadRequest                 = "error bad request"
+	ErrorStoreEnable                = "error enabling store"
+	ErrorStoreAddingChannel         = "error adding channel"
+	ErrorStoreZonesGettingByStoreID = "error getting zones by store id"
+	ErrorStoreGettingChannels       = "error getting channels by brand id"
 )
 
 type Store struct {
