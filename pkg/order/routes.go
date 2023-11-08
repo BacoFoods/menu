@@ -18,6 +18,7 @@ func (r Routes) RegisterRoutes(private, public *gin.RouterGroup) {
 	private.POST("/order", r.handler.Create)
 	public.POST("/order", r.handler.CreatePublic)
 	private.GET("/order/:id", r.handler.Get)
+	public.GET("/order/:id", r.handler.GetPublic)
 
 	private.PATCH("/order/:id/table/:table", r.handler.UpdateTable)
 	private.PATCH("/order/:id/seats", r.handler.UpdateSeats)
@@ -44,7 +45,4 @@ func (r Routes) RegisterRoutes(private, public *gin.RouterGroup) {
 	// Invoice
 	private.POST("/order/:id/invoice", r.handler.CreateInvoice)
 	private.POST("/order/:id/invoice/calculate", r.handler.CalculateInvoice)
-
-	// Tables
-	public.GET("/tables/:tableId/order", r.handler.GetTableOrder)
 }

@@ -42,7 +42,6 @@ type Service interface {
 	DeleteOrderType(orderTypeID string) error
 	CreateInvoice(orderID string) (*invoices.Invoice, error)
 	CalculateInvoice(orderID string) (*invoices.Invoice, error)
-	GetTableOrder(tableID string) (*Order, error)
 }
 
 type service struct {
@@ -561,20 +560,6 @@ func (s service) CalculateInvoice(orderID string) (*invoices.Invoice, error) {
 	invoice.CalculateTaxDetails()
 
 	return &invoice, nil
-}
-
-func (s *service) GetTableOrder(tableID string) (*Order, error) {
-	orders, err := s.repository.Find(map[string]any{"table_id": tableID})
-	if err != nil {
-		return nil, err
-	}
-
-	if len(orders) == 0 {
-		return nil, nil
-	}
-
-	// return the first order in case there are multiple orders
-	return &orders[0], nil
 }
 
 var _ Service = &service{}
