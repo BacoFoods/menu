@@ -149,8 +149,9 @@ func (o *Order) SetItems(products []product.Product, modifiers []product.Product
 			// TODO: add default tax value if Tax is nil
 			if p.Tax != nil {
 				item.Tax = p.Tax.Name
+				item.TaxPercentage = p.Tax.Percentage
 			}
-			item.TaxPercentage = p.Tax.Percentage
+
 			item.SetHash()
 
 			modifierList := make([]OrderModifier, 0)
