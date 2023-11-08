@@ -1,7 +1,34 @@
 on: push
 name: e2e tests
+env:
+  GOPRIVATE: github.com/BacoFoods
 jobs:
   tests:
     name: 'e2e tests'
     runs-on: ubuntu-latest
-    
+    steps:
+      - name: Fix up git URLs
+        run: echo -e '[url "git@github.com:"]\n  insteadOf = "https://github.com/"' >> ~/.gitconfig
+
+      - uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Checkout del repositorio de pruebas
+        uses: actions/checkout@v3
+        with:
+          repository: BacoFoods/tests
+          ref: master
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Ejecutar ambiente QA
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          docker-compose up -d
+          working-directory: tests
+
+

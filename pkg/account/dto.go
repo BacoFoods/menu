@@ -17,9 +17,9 @@ type RequestAccount struct {
 	Password    string `json:"password" binding:"required"`
 	Email       string `json:"email" binding:"required"`
 	Role        string `json:"role"`
-	BrandID     int64  `json:"brand_id"`
-	StoreID     int64  `json:"store_id"`
-	ChannelID   int64  `json:"channel_id"`
+	BrandID     uint   `json:"brand_id"`
+	StoreID     uint   `json:"store_id"`
+	ChannelID   uint   `json:"channel_id"`
 }
 
 func (r RequestAccount) ToAccount() *Account {
@@ -28,17 +28,17 @@ func (r RequestAccount) ToAccount() *Account {
 		displayName = r.Username
 	}
 
-	var brandID *int64
+	var brandID *uint
 	if r.BrandID != 0 {
 		brandID = &r.BrandID
 	}
 
-	var storeID *int64
+	var storeID *uint
 	if r.StoreID != 0 {
 		storeID = &r.StoreID
 	}
 
-	var channelID *int64
+	var channelID *uint
 	if r.ChannelID != 0 {
 		channelID = &r.ChannelID
 	}
@@ -60,9 +60,9 @@ type RequestPinUser struct {
 	Pin         int64  `json:"pin" binding:"required"`
 	Email       string `json:"email" binding:"required"`
 	Role        string `json:"role"`
-	BrandID     int64  `json:"brand_id" binding:"required"`
-	StoreID     int64  `json:"store_id" binding:"required"`
-	ChannelID   int64  `json:"channel_id"`
+	BrandID     uint   `json:"brand_id" binding:"required"`
+	StoreID     uint   `json:"store_id" binding:"required"`
+	ChannelID   uint   `json:"channel_id"`
 }
 
 func (r RequestPinUser) ToAccount() *Account {
@@ -71,7 +71,7 @@ func (r RequestPinUser) ToAccount() *Account {
 		displayName = r.Email
 	}
 
-	var channelID *int64
+	var channelID *uint
 	if r.ChannelID != 0 {
 		channelID = &r.ChannelID
 	}
@@ -93,9 +93,9 @@ type RequestAccountUpdate struct {
 	DisplayName string `json:"display_name"`
 	Email       string `json:"email"`
 	Role        string `json:"role"`
-	BrandID     int64  `json:"brand_id"`
-	StoreID     int64  `json:"store_id"`
-	ChannelID   int64  `json:"channel_id"`
+	BrandID     uint   `json:"brand_id"`
+	StoreID     uint   `json:"store_id"`
+	ChannelID   uint   `json:"channel_id"`
 	UUID        string `json:"uuid"`
 }
 
@@ -105,17 +105,17 @@ func (r RequestAccountUpdate) ToAccount() *Account {
 		displayName = r.Email
 	}
 
-	var brandID *int64
+	var brandID *uint
 	if r.BrandID != 0 {
 		brandID = &r.BrandID
 	}
 
-	var storeID *int64
+	var storeID *uint
 	if r.StoreID != 0 {
 		storeID = &r.StoreID
 	}
 
-	var channelID *int64
+	var channelID *uint
 	if r.ChannelID != 0 {
 		channelID = &r.ChannelID
 	}

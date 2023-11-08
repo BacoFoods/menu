@@ -3,13 +3,15 @@ package order
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	accounts "github.com/BacoFoods/menu/pkg/account"
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	products "github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
+	shifts "github.com/BacoFoods/menu/pkg/shift"
 	statuses "github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/tables"
-	"strconv"
 )
 
 const (
@@ -49,6 +51,7 @@ type service struct {
 	invoice    invoices.Repository
 	status     statuses.Repository
 	account    accounts.Repository
+	shift      shifts.Repository
 }
 
 func NewService(repository Repository,
@@ -56,18 +59,20 @@ func NewService(repository Repository,
 	product products.Repository,
 	invoice invoices.Repository,
 	status statuses.Repository,
-	account accounts.Repository) service {
+	account accounts.Repository,
+	shift shifts.Repository) service {
 	return service{repository,
 		table,
 		product,
 		invoice,
 		status,
 		account,
+		shift,
 	}
 }
 
 // Orders
-
+// TODO: improve order creation
 func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	// Setting product items
 	productIDs := order.GetProductIDs()
@@ -91,13 +96,8 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	order.SetItems(prods, modifiers)
 	order.ToInvoice()
 
+	// Setting order status
 	order.CurrentStatus = StatusCreate
-
-	newOrder, err := s.repository.Create(order)
-	if err != nil {
-		shared.LogError("error creating order", LogService, "Create", err, *order)
-		return nil, fmt.Errorf(ErrorOrderCreation)
-	}
 
 	// Setting order attendees
 	username := ""
@@ -112,19 +112,37 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	if ctx.Value("account_uuid") != nil {
 		accountUUID = ctx.Value("account_uuid").(string)
 	}
-	channelID := int64(0)
+	channelID := uint(0)
 	if value := ctx.Value("channel_id"); value != nil {
-		channelID, _ = strconv.ParseInt(value.(string), 10, 64)
+		channelIDInt, _ := strconv.Atoi(value.(string))
+		channelID = uint(channelIDInt)
 	}
-	brandID := int64(0)
+	brandID := uint(0)
 	if value := ctx.Value("brand_id"); value != nil {
-		brandID, _ = strconv.ParseInt(value.(string), 10, 64)
+		brandIDInt, _ := strconv.Atoi(value.(string))
+		brandID = uint(brandIDInt)
 	}
-	storeID := int64(0)
+	storeID := uint(0)
 	if value := ctx.Value("store_id"); value != nil {
-		storeID, _ = strconv.ParseInt(value.(string), 10, 64)
+		storeIDInt, _ := strconv.Atoi(value.(string))
+		storeID = uint(storeIDInt)
 	}
 	accountID := uint(0)
+
+	// Setting order shift
+	shift, err := s.shift.GetOpenShift(&storeID)
+	if err != nil {
+		shared.LogWarn("error getting shift", LogService, "Create", err, storeID)
+	}
+	if shift != nil {
+		order.ShiftID = &shift.ID
+	}
+
+	newOrder, err := s.repository.Create(order)
+	if err != nil {
+		shared.LogError("error creating order", LogService, "Create", err, *order)
+		return nil, fmt.Errorf(ErrorOrderCreation)
+	}
 
 	account, err := s.account.GetByUUID(accountUUID)
 	if err != nil {
@@ -539,6 +557,7 @@ func (s service) CalculateInvoice(orderID string) (*invoices.Invoice, error) {
 
 	order.ToInvoice()
 	invoice := order.Invoices[0]
+	invoice.CalculateTaxDetails()
 
 	return &invoice, nil
 }

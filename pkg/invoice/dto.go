@@ -12,7 +12,7 @@ type DTOPrintable struct {
 	// TODO: Pending -> Tipo de factura + Prefijo de factura + Código de Factura + Incremental => FACTURA ELECTRÓNICA DE VENTA No. FE90 - 01
 	Date    string `json:"date"`
 	Waiter  string `json:"waiter"`
-	Cashier string `json:"cashier"`
+	Cashier string `json:"shift"`
 
 	ClientName     string `json:"client_name"`
 	ClientDocument string `json:"client_document"`

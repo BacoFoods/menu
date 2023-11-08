@@ -119,6 +119,17 @@ func (r *DBRepository) GetOrderItem(orderItemID string) (*OrderItem, error) {
 	return &orderItem, nil
 }
 
+// FindByShift method for find orders by shift in database
+func (r *DBRepository) FindByShift(shiftID uint) ([]Order, error) {
+	var orders []Order
+	if err := r.db.Preload(clause.Associations).Find(&orders, "shift_id = ?", shiftID).Error; err != nil {
+		shared.LogError("error finding orders", LogDBRepository, "FindByShift", err, shiftID)
+		return nil, err
+	}
+
+	return orders, nil
+}
+
 // OrderType methods
 
 // CreateOrderType method for create a new order type in database

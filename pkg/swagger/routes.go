@@ -4,7 +4,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
-	"github.com/BacoFoods/menu/pkg/cashier"
+	"github.com/BacoFoods/menu/pkg/cashaudit"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/client"
@@ -15,12 +15,13 @@ import (
 	"github.com/BacoFoods/menu/pkg/order"
 	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/product"
+	"github.com/BacoFoods/menu/pkg/shift"
 	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
 	_ "github.com/BacoFoods/menu/pkg/swagger/docs" //documentation
+	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/BacoFoods/menu/pkg/temporal"
-	"github.com/BacoFoods/menu/pkg/zones"
 	"github.com/gin-gonic/gin"
 
 	swaggerFiles "github.com/swaggo/files"
@@ -61,7 +62,7 @@ func (r *Routes) Register(group *gin.RouterGroup) {
 	_ = surcharge.Handler{}
 	_ = brand.Handler{}
 	_ = store.Handler{}
-	_ = zones.Handler{}
+	_ = tables.Handler{}
 	_ = channel.Handler{}
 	_ = availability.Handler{}
 	_ = order.Handler{}
@@ -71,7 +72,8 @@ func (r *Routes) Register(group *gin.RouterGroup) {
 	_ = course.Handler{}
 	_ = client.Handler{}
 	_ = payment.Handler{}
-	_ = cashier.Handler{}
+	_ = shift.Handler{}
 	_ = temporal.Handler{}
+	_ = cashaudit.Handler{}
 	group.GET("/swagger/*any", swaggerGin.WrapHandler(swaggerFiles.Handler))
 }

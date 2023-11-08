@@ -22,6 +22,7 @@ func NewHandler(service Service) *Handler {
 // @Description To list all clients
 // @Accept json
 // @Produce json
+// @Param document query string false "document"
 // @Security ApiKeyAuth
 // @Success 200 {object} object{status=string,data=[]Client}
 // @Failure 400 {object} shared.Response
@@ -29,7 +30,11 @@ func NewHandler(service Service) *Handler {
 // @Failure 401 {object} shared.Response
 // @Router /clients [get]
 func (h *Handler) List(ctx *gin.Context) {
-	clients, err := h.service.List()
+	filter := make(map[string]any)
+	if document := ctx.Query("document"); document != "" {
+		filter["document"] = document
+	}
+	clients, err := h.service.List(filter)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorClientListing))
 		return

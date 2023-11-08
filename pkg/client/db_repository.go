@@ -50,9 +50,9 @@ func (r *DBRepository) Delete(id string) (*Client, error) {
 	return &client, nil
 }
 
-func (r *DBRepository) List() ([]Client, error) {
+func (r *DBRepository) List(filter map[string]any) ([]Client, error) {
 	var clients []Client
-	if err := r.db.Find(&clients).Error; err != nil {
+	if err := r.db.Where(filter).Find(&clients).Error; err != nil {
 		shared.LogError("error listing clients", LogRepository, "List", err)
 		return nil, err
 	}

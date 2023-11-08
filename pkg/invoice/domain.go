@@ -28,6 +28,7 @@ const (
 	ErrorInvoicePrinting                 = "error printing invoice"
 	ErrorInvoicePrintingHeader           = "error printing invoice header"
 	ErrorInvoicePrintingItems            = "error printing invoice items"
+	ErrorInvoiceGettingByID              = "error getting invoice by id"
 
 	TaxPercentage     = 0.08
 	TipTypePercentage = "PERCENTAGE"
@@ -55,7 +56,7 @@ type Invoice struct {
 	Items               []Item            `json:"items"  gorm:"foreignKey:InvoiceID"`
 	Discounts           []Discount        `json:"discounts"  gorm:"foreignKey:InvoiceID"`
 	Surcharges          []Surcharge       `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
-	Cashier             string            `json:"cashier"`
+	Cashier             string            `json:"shift"`
 	Waiter              string            `json:"waiter"`
 	SubTotal            float64           `json:"sub_total"`
 	TotalDiscounts      float64           `json:"total_discounts,omitempty"`
@@ -64,11 +65,13 @@ type Invoice struct {
 	TipAmount           float64           `json:"tip_amount"`
 	BaseTax             float64           `json:"base_tax"`
 	Taxes               float64           `json:"taxes"`
+	TaxDetails          []TaxDetail       `json:"tax_details" gorm:"-"` // gorm ignore
 	Total               float64           `json:"total"`
 	PaymentsObservation string            `json:"payments_observation"`
 	Payments            []payment.Payment `json:"payments" gorm:"foreignKey:InvoiceID"`
 	ClientID            *uint             `json:"client_id"`
 	Client              *client.Client    `json:"client,omitempty"`
+	ShiftID             *uint             `json:"shift_id"`
 	CreatedAt           *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt           *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt           *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
@@ -107,19 +110,49 @@ func (i *Invoice) MapItems() map[uint]Item {
 	return items
 }
 
+func (i *Invoice) CalculateTaxDetails() {
+	i.TaxDetails = make([]TaxDetail, 0)
+
+	taxTypes := make(map[string]*TaxDetail)
+
+	for _, item := range i.Items {
+		if _, ok := taxTypes[item.Tax]; !ok {
+			taxTypes[item.Tax] = &TaxDetail{
+				Name:   item.Tax,
+				Amount: item.Price * item.TaxPercentage,
+				Base:   item.Price - (item.Price * item.TaxPercentage),
+			}
+		} else {
+			taxDetails := taxTypes[item.Tax]
+			taxDetails.Amount += item.Price * item.TaxPercentage
+			taxDetails.Base += item.Price - (item.Price * item.TaxPercentage)
+		}
+	}
+
+	for taxType, taxDetail := range taxTypes {
+		i.TaxDetails = append(i.TaxDetails, TaxDetail{
+			Name:   taxType,
+			Amount: taxDetail.Amount,
+			Base:   taxDetail.Base,
+		})
+	}
+}
+
 type Item struct {
-	ID          uint            `json:"id"`
-	InvoiceID   *uint           `json:"invoice_id"`
-	ProductID   *uint           `json:"product_id"`
-	Name        string          `json:"name"`
-	Description string          `json:"description"`
-	SKU         string          `json:"sku"`
-	Price       float64         `json:"price" gorm:"precision:18;scale:2"`
-	Comments    string          `json:"comments"`
-	Hash        string          `json:"hash"`
-	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID            uint            `json:"id"`
+	InvoiceID     *uint           `json:"invoice_id"`
+	ProductID     *uint           `json:"product_id"`
+	Name          string          `json:"name"`
+	Description   string          `json:"description"`
+	SKU           string          `json:"sku"`
+	Price         float64         `json:"price" gorm:"precision:18;scale:2"`
+	Comments      string          `json:"comments"`
+	Hash          string          `json:"hash"`
+	Tax           string          `json:"tax"`
+	TaxPercentage float64         `json:"tax_percentage"`
+	CreatedAt     *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt     *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt     *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type Discount struct {
@@ -155,5 +188,8 @@ type Surcharge struct {
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
-type Printable struct {
+type TaxDetail struct {
+	Name   string  `json:"name"`
+	Amount float64 `json:"amount"`
+	Base   float64 `json:"base"`
 }

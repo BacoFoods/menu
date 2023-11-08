@@ -1,12 +1,13 @@
 package product
 
 import (
+	"strconv"
+	"time"
+
 	"github.com/BacoFoods/menu/pkg/discount"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/BacoFoods/menu/pkg/taxes"
 	"gorm.io/gorm"
-	"strconv"
-	"time"
 )
 
 const (
@@ -50,6 +51,7 @@ type Product struct {
 	BrandID     *uint              `json:"brand_id" binding:"required"`
 	Color       string             `json:"color"`
 	Enabled     bool               `json:"enabled"`
+	ImageURL    *string            `json:"image_url"`
 	Modifiers   []Modifier         `json:"modifiers" gorm:"many2many:product_modifiers;"`
 	CreatedAt   *time.Time         `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time         `json:"updated_at,omitempty" swaggerignore:"true"`

@@ -138,6 +138,37 @@ definitions:
           $ref: '#/definitions/store.Store'
         type: array
     type: object
+  cashaudit.CashAudit:
+    properties:
+      card_incomes:
+        type: number
+      cash_incomes:
+        type: number
+      discounts:
+        type: number
+      eaters:
+        type: integer
+      online_incomes:
+        type: number
+      orders:
+        type: integer
+      shift_close:
+        type: string
+      shift_end_balance:
+        type: number
+      shift_open:
+        type: string
+      shift_start_balance:
+        type: number
+      store_name:
+        type: string
+      surcharges:
+        type: number
+      tips:
+        type: number
+      total_sell:
+        type: number
+    type: object
   category.Category:
     properties:
       brand_id:
@@ -288,8 +319,6 @@ definitions:
         type: number
       brand_id:
         type: integer
-      cashier:
-        type: string
       channel_id:
         type: integer
       client:
@@ -314,6 +343,10 @@ definitions:
         type: array
       payments_observation:
         type: string
+      shift:
+        type: string
+      shift_id:
+        type: integer
       store_id:
         type: integer
       sub_total:
@@ -324,6 +357,11 @@ definitions:
         type: array
       table_id:
         type: integer
+      tax_details:
+        description: gorm ignore
+        items:
+          $ref: '#/definitions/invoice.TaxDetail'
+        type: array
       taxes:
         type: number
       tip:
@@ -363,6 +401,10 @@ definitions:
         type: integer
       sku:
         type: string
+      tax:
+        type: string
+      tax_percentage:
+        type: number
     type: object
   invoice.RequestInvoiceSplit:
     properties:
@@ -404,6 +446,15 @@ definitions:
         type: number
       store_id:
         type: integer
+    type: object
+  invoice.TaxDetail:
+    properties:
+      amount:
+        type: number
+      base:
+        type: number
+      name:
+        type: string
     type: object
   menu.Menu:
     properties:
@@ -504,6 +555,8 @@ definitions:
         type: string
       seats:
         type: integer
+      shift_id:
+        type: integer
       store_id:
         type: integer
       table_id:
@@ -578,6 +631,10 @@ definitions:
         type: number
       surcharge_reason:
         type: string
+      tax:
+        type: string
+      tax_percentage:
+        type: number
       unit:
         type: string
     type: object
@@ -828,6 +885,8 @@ definitions:
         type: integer
       image:
         type: string
+      image_url:
+        type: string
       modifiers:
         items:
           $ref: '#/definitions/product.Modifier'
@@ -859,6 +918,20 @@ definitions:
       data: {}
       message:
         type: string
+    type: object
+  shift.RequestCloseShift:
+    properties:
+      end_balance:
+        type: number
+    required:
+    - end_balance
+    type: object
+  shift.RequestOpenShift:
+    properties:
+      start_balance:
+        type: number
+    required:
+    - start_balance
     type: object
   status.CreateStatus:
     properties:
@@ -952,47 +1025,29 @@ definitions:
       store_id:
         type: integer
     type: object
-  tables.Table:
+  tables.QR:
     properties:
-      display_id:
+      createdAt:
         type: string
-      display_name:
+      display_id:
         type: string
       id:
         type: integer
       is_active:
         type: boolean
-      number:
+      table:
+        $ref: '#/definitions/tables.Table'
+      table_id:
         type: integer
-      order_id:
-        type: integer
-      xlocation:
-        type: number
-      ylocation:
-        type: number
-      zone_id:
-        type: integer
+      updatedAt:
+        type: string
+      url:
+        type: string
     required:
     - display_id
-    - display_name
-    - number
+    - table_id
     type: object
-  taxes.Tax:
-    properties:
-      country:
-        $ref: '#/definitions/country.Country'
-      country_id:
-        type: integer
-      description:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      percentage:
-        type: number
-    type: object
-  zones.RequestAddTable:
+  tables.RequestAddTable:
     properties:
       tables:
         items:
@@ -1001,7 +1056,7 @@ definitions:
     required:
     - tables
     type: object
-  zones.RequestZoneCreate:
+  tables.RequestZoneCreate:
     properties:
       active:
         type: boolean
@@ -1017,14 +1072,43 @@ definitions:
     - name
     - store_id
     type: object
-  zones.RequestZoneUpdate:
+  tables.RequestZoneUpdate:
     properties:
       name:
         type: string
       store_id:
         type: integer
     type: object
-  zones.Zone:
+  tables.Table:
+    properties:
+      display_id:
+        type: string
+      display_name:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      number:
+        type: integer
+      order_id:
+        type: integer
+      qr:
+        $ref: '#/definitions/tables.QR'
+      xlocation:
+        type: number
+      ylocation:
+        type: number
+      zone:
+        $ref: '#/definitions/tables.Zone'
+      zone_id:
+        type: integer
+    required:
+    - display_id
+    - display_name
+    - number
+    type: object
+  tables.Zone:
     properties:
       active:
         type: boolean
@@ -1038,6 +1122,21 @@ definitions:
         items:
           $ref: '#/definitions/tables.Table'
         type: array
+    type: object
+  taxes.Tax:
+    properties:
+      country:
+        $ref: '#/definitions/country.Country'
+      country_id:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      percentage:
+        type: number
     type: object
 info:
   contact:
@@ -1698,11 +1797,11 @@ paths:
       summary: To update a brand
       tags:
       - Brand
-  /cashier/close:
-    post:
+  /cash-audit:
+    get:
       consumes:
       - application/json
-      description: Close cashier
+      description: To get cash audit
       produces:
       - application/json
       responses:
@@ -1712,9 +1811,15 @@ paths:
             allOf:
             - type: object
             - properties:
+                data:
+                  $ref: '#/definitions/cashaudit.CashAudit'
                 status:
                   type: string
               type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
         "401":
           description: Unauthorized
           schema:
@@ -1725,39 +1830,9 @@ paths:
             $ref: '#/definitions/shared.Response'
       security:
       - ApiKeyAuth: []
-      summary: Close cashier
+      summary: To get cash audit
       tags:
-      - Cashier
-  /cashier/open:
-    post:
-      consumes:
-      - application/json
-      description: Open cashier
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                status:
-                  type: string
-              type: object
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Open cashier
-      tags:
-      - Cashier
+      - Cash Audit
   /category:
     get:
       consumes:
@@ -2308,6 +2383,11 @@ paths:
       consumes:
       - application/json
       description: To list all clients
+      parameters:
+      - description: document
+        in: query
+        name: document
+        type: string
       produces:
       - application/json
       responses:
@@ -6452,6 +6532,167 @@ paths:
       summary: To login
       tags:
       - Account
+  /public/menu/store/{storeId}/list:
+    get:
+      consumes:
+      - application/json
+      description: To list menus by place
+      parameters:
+      - description: place
+        in: path
+        name: place
+        required: true
+        type: string
+      - description: place id
+        in: path
+        name: place-id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/menu.Menu'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To list menus by place
+      tags:
+      - Menu
+  /public/tables/scan/{qrId}:
+    get:
+      consumes:
+      - application/json
+      description: Scan QR
+      parameters:
+      - description: qr id
+        in: path
+        name: qrId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/tables.Table'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: Scan QR
+      tags:
+      - Tables
+  /shift/close:
+    post:
+      consumes:
+      - application/json
+      description: Close shift
+      parameters:
+      - description: Request body
+        in: body
+        name: closeShift
+        required: true
+        schema:
+          $ref: '#/definitions/shift.RequestCloseShift'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                status:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Close shift
+      tags:
+      - Shift
+  /shift/open:
+    post:
+      consumes:
+      - application/json
+      description: Open shift
+      parameters:
+      - description: Request body
+        in: body
+        name: openShift
+        required: true
+        schema:
+          $ref: '#/definitions/shift.RequestOpenShift'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                status:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Open shift
+      tags:
+      - Shift
   /status:
     get:
       consumes:
@@ -7487,6 +7728,48 @@ paths:
       summary: Update table
       tags:
       - Tables
+  /tables/{id}/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generate QR
+      parameters:
+      - description: table id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/tables.Table'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Generate QR
+      tags:
+      - Tables
   /tax:
     get:
       consumes:
@@ -7785,7 +8068,7 @@ paths:
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/zones.Zone'
+                    $ref: '#/definitions/tables.Zone'
                   type: array
                 status:
                   type: string
@@ -7817,7 +8100,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/zones.RequestZoneCreate'
+          $ref: '#/definitions/tables.RequestZoneCreate'
       produces:
       - application/json
       responses:
@@ -7828,7 +8111,7 @@ paths:
             - type: object
             - properties:
                 data:
-                  $ref: '#/definitions/zones.Zone'
+                  $ref: '#/definitions/tables.Zone'
                 status:
                   type: string
               type: object
@@ -7904,7 +8187,7 @@ paths:
             - type: object
             - properties:
                 data:
-                  $ref: '#/definitions/zones.Zone'
+                  $ref: '#/definitions/tables.Zone'
                 status:
                   type: string
               type: object
@@ -7940,7 +8223,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/zones.RequestZoneUpdate'
+          $ref: '#/definitions/tables.RequestZoneUpdate'
       produces:
       - application/json
       responses:
@@ -7951,7 +8234,7 @@ paths:
             - type: object
             - properties:
                 data:
-                  $ref: '#/definitions/zones.Zone'
+                  $ref: '#/definitions/tables.Zone'
                 status:
                   type: string
               type: object
@@ -7993,7 +8276,7 @@ paths:
             - type: object
             - properties:
                 data:
-                  $ref: '#/definitions/zones.Zone'
+                  $ref: '#/definitions/tables.Zone'
                 status:
                   type: string
               type: object
@@ -8030,7 +8313,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/zones.RequestAddTable'
+          $ref: '#/definitions/tables.RequestAddTable'
       produces:
       - application/json
       responses:
@@ -8071,7 +8354,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/zones.RequestAddTable'
+          $ref: '#/definitions/tables.RequestAddTable'
       produces:
       - application/json
       responses:

@@ -1070,14 +1070,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/cashier/close": {
-            "post": {
+        "/cash-audit": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Close cashier",
+                "description": "To get cash audit",
                 "consumes": [
                     "application/json"
                 ],
@@ -1085,9 +1085,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Cashier"
+                    "Cash Audit"
                 ],
-                "summary": "Close cashier",
+                "summary": "To get cash audit",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1099,6 +1099,9 @@ const docTemplate = `{
                                 {
                                     "type": "object",
                                     "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/cashaudit.CashAudit"
+                                        },
                                         "status": {
                                             "type": "string"
                                         }
@@ -1107,56 +1110,10 @@ const docTemplate = `{
                             ]
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/cashier/open": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Open cashier",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Cashier"
-                ],
-                "summary": "Open cashier",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
                         }
                     },
                     "401": {
@@ -2085,6 +2042,14 @@ const docTemplate = `{
                     "Client"
                 ],
                 "summary": "To list all clients",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "document",
+                        "name": "document",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -8938,6 +8903,272 @@ const docTemplate = `{
                 }
             }
         },
+        "/public/menu/store/{storeId}/list": {
+            "get": {
+                "description": "To list menus by place",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "To list menus by place",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "place",
+                        "name": "place",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "place id",
+                        "name": "place-id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/menu.Menu"
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/tables/scan/{qrId}": {
+            "get": {
+                "description": "Scan QR",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tables"
+                ],
+                "summary": "Scan QR",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "qr id",
+                        "name": "qrId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/tables.Table"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/shift/close": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Close shift",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Shift"
+                ],
+                "summary": "Close shift",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "closeShift",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/shift.RequestCloseShift"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/shift/open": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Open shift",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Shift"
+                ],
+                "summary": "Open shift",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "openShift",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/shift.RequestOpenShift"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/status": {
             "get": {
                 "security": [
@@ -10651,6 +10882,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/tables/{id}/generate": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Generate QR",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tables"
+                ],
+                "summary": "Generate QR",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "table id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/tables.Table"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/tax": {
             "get": {
                 "security": [
@@ -11155,7 +11456,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/zones.Zone"
+                                                "$ref": "#/definitions/tables.Zone"
                                             }
                                         },
                                         "status": {
@@ -11210,7 +11511,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/zones.RequestZoneCreate"
+                            "$ref": "#/definitions/tables.RequestZoneCreate"
                         }
                     }
                 ],
@@ -11226,7 +11527,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/zones.Zone"
+                                            "$ref": "#/definitions/tables.Zone"
                                         },
                                         "status": {
                                             "type": "string"
@@ -11296,7 +11597,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/zones.Zone"
+                                            "$ref": "#/definitions/tables.Zone"
                                         },
                                         "status": {
                                             "type": "string"
@@ -11410,7 +11711,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/zones.RequestZoneUpdate"
+                            "$ref": "#/definitions/tables.RequestZoneUpdate"
                         }
                     }
                 ],
@@ -11426,7 +11727,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/zones.Zone"
+                                            "$ref": "#/definitions/tables.Zone"
                                         },
                                         "status": {
                                             "type": "string"
@@ -11496,7 +11797,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/zones.Zone"
+                                            "$ref": "#/definitions/tables.Zone"
                                         },
                                         "status": {
                                             "type": "string"
@@ -11559,7 +11860,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/zones.RequestAddTable"
+                            "$ref": "#/definitions/tables.RequestAddTable"
                         }
                     }
                 ],
@@ -11623,7 +11924,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/zones.RequestAddTable"
+                            "$ref": "#/definitions/tables.RequestAddTable"
                         }
                     }
                 ],
@@ -11865,6 +12166,53 @@ const docTemplate = `{
                 }
             }
         },
+        "cashaudit.CashAudit": {
+            "type": "object",
+            "properties": {
+                "card_incomes": {
+                    "type": "number"
+                },
+                "cash_incomes": {
+                    "type": "number"
+                },
+                "discounts": {
+                    "type": "number"
+                },
+                "eaters": {
+                    "type": "integer"
+                },
+                "online_incomes": {
+                    "type": "number"
+                },
+                "orders": {
+                    "type": "integer"
+                },
+                "shift_close": {
+                    "type": "string"
+                },
+                "shift_end_balance": {
+                    "type": "number"
+                },
+                "shift_open": {
+                    "type": "string"
+                },
+                "shift_start_balance": {
+                    "type": "number"
+                },
+                "store_name": {
+                    "type": "string"
+                },
+                "surcharges": {
+                    "type": "number"
+                },
+                "tips": {
+                    "type": "number"
+                },
+                "total_sell": {
+                    "type": "number"
+                }
+            }
+        },
         "category.Category": {
             "type": "object",
             "required": [
@@ -12099,9 +12447,6 @@ const docTemplate = `{
                 "brand_id": {
                     "type": "integer"
                 },
-                "cashier": {
-                    "type": "string"
-                },
                 "channel_id": {
                     "type": "integer"
                 },
@@ -12138,6 +12483,12 @@ const docTemplate = `{
                 "payments_observation": {
                     "type": "string"
                 },
+                "shift": {
+                    "type": "string"
+                },
+                "shift_id": {
+                    "type": "integer"
+                },
                 "store_id": {
                     "type": "integer"
                 },
@@ -12152,6 +12503,13 @@ const docTemplate = `{
                 },
                 "table_id": {
                     "type": "integer"
+                },
+                "tax_details": {
+                    "description": "gorm ignore",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/invoice.TaxDetail"
+                    }
                 },
                 "taxes": {
                     "type": "number"
@@ -12205,6 +12563,12 @@ const docTemplate = `{
                 },
                 "sku": {
                     "type": "string"
+                },
+                "tax": {
+                    "type": "string"
+                },
+                "tax_percentage": {
+                    "type": "number"
                 }
             }
         },
@@ -12268,6 +12632,20 @@ const docTemplate = `{
                 },
                 "store_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "invoice.TaxDetail": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "base": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
@@ -12425,6 +12803,9 @@ const docTemplate = `{
                 "seats": {
                     "type": "integer"
                 },
+                "shift_id": {
+                    "type": "integer"
+                },
                 "store_id": {
                     "type": "integer"
                 },
@@ -12529,6 +12910,12 @@ const docTemplate = `{
                 },
                 "surcharge_reason": {
                     "type": "string"
+                },
+                "tax": {
+                    "type": "string"
+                },
+                "tax_percentage": {
+                    "type": "number"
                 },
                 "unit": {
                     "type": "string"
@@ -12915,6 +13302,9 @@ const docTemplate = `{
                 "image": {
                     "type": "string"
                 },
+                "image_url": {
+                    "type": "string"
+                },
                 "modifiers": {
                     "type": "array",
                     "items": {
@@ -12957,6 +13347,28 @@ const docTemplate = `{
                 "data": {},
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "shift.RequestCloseShift": {
+            "type": "object",
+            "required": [
+                "end_balance"
+            ],
+            "properties": {
+                "end_balance": {
+                    "type": "number"
+                }
+            }
+        },
+        "shift.RequestOpenShift": {
+            "type": "object",
+            "required": [
+                "start_balance"
+            ],
+            "properties": {
+                "start_balance": {
+                    "type": "number"
                 }
             }
         },
@@ -13100,6 +13512,88 @@ const docTemplate = `{
                 }
             }
         },
+        "tables.QR": {
+            "type": "object",
+            "required": [
+                "display_id",
+                "table_id"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "display_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "table": {
+                    "$ref": "#/definitions/tables.Table"
+                },
+                "table_id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "tables.RequestAddTable": {
+            "type": "object",
+            "required": [
+                "tables"
+            ],
+            "properties": {
+                "tables": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "tables.RequestZoneCreate": {
+            "type": "object",
+            "required": [
+                "name",
+                "store_id"
+            ],
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "table_amount": {
+                    "type": "integer"
+                },
+                "table_number": {
+                    "type": "integer"
+                }
+            }
+        },
+        "tables.RequestZoneUpdate": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "tables.Table": {
             "type": "object",
             "required": [
@@ -13126,14 +13620,43 @@ const docTemplate = `{
                 "order_id": {
                     "type": "integer"
                 },
+                "qr": {
+                    "$ref": "#/definitions/tables.QR"
+                },
                 "xlocation": {
                     "type": "number"
                 },
                 "ylocation": {
                     "type": "number"
                 },
+                "zone": {
+                    "$ref": "#/definitions/tables.Zone"
+                },
                 "zone_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "tables.Zone": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "tables": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tables.Table"
+                    }
                 }
             }
         },
@@ -13157,78 +13680,6 @@ const docTemplate = `{
                 },
                 "percentage": {
                     "type": "number"
-                }
-            }
-        },
-        "zones.RequestAddTable": {
-            "type": "object",
-            "required": [
-                "tables"
-            ],
-            "properties": {
-                "tables": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                }
-            }
-        },
-        "zones.RequestZoneCreate": {
-            "type": "object",
-            "required": [
-                "name",
-                "store_id"
-            ],
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "store_id": {
-                    "type": "integer"
-                },
-                "table_amount": {
-                    "type": "integer"
-                },
-                "table_number": {
-                    "type": "integer"
-                }
-            }
-        },
-        "zones.RequestZoneUpdate": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "store_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "zones.Zone": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "store_id": {
-                    "type": "integer"
-                },
-                "tables": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/tables.Table"
-                    }
                 }
             }
         }

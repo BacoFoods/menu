@@ -1,7 +1,7 @@
 package client
 
 type Service interface {
-	List() ([]Client, error)
+	List(map[string]any) ([]Client, error)
 	Get(id string) (*Client, error)
 	Create(client *Client) (*Client, error)
 	Update(client *Client) (*Client, error)
@@ -16,8 +16,8 @@ func NewService(repository Repository) service {
 	return service{repository}
 }
 
-func (s service) List() ([]Client, error) {
-	return s.repository.List()
+func (s service) List(filter map[string]any) ([]Client, error) {
+	return s.repository.List(filter)
 }
 
 func (s service) Get(id string) (*Client, error) {

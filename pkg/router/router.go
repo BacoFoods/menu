@@ -5,11 +5,13 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"github.com/BacoFoods/menu/pkg/cashaudit"
+
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/assets"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
-	"github.com/BacoFoods/menu/pkg/cashier"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/client"
@@ -24,6 +26,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
+	"github.com/BacoFoods/menu/pkg/shift"
 	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
@@ -31,7 +34,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/BacoFoods/menu/pkg/taxes"
 	"github.com/BacoFoods/menu/pkg/temporal"
-	"github.com/BacoFoods/menu/pkg/zones"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/api/idtoken"
 	"google.golang.org/api/option"
@@ -84,18 +86,19 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Store.RegisterRoutes(private)
 	routes.Surcharge.RegisterRoutes(private)
 	routes.Taxes.RegisterRoutes(private)
-	routes.Table.RegisterRoutes(private)
-	routes.Zone.RegisterRoutes(private)
 	routes.Invoice.RegisterRoutes(private)
 	routes.Course.RegisterRoutes(private)
 	routes.Client.RegisterRoutes(private)
 	routes.Payment.RegisterRoutes(private)
 	routes.Cashier.RegisterRoutes(private)
 	routes.Temporal.RegisterRoutes(private)
+	routes.CashAudit.RegisterRoutes(private)
+	routes.Assets.RegisterRoutes(private)
 
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
 
+	routes.Table.RegisterRoutes(private, public)
 	routes.Menu.RegisterRoutes(private, public)
 	routes.Account.RegisterRoutes(private, public)
 	routes.Swagger.Register(public)
@@ -122,12 +125,13 @@ type RoutesGroup struct {
 	Swagger      swagger.Routes
 	Table        tables.Routes
 	Taxes        taxes.Routes
-	Zone         zones.Routes
 	Invoice      invoice.Routes
 	Account      account.Routes
 	Course       course.Routes
 	Client       client.Routes
 	Payment      payment.Routes
-	Cashier      cashier.Routes
+	Cashier      shift.Routes
 	Temporal     temporal.Routes
+	CashAudit    cashaudit.Routes
+	Assets       assets.Routes
 }

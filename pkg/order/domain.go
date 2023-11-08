@@ -57,20 +57,25 @@ type OrderStep string
 type OrderAction string
 
 type Repository interface {
+	// Order
 	Create(order *Order) (*Order, error)
 	Get(orderID string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
 	Update(order *Order) (*Order, error)
+	FindByShift(shiftID uint) ([]Order, error)
 
+	// OrderItem
 	UpdateOrderItem(orderItem *OrderItem) (*OrderItem, error)
 	GetOrderItem(orderItemID string) (*OrderItem, error)
 
+	// OrderType
 	CreateOrderType(*OrderType) (*OrderType, error)
 	FindOrderType(filter map[string]any) ([]OrderType, error)
 	GetOrderType(orderTypeID string) (*OrderType, error)
 	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
 	DeleteOrderType(orderTypeID string) error
 
+	// Attendee
 	CreateAttendee(attendee *Attendee) (*Attendee, error)
 }
 
@@ -96,6 +101,7 @@ type Order struct {
 	ExternalCode  string            `json:"external_code"`
 	Invoices      []invoice.Invoice `json:"invoices"  gorm:"foreignKey:OrderID" swaggerignore:"true"`
 	Attendees     []Attendee        `json:"attendees" gorm:"foreignKey:OrderID"`
+	ShiftID       *uint             `json:"shift_id"`
 	CreatedAt     *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt     *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt     *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
@@ -139,6 +145,8 @@ func (o *Order) SetItems(products []product.Product, modifiers []product.Product
 			item.SKU = p.SKU
 			item.Price = p.Price
 			item.Unit = p.Unit
+			item.Tax = p.Tax.Name
+			item.TaxPercentage = p.Tax.Percentage
 			item.SetHash()
 
 			modifierList := make([]OrderModifier, 0)
@@ -183,6 +191,7 @@ func (o *Order) ToInvoice() {
 		StoreID:   o.StoreID,
 		ChannelID: o.ChannelID,
 		TableID:   o.TableID,
+		ShiftID:   o.ShiftID,
 		Items:     make([]invoice.Item, 0),
 		Client:    client.DefaultClient(),
 	}
@@ -194,13 +203,15 @@ func (o *Order) ToInvoice() {
 	// Adding items to invoice
 	for _, item := range o.Items {
 		newInvoice.Items = append(newInvoice.Items, invoice.Item{
-			ProductID:   item.ProductID,
-			Name:        item.Name,
-			Description: item.Description,
-			SKU:         item.SKU,
-			Price:       item.Price,
-			Comments:    item.Comments,
-			Hash:        item.Hash,
+			ProductID:     item.ProductID,
+			Name:          item.Name,
+			Description:   item.Description,
+			SKU:           item.SKU,
+			Price:         item.Price,
+			Comments:      item.Comments,
+			Hash:          item.Hash,
+			Tax:           item.Tax,
+			TaxPercentage: item.TaxPercentage,
 		})
 
 		// Adding item price to subtotal
@@ -234,6 +245,7 @@ func (o *Order) ToInvoice() {
 	baseTax := subtotal - tax
 	newInvoice.BaseTax = baseTax
 	newInvoice.Total = subtotal + tax
+	newInvoice.CalculateTaxDetails()
 
 	// Setting invoice
 	o.Invoices = append(o.Invoices, newInvoice)
@@ -267,6 +279,8 @@ type OrderItem struct {
 	Course          string          `json:"course"`
 	Hash            string          `json:"hash"`
 	Modifiers       []OrderModifier `json:"modifiers"  gorm:"foreignKey:OrderItemID"`
+	Tax             string          `json:"tax"`
+	TaxPercentage   float64         `json:"tax_percentage"`
 	CreatedAt       *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt       *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt       *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`

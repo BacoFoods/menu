@@ -33,7 +33,13 @@ func NewService(repository Repository, clientRepository clientPKG.Repository) se
 
 // Get returns a single Invoice object by ID.
 func (s service) Get(invoiceID string) (*Invoice, error) {
-	return s.repository.Get(invoiceID)
+	invoice, err := s.repository.Get(invoiceID)
+	if err != nil {
+		return nil, fmt.Errorf(ErrorInvoiceGettingByID)
+	}
+
+	invoice.CalculateTaxDetails()
+	return invoice, nil
 }
 
 // Find returns a list of Invoice objects.

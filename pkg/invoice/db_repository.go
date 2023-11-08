@@ -123,7 +123,7 @@ func (r *DBRepository) Print(invoiceID string) (*DTOPrintable, error) {
 	var invoice DTOPrintable
 
 	if err := r.db.Table("invoices as i").
-		Select("s.name as store_name, s.address as store_address, s.phone as store_phone, b.name as brand_name, b.document as brand_document, b.city as brand_city, i.created_at as date, i.waiter, i.cashier, c.name as client_name, c.document as client_document, c.email as client_email, c.address as client_address, o.id as order_id, t.display_name as table_name, i.sub_total as subtotal, i.total_discounts as discount, i.tip, i.tip_amount, i.total_surcharges as surcharge, i.base_tax, i.taxes").
+		Select("s.name as store_name, s.address as store_address, s.phone as store_phone, b.name as brand_name, b.document as brand_document, b.city as brand_city, i.created_at as date, i.waiter, i.shift_id, c.name as client_name, c.document as client_document, c.email as client_email, c.address as client_address, o.id as order_id, t.display_name as table_name, i.sub_total as subtotal, i.total_discounts as discount, i.tip, i.tip_amount, i.total_surcharges as surcharge, i.base_tax, i.taxes").
 		Joins("left join stores as s on i.store_id = s.id").
 		Joins("left join brands as b on i.brand_id = b.id").
 		Joins("left join orders as o on i.order_id = o.id").

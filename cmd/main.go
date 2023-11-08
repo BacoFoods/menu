@@ -2,19 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/BacoFoods/menu/pkg/account"
-	"github.com/BacoFoods/menu/pkg/cashier"
-	"github.com/BacoFoods/menu/pkg/client"
-	"github.com/BacoFoods/menu/pkg/course"
-	"github.com/BacoFoods/menu/pkg/payment"
-	"github.com/BacoFoods/menu/pkg/temporal"
 
 	"github.com/BacoFoods/menu/internal"
+	"github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/assets"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
+	"github.com/BacoFoods/menu/pkg/cashaudit"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
+	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/country"
+	"github.com/BacoFoods/menu/pkg/course"
 	"github.com/BacoFoods/menu/pkg/currency"
 	"github.com/BacoFoods/menu/pkg/database"
 	"github.com/BacoFoods/menu/pkg/discount"
@@ -22,15 +21,17 @@ import (
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/order"
+	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/router"
+	"github.com/BacoFoods/menu/pkg/shift"
 	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
 	"github.com/BacoFoods/menu/pkg/swagger"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/BacoFoods/menu/pkg/taxes"
-	"github.com/BacoFoods/menu/pkg/zones"
+	"github.com/BacoFoods/menu/pkg/temporal"
 	"github.com/sirupsen/logrus"
 )
 
@@ -54,7 +55,7 @@ func main() {
 		&currency.Currency{},
 		&brand.Brand{},
 		&store.Store{},
-		&zones.Zone{},
+		&tables.Zone{},
 		&tables.Table{},
 		&channel.Channel{},
 		&availability.Availability{},
@@ -73,7 +74,9 @@ func main() {
 		&payment.Payment{},
 		&payment.PaymentMethod{},
 		&order.Attendee{},
-		&cashier.Cashier{},
+		&shift.Shift{},
+		&tables.QR{},
+		&assets.Asset{},
 	)
 
 	// Healthcheck
@@ -95,15 +98,10 @@ func main() {
 	storeHandler := store.NewHandler(storeService)
 	storeRoutes := store.NewRoutes(storeHandler)
 
-	// Zone
-	zoneRepository := zones.NewDBRepository(gormDB)
-	zoneService := zones.NewService(zoneRepository)
-	zoneHandler := zones.NewHandler(zoneService)
-	zoneRoutes := zones.NewRoutes(zoneHandler)
-
 	// Tables
-	tablesRepository := tables.NewDBRepository(gormDB)
-	tablesService := tables.NewService(tablesRepository)
+	zoneRepository := tables.NewZoneRepository(gormDB)
+	tableRepository := tables.NewTableRepository(gormDB)
+	tablesService := tables.NewService(tableRepository, zoneRepository, internal.Config.OITHost)
 	tablesHandler := tables.NewHandler(tablesService)
 	tablesRoutes := tables.NewRoutes(tablesHandler)
 
@@ -191,14 +189,21 @@ func main() {
 	accountHandler := account.NewHandler(accountService)
 	accountRoutes := account.NewRoutes(accountHandler)
 
+	// Shifts
+	shiftRepository := shift.NewDBRepository(gormDB)
+	shiftService := shift.NewService(shiftRepository, accountRepository)
+	shiftHandler := shift.NewHandler(shiftService)
+	shiftRoutes := shift.NewRoutes(shiftHandler)
+
 	// Order
 	orderRepository := order.NewDBRepository(gormDB)
 	orderService := order.NewService(orderRepository,
-		tablesRepository,
+		tableRepository,
 		productRepository,
 		invoiceRepository,
 		statusRepository,
-		accountRepository)
+		accountRepository,
+		shiftRepository)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)
 
@@ -214,15 +219,20 @@ func main() {
 	paymentHandler := payment.NewHandler(paymentService)
 	paymentRoutes := payment.NewRoutes(paymentHandler)
 
-	// Shifts
-	shiftRepository := cashier.NewDBRepository(gormDB)
-	shiftService := cashier.NewService(shiftRepository)
-	shiftHandler := cashier.NewHandler(shiftService)
-	shiftRoutes := cashier.NewRoutes(shiftHandler)
-
 	// Temporal
 	temporalHandler := temporal.NewHandler()
 	temporalRoutes := temporal.NewRoutes(temporalHandler)
+
+	// CashAudit
+	cashAuditRepository := cashaudit.NewService(storeRepository, orderRepository, invoiceRepository, shiftRepository)
+	cashAuditHandler := cashaudit.NewHandler(cashAuditRepository)
+	cashAuditRoutes := cashaudit.NewRoutes(cashAuditHandler)
+
+	// Assets
+	assetsRepository := assets.NewAssetRepository(gormDB)
+	assetsService := assets.NewAssetService(assetsRepository)
+	assetsHandler := assets.NewHandler(assetsService)
+	assetsRoutes := assets.NewRoutes(assetsHandler)
 
 	// Routes
 	routes := &router.RoutesGroup{
@@ -238,7 +248,6 @@ func main() {
 		Currency:     currencyRoutes,
 		Brand:        brandRoutes,
 		Store:        storeRoutes,
-		Zone:         zoneRoutes,
 		Table:        tablesRoutes,
 		Channel:      channelRoutes,
 		Availability: availabilityRoutes,
@@ -251,6 +260,8 @@ func main() {
 		Payment:      paymentRoutes,
 		Cashier:      shiftRoutes,
 		Temporal:     temporalRoutes,
+		CashAudit:    cashAuditRoutes,
+		Assets:       assetsRoutes,
 	}
 
 	// Run server
