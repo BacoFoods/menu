@@ -14,7 +14,8 @@ const (
 type config struct {
 	AppConfig
 	DBConfig
-	FirestoreConfig
+	PopappConfig
+	CerebroConfig
 }
 
 // Config is the global variable that holds the configuration for parse the environment variables
@@ -37,8 +38,19 @@ type AppConfig struct {
 	OITHost          string `env:"OIT_HOST"`
 }
 
-// FirestoreConfig is the struct that holds the configuration for the firestore
-type FirestoreConfig struct {
+// PopappConfig is the struct that holds the configuration for the firestore
+type PopappConfig struct {
 	AuthB64   string `env:"FIRESTORE_AUTH_BASE64"`
 	ProjectID string `env:"FIRESTORE_PROJECT_ID"`
+}
+
+type CerebroConfig struct {
+	AuthB64   string `env:"CEREBRO_FIREBASE_AUTH_BASE64"`
+	ProjectID string `env:"CEREBRO_FIREBASE_PROJECT_ID"`
+	DBURL     string `env:"CEREBRO_FIREBASE_DB_URL"`
+}
+
+type FirestoreConfig struct {
+	AuthB64   string
+	ProjectID string
 }

@@ -79,6 +79,8 @@ func main() {
 		&assets.Asset{},
 	)
 
+	firebase := internal.MustNewFirebase(internal.Config.CerebroConfig.AuthB64, internal.Config.CerebroConfig.DBURL)
+
 	// Healthcheck
 	healthcheckHandler := healthcheck.NewHandler()
 	healthcheckRoutes := healthcheck.NewRoutes(healthcheckHandler)
@@ -203,7 +205,9 @@ func main() {
 		invoiceRepository,
 		statusRepository,
 		accountRepository,
-		shiftRepository)
+		shiftRepository,
+		firebase,
+	)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)
 

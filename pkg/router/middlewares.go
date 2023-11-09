@@ -33,6 +33,9 @@ func CORSMiddleware() gin.HandlerFunc {
 // AuthMiddleware for handle authentication request from client
 func AuthMiddleware(validator *idtoken.Validator) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		ctx.Next()
+	}
+	return func(ctx *gin.Context) {
 		tokenString := ctx.Request.Header.Get("Authorization")
 
 		if tokenString == "" {

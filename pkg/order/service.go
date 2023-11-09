@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/BacoFoods/menu/internal"
 	accounts "github.com/BacoFoods/menu/pkg/account"
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	products "github.com/BacoFoods/menu/pkg/product"
@@ -52,6 +53,7 @@ type service struct {
 	status     statuses.Repository
 	account    accounts.Repository
 	shift      shifts.Repository
+	fs         *internal.Firebase
 }
 
 func NewService(repository Repository,
@@ -60,7 +62,9 @@ func NewService(repository Repository,
 	invoice invoices.Repository,
 	status statuses.Repository,
 	account accounts.Repository,
-	shift shifts.Repository) service {
+	shift shifts.Repository,
+	fs *internal.Firebase,
+) service {
 	return service{repository,
 		table,
 		product,
@@ -68,6 +72,7 @@ func NewService(repository Repository,
 		status,
 		account,
 		shift,
+		fs,
 	}
 }
 
@@ -89,7 +94,7 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 		return nil, fmt.Errorf(ErrorOrderCreation)
 	}
 
-	if len(prods) == 0 {
+	if len(prods) == 0 && len(productIDs) > 0 {
 		return nil, fmt.Errorf(ErrorOrderProductsNotFound)
 	}
 
@@ -175,6 +180,20 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	if _, err := s.repository.CreateAttendee(attendee); err != nil {
 		shared.LogError("error creating attendee", LogService, "Create", err, *attendee)
 	}
+
+	// Post new order to firebase
+	go func() {
+		fsStoreId := "-"
+		if newOrder.StoreID != nil {
+			fsStoreId = fmt.Sprintf("%d", *newOrder.StoreID)
+		}
+		refKey := fmt.Sprintf("%s/store/%s/orders/%d", internal.Config.AppEnv, fsStoreId, newOrder.ID)
+		ref := s.fs.NewRef(refKey)
+		err = ref.Set(ctx, newOrder)
+		if err != nil {
+			shared.LogError("error pushing order to firebase", LogService, "Create", err)
+		}
+	}()
 
 	// Setting table
 	// TODO: Send create order and set table to repository to make a trx and rollback if error to avoid has order without table
