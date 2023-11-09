@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/BacoFoods/menu/internal"
 	accounts "github.com/BacoFoods/menu/pkg/account"
@@ -183,13 +184,7 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 
 	// Post new order to firebase
 	go func() {
-		fsStoreId := "-"
-		if newOrder.StoreID != nil {
-			fsStoreId = fmt.Sprintf("%d", *newOrder.StoreID)
-		}
-		refKey := fmt.Sprintf("%s/store/%s/orders/%d", internal.Config.AppEnv, fsStoreId, newOrder.ID)
-		ref := s.fs.NewRef(refKey)
-		err = ref.Set(ctx, newOrder)
+		err := s.putFirebaseOrder(newOrder)
 		if err != nil {
 			shared.LogError("error pushing order to firebase", LogService, "Create", err)
 		}
@@ -579,6 +574,23 @@ func (s service) CalculateInvoice(orderID string) (*invoices.Invoice, error) {
 	invoice.CalculateTaxDetails()
 
 	return &invoice, nil
+}
+
+func (s *service) putFirebaseOrder(order *Order) error {
+	ctx := context.Background()
+	fsStoreId := "-"
+	if order.StoreID != nil {
+		fsStoreId = fmt.Sprintf("%d", *order.StoreID)
+	}
+	refKey := fmt.Sprintf("%s/store/%s/orders/%d", internal.Config.AppEnv, fsStoreId, order.ID)
+	ref := s.fs.NewRef(refKey)
+	err := ref.Set(ctx, order)
+	if err != nil {
+		return err
+	}
+
+	tsRefKey := fmt.Sprintf("%s/store/%s/order-timestamp", internal.Config.AppEnv, fsStoreId)
+	return s.fs.NewRef(tsRefKey).Set(ctx, time.Now().Unix())
 }
 
 var _ Service = &service{}
