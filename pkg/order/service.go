@@ -348,16 +348,16 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 			Course:      item.Course,
 			Modifiers:   modifiers,
 		}
-		newOrderItems = append(newOrderItems, newItem)
 
-		order.AddProduct(newItem)
+		newOrderItems = append(newOrderItems, newItem)
 	}
 
 	if errors != "" {
 		return nil, fmt.Errorf(errors)
 	}
 
-	orderDB, err := s.repository.Update(order)
+	//	this sets the OrderItem.ID and appends the list to the orignal list of items in the order
+	orderDB, err := s.repository.AddProducts(order, newOrderItems)
 	if err != nil {
 		shared.LogError("error updating order", LogService, "AddProduct", err, *order)
 		return nil, fmt.Errorf(ErrorOrderUpdate)
