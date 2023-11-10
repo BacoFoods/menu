@@ -182,9 +182,10 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 		shared.LogError("error creating attendee", LogService, "Create", err, *attendee)
 	}
 
-	// Post new order to firebase
+	// Post the comanda to firebase
 	go func() {
-		err := s.putFirebaseOrder(newOrder)
+		shared.LogInfo(fmt.Sprint(newOrder.Items), LogService, "Create", nil)
+		err := s.putFirebaseComanda(newOrder.ID, newOrder.TableID, newOrder.StoreID, newOrder.Items)
 		if err != nil {
 			shared.LogError("error pushing order to firebase", LogService, "Create", err)
 		}
@@ -302,6 +303,7 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 		return nil, fmt.Errorf(ErrorOrderProductGetting)
 	}
 
+	newOrderItems := make([]OrderItem, 0)
 	errors := ""
 	for _, item := range orderItems {
 		productID := fmt.Sprintf("%d", *item.ProductID)
@@ -333,8 +335,7 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 				Comments:    mod.Comments,
 			}
 		}
-
-		order.AddProduct(OrderItem{
+		newItem := OrderItem{
 			OrderID:     &order.ID,
 			ProductID:   item.ProductID,
 			Name:        product.Name,
@@ -346,7 +347,10 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 			Comments:    item.Comments,
 			Course:      item.Course,
 			Modifiers:   modifiers,
-		})
+		}
+		newOrderItems = append(newOrderItems, newItem)
+
+		order.AddProduct(newItem)
 	}
 
 	if errors != "" {
@@ -358,6 +362,14 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 		shared.LogError("error updating order", LogService, "AddProduct", err, *order)
 		return nil, fmt.Errorf(ErrorOrderUpdate)
 	}
+
+	// Post the comanda to firebase
+	go func() {
+		err := s.putFirebaseComanda(order.ID, order.TableID, order.StoreID, newOrderItems)
+		if err != nil {
+			shared.LogError("error pushing order to firebase", LogService, "Create", err)
+		}
+	}()
 
 	return orderDB, nil
 }
@@ -576,21 +588,30 @@ func (s service) CalculateInvoice(orderID string) (*invoices.Invoice, error) {
 	return &invoice, nil
 }
 
-func (s *service) putFirebaseOrder(order *Order) error {
-	ctx := context.Background()
-	fsStoreId := "-"
-	if order.StoreID != nil {
-		fsStoreId = fmt.Sprintf("%d", *order.StoreID)
-	}
-	refKey := fmt.Sprintf("%s/store/%s/orders/%d", internal.Config.AppEnv, fsStoreId, order.ID)
-	ref := s.fs.NewRef(refKey)
-	err := ref.Set(ctx, order)
-	if err != nil {
-		return err
+func (s *service) putFirebaseComanda(orderId uint, tableId *uint, storeId *uint, items []OrderItem) error {
+	if len(items) == 0 {
+		return nil
 	}
 
-	tsRefKey := fmt.Sprintf("%s/store/%s/order-timestamp", internal.Config.AppEnv, fsStoreId)
-	return s.fs.NewRef(tsRefKey).Set(ctx, time.Now().Unix())
+	// Timestamp in millis
+	ts := time.Now().Unix() * 1000
+	data := struct {
+		OrderId   uint        `json:"order_id"`
+		TableId   *uint       `json:"table_id"`
+		Items     []OrderItem `json:"items"`
+		Timestamp int64       `json:"timestamp"`
+	}{orderId, tableId, items, ts}
+
+	ctx := context.Background()
+	fsStoreId := "-"
+	if storeId != nil {
+		fsStoreId = fmt.Sprintf("%d", *storeId)
+	}
+	refKey := fmt.Sprintf("%s/stores/%s/comandas", internal.Config.AppEnv, fsStoreId)
+	shared.LogInfo("pushing order to firebase", LogService, "putFirebaseComanda", nil, refKey)
+	_, err := s.fs.NewRef(refKey).Push(ctx, data)
+
+	return err
 }
 
 var _ Service = &service{}
