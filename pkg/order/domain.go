@@ -189,6 +189,8 @@ func (o *Order) RemoveProduct(product *product.Product) {
 }
 
 func (o *Order) ToInvoice() {
+	// Remove invoices
+	o.Invoices = nil
 	subtotal := 0.0
 	newInvoice := invoice.Invoice{
 		OrderID:   &o.ID,
@@ -199,10 +201,6 @@ func (o *Order) ToInvoice() {
 		ShiftID:   o.ShiftID,
 		Items:     make([]invoice.Item, 0),
 		Client:    client.DefaultClient(),
-	}
-
-	if len(o.Invoices) != 0 {
-		return
 	}
 
 	// Adding items to invoice

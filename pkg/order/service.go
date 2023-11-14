@@ -21,6 +21,7 @@ const (
 
 type Service interface {
 	Create(order *Order, ctx context.Context) (*Order, error)
+	Update(order *Order) (*Order, error)
 	UpdateTable(orderID, tableID uint64) (*Order, error)
 	Get(string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
@@ -190,6 +191,10 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	}
 
 	return orderDB, nil
+}
+
+func (s service) Update(order *Order) (*Order, error) {
+	return s.repository.Update(order)
 }
 
 func (s service) UpdateTable(orderID, tableID uint64) (*Order, error) {

@@ -20,6 +20,7 @@ func (r Routes) RegisterRoutes(private, public *gin.RouterGroup) {
 	private.GET("/order/:id", r.handler.Get)
 	public.GET("/order/:id", r.handler.GetPublic)
 
+	private.PATCH("/order", r.handler.Update)
 	private.PATCH("/order/:id/table/:table", r.handler.UpdateTable)
 	private.PATCH("/order/:id/seats", r.handler.UpdateSeats)
 	private.PATCH("/order/:id/add/products", r.handler.AddProducts)

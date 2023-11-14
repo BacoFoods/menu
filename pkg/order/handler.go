@@ -52,6 +52,36 @@ func (h *Handler) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(orderDB))
 }
 
+// Update to handle a request to update an order
+// @Tags Order
+// @Summary to update an order
+// @Description to update an order
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param order body OrderDTO true "Order"
+// @Success 200 {object} object{status=string,data=Order}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /order [patch]
+func (h *Handler) Update(c *gin.Context) {
+	var body OrderDTO
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "Update", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+	}
+
+	order := body.ToOrder()
+	orderUpdated, err := h.service.Update(&order)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(orderUpdated))
+}
+
 // CreatePublic to handle a request to create an order
 // @Tags Order
 // @Summary To create an order
@@ -781,7 +811,7 @@ func (h *Handler) DeleteOrderType(c *gin.Context) {
 // Invoice
 
 // CreateInvoice to handle a request to create an invoice
-// @Tags Invoice
+// @Tags Order
 // @Summary To create an invoice
 // @Description To create an invoice
 // @Accept json
@@ -803,7 +833,7 @@ func (h *Handler) CreateInvoice(c *gin.Context) {
 }
 
 // CalculateInvoice to handle a request to calculate an invoice
-// @Tags Invoice
+// @Tags Order
 // @Summary To calculate an invoice
 // @Description To calculate an invoice
 // @Accept json
