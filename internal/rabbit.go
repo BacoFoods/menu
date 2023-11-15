@@ -1,9 +1,12 @@
 package internal
 
 import (
+	"context"
 	"encoding/json"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/sirupsen/logrus"
 )
 
 type Rabbit struct {
@@ -22,6 +25,7 @@ func MustNewRabbitMQ(queueName, host, port string) *Rabbit {
 }
 
 func NewRabbitMQ(queueName, host, port string) (*amqp.Connection, *amqp.Channel, *amqp.Queue, error) {
+	logrus.Info("connecting to rabbitmq:", host, port)
 	conn, err := amqp.Dial("amqp://" + host + ":" + port)
 	if err != nil {
 		return nil, nil, nil, err
@@ -32,6 +36,8 @@ func NewRabbitMQ(queueName, host, port string) (*amqp.Connection, *amqp.Channel,
 		return nil, nil, nil, err
 	}
 
+	logrus.Info("rabbitmq channel acquired")
+
 	q, err := ch.QueueDeclare(
 		queueName,
 		true,
@@ -40,6 +46,10 @@ func NewRabbitMQ(queueName, host, port string) (*amqp.Connection, *amqp.Channel,
 		false,
 		nil,
 	)
+
+	if err == nil {
+		logrus.Info("rabbitmq queue", queueName, "declared")
+	}
 
 	return conn, ch, &q, err
 }
@@ -50,7 +60,11 @@ func (r *Rabbit) PutContent(obj any) error {
 		return err
 	}
 
-	return r.Ch.Publish(
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	return r.Ch.PublishWithContext(
+		ctx,
 		"", // TODO: use an per-store exchange
 		r.Q.Name,
 		false,
