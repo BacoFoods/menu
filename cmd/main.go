@@ -79,7 +79,7 @@ func main() {
 		&assets.Asset{},
 	)
 
-	firebase := internal.MustNewFirebase(internal.Config.CerebroConfig.AuthB64, internal.Config.CerebroConfig.DBURL)
+	rabbitCh := internal.MustNewRabbitMQ(internal.Config.RabbitConfig.ComandasQueue, internal.Config.RabbitConfig.Host, internal.Config.RabbitConfig.Port)
 
 	// Healthcheck
 	healthcheckHandler := healthcheck.NewHandler()
@@ -206,7 +206,7 @@ func main() {
 		statusRepository,
 		accountRepository,
 		shiftRepository,
-		firebase,
+		rabbitCh,
 	)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)

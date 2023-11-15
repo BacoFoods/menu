@@ -54,7 +54,7 @@ type service struct {
 	status     statuses.Repository
 	account    accounts.Repository
 	shift      shifts.Repository
-	fs         *internal.Firebase
+	rt         *internal.Rabbit
 }
 
 func NewService(repository Repository,
@@ -64,7 +64,7 @@ func NewService(repository Repository,
 	status statuses.Repository,
 	account accounts.Repository,
 	shift shifts.Repository,
-	fs *internal.Firebase,
+	rt *internal.Rabbit,
 ) service {
 	return service{repository,
 		table,
@@ -73,7 +73,7 @@ func NewService(repository Repository,
 		status,
 		account,
 		shift,
-		fs,
+		rt,
 	}
 }
 
@@ -602,16 +602,7 @@ func (s *service) putFirebaseComanda(orderId uint, tableId *uint, storeId *uint,
 		Timestamp int64       `json:"timestamp"`
 	}{orderId, tableId, items, ts}
 
-	ctx := context.Background()
-	fsStoreId := "-"
-	if storeId != nil {
-		fsStoreId = fmt.Sprintf("%d", *storeId)
-	}
-	refKey := fmt.Sprintf("%s/stores/%s/comandas", internal.Config.AppEnv, fsStoreId)
-	shared.LogInfo("pushing order to firebase", LogService, "putFirebaseComanda", nil, refKey)
-	_, err := s.fs.NewRef(refKey).Push(ctx, data)
-
-	return err
+	return s.rt.PutContent(data)
 }
 
 var _ Service = &service{}

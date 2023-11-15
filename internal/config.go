@@ -16,6 +16,7 @@ type config struct {
 	DBConfig
 	PopappConfig
 	CerebroConfig
+	RabbitConfig
 }
 
 // Config is the global variable that holds the configuration for parse the environment variables
@@ -53,4 +54,10 @@ type CerebroConfig struct {
 type FirestoreConfig struct {
 	AuthB64   string
 	ProjectID string
+}
+
+type RabbitConfig struct {
+	Host          string `env:"RABBIT_HOST"`
+	Port          string `env:"RABBIT_PORT" envDefault:"5672"`
+	ComandasQueue string `env:"RABBIT_COMANDAS_QUEUE" envDefault:"comandas-dev"`
 }
