@@ -6,6 +6,7 @@ import (
 
 	"github.com/BacoFoods/menu/pkg/connector"
 	"github.com/BacoFoods/menu/pkg/scheduler"
+	"github.com/BacoFoods/menu/pkg/siesa"
 
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
@@ -88,6 +89,7 @@ func main() {
 		&invoice.Document{},
 		&scheduler.Schedule{},
 		&connector.Equivalence{},
+		&siesa.Reference{},
 	)
 
 	rabbitCh := internal.MustNewRabbitMQ(internal.Config.RabbitConfig.ComandasQueue, internal.Config.RabbitConfig.Host, internal.Config.RabbitConfig.Port)
@@ -240,6 +242,12 @@ func main() {
 	courseHandler := course.NewHandler(courseService)
 	courseRoutes := course.NewRoutes(courseHandler)
 
+	// Siesa
+	siesaRepository := siesa.NewDBRepository(gormDB)
+	siesaService := siesa.NewService(siesaRepository)
+	siesaHandler := siesa.NewHandler(siesaService)
+	siesaRoutes := siesa.NewRoutes(siesaHandler)
+
 	// Temporal
 	temporalHandler := temporal.NewHandler()
 	temporalRoutes := temporal.NewRoutes(temporalHandler)
@@ -298,6 +306,7 @@ func main() {
 		Facturacion:  facturacionRoutes,
 		Schedule:     scheduleRoutes,
 		Equivalence:  equivalenceRoutes,
+		Siesa:        siesaRoutes,
 	}
 
 	// Run server

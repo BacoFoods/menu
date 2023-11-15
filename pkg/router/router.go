@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"github.com/BacoFoods/menu/pkg/siesa"
+
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/assets"
@@ -140,4 +142,5 @@ type RoutesGroup struct {
 	Facturacion  facturacion.Routes
 	Schedule     scheduler.Routes
 	Equivalence  connector.Routes
+	Siesa        siesa.Routes
 }

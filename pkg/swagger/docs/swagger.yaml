@@ -1397,6 +1397,64 @@ definitions:
     required:
     - start_balance
     type: object
+<<<<<<< HEAD
+=======
+  siesa.RequestExcelCreate:
+    properties:
+      end_date:
+        type: string
+      location_ids:
+        items:
+          type: string
+        type: array
+      start_date:
+        type: string
+    type: object
+  status.CreateStatus:
+    properties:
+      active:
+        type: boolean
+      code:
+        type: string
+      color:
+        type: string
+      name:
+        type: string
+    required:
+    - code
+    - name
+    type: object
+  status.Status:
+    properties:
+      active:
+        type: boolean
+      code:
+        type: string
+      color:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  status.UpdateStatus:
+    properties:
+      code:
+        type: string
+      color:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - id
+    type: object
+>>>>>>> d9351d1 (feat: export XSL with POST)
   store.Store:
     properties:
       address:
@@ -8152,6 +8210,249 @@ paths:
       summary: Open shift
       tags:
       - Shift
+<<<<<<< HEAD
+=======
+  /siesa:
+    post:
+      consumes:
+      - application/json
+      description: Handles a request to create an Excel file containing orders based
+        on the specified parameters.
+      parameters:
+      - description: Request body for creating Excel file
+        in: body
+        name: siesa
+        required: true
+        schema:
+          $ref: '#/definitions/siesa.RequestExcelCreate'
+      produces:
+      - application/vnd.ms-excel
+      responses:
+        "200":
+          description: Successful response with Excel file
+          schema:
+            type: file
+        "400":
+          description: Bad Request response
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity response
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "500":
+          description: Internal Server Error response
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Generate an Excel file with orders
+      tags:
+      - SIESA
+  /status:
+    get:
+      consumes:
+      - application/json
+      description: To find status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/status.Status'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find status
+      tags:
+      - Status
+    patch:
+      consumes:
+      - application/json
+      description: To update status
+      parameters:
+      - description: status to update
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/status.UpdateStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/status.Status'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To update status
+      tags:
+      - Status
+    post:
+      consumes:
+      - application/json
+      description: To create a status
+      parameters:
+      - description: status request
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/status.CreateStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/status.Status'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To create a status
+      tags:
+      - Status
+  /status/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a status
+      parameters:
+      - description: statusID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: status request
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/status.Status'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  type: string
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To delete a status
+      tags:
+      - Status
+    get:
+      consumes:
+      - application/json
+      description: To find status by id
+      parameters:
+      - description: status id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/status.Status'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find status by id
+      tags:
+      - Status
+>>>>>>> d9351d1 (feat: export XSL with POST)
   /store:
     get:
       consumes:
