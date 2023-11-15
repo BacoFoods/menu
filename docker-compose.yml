@@ -1,5 +1,5 @@
 version: '1'
-  e
+
 services:
   database:
     image: postgres:latest
@@ -17,7 +17,7 @@ services:
     ports:
       # MQTT ws port
       - 15675:15675
-      # AMQP port
+      # AMQP 
       - 5672:5672
   app:
     build:
