@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
+
 const LogDBRepository string = "pkg/siesa/repository"
 
 type DBRepository struct {
@@ -15,23 +16,20 @@ func NewDBRepository(db *gorm.DB) *DBRepository {
 	return &DBRepository{db}
 }
 
-
-
-func (r *DBRepository) Create(reference *Reference) (error) {
+func (r *DBRepository) Create(reference *Reference) error {
 	if err := r.db.Save(reference).Error; err != nil {
 		shared.LogError("error creating reference", LogDBRepository, "Create", err, reference)
 		return err
 	}
-
 	return nil
 }
 
 // TruncateRecords truncates all records in the YourModel table
 func (r *DBRepository) TruncateRecords() error {
-    if err := r.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Reference{}).Error; err != nil {
-        return err
-    }
-    return nil
+	if err := r.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Reference{}).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *DBRepository) Find(filters map[string]string) (*Reference, error) {
