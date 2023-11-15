@@ -2,6 +2,7 @@ package order
 
 import (
 	"fmt"
+
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -51,6 +52,15 @@ func (r *DBRepository) Get(orderID string) (*Order, error) {
 	}
 
 	return &order, nil
+}
+
+func (c *DBRepository) AddProducts(order *Order, newItems []OrderItem) (*Order, error) {
+	err := c.db.Model(order).Association("Items").Append(newItems)
+	if err != nil {
+		return nil, err
+	}
+
+	return order, nil
 }
 
 // Update method for update an order in database

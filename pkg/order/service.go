@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
+	"github.com/BacoFoods/menu/internal"
 	accounts "github.com/BacoFoods/menu/pkg/account"
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	products "github.com/BacoFoods/menu/pkg/product"
@@ -53,6 +55,7 @@ type service struct {
 	status     statuses.Repository
 	account    accounts.Repository
 	shift      shifts.Repository
+	rt         *internal.Rabbit
 }
 
 func NewService(repository Repository,
@@ -61,7 +64,9 @@ func NewService(repository Repository,
 	invoice invoices.Repository,
 	status statuses.Repository,
 	account accounts.Repository,
-	shift shifts.Repository) service {
+	shift shifts.Repository,
+	rt *internal.Rabbit,
+) service {
 	return service{repository,
 		table,
 		product,
@@ -69,6 +74,7 @@ func NewService(repository Repository,
 		status,
 		account,
 		shift,
+		rt,
 	}
 }
 
@@ -90,7 +96,7 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 		return nil, fmt.Errorf(ErrorOrderCreation)
 	}
 
-	if len(prods) == 0 {
+	if len(prods) == 0 && len(productIDs) > 0 {
 		return nil, fmt.Errorf(ErrorOrderProductsNotFound)
 	}
 
@@ -176,6 +182,15 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	if _, err := s.repository.CreateAttendee(attendee); err != nil {
 		shared.LogError("error creating attendee", LogService, "Create", err, *attendee)
 	}
+
+	// Post the comanda to firebase
+	go func() {
+		shared.LogInfo(fmt.Sprint(newOrder.Items), LogService, "Create", nil)
+		err := s.putFirebaseComanda(newOrder.ID, newOrder.TableID, newOrder.StoreID, newOrder.Items)
+		if err != nil {
+			shared.LogError("error pushing order to firebase", LogService, "Create", err)
+		}
+	}()
 
 	// Setting table
 	// TODO: Send create order and set table to repository to make a trx and rollback if error to avoid has order without table
@@ -293,6 +308,7 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 		return nil, fmt.Errorf(ErrorOrderProductGetting)
 	}
 
+	newOrderItems := make([]OrderItem, 0)
 	errors := ""
 	for _, item := range orderItems {
 		productID := fmt.Sprintf("%d", *item.ProductID)
@@ -324,8 +340,7 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 				Comments:    mod.Comments,
 			}
 		}
-
-		order.AddProduct(OrderItem{
+		newItem := OrderItem{
 			OrderID:     &order.ID,
 			ProductID:   item.ProductID,
 			Name:        product.Name,
@@ -337,18 +352,29 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 			Comments:    item.Comments,
 			Course:      item.Course,
 			Modifiers:   modifiers,
-		})
+		}
+
+		newOrderItems = append(newOrderItems, newItem)
 	}
 
 	if errors != "" {
 		return nil, fmt.Errorf(errors)
 	}
 
-	orderDB, err := s.repository.Update(order)
+	//	this sets the OrderItem.ID and appends the list to the orignal list of items in the order
+	orderDB, err := s.repository.AddProducts(order, newOrderItems)
 	if err != nil {
 		shared.LogError("error updating order", LogService, "AddProduct", err, *order)
 		return nil, fmt.Errorf(ErrorOrderUpdate)
 	}
+
+	// Post the comanda to firebase
+	go func() {
+		err := s.putFirebaseComanda(order.ID, order.TableID, order.StoreID, newOrderItems)
+		if err != nil {
+			shared.LogError("error pushing order to firebase", LogService, "Create", err)
+		}
+	}()
 
 	return orderDB, nil
 }
@@ -565,6 +591,23 @@ func (s service) CalculateInvoice(orderID string) (*invoices.Invoice, error) {
 	invoice.CalculateTaxDetails()
 
 	return &invoice, nil
+}
+
+func (s *service) putFirebaseComanda(orderId uint, tableId *uint, storeId *uint, items []OrderItem) error {
+	if len(items) == 0 {
+		return nil
+	}
+
+	// Timestamp in millis
+	ts := time.Now().Unix() * 1000
+	data := struct {
+		OrderId   uint        `json:"order_id"`
+		TableId   *uint       `json:"table_id"`
+		Items     []OrderItem `json:"items"`
+		Timestamp int64       `json:"timestamp"`
+	}{orderId, tableId, items, ts}
+
+	return s.rt.PutContent(data)
 }
 
 var _ Service = &service{}

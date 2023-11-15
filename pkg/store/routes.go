@@ -10,17 +10,16 @@ func NewRoutes(handler *Handler) Routes {
 	return Routes{handler}
 }
 
-func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
-	router.GET("/store", r.handler.Find)
-	router.GET("/store/:id", r.handler.Get)
-	router.POST("/store", r.handler.Create)
-	router.PATCH("/store/:id", r.handler.Update)
-	router.DELETE("/store/:id", r.handler.Delete)
+func (r Routes) RegisterRoutes(private *gin.RouterGroup) {
+	private.GET("/store", r.handler.Find)
+	private.GET("/store/:id", r.handler.Get)
+	private.POST("/store", r.handler.Create)
+	private.PATCH("/store/:id", r.handler.Update)
+	private.DELETE("/store/:id", r.handler.Delete)
 
-	router.PATCH("/store/:id/enable", r.handler.Enable)
-	router.PATCH("/store/:id/channel/:channelID", r.handler.AddChannel)
+	private.PATCH("/store/:id/enable", r.handler.Enable)
+	private.PATCH("/store/:id/channel/:channelID", r.handler.AddChannel)
 
-	router.GET("/store/:id/zone", r.handler.FindZonesByStore)
-	router.GET("/store/:id/zone/:zoneID", r.handler.GetZoneByStore)
-
+	private.GET("/store/:id/zone", r.handler.FindZonesByStore)
+	private.GET("/store/:id/zone/:zoneID", r.handler.GetZoneByStore)
 }

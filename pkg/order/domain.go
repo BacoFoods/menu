@@ -64,6 +64,7 @@ type Repository interface {
 	Find(filter map[string]any) ([]Order, error)
 	Update(order *Order) (*Order, error)
 	FindByShift(shiftID uint) ([]Order, error)
+	AddProducts(order *Order, newItems []OrderItem) (*Order, error)
 
 	// OrderItem
 	UpdateOrderItem(orderItem *OrderItem) (*OrderItem, error)

@@ -106,7 +106,7 @@ func (h *Handler) GetArqueo(c *gin.Context) {
 	minDate := fmt.Sprintf("%s 00:00:00", date)
 	maxDate := fmt.Sprintf("%s 23:59:59", date)
 
-	firestore, err := internal.NewFirestore(internal.Config.FirestoreConfig)
+	firestore, err := internal.NewFirestore(internal.FirestoreConfig(internal.Config.PopappConfig))
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return

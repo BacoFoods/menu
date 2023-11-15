@@ -12,6 +12,13 @@ services:
       - POSTGRES_DB=${DB_NAME}
     ports:
       - '5432:5432'
+  rabbit:
+    image: rabbitmq:3.12
+    ports:
+      # MQTT ws port
+      - 15675:15675
+      # AMQP port
+      - 5672:5672
   app:
     build:
       dockerfile: Dockerfile

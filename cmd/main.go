@@ -79,6 +79,8 @@ func main() {
 		&assets.Asset{},
 	)
 
+	rabbitCh := internal.MustNewRabbitMQ(internal.Config.RabbitConfig.ComandasQueue, internal.Config.RabbitConfig.Host, internal.Config.RabbitConfig.Port)
+
 	// Healthcheck
 	healthcheckHandler := healthcheck.NewHandler()
 	healthcheckRoutes := healthcheck.NewRoutes(healthcheckHandler)
@@ -203,7 +205,9 @@ func main() {
 		invoiceRepository,
 		statusRepository,
 		accountRepository,
-		shiftRepository)
+		shiftRepository,
+		rabbitCh,
+	)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)
 
