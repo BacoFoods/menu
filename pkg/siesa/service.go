@@ -220,7 +220,6 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 	doc["Descuentos"] = descuentos
 
 	// Construir la sección "Movimientos" del documento
-	// Puedes iterar sobre los items de la orden y agregarlos a la estructura del documento
 	movimientos := []map[string]string{}
 	registro := 1 // Variable para el número de registro
 
