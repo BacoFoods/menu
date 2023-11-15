@@ -14,6 +14,7 @@ import (
 	shifts "github.com/BacoFoods/menu/pkg/shift"
 	statuses "github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/tables"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -186,7 +187,7 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	// Post the comanda to firebase
 	go func() {
 		shared.LogInfo(fmt.Sprint(newOrder.Items), LogService, "Create", nil)
-		err := s.putFirebaseComanda(newOrder.ID, newOrder.TableID, newOrder.StoreID, newOrder.Items)
+		err := s.queueComanda(newOrder.ID, newOrder.TableID, newOrder.StoreID, newOrder.Items)
 		if err != nil {
 			shared.LogError("error pushing order to firebase", LogService, "Create", err)
 		}
@@ -370,9 +371,9 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 
 	// Post the comanda to firebase
 	go func() {
-		err := s.putFirebaseComanda(order.ID, order.TableID, order.StoreID, newOrderItems)
+		err := s.queueComanda(order.ID, order.TableID, order.StoreID, newOrderItems)
 		if err != nil {
-			shared.LogError("error pushing order to firebase", LogService, "Create", err)
+			shared.LogError("error queuing comanda", LogService, "AddProduct", err)
 		}
 	}()
 
@@ -593,12 +594,14 @@ func (s service) CalculateInvoice(orderID string) (*invoices.Invoice, error) {
 	return &invoice, nil
 }
 
-func (s *service) putFirebaseComanda(orderId uint, tableId *uint, storeId *uint, items []OrderItem) error {
+func (s *service) queueComanda(orderId uint, tableId *uint, storeId *uint, items []OrderItem) error {
 	if len(items) == 0 {
+		logrus.Info("comanda for order ", orderId, " is empty")
 		return nil
 	}
 
 	// Timestamp in millis
+	logrus.Info("comanda for order ", orderId, " sent")
 	ts := time.Now().Unix() * 1000
 	data := struct {
 		OrderId   uint        `json:"order_id"`
@@ -607,7 +610,13 @@ func (s *service) putFirebaseComanda(orderId uint, tableId *uint, storeId *uint,
 		Timestamp int64       `json:"timestamp"`
 	}{orderId, tableId, items, ts}
 
-	return s.rt.PutContent(data)
+	err := s.rt.PutContent(data)
+
+	if err != nil {
+		shared.LogError("error queuing comanda", LogService, "queueComanda", err)
+	}
+
+	return err
 }
 
 var _ Service = &service{}
