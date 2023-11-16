@@ -287,8 +287,7 @@ func (o *Order) UpdateStatus(status string) error {
 		return err
 	}
 
-	shared.LogError(ErrorOrderUpdateInvalidStatus, LogDomain, "UpdateStatus", nil, o.ID, o.CurrentStatus, status)
-	return fmt.Errorf(ErrorOrderUpdateInvalidStatus)
+	return nil
 }
 
 func (o *Order) UpdateNextStatus() {
