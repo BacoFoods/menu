@@ -12,7 +12,6 @@ import (
 	products "github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
 	shifts "github.com/BacoFoods/menu/pkg/shift"
-	statuses "github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/sirupsen/logrus"
 )
@@ -32,7 +31,8 @@ type Service interface {
 	AddProducts(orderID string, orderItem []OrderItem) (*Order, error)
 	RemoveProduct(orderID, productID string) (*Order, error)
 	UpdateProduct(product *OrderItem) (*Order, error)
-	UpdateStatus(orderID, statusCode string) (*Order, error)
+	UpdateStatusNext(orderID string) (*Order, error)
+	UpdateStatusPrev(orderID string) (*Order, error)
 	ReleaseTable(orderID string) (*Order, error)
 	UpdateComments(orderID, comments string) (*Order, error)
 	UpdateClientName(orderID, clientName string) (*Order, error)
@@ -53,7 +53,6 @@ type service struct {
 	table      tables.Repository
 	product    products.Repository
 	invoice    invoices.Repository
-	status     statuses.Repository
 	account    accounts.Repository
 	shift      shifts.Repository
 	rt         *internal.Rabbit
@@ -63,7 +62,6 @@ func NewService(repository Repository,
 	table tables.Repository,
 	product products.Repository,
 	invoice invoices.Repository,
-	status statuses.Repository,
 	account accounts.Repository,
 	shift shifts.Repository,
 	rt *internal.Rabbit,
@@ -72,7 +70,6 @@ func NewService(repository Repository,
 		table,
 		product,
 		invoice,
-		status,
 		account,
 		shift,
 		rt,
@@ -418,25 +415,34 @@ func (s service) UpdateProduct(product *OrderItem) (*Order, error) {
 	return order, nil
 }
 
-func (s service) UpdateStatus(orderID, statusCode string) (*Order, error) {
+func (s service) UpdateStatusNext(orderID string) (*Order, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
-		shared.LogError("error getting order", LogService, "UpdateStatus", err, orderID)
+		shared.LogError("error getting order", LogService, "UpdateStatusNext", err, orderID)
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	status, err := s.status.GetByCode(statusCode)
-	if err != nil {
-		shared.LogError("error getting status", LogService, "UpdateStatus", err, status)
-		return nil, fmt.Errorf(ErrorOrderGettingStatus)
-	}
-
-	if err := order.UpdateStatus(status); err != nil {
-		return nil, err
-	}
+	order.UpdateNextStatus()
 
 	if _, err := s.repository.Update(order); err != nil {
-		shared.LogError("error updating order", LogService, "UpdateStatus", err, *order)
+		shared.LogError("error updating order status", LogService, "UpdateStatusNext", err, *order)
+		return nil, fmt.Errorf(ErrorOrderUpdateStatus)
+	}
+
+	return order, nil
+}
+
+func (s service) UpdateStatusPrev(orderID string) (*Order, error) {
+	order, err := s.repository.Get(orderID)
+	if err != nil {
+		shared.LogError("error getting order", LogService, "UpdateStatusPrev", err, orderID)
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	order.UpdatePrevStatus()
+
+	if _, err := s.repository.Update(order); err != nil {
+		shared.LogError("error updating order status", LogService, "UpdateStatusPrev", err, *order)
 		return nil, fmt.Errorf(ErrorOrderUpdateStatus)
 	}
 

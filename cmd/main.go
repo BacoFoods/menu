@@ -25,7 +25,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/router"
 	"github.com/BacoFoods/menu/pkg/shift"
-	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
 	"github.com/BacoFoods/menu/pkg/swagger"
@@ -63,7 +62,6 @@ func main() {
 		&order.OrderItem{},
 		&order.OrderModifier{},
 		&order.OrderType{},
-		&status.Status{},
 		&invoice.Invoice{},
 		&invoice.Item{},
 		&invoice.Discount{},
@@ -167,12 +165,6 @@ func main() {
 	brandHandler := brand.NewHandler(brandService)
 	brandRoutes := brand.NewRoutes(brandHandler)
 
-	// Status
-	statusRepository := status.NewDBRepository(gormDB)
-	statusService := status.NewService(statusRepository)
-	statusHandler := status.NewHandler(statusService)
-	statusRoutes := status.NewRoutes(statusHandler)
-
 	// Client
 	clientRepository := client.NewDBRepository(gormDB)
 	clientService := client.NewService(clientRepository)
@@ -203,7 +195,6 @@ func main() {
 		tableRepository,
 		productRepository,
 		invoiceRepository,
-		statusRepository,
 		accountRepository,
 		shiftRepository,
 		rabbitCh,
@@ -256,7 +247,6 @@ func main() {
 		Channel:      channelRoutes,
 		Availability: availabilityRoutes,
 		Order:        orderRoutes,
-		Status:       statusRoutes,
 		Invoice:      invoiceRoutes,
 		Account:      accountRoutes,
 		Course:       courseRoutes,

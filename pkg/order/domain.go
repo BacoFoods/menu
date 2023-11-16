@@ -8,7 +8,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/product"
-	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
@@ -51,6 +50,12 @@ const (
 	OrderStepCreated OrderStep = "created"
 
 	OrderActionCreated OrderAction = "fue atendido por"
+
+	LogDomain = "pkg/order/domain"
+
+	OrderStatusCreated = "created"
+	OrderStatusPaying  = "paying"
+	OrderStatusClosed  = "closed"
 )
 
 type OrderStep string
@@ -83,7 +88,7 @@ type Repository interface {
 
 type Order struct {
 	ID            uint              `json:"id" gorm:"primaryKey"`
-	Statuses      []status.Status   `json:"status" gorm:"many2many:order_statuses" gorm:"foreignKey:OrderID" swaggerignore:"true"`
+	Statuses      []OrderStatus     `json:"status" gorm:"foreignKey:OrderID" swaggerignore:"true"`
 	CurrentStatus string            `json:"current_status"`
 	OrderType     string            `json:"order_type"`
 	ClientName    string            `json:"client_name"`
@@ -255,14 +260,16 @@ func (o *Order) ToInvoice() {
 	o.Invoices = append(o.Invoices, newInvoice)
 }
 
-func (o *Order) UpdateStatus(status *status.Status) error {
-	if o.CurrentStatus == status.Code {
-		return nil
-	}
+func (o *Order) UpdateNextStatus() {
+	currentStatus := o.Statuses[len(o.Statuses)-1]
+	o.Statuses = append(o.Statuses, currentStatus.Next())
+	o.CurrentStatus = currentStatus.Next().Code
+}
 
-	o.CurrentStatus = status.Code
-	o.Statuses = append(o.Statuses, *status)
-	return nil
+func (o *Order) UpdatePrevStatus() {
+	currentStatus := o.Statuses[len(o.Statuses)-1]
+	o.Statuses = append(o.Statuses, currentStatus.Prev())
+	o.CurrentStatus = currentStatus.Prev().Code
 }
 
 type OrderItem struct {
@@ -355,4 +362,55 @@ type Attendee struct {
 	CreatedAt *time.Time      `json:"created_at" swaggerignore:"true"`
 	UpdatedAt *time.Time      `json:"updated_at" swaggerignore:"true"`
 	DeletedAt *gorm.DeletedAt `json:"deleted_at" swaggerignore:"true"`
+}
+
+type OrderStatus struct {
+	ID        uint           `json:"id,omitempty" gorm:"primaryKey"`
+	Code      string         `json:"code"`
+	OrderID   *uint          `json:"order_id,omitempty"`
+	CreatedAt *time.Time     `json:"created_at,omitempty"`
+	UpdatedAt *time.Time     `json:"updated_at,omitempty"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+func (os *OrderStatus) Next() OrderStatus {
+	switch os.Code {
+	case OrderStatusCreated:
+		return OrderStatus{
+			Code: OrderStatusPaying,
+		}
+	case OrderStatusPaying:
+		return OrderStatus{
+			Code: OrderStatusClosed,
+		}
+	case OrderStatusClosed:
+		return OrderStatus{
+			Code: OrderStatusClosed,
+		}
+	default:
+		return OrderStatus{
+			Code: OrderStatusCreated,
+		}
+	}
+}
+
+func (os *OrderStatus) Prev() OrderStatus {
+	switch os.Code {
+	case OrderStatusCreated:
+		return OrderStatus{
+			Code: OrderStatusCreated,
+		}
+	case OrderStatusPaying:
+		return OrderStatus{
+			Code: OrderStatusCreated,
+		}
+	case OrderStatusClosed:
+		return OrderStatus{
+			Code: OrderStatusPaying,
+		}
+	default:
+		return OrderStatus{
+			Code: OrderStatusCreated,
+		}
+	}
 }
