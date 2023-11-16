@@ -876,14 +876,6 @@ definitions:
     required:
     - seats
     type: object
-  order.RequestUpdateOrderStatus:
-    properties:
-      status:
-        example: ordering,cooking,delivered,invoicing,canceled,completed
-        type: string
-    required:
-    - status
-    type: object
   payment.Payment:
     properties:
       code:
@@ -1038,50 +1030,6 @@ definitions:
         type: number
     required:
     - start_balance
-    type: object
-  status.CreateStatus:
-    properties:
-      active:
-        type: boolean
-      code:
-        type: string
-      color:
-        type: string
-      name:
-        type: string
-    required:
-    - code
-    - name
-    type: object
-  status.Status:
-    properties:
-      active:
-        type: boolean
-      code:
-        type: string
-      color:
-        type: string
-      created_at:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      updated_at:
-        type: string
-    type: object
-  status.UpdateStatus:
-    properties:
-      code:
-        type: string
-      color:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-    required:
-    - id
     type: object
   store.Store:
     properties:
@@ -4480,15 +4428,12 @@ paths:
         name: table
         type: string
       - description: Status
+        enum:
+        - OrderStatusCreated
+        - OrderStatusPaying
+        - OrderStatusClosed
         in: query
         name: status
-        type: string
-      - description: Is Active
-        enum:
-        - "true"
-        - "false"
-        in: query
-        name: active
         type: string
       - description: Days before
         in: query
@@ -5333,6 +5278,8 @@ paths:
       summary: To update a product from an order
       tags:
       - Order
+<<<<<<< HEAD
+=======
   /order/{id}/update/status:
     patch:
       consumes:
@@ -5367,6 +5314,7 @@ paths:
       summary: To update the status of an order
       tags:
       - Order
+>>>>>>> develop
   /overrider:
     get:
       consumes:
@@ -6746,6 +6694,8 @@ paths:
       summary: Open shift
       tags:
       - Shift
+<<<<<<< HEAD
+=======
   /status:
     get:
       consumes:
@@ -6939,6 +6889,7 @@ paths:
       summary: To find status by id
       tags:
       - Status
+>>>>>>> develop
   /store:
     get:
       consumes:
@@ -8360,4 +8311,9 @@ paths:
       summary: To remove tables from a zone
       tags:
       - Zones
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -207,8 +207,7 @@ func (h *Handler) GetPublic(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param store query string false "Store ID"
 // @Param table query string false "Table ID"
-// @Param status query string false "Status"
-// @Param active query string false "Is Active" Enums(true,false)
+// @Param status query string false "Status" Enums(OrderStatusCreated, OrderStatusPaying, OrderStatusClosed)
 // @Param days query string false "Days before"
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
@@ -228,10 +227,6 @@ func (h *Handler) Find(c *gin.Context) {
 
 	if status := c.Query("status"); status != "" {
 		filters["current_status"] = status
-	}
-
-	if active := c.Query("active"); active != "" {
-		filters["active"] = active
 	}
 
 	if days := c.Query("days"); days != "" {
@@ -399,36 +394,6 @@ func (h *Handler) UpdateProduct(c *gin.Context) {
 	}
 
 	order, err := h.service.UpdateProduct(updatedProduct)
-	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
-		return
-	}
-
-	c.JSON(http.StatusOK, shared.SuccessResponse(order))
-}
-
-// UpdateStatus to handle a request to update the status of an order
-// @Tags Order
-// @Summary To update the status of an order
-// @Description To update the status of an order
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path string true "Order ID"
-// @Param status body RequestUpdateOrderStatus true "Status"
-// @Success 200 {object} object{status=string,data=Order}
-// @Router /order/{id}/update/status [patch]
-func (h *Handler) UpdateStatus(c *gin.Context) {
-	orderID := c.Param("id")
-
-	var body RequestUpdateOrderStatus
-	if err := c.ShouldBindJSON(&body); err != nil {
-		shared.LogError("error binding request body", LogHandler, "UpdateStatus", err, body)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
-		return
-	}
-
-	order, err := h.service.UpdateStatus(orderID, body.Status)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return

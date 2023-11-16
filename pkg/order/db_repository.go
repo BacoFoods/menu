@@ -9,10 +9,7 @@ import (
 )
 
 const (
-	LogDBRepository  string = "pkg/order/db_repository"
-	StatusActive     string = "active"
-	StatusCreate     string = "create"
-	StatusInProgress string = "in_progress"
+	LogDBRepository string = "pkg/order/db_repository"
 )
 
 type DBRepository struct {
@@ -78,12 +75,6 @@ func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 	tx := r.db.
 		Preload(clause.Associations).
 		Preload("Items.Modifiers")
-
-	if status, ok := filter["active"]; ok && status == "true" {
-		tx.Where("current_status = ? OR current_status = ?", StatusCreate, StatusInProgress)
-		shared.LogWarn("filtering by active orders", LogDBRepository, "Find", nil, filter)
-		delete(filter, "active")
-	}
 
 	if days, ok := filter["days"]; ok {
 		tx.Where(fmt.Sprintf("created_at >= NOW() - INTERVAL '%s' DAY", days))

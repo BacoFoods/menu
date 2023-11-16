@@ -27,7 +27,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/BacoFoods/menu/pkg/shift"
-	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
 	"github.com/BacoFoods/menu/pkg/swagger"
@@ -80,7 +79,6 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Country.RegisterRoutes(private)
 	routes.Currency.RegisterRoutes(private)
 	routes.Discount.RegisterRoutes(private)
-	routes.Status.RegisterRoutes(private)
 	routes.Product.RegisterRoutes(private)
 	routes.Store.RegisterRoutes(private)
 	routes.Surcharge.RegisterRoutes(private)
@@ -119,7 +117,6 @@ type RoutesGroup struct {
 	HealthCheck  healthcheck.Routes
 	Menu         menu.Routes
 	Order        order.Routes
-	Status       status.Routes
 	Product      product.Routes
 	Store        store.Routes
 	Surcharge    surcharge.Routes

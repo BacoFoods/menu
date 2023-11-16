@@ -5087,19 +5087,14 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "OrderStatusCreated",
+                            "OrderStatusPaying",
+                            "OrderStatusClosed"
+                        ],
                         "type": "string",
                         "description": "Status",
                         "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "true",
-                            "false"
-                        ],
-                        "type": "string",
-                        "description": "Is Active",
-                        "name": "active",
                         "in": "query"
                     },
                     {
@@ -6421,6 +6416,8 @@ const docTemplate = `{
                 }
             }
         },
+<<<<<<< HEAD
+=======
         "/order/{id}/update/status": {
             "patch": {
                 "security": [
@@ -6475,6 +6472,7 @@ const docTemplate = `{
                 }
             }
         },
+>>>>>>> develop
         "/overrider": {
             "get": {
                 "security": [
@@ -8629,6 +8627,8 @@ const docTemplate = `{
                 }
             }
         },
+<<<<<<< HEAD
+=======
         "/status": {
             "get": {
                 "security": [
@@ -8933,6 +8933,7 @@ const docTemplate = `{
                 }
             }
         },
+>>>>>>> develop
         "/store": {
             "get": {
                 "security": [
@@ -12478,18 +12479,6 @@ const docTemplate = `{
                 }
             }
         },
-        "order.RequestUpdateOrderStatus": {
-            "type": "object",
-            "required": [
-                "status"
-            ],
-            "properties": {
-                "status": {
-                    "type": "string",
-                    "example": "ordering,cooking,delivered,invoicing,canceled,completed"
-                }
-            }
-        },
         "payment.Payment": {
             "type": "object",
             "required": [
@@ -12722,73 +12711,6 @@ const docTemplate = `{
             "properties": {
                 "start_balance": {
                     "type": "number"
-                }
-            }
-        },
-        "status.CreateStatus": {
-            "type": "object",
-            "required": [
-                "code",
-                "name"
-            ],
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "code": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "status.Status": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "code": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "status.UpdateStatus": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
                 }
             }
         },
