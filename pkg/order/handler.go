@@ -853,3 +853,24 @@ func (h *Handler) CalculateInvoice(c *gin.Context) {
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
 }
+
+// CalculateInvoice to handle a request to calculate an invoice
+// @Tags Order
+// @Summary To calculate an invoice
+// @Description To calculate an invoice
+// @Accept json
+// @Produce json
+// @Param id path string true "Order ID"
+// @Success 200 {object} object{status=string,data=invoice.Invoice}
+// @Router /public/order/{id}/invoice/calculate [get]
+func (h *Handler) PublicCalculateInvoice(c *gin.Context) {
+	orderID := c.Param("id")
+
+	invoice, err := h.service.CalculateInvoice(orderID)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCalculation))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+}
