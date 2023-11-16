@@ -17,8 +17,7 @@ import (
 )
 
 const (
-	ErrorOrderFind string = "error finding orders"
-	LogService     string = "pkg/order/service"
+	LogService string = "pkg/order/service"
 )
 
 type Service interface {
@@ -102,7 +101,7 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	order.ToInvoice()
 
 	// Setting order status
-	order.CurrentStatus = StatusCreate
+	order.CurrentStatus = OrderStatusCreated
 
 	// Setting order attendees
 	username := ""
@@ -283,6 +282,12 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
+	if order.CurrentStatus != OrderStatusCreated {
+		err := fmt.Errorf(ErrorOrderAddProductsForbiddenByStatus)
+		shared.LogError("error adding products", LogService, "AddProduct", err, orderID)
+		return nil, err
+	}
+
 	productIDs := make([]string, len(orderItems))
 	modifierIDs := make([]string, 0)
 	for i, item := range orderItems {
@@ -365,6 +370,8 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 		shared.LogError("error updating order", LogService, "AddProduct", err, *order)
 		return nil, fmt.Errorf(ErrorOrderUpdate)
 	}
+
+	// TODO: update invoice
 
 	// Post the comanda to firebase
 	go func() {

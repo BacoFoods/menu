@@ -770,14 +770,6 @@ definitions:
     required:
     - seats
     type: object
-  order.RequestUpdateOrderStatus:
-    properties:
-      status:
-        example: ordering,cooking,delivered,invoicing,canceled,completed
-        type: string
-    required:
-    - status
-    type: object
   payment.Payment:
     properties:
       code:
@@ -932,50 +924,6 @@ definitions:
         type: number
     required:
     - start_balance
-    type: object
-  status.CreateStatus:
-    properties:
-      active:
-        type: boolean
-      code:
-        type: string
-      color:
-        type: string
-      name:
-        type: string
-    required:
-    - code
-    - name
-    type: object
-  status.Status:
-    properties:
-      active:
-        type: boolean
-      code:
-        type: string
-      color:
-        type: string
-      created_at:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      updated_at:
-        type: string
-    type: object
-  status.UpdateStatus:
-    properties:
-      code:
-        type: string
-      color:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-    required:
-    - id
     type: object
   store.Store:
     properties:
@@ -4466,15 +4414,12 @@ paths:
         name: table
         type: string
       - description: Status
+        enum:
+        - OrderStatusCreated
+        - OrderStatusPaying
+        - OrderStatusClosed
         in: query
         name: status
-        type: string
-      - description: Is Active
-        enum:
-        - "true"
-        - "false"
-        in: query
-        name: active
         type: string
       - description: Days before
         in: query
@@ -5023,7 +4968,7 @@ paths:
       - ApiKeyAuth: []
       summary: To create an invoice
       tags:
-      - Invoice
+      - Order
   /order/{id}/invoice/calculate:
     post:
       consumes:
@@ -5053,7 +4998,7 @@ paths:
       - ApiKeyAuth: []
       summary: To calculate an invoice
       tags:
-      - Invoice
+      - Order
   /order/{id}/release-table:
     post:
       consumes:
@@ -5361,42 +5306,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To update a product from an order
-      tags:
-      - Order
-  /order/{id}/update/status:
-    patch:
-      consumes:
-      - application/json
-      description: To update the status of an order
-      parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Status
-        in: body
-        name: status
-        required: true
-        schema:
-          $ref: '#/definitions/order.RequestUpdateOrderStatus'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
-      security:
-      - ApiKeyAuth: []
-      summary: To update the status of an order
       tags:
       - Order
   /overrider:
@@ -6812,209 +6721,6 @@ paths:
       summary: Open shift
       tags:
       - Shift
-  /status:
-    get:
-      consumes:
-      - application/json
-      description: To find status
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/status.Status'
-                  type: array
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: To find status
-      tags:
-      - Status
-    patch:
-      consumes:
-      - application/json
-      description: To update status
-      parameters:
-      - description: status to update
-        in: body
-        name: status
-        required: true
-        schema:
-          $ref: '#/definitions/status.UpdateStatus'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/status.Status'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: To update status
-      tags:
-      - Status
-    post:
-      consumes:
-      - application/json
-      description: To create a status
-      parameters:
-      - description: status request
-        in: body
-        name: status
-        required: true
-        schema:
-          $ref: '#/definitions/status.CreateStatus'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/status.Status'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: To create a status
-      tags:
-      - Status
-  /status/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: To delete a status
-      parameters:
-      - description: statusID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: status request
-        in: body
-        name: status
-        required: true
-        schema:
-          $ref: '#/definitions/status.Status'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  type: string
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: To delete a status
-      tags:
-      - Status
-    get:
-      consumes:
-      - application/json
-      description: To find status by id
-      parameters:
-      - description: status id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/status.Status'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: To find status by id
-      tags:
-      - Status
   /store:
     get:
       consumes:

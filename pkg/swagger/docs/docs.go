@@ -5492,19 +5492,14 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "OrderStatusCreated",
+                            "OrderStatusPaying",
+                            "OrderStatusClosed"
+                        ],
                         "type": "string",
                         "description": "Status",
                         "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "true",
-                            "false"
-                        ],
-                        "type": "string",
-                        "description": "Is Active",
-                        "name": "active",
                         "in": "query"
                     },
                     {
@@ -6380,7 +6375,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Invoice"
+                    "Order"
                 ],
                 "summary": "To create an invoice",
                 "parameters": [
@@ -6432,7 +6427,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Invoice"
+                    "Order"
                 ],
                 "summary": "To calculate an invoice",
                 "parameters": [
@@ -6975,67 +6970,6 @@ const docTemplate = `{
                         "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/order/{id}/update/status": {
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To update the status of an order",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Order"
-                ],
-                "summary": "To update the status of an order",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Order ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Status",
-                        "name": "status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/order.RequestUpdateOrderStatus"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/order.Order"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
                         }
                     }
                 }
@@ -9352,345 +9286,6 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/status": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To find status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Status"
-                ],
-                "summary": "To find status",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/status.Status"
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To create a status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Status"
-                ],
-                "summary": "To create a status",
-                "parameters": [
-                    {
-                        "description": "status request",
-                        "name": "status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/status.CreateStatus"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/status.Status"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To update status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Status"
-                ],
-                "summary": "To update status",
-                "parameters": [
-                    {
-                        "description": "status to update",
-                        "name": "status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/status.UpdateStatus"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/status.Status"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/status/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To find status by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Status"
-                ],
-                "summary": "To find status by id",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "status id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/status.Status"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To delete a status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Status"
-                ],
-                "summary": "To delete a status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "statusID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "status request",
-                        "name": "status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/status.Status"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "string"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -13321,18 +12916,6 @@ const docTemplate = `{
                 }
             }
         },
-        "order.RequestUpdateOrderStatus": {
-            "type": "object",
-            "required": [
-                "status"
-            ],
-            "properties": {
-                "status": {
-                    "type": "string",
-                    "example": "ordering,cooking,delivered,invoicing,canceled,completed"
-                }
-            }
-        },
         "payment.Payment": {
             "type": "object",
             "required": [
@@ -13565,73 +13148,6 @@ const docTemplate = `{
             "properties": {
                 "start_balance": {
                     "type": "number"
-                }
-            }
-        },
-        "status.CreateStatus": {
-            "type": "object",
-            "required": [
-                "code",
-                "name"
-            ],
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "code": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "status.Status": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "code": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "status.UpdateStatus": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
                 }
             }
         },

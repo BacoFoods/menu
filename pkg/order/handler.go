@@ -207,8 +207,7 @@ func (h *Handler) GetPublic(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param store query string false "Store ID"
 // @Param table query string false "Table ID"
-// @Param status query string false "Status"
-// @Param active query string false "Is Active" Enums(true,false)
+// @Param status query string false "Status" Enums(OrderStatusCreated, OrderStatusPaying, OrderStatusClosed)
 // @Param days query string false "Days before"
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
@@ -228,10 +227,6 @@ func (h *Handler) Find(c *gin.Context) {
 
 	if status := c.Query("status"); status != "" {
 		filters["current_status"] = status
-	}
-
-	if active := c.Query("active"); active != "" {
-		filters["active"] = active
 	}
 
 	if days := c.Query("days"); days != "" {
