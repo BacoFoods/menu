@@ -260,7 +260,7 @@ func (o *Order) ToInvoice() {
 	newInvoice.CalculateTaxDetails()
 
 	// Setting invoice
-	o.Invoices = append(o.Invoices, newInvoice)
+	o.Invoices = []invoice.Invoice{newInvoice}
 }
 
 func (o *Order) UpdateStatus(status string) error {

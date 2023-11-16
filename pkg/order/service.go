@@ -371,7 +371,10 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 		return nil, fmt.Errorf(ErrorOrderUpdate)
 	}
 
-	// TODO: update invoice
+	if orderDB != nil && len(orderDB.Invoices) != 0 {
+		// TODO: improve this to handle multiple invoices
+		orderDB.ToInvoice()
+	}
 
 	// Post the comanda to firebase
 	go func() {
