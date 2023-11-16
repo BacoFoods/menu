@@ -4415,9 +4415,9 @@ paths:
         type: string
       - description: Status
         enum:
-        - OrderStatusCreated
-        - OrderStatusPaying
-        - OrderStatusClosed
+        - created
+        - paying
+        - closed
         in: query
         name: status
         type: string

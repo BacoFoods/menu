@@ -5493,9 +5493,9 @@ const docTemplate = `{
                     },
                     {
                         "enum": [
-                            "OrderStatusCreated",
-                            "OrderStatusPaying",
-                            "OrderStatusClosed"
+                            "created",
+                            "paying",
+                            "closed"
                         ],
                         "type": "string",
                         "description": "Status",
