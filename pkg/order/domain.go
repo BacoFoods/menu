@@ -2,6 +2,7 @@ package order
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/shared"
 	"time"
 
 	"github.com/BacoFoods/menu/pkg/brand"
@@ -27,6 +28,7 @@ const (
 	ErrorOrderAddProductsForbiddenByStatus = "error adding products to order forbidden by status"
 	ErrorOrderUpdate                       = "error updating order"
 	ErrorOrderUpdateStatus                 = "error updating order status"
+	ErrorOrderUpdateInvalidStatus          = "error updating order invalid status"
 	ErrorOrderProductGetting               = "error getting order product"
 	ErrorOrderProductNotFound              = "error order product with id %v not found; "
 	ErrorOrderProductsNotFound             = "error order products not found"
@@ -259,6 +261,34 @@ func (o *Order) ToInvoice() {
 
 	// Setting invoice
 	o.Invoices = append(o.Invoices, newInvoice)
+}
+
+func (o *Order) UpdateStatus(status string) error {
+	if status == o.CurrentStatus {
+		shared.LogWarn("order already has this status", LogDomain, "UpdateStatus", nil, o.ID, o.CurrentStatus, status)
+		return nil
+	}
+
+	if status == OrderStatusCreated && o.CurrentStatus != OrderStatusPaying {
+		err := fmt.Errorf(ErrorOrderUpdateStatus)
+		shared.LogError(ErrorOrderUpdateStatus, LogDomain, "UpdateStatus", nil, o.ID, o.CurrentStatus, status)
+		return err
+	}
+
+	if status == OrderStatusPaying && o.CurrentStatus != OrderStatusCreated {
+		err := fmt.Errorf(ErrorOrderUpdateStatus)
+		shared.LogError(ErrorOrderUpdateStatus, LogDomain, "UpdateStatus", nil, o.ID, o.CurrentStatus, status)
+		return err
+	}
+
+	if status == OrderStatusClosed && o.CurrentStatus != OrderStatusPaying {
+		err := fmt.Errorf(ErrorOrderUpdateStatus)
+		shared.LogError(ErrorOrderUpdateStatus, LogDomain, "UpdateStatus", nil, o.ID, o.CurrentStatus, status)
+		return err
+	}
+
+	shared.LogError(ErrorOrderUpdateInvalidStatus, LogDomain, "UpdateStatus", nil, o.ID, o.CurrentStatus, status)
+	return fmt.Errorf(ErrorOrderUpdateInvalidStatus)
 }
 
 func (o *Order) UpdateNextStatus() {
