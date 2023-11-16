@@ -839,3 +839,37 @@ func (h *Handler) PublicCalculateInvoice(c *gin.Context) {
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
 }
+
+type CheckoutRequest struct {
+	Tip        float64 `json:"tip"`
+	CustomerID *string `json:"customer_id"`
+}
+
+// PublicCheckout to handle the checkout process of an order. Public for OIT.
+// @Tags Order
+// @Summary To checkout an order.
+// @Description To checkout an order.
+// @Accept json
+// @Produce json
+// @Param id path string true "Order ID"
+// @Param body body CheckoutRequest true "Checkout parameters"
+// @Success 200 {object} object{status=string,data=invoice.Invoice}
+// @Router /public/order/{id}/checkout [post]
+func (h *Handler) PublicCheckout(c *gin.Context) {
+	var checkout CheckoutRequest
+	orderID := c.Param("id")
+
+	if err := c.ShouldBindJSON(&checkout); err != nil {
+		shared.LogError("error binding request body", LogHandler, "PublicCheckout", err, checkout)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	invoice, err := h.service.Checkout(orderID, checkout)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCalculation))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+}

@@ -8,7 +8,9 @@ import (
 
 	"github.com/BacoFoods/menu/internal"
 	accounts "github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/client"
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
+	"github.com/BacoFoods/menu/pkg/payment"
 	products "github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
 	shifts "github.com/BacoFoods/menu/pkg/shift"
@@ -45,6 +47,7 @@ type Service interface {
 	DeleteOrderType(orderTypeID string) error
 	CreateInvoice(orderID string) (*invoices.Invoice, error)
 	CalculateInvoice(orderID string) (*invoices.Invoice, error)
+	Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error)
 }
 
 type service struct {
@@ -55,6 +58,7 @@ type service struct {
 	account    accounts.Repository
 	shift      shifts.Repository
 	rt         *internal.Rabbit
+	payments   payment.Service
 }
 
 func NewService(repository Repository,
@@ -64,6 +68,7 @@ func NewService(repository Repository,
 	account accounts.Repository,
 	shift shifts.Repository,
 	rt *internal.Rabbit,
+	payments payment.Service,
 ) service {
 	return service{repository,
 		table,
@@ -72,6 +77,7 @@ func NewService(repository Repository,
 		account,
 		shift,
 		rt,
+		payments,
 	}
 }
 
@@ -616,6 +622,44 @@ func (s service) CalculateInvoice(orderID string) (*invoices.Invoice, error) {
 	invoice.CalculateTaxDetails()
 
 	return &invoice, nil
+}
+
+func (s service) Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error) {
+	invoice, err := s.CalculateInvoice(orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	invoice.Tip = "percentage"
+	invoice.TipAmount = data.Tip
+
+	// TODO: load client data from ecom
+	if data.CustomerID != nil && *data.CustomerID != "" {
+		invoice.Client = &client.Client{
+			CustomerID: data.CustomerID,
+		}
+	}
+
+	// TODO: verificar que no se este duplicando/creado multiples invoices
+	invDB, err := s.invoice.CreateUpdate(invoice)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: @Anderson aca se debe pasar el estado de la orden a pagando
+
+	// TODO: Create the paylot
+	// TODO: Create the payment from the paylot
+	// Paylot immutable
+	paylot, err := s.payments.CreatePaymentWithPaylot(invDB.ID, invDB.Total, data.CustomerID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &InvoiceCheckout{
+		PaylotURL: paylot.CheckoutURL,
+		Invoice:   invDB,
+	}, nil
 }
 
 func (s *service) queueComanda(orderId uint, tableId *uint, storeId *uint, items []OrderItem) error {

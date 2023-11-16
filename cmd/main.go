@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
@@ -22,6 +23,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/order"
 	"github.com/BacoFoods/menu/pkg/payment"
+	"github.com/BacoFoods/menu/pkg/payment/paymentms"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/router"
 	"github.com/BacoFoods/menu/pkg/shift"
@@ -190,6 +192,15 @@ func main() {
 	shiftHandler := shift.NewHandler(shiftService)
 	shiftRoutes := shift.NewRoutes(shiftHandler)
 
+	// Paylots API
+	paylotsApi := paymentms.NewPaymentsAPI(http.DefaultClient, internal.Config.PaylotsConfig.Host)
+
+	// Payment
+	paymentRepository := payment.NewDBRepository(gormDB)
+	paymentService := payment.NewService(paymentRepository, paylotsApi)
+	paymentHandler := payment.NewHandler(paymentService)
+	paymentRoutes := payment.NewRoutes(paymentHandler)
+
 	// Order
 	orderRepository := order.NewDBRepository(gormDB)
 	orderService := order.NewService(orderRepository,
@@ -199,6 +210,7 @@ func main() {
 		accountRepository,
 		shiftRepository,
 		rabbitCh,
+		paymentService,
 	)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)
@@ -208,12 +220,6 @@ func main() {
 	courseService := course.NewService(courseRepository)
 	courseHandler := course.NewHandler(courseService)
 	courseRoutes := course.NewRoutes(courseHandler)
-
-	// Payment
-	paymentRepository := payment.NewDBRepository(gormDB)
-	paymentService := payment.NewService(paymentRepository)
-	paymentHandler := payment.NewHandler(paymentService)
-	paymentRoutes := payment.NewRoutes(paymentHandler)
 
 	// Temporal
 	temporalHandler := temporal.NewHandler()

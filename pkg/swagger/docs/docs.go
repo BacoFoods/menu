@@ -9108,6 +9108,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/public/order/{id}/checkout": {
+            "post": {
+                "description": "To checkout an order.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To checkout an order.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Checkout parameters",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.CheckoutRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Invoice"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/public/order/{id}/invoice/calculate": {
             "get": {
                 "description": "To calculate an invoice",
@@ -12115,6 +12171,9 @@ const docTemplate = `{
                 "address": {
                     "type": "string"
                 },
+                "customer_id": {
+                    "type": "string"
+                },
                 "document": {
                     "type": "string"
                 },
@@ -12588,6 +12647,17 @@ const docTemplate = `{
                 },
                 "role": {
                     "type": "string"
+                }
+            }
+        },
+        "order.CheckoutRequest": {
+            "type": "object",
+            "properties": {
+                "customer_id": {
+                    "type": "string"
+                },
+                "tip": {
+                    "type": "number"
                 }
             }
         },

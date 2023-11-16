@@ -1,8 +1,9 @@
 package client
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 const (
@@ -28,6 +29,7 @@ type Client struct {
 	DocumentType string          `json:"document_type"`
 	Document     string          `json:"document"`
 	Address      string          `json:"address"`
+	CustomerID   *string         `json:"customer_id"`
 	CreatedAt    *time.Time      `json:"created_at" swaggerignore:"true"`
 	UpdatedAt    *time.Time      `json:"updated_at" swaggerignore:"true"`
 	DeletedAt    *gorm.DeletedAt `json:"deleted_at" swaggerignore:"true"`
