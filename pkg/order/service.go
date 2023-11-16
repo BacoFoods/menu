@@ -585,6 +585,14 @@ func (s service) CreateInvoice(orderID string) (*invoices.Invoice, error) {
 	}
 
 	order.ToInvoice()
+	if err := order.UpdateStatus(OrderStatusPaying); err != nil {
+		shared.LogError("error updating order status", LogService, "CreateInvoice", err, order)
+		return nil, fmt.Errorf(ErrorOrderUpdateStatus)
+	}
+	if _, err := s.repository.Update(order); err != nil {
+		shared.LogError("error updating order", LogService, "CreateInvoice", err, order)
+		return nil, fmt.Errorf(ErrorOrderUpdate)
+	}
 
 	invoice := order.Invoices[0]
 	invoiceDB, err := s.invoice.CreateUpdate(&invoice)
