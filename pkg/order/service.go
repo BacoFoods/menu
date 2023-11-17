@@ -47,6 +47,7 @@ type Service interface {
 	DeleteOrderType(orderTypeID string) error
 	CreateInvoice(orderID string) (*invoices.Invoice, error)
 	CalculateInvoice(orderID string) (*invoices.Invoice, error)
+	CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoices.Invoice, error)
 	Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error)
 }
 
@@ -624,6 +625,37 @@ func (s service) CalculateInvoice(orderID string) (*invoices.Invoice, error) {
 	return &invoice, nil
 }
 
+func (s service) CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoices.Invoice, error) {
+	order, err := s.repository.Get(orderID)
+	if err != nil {
+		shared.LogError("error getting order", LogService, "CreateInvoice", err, orderID)
+		return nil, nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	dbInvoices, err := s.invoice.Find(map[string]any{"order_id": orderID})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var oldInvoice *invoices.Invoice
+	if len(dbInvoices) > 0 {
+		oldInvoice = &dbInvoices[0]
+		payments := []payment.Payment{}
+		for _, payment := range oldInvoice.Payments {
+			if payment.Status != "canceled" {
+				payments = append(payments, payment)
+			}
+		}
+		oldInvoice.Payments = payments
+	}
+
+	order.ToInvoice()
+	newInvoice := order.Invoices[0]
+	newInvoice.CalculateTaxDetails()
+
+	return &newInvoice, oldInvoice, nil
+}
+
 func (s service) Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error) {
 	invoice, err := s.CalculateInvoice(orderID)
 	if err != nil {
@@ -640,7 +672,18 @@ func (s service) Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckou
 		}
 	}
 
-	// TODO: verificar que no se este duplicando/creado multiples invoices
+	invoices, err := s.invoice.Find(map[string]any{"order_id": orderID})
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: asumiendo que solo hay un invoice, con split the bill cambia
+	if len(invoices) > 0 {
+		oldInvoice := invoices[0]
+		invoice.ID = oldInvoice.ID
+	}
+
+	// TODO: Se estan creando multiples invoices
 	invDB, err := s.invoice.CreateUpdate(invoice)
 	if err != nil {
 		return nil, err
@@ -649,7 +692,7 @@ func (s service) Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckou
 	// TODO: @Anderson aca se debe pasar el estado de la orden a pagando
 
 	// Paylot immutable
-	payment, err := s.payments.CreatePaymentWithPaylot(invDB.ID, invDB.Total, data.CustomerID)
+	payment, err := s.payments.CreatePaymentWithPaylot(invDB.ID, invDB.Total, invDB.TipAmount, data.CustomerID)
 	if err != nil {
 		return nil, err
 	}

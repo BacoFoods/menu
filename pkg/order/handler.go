@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 )
@@ -831,13 +832,18 @@ func (h *Handler) CalculateInvoice(c *gin.Context) {
 func (h *Handler) PublicCalculateInvoice(c *gin.Context) {
 	orderID := c.Param("id")
 
-	invoice, err := h.service.CalculateInvoice(orderID)
+	n, o, err := h.service.CalculateInvoiceOIT(orderID)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCalculation))
 		return
 	}
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+	res := struct {
+		OldInvoice *invoice.Invoice `json:"old_invoice"`
+		NewInvoice *invoice.Invoice `json:"new_invoice"`
+	}{o, n}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(res))
 }
 
 type CheckoutRequest struct {

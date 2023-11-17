@@ -25,7 +25,7 @@ type Service interface {
 	UpdatePaymentMethod(*PaymentMethod) (*PaymentMethod, error)
 	DeletePaymentMethod(string) (*PaymentMethod, error)
 
-	CreatePaymentWithPaylot(invoiceID uint, total float64, customerID *string) (*Payment, error)
+	CreatePaymentWithPaylot(invoiceID uint, total float64, tip float64, customerID *string) (*Payment, error)
 }
 
 type service struct {
@@ -118,11 +118,56 @@ func (s service) createPaylot(invoiceID uint, total float64, customerID *string)
 	return paylot, nil
 }
 
-func (s service) CreatePaymentWithPaylot(invoiceID uint, total float64, customerID *string) (*Payment, error) {
-	// TODO: check if payment already exists. idemptotency (?)
+func (s service) CreatePaymentWithPaylot(invoiceID uint, total, tip float64, customerID *string) (*Payment, error) {
+	// TODO: asumimos un solo pago por invoice
+	payments, err := s.Find(map[string]any{"invoice_id": invoiceID})
+	if err != nil {
+		return nil, err
+	}
+
+	var lastPayment *Payment
+	if (len(payments)) > 0 {
+		// check old payments
+		for _, payment := range payments {
+			// ignore canceled payments
+			if payment.Status == "canceled" {
+				continue
+			}
+
+			// if the invoide already has a paid payment, return it
+			// this prevents a new paylot and payment to be created, and we asume the invoice has been paid in full
+			// and invoices only have one payment.
+			// TODO: This should change when split-the-bill is introduced
+			if payment.Status == "paid" {
+				return &payment, nil
+			}
+
+			// if a payment is pending and has the same value, return it and reuse the paylot
+			sameValue := payment.Quantity == float32(total) && payment.Tip == float32(tip)
+			if payment.Status == "pending" && sameValue {
+				lastPayment = &payment
+				continue
+			}
+
+			// cancel any other pending payment
+			if (payment.Status == "pending" && !sameValue) || lastPayment != nil {
+				payment.Status = "canceled"
+				// TODO: cancel paylot ?
+				_, err := s.Update(&payment)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+
+	if lastPayment != nil {
+		return lastPayment, nil
+	}
 
 	// create paylot
-	paylot, err := s.createPaylot(invoiceID, total, customerID)
+	paylotValue := total + tip
+	paylot, err := s.createPaylot(invoiceID, paylotValue, customerID)
 	if err != nil {
 		return nil, err
 	}
@@ -132,6 +177,8 @@ func (s service) CreatePaymentWithPaylot(invoiceID uint, total float64, customer
 		InvoiceID:   &invoiceID,
 		Method:      "PagosBacu", // TODO: payment method category (?) - origin (?)
 		Quantity:    float32(total),
+		Tip:         float32(tip),
+		TotalValue:  float32(paylotValue),
 		Code:        paylot.PaylotID,
 		Status:      "pending",
 		CheckoutURL: &paylot.CheckoutURL,
