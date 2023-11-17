@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BacoFoods/menu/internal"
-	"github.com/BacoFoods/menu/pkg/order"
 	"github.com/sirupsen/logrus"
 	gormpostgres "gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -55,12 +54,8 @@ func (g *GormFramework) MustMakeMigrations(entities ...any) {
 		}
 	}
 
-	if err := g.db.Migrator().DropTable("statuses"); err != nil {
+	if err := g.db.Migrator().DropTable("order_statuses"); err != nil {
 		logrus.Fatal("error dropping statuses table")
-	}
-
-	if err := g.db.Migrator().DropColumn(&order.OrderStatus{}, "status_id"); err != nil {
-		logrus.Error("error dropping column status_id from order_statuses")
 	}
 }
 
