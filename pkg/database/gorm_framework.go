@@ -53,10 +53,6 @@ func (g *GormFramework) MustMakeMigrations(entities ...any) {
 			}
 		}
 	}
-
-	if err := g.db.Migrator().DropTable("order_statuses"); err != nil {
-		logrus.Fatal("error dropping statuses table")
-	}
 }
 
 func (g *GormFramework) MustSetSeeds(entity any, seeds ...any) {
