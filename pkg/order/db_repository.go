@@ -52,8 +52,13 @@ func (r *DBRepository) Get(orderID string) (*Order, error) {
 }
 
 func (c *DBRepository) AddProducts(order *Order, newItems []OrderItem) (*Order, error) {
-	err := c.db.Model(order).Association("Items").Append(newItems)
-	if err != nil {
+	if err := c.db.Model(order).
+		Association("Items").
+		Append(newItems); err != nil {
+		return nil, err
+	}
+
+	if err := c.db.Save(order).Error; err != nil {
 		return nil, err
 	}
 
