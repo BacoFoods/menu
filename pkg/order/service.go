@@ -648,17 +648,15 @@ func (s service) Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckou
 
 	// TODO: @Anderson aca se debe pasar el estado de la orden a pagando
 
-	// TODO: Create the paylot
-	// TODO: Create the payment from the paylot
 	// Paylot immutable
-	paylot, err := s.payments.CreatePaymentWithPaylot(invDB.ID, invDB.Total, data.CustomerID)
+	payment, err := s.payments.CreatePaymentWithPaylot(invDB.ID, invDB.Total, data.CustomerID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &InvoiceCheckout{
-		PaylotURL: paylot.CheckoutURL,
-		Invoice:   invDB,
+		Payment: payment,
+		Invoice: invDB,
 	}, nil
 }
 

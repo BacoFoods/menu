@@ -25,7 +25,7 @@ type Service interface {
 	UpdatePaymentMethod(*PaymentMethod) (*PaymentMethod, error)
 	DeletePaymentMethod(string) (*PaymentMethod, error)
 
-	CreatePaymentWithPaylot(invoiceID uint, total float64, customerID *string) (*Paylot, error)
+	CreatePaymentWithPaylot(invoiceID uint, total float64, customerID *string) (*Payment, error)
 }
 
 type service struct {
@@ -85,7 +85,7 @@ func NewService(repository Repository, api PaylotsAPI) service {
 	return service{repository: repository, paylotAdapter: api}
 }
 
-func (s service) CreatePaymentWithPaylot(invoiceID uint, total float64, customerID *string) (*Paylot, error) {
+func (s service) createPaylot(invoiceID uint, total float64, customerID *string) (*Paylot, error) {
 	// TODO: change redirect url
 	redirectUrl := fmt.Sprintf("%s/%d", internal.Config.OITHost, invoiceID)
 	customer := ""
@@ -116,6 +116,26 @@ func (s service) CreatePaymentWithPaylot(invoiceID uint, total float64, customer
 	// TODO: payment
 
 	return paylot, nil
+}
+
+func (s service) CreatePaymentWithPaylot(invoiceID uint, total float64, customerID *string) (*Payment, error) {
+	// TODO: check if payment already exists. idemptotency (?)
+
+	// create paylot
+	paylot, err := s.createPaylot(invoiceID, total, customerID)
+	if err != nil {
+		return nil, err
+	}
+
+	// create payment
+	return s.Create(&Payment{
+		InvoiceID:   &invoiceID,
+		Method:      "PagosBacu", // TODO: payment method category (?) - origin (?)
+		Quantity:    float32(total),
+		Code:        paylot.PaylotID,
+		Status:      "pending",
+		CheckoutURL: &paylot.CheckoutURL,
+	})
 }
 
 // TODO: change and implement webhook

@@ -1,6 +1,9 @@
 package order
 
-import "github.com/BacoFoods/menu/pkg/invoice"
+import (
+	"github.com/BacoFoods/menu/pkg/invoice"
+	"github.com/BacoFoods/menu/pkg/payment"
+)
 
 type OrderDTO struct {
 	OrderType string         `json:"order_type"`
@@ -116,6 +119,6 @@ type RequestUpdateOrderClientName struct {
 }
 
 type InvoiceCheckout struct {
-	PaylotURL string           `json:"paylot_url"`
-	Invoice   *invoice.Invoice `json:"invoice"`
+	Payment *payment.Payment `json:"payment"`
+	Invoice *invoice.Invoice `json:"invoice"`
 }

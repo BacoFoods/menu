@@ -856,6 +856,7 @@ type CheckoutRequest struct {
 // @Success 200 {object} object{status=string,data=invoice.Invoice}
 // @Router /public/order/{id}/checkout [post]
 func (h *Handler) PublicCheckout(c *gin.Context) {
+	// TODO: not public, but using user bearer token from ecom
 	var checkout CheckoutRequest
 	orderID := c.Param("id")
 
