@@ -269,25 +269,36 @@ func (o *Order) UpdateStatus(status string) error {
 		return nil
 	}
 
-	if status == OrderStatusCreated && o.CurrentStatus != OrderStatusPaying {
-		err := fmt.Errorf(ErrorOrderUpdateStatus)
-		shared.LogError(ErrorOrderUpdateStatus, LogDomain, "UpdateStatus", nil, o.ID, o.CurrentStatus, status)
-		return err
+	if status == OrderStatusCreated && o.CurrentStatus == "" {
+		o.CurrentStatus = status
+		o.Statuses = append(o.Statuses, OrderStatus{
+			Code:    OrderStatusCreated,
+			OrderID: &o.ID,
+		})
+		return nil
 	}
 
-	if status == OrderStatusPaying && o.CurrentStatus != OrderStatusCreated {
-		err := fmt.Errorf(ErrorOrderUpdateStatus)
-		shared.LogError(ErrorOrderUpdateStatus, LogDomain, "UpdateStatus", nil, o.ID, o.CurrentStatus, status)
-		return err
+	if status == OrderStatusPaying && o.CurrentStatus == OrderStatusCreated {
+		o.CurrentStatus = status
+		o.Statuses = append(o.Statuses, OrderStatus{
+			Code:    OrderStatusPaying,
+			OrderID: &o.ID,
+		})
+		return nil
 	}
 
-	if status == OrderStatusClosed && o.CurrentStatus != OrderStatusPaying {
-		err := fmt.Errorf(ErrorOrderUpdateStatus)
-		shared.LogError(ErrorOrderUpdateStatus, LogDomain, "UpdateStatus", nil, o.ID, o.CurrentStatus, status)
-		return err
+	if status == OrderStatusClosed && o.CurrentStatus == OrderStatusPaying {
+		o.CurrentStatus = status
+		o.Statuses = append(o.Statuses, OrderStatus{
+			Code:    OrderStatusClosed,
+			OrderID: &o.ID,
+		})
+		return nil
 	}
 
-	return nil
+	err := fmt.Errorf(ErrorOrderUpdateStatus)
+	shared.LogError(ErrorOrderUpdateStatus, LogDomain, "UpdateStatus", nil, o.ID, o.CurrentStatus, status)
+	return err
 }
 
 func (o *Order) UpdateNextStatus() {
