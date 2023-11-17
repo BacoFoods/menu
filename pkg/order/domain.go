@@ -230,11 +230,6 @@ func (o *Order) ToInvoice() {
 		subtotal += item.Price
 
 		for _, modifier := range item.Modifiers {
-			// Only modifiers with price are added to invoice
-			if modifier.Price == 0 {
-				continue
-			}
-
 			// Adding modifier price to subtotal
 			subtotal += modifier.Price
 
