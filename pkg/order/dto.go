@@ -1,5 +1,10 @@
 package order
 
+import (
+	"github.com/BacoFoods/menu/pkg/invoice"
+	"github.com/BacoFoods/menu/pkg/payment"
+)
+
 type OrderDTO struct {
 	OrderType string         `json:"order_type"`
 	BrandID   *uint          `json:"brand_id" binding:"required"`
@@ -111,4 +116,9 @@ type RequestUpdateOrderComments struct {
 
 type RequestUpdateOrderClientName struct {
 	ClientName string `json:"client_name" binding:"required"`
+}
+
+type InvoiceCheckout struct {
+	Payment *payment.Payment `json:"payment"`
+	Invoice *invoice.Invoice `json:"invoice"`
 }

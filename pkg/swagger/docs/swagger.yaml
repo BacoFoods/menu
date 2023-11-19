@@ -211,6 +211,8 @@ definitions:
     properties:
       address:
         type: string
+      customer_id:
+        type: string
       document:
         type: string
       document_type:
@@ -524,6 +526,13 @@ definitions:
         type: string
       role:
         type: string
+    type: object
+  order.CheckoutRequest:
+    properties:
+      customer_id:
+        type: string
+      tip:
+        type: number
     type: object
   order.Order:
     properties:
@@ -6605,6 +6614,40 @@ paths:
           schema:
             $ref: '#/definitions/shared.Response'
       summary: To get an order
+      tags:
+      - Order
+  /public/order/{id}/checkout:
+    post:
+      consumes:
+      - application/json
+      description: To checkout an order.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Checkout parameters
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/order.CheckoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Invoice'
+                status:
+                  type: string
+              type: object
+      summary: To checkout an order.
       tags:
       - Order
   /public/order/{id}/invoice/calculate:

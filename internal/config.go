@@ -17,6 +17,7 @@ type config struct {
 	PopappConfig
 	CerebroConfig
 	RabbitConfig
+	PaylotsConfig
 }
 
 // Config is the global variable that holds the configuration for parse the environment variables
@@ -60,4 +61,8 @@ type RabbitConfig struct {
 	Host          string `env:"RABBIT_HOST"`
 	Port          string `env:"RABBIT_PORT" envDefault:"5672"`
 	ComandasQueue string `env:"RABBIT_COMANDAS_QUEUE" envDefault:"comandas-dev"`
+}
+
+type PaylotsConfig struct {
+	Host string `env:"PAYLOTS_HOST"`
 }
