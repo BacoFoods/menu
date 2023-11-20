@@ -46,7 +46,7 @@ type Service interface {
 	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
 	DeleteOrderType(orderTypeID string) error
 	CreateInvoice(orderID string) (*invoices.Invoice, error)
-	CalculateInvoice(orderID string) (*invoices.Invoice, error)
+	CalculateInvoice(orderID string, tip *tipData) (*invoices.Invoice, error)
 	CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoices.Invoice, error)
 	Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error)
 }
@@ -105,7 +105,7 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	}
 
 	order.SetItems(prods, modifiers)
-	order.ToInvoice()
+	order.ToInvoice(nil)
 
 	// Setting order status
 	order.CurrentStatus = OrderStatusCreated
@@ -380,7 +380,7 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 
 	if orderDB != nil && len(orderDB.Invoices) != 0 {
 		// TODO: improve this to handle multiple invoices
-		orderDB.ToInvoice()
+		orderDB.ToInvoice(nil)
 	}
 
 	// Post the comanda to firebase
@@ -591,7 +591,7 @@ func (s service) CreateInvoice(orderID string) (*invoices.Invoice, error) {
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	order.ToInvoice()
+	order.ToInvoice(nil)
 	if err := order.UpdateStatus(OrderStatusPaying); err != nil {
 		shared.LogError("error updating order status", LogService, "CreateInvoice", err, order)
 		return nil, fmt.Errorf(ErrorOrderUpdateStatus)
@@ -611,14 +611,14 @@ func (s service) CreateInvoice(orderID string) (*invoices.Invoice, error) {
 	return invoiceDB, nil
 }
 
-func (s service) CalculateInvoice(orderID string) (*invoices.Invoice, error) {
+func (s service) CalculateInvoice(orderID string, tip *tipData) (*invoices.Invoice, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "CreateInvoice", err, orderID)
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	order.ToInvoice()
+	order.ToInvoice(tip)
 	invoice := order.Invoices[0]
 	invoice.CalculateTaxDetails()
 
@@ -649,7 +649,7 @@ func (s service) CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoic
 		oldInvoice.Payments = payments
 	}
 
-	order.ToInvoice()
+	order.ToInvoice(nil)
 	newInvoice := order.Invoices[0]
 	newInvoice.CalculateTaxDetails()
 
@@ -657,13 +657,13 @@ func (s service) CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoic
 }
 
 func (s service) Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error) {
-	invoice, err := s.CalculateInvoice(orderID)
+	invoice, err := s.CalculateInvoice(orderID, &tipData{Amount: fmt.Sprint(data.Tip)})
 	if err != nil {
 		return nil, err
 	}
 
-	invoice.Tip = "percentage"
-	invoice.TipAmount = data.Tip
+	// invoice.Tip = "percentage"
+	// invoice.TipAmount = data.Tip
 
 	// TODO: load client data from ecom
 	if data.CustomerID != nil && *data.CustomerID != "" {

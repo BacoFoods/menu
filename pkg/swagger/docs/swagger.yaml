@@ -689,6 +689,10 @@ definitions:
         type: integer
       sku:
         type: string
+      tax:
+        type: string
+      tax_percentage:
+        type: number
       unit:
         type: string
     type: object
@@ -781,20 +785,42 @@ definitions:
     type: object
   payment.Payment:
     properties:
+      checkout_url:
+        type: string
       code:
+        description: Code is the reference number of the payment
         type: string
       id:
         type: integer
       invoice_id:
+        description: An invoice can have multiple payments
         type: integer
       method:
+        description: |-
+          Payment method used.
+          This can come from manual input in the POS such as <code>cash</code>, <code>card</code>, <code>check</code>, etc.
+          or from order in table with <code>paylot</code> or <code>yuno</code>
         type: string
       quantity:
+        description: Quantity is the amount of money paid
+        type: number
+      reference:
+        type: string
+      status:
+        type: string
+      tip:
+        description: Tip is the amount of money paid
+        type: number
+      total_value:
+        description: TotalValue is the paid = quantity + tip
         type: number
     required:
     - invoice_id
     - method
     - quantity
+    - status
+    - tip
+    - total_value
     type: object
   payment.PaymentMethod:
     properties:
@@ -4989,6 +5015,14 @@ paths:
         name: id
         required: true
         type: string
+      - description: tip percentage 0-100
+        in: query
+        name: tip_percentage
+        type: number
+      - description: tip amount. Positive number
+        in: query
+        name: tip_amount
+        type: number
       produces:
       - application/json
       responses:

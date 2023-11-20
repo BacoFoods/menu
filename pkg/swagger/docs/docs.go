@@ -6437,6 +6437,18 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "tip percentage 0-100",
+                        "name": "tip_percentage",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "tip amount. Positive number",
+                        "name": "tip_amount",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -12893,6 +12905,12 @@ const docTemplate = `{
                 "sku": {
                     "type": "string"
                 },
+                "tax": {
+                    "type": "string"
+                },
+                "tax_percentage": {
+                    "type": "number"
+                },
                 "unit": {
                     "type": "string"
                 }
@@ -13038,22 +13056,46 @@ const docTemplate = `{
             "required": [
                 "invoice_id",
                 "method",
-                "quantity"
+                "quantity",
+                "status",
+                "tip",
+                "total_value"
             ],
             "properties": {
+                "checkout_url": {
+                    "type": "string"
+                },
                 "code": {
+                    "description": "Code is the reference number of the payment",
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "invoice_id": {
+                    "description": "An invoice can have multiple payments",
                     "type": "integer"
                 },
                 "method": {
+                    "description": "Payment method used.\nThis can come from manual input in the POS such as \u003ccode\u003ecash\u003c/code\u003e, \u003ccode\u003ecard\u003c/code\u003e, \u003ccode\u003echeck\u003c/code\u003e, etc.\nor from order in table with \u003ccode\u003epaylot\u003c/code\u003e or \u003ccode\u003eyuno\u003c/code\u003e",
                     "type": "string"
                 },
                 "quantity": {
+                    "description": "Quantity is the amount of money paid",
+                    "type": "number"
+                },
+                "reference": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tip": {
+                    "description": "Tip is the amount of money paid",
+                    "type": "number"
+                },
+                "total_value": {
+                    "description": "TotalValue is the paid = quantity + tip",
                     "type": "number"
                 }
             }

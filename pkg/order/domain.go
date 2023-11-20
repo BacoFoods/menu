@@ -2,8 +2,11 @@ package order
 
 import (
 	"fmt"
-	"github.com/BacoFoods/menu/pkg/shared"
+	"math"
+	"strconv"
 	"time"
+
+	"github.com/BacoFoods/menu/pkg/shared"
 
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/client"
@@ -197,7 +200,7 @@ func (o *Order) RemoveProduct(product *product.Product) {
 	}
 }
 
-func (o *Order) ToInvoice() {
+func (o *Order) ToInvoice(tip *tipData) {
 	// Remove invoices
 	o.Invoices = nil
 	subtotal := 0.0
@@ -210,10 +213,25 @@ func (o *Order) ToInvoice() {
 		ShiftID:   o.ShiftID,
 		Items:     make([]invoice.Item, 0),
 		Client:    client.DefaultClient(),
+		BaseTax:   0,
 	}
 
 	// Adding items to invoice
 	for _, item := range o.Items {
+		tax := "ico" // Default tax
+		if item.Tax != "" {
+			tax = item.Tax
+		}
+
+		taxPerc := 0.08
+		if item.TaxPercentage != 0 {
+			taxPerc = item.TaxPercentage
+		}
+
+		productBaseTax := math.Floor(item.Price / (1 + taxPerc))
+		newInvoice.BaseTax += productBaseTax
+		newInvoice.Taxes += item.Price - productBaseTax
+
 		newInvoice.Items = append(newInvoice.Items, invoice.Item{
 			ProductID:     item.ProductID,
 			Name:          item.Name,
@@ -222,8 +240,8 @@ func (o *Order) ToInvoice() {
 			Price:         item.Price,
 			Comments:      item.Comments,
 			Hash:          item.Hash,
-			Tax:           item.Tax,
-			TaxPercentage: item.TaxPercentage,
+			Tax:           tax,
+			TaxPercentage: taxPerc,
 		})
 
 		// Adding item price to subtotal
@@ -233,13 +251,29 @@ func (o *Order) ToInvoice() {
 			// Adding modifier price to subtotal
 			subtotal += modifier.Price
 
+			modifierTax := "ico" // Default tax
+			if modifier.Tax != "" {
+				modifierTax = modifier.Tax
+			}
+
+			modifierTaxPerc := 0.08
+			if modifier.TaxPercentage != 0 {
+				modifierTaxPerc = modifier.TaxPercentage
+			}
+
+			modifierBaseTax := math.Floor(modifier.Price / (1 + modifierTaxPerc))
+			newInvoice.BaseTax += modifierBaseTax
+			newInvoice.Taxes += modifier.Price - modifierBaseTax
+
 			newInvoice.Items = append(newInvoice.Items, invoice.Item{
-				ProductID:   modifier.ProductID,
-				Name:        modifier.Name,
-				Description: modifier.Description,
-				SKU:         modifier.SKU,
-				Price:       modifier.Price,
-				Comments:    modifier.Comments,
+				ProductID:     modifier.ProductID,
+				Name:          modifier.Name,
+				Description:   modifier.Description,
+				SKU:           modifier.SKU,
+				Price:         modifier.Price,
+				Comments:      modifier.Comments,
+				Tax:           modifierTax,
+				TaxPercentage: modifierTaxPerc,
 			})
 		}
 	}
@@ -248,11 +282,20 @@ func (o *Order) ToInvoice() {
 	newInvoice.SubTotal = subtotal
 
 	// Setting taxes
-	tax := subtotal * TaxPercentage
-	baseTax := subtotal - tax
-	newInvoice.BaseTax = baseTax
-	newInvoice.Total = subtotal + tax
 	newInvoice.CalculateTaxDetails()
+
+	if tip != nil {
+		tipType, tipValue := tip.GetValueAndType()
+		newInvoice.Tip = fmt.Sprintf("%s - %f", tipType, tipValue)
+		if tipType == "percentage" {
+			tipAmount := math.Floor(newInvoice.BaseTax * tipValue)
+			newInvoice.TipAmount = tipAmount
+		} else {
+			newInvoice.TipAmount = tipValue
+		}
+	}
+
+	newInvoice.Total = newInvoice.SubTotal + newInvoice.TipAmount
 
 	// Setting invoice
 	o.Invoices = []invoice.Invoice{newInvoice}
@@ -357,21 +400,23 @@ func (oi *OrderItem) RemoveModifiers(modifiers []OrderModifier) {
 }
 
 type OrderModifier struct {
-	ID          uint            `json:"id" gorm:"primaryKey"`
-	OrderItemID *uint           `json:"order_item_id"`
-	OrderID     uint            `json:"order_id"`
-	Name        string          `json:"name"`
-	Description string          `json:"description"`
-	Image       string          `json:"image"`
-	Category    string          `json:"category"`
-	ProductID   *uint           `json:"product_id"`
-	SKU         string          `json:"sku"`
-	Price       float64         `json:"price"  gorm:"precision:18;scale:2"`
-	Unit        string          `json:"unit"`
-	Comments    string          `json:"comments"`
-	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID            uint            `json:"id" gorm:"primaryKey"`
+	OrderItemID   *uint           `json:"order_item_id"`
+	OrderID       uint            `json:"order_id"`
+	Name          string          `json:"name"`
+	Description   string          `json:"description"`
+	Image         string          `json:"image"`
+	Category      string          `json:"category"`
+	ProductID     *uint           `json:"product_id"`
+	SKU           string          `json:"sku"`
+	Price         float64         `json:"price"  gorm:"precision:18;scale:2"`
+	Unit          string          `json:"unit"`
+	Tax           string          `json:"tax"`
+	TaxPercentage float64         `json:"tax_percentage"`
+	Comments      string          `json:"comments"`
+	CreatedAt     *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt     *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt     *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type OrderType struct {
@@ -449,4 +494,27 @@ func (os *OrderStatus) Prev() OrderStatus {
 			Code: OrderStatusCreated,
 		}
 	}
+}
+
+type tipData struct {
+	Percentage string `json:"percentage"`
+	Amount     string `json:"value"`
+}
+
+func (t tipData) GetValueAndType() (string, float64) {
+	if t.Percentage != "" {
+		p, err := strconv.ParseFloat(t.Percentage, 64)
+		if err == nil && p > 0 {
+			return "percentage", p / 100
+		}
+	}
+
+	if t.Amount != "" {
+		v, err := strconv.ParseFloat(t.Amount, 64)
+		if err == nil && v > 0 {
+			return "value", v
+		}
+	}
+
+	return "", 0
 }

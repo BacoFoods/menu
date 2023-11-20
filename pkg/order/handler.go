@@ -806,12 +806,18 @@ func (h *Handler) CreateInvoice(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path string true "Order ID"
+// @Param tip_percentage query number false "tip percentage 0-100"
+// @Param tip_amount query number false "tip amount. Positive number"
 // @Success 200 {object} object{status=string,data=invoice.Invoice}
 // @Router /order/{id}/invoice/calculate [post]
 func (h *Handler) CalculateInvoice(c *gin.Context) {
 	orderID := c.Param("id")
+	tipData := tipData{
+		Percentage: c.Query("tip_percentage"),
+		Amount:     c.Query("tip_amount"),
+	}
 
-	invoice, err := h.service.CalculateInvoice(orderID)
+	invoice, err := h.service.CalculateInvoice(orderID, &tipData)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCalculation))
 		return

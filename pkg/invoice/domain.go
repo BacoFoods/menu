@@ -116,16 +116,19 @@ func (i *Invoice) CalculateTaxDetails() {
 	taxTypes := make(map[string]*TaxDetail)
 
 	for _, item := range i.Items {
+		base := math.Floor(item.Price / (1 + item.TaxPercentage))
+		amount := item.Price - base
+
 		if _, ok := taxTypes[item.Tax]; !ok {
 			taxTypes[item.Tax] = &TaxDetail{
 				Name:   item.Tax,
-				Amount: item.Price * item.TaxPercentage,
-				Base:   item.Price - (item.Price * item.TaxPercentage),
+				Amount: amount,
+				Base:   base,
 			}
 		} else {
 			taxDetails := taxTypes[item.Tax]
-			taxDetails.Amount += item.Price * item.TaxPercentage
-			taxDetails.Base += item.Price - (item.Price * item.TaxPercentage)
+			taxDetails.Amount += amount
+			taxDetails.Base += base
 		}
 	}
 
