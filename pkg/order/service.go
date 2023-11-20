@@ -50,7 +50,7 @@ type Service interface {
 	GetOrderType(orderTypeID string) (*OrderType, error)
 	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
 	DeleteOrderType(orderTypeID string) error
-	CreateInvoice(orderID string, att *Attendee, tip *TipData, discounts []uint) (*invoices.Invoice, error)
+	CreateInvoice(CreateInvoiceRequest) (*invoices.Invoice, error)
 	CalculateInvoice(orderID string, req CalculateInvoiceRequest) (*invoices.Invoice, error)
 	CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoices.Invoice, error)
 	Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error)
@@ -66,17 +66,22 @@ type channelSrv interface {
 	Get(string) (*channel.Channel, error)
 }
 
+type facturacionSrv interface {
+	Generate(invoice *invoices.Invoice, docType string, data any) (*invoices.Document, error)
+}
+
 type service struct {
-	repository Repository
-	table      tables.Repository
-	product    products.Repository
-	invoice    invoices.Repository
-	account    accounts.Repository
-	shift      shifts.Repository
-	rt         *internal.Rabbit
-	payments   payment.Service
-	discounts  discountsSrv
-	channel    channelSrv
+	repository  Repository
+	table       tables.Repository
+	product     products.Repository
+	invoice     invoices.Repository
+	account     accounts.Repository
+	shift       shifts.Repository
+	rt          *internal.Rabbit
+	payments    payment.Service
+	discounts   discountsSrv
+	channel     channelSrv
+	facturacion facturacionSrv
 }
 
 func NewService(repository Repository,
@@ -89,6 +94,7 @@ func NewService(repository Repository,
 	payments payment.Service,
 	discounts discountsSrv,
 	channel channelSrv,
+	facturacion facturacionSrv,
 ) service {
 	return service{repository,
 		table,
@@ -100,6 +106,7 @@ func NewService(repository Repository,
 		payments,
 		discounts,
 		channel,
+		facturacion,
 	}
 }
 
@@ -620,33 +627,34 @@ func (s service) DeleteOrderType(orderTypeID string) error {
 }
 
 // Invoice
-
-func (s service) CreateInvoice(orderID string, att *Attendee, tip *TipData, discountsIds []uint) (*invoices.Invoice, error) {
-	order, err := s.repository.Get(orderID)
+func (s service) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, error) {
+	order, err := s.repository.Get(req.orderId)
 	if err != nil {
-		shared.LogError("error getting order", LogService, "CreateInvoice", err, orderID)
+		shared.LogError("error getting order", LogService, "CreateInvoice", err, req.orderId)
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	discounts, err := s.discounts.GetMany(discountsIds)
+	discounts, err := s.discounts.GetMany(req.CalculateInvoiceRequest.Discounts)
 	if err != nil {
-		shared.LogError("error getting discounts", LogService, "CreateInvoice", err, discounts)
-		return nil, fmt.Errorf(ErrorOrderInvoiceCreationDiscounts)
+		shared.LogError("error getting discounts", LogService, "CreateInvoice", err, req.CalculateInvoiceRequest.Discounts)
+		return nil, err
 	}
 
-	order.ToInvoice(tip, discounts...)
+	// Check the order can change status
 	if err := order.UpdateStatus(OrderStatusPaying); err != nil {
 		shared.LogError("error updating order status", LogService, "CreateInvoice", err, order)
 		return nil, fmt.Errorf(ErrorOrderUpdateStatus)
 	}
-	if _, err := s.repository.Update(order); err != nil {
-		shared.LogError("error updating order", LogService, "CreateInvoice", err, order)
-		return nil, fmt.Errorf(ErrorOrderUpdate)
-	}
 
-	invoice := order.Invoices[0] // TODO: work with multiple invoices
-	if att != nil {
-		invoice.Cashier = att.Name
+	tip := TipData{
+		Percentage: req.CalculateInvoiceRequest.TipPercentage,
+		Amount:     req.CalculateInvoiceRequest.TipAmount,
+	}
+	order.ToInvoice(&tip, discounts...)
+
+	invoice := order.Invoices[0]
+	if req.attendee != nil {
+		invoice.Cashier = req.attendee.Name
 	}
 
 	for _, at := range order.Attendees {
@@ -656,18 +664,37 @@ func (s service) CreateInvoice(orderID string, att *Attendee, tip *TipData, disc
 		}
 	}
 
+	// Generate invoice document
+	doc, err := s.facturacion.Generate(
+		&invoice,
+		req.CreateInvoiceDocumentRequest.DocumentType,
+		req.CreateInvoiceDocumentRequest.DocumentData,
+	)
+	if err != nil {
+		shared.LogError("error generating invoice document", LogService, "CreateInvoice", err, invoice)
+		return nil, err
+	}
+
+	if doc != nil {
+		invoice.Documents = append(invoice.Documents, *doc)
+	}
 	invoiceDB, err := s.invoice.CreateUpdate(&invoice)
 	if err != nil {
 		shared.LogError("error creating invoice", LogService, "CreateInvoice", err, invoice)
 		return nil, fmt.Errorf(invoices.ErrorInvoiceCreation)
 	}
 
-	if att != nil {
-		att.OrderID = order.ID
-		att.Action = OrderActionInvoiced
-		att.OrderStep = OrderStepInvoiced
+	if _, err := s.repository.Update(order); err != nil {
+		shared.LogError("error updating order", LogService, "CreateInvoice", err, order)
+		return nil, fmt.Errorf(ErrorOrderUpdate)
+	}
 
-		go s.repository.CreateAttendee(att)
+	if req.attendee != nil {
+		req.attendee.OrderID = order.ID
+		req.attendee.Action = OrderActionInvoiced
+		req.attendee.OrderStep = OrderStepInvoiced
+
+		go s.repository.CreateAttendee(req.attendee)
 	}
 
 	return invoiceDB, nil
@@ -807,6 +834,10 @@ func (s service) CloseInvoice(req CloseInvoiceRequest) (*invoice.Invoice, error)
 	}
 
 	// Validating order status
+	if invoice.OrderID == nil {
+		return nil, fmt.Errorf("invoice without order")
+	}
+
 	order, err := s.repository.Get(fmt.Sprint(*invoice.OrderID))
 	if err != nil {
 		return nil, err
@@ -853,11 +884,14 @@ func (s service) CloseInvoice(req CloseInvoiceRequest) (*invoice.Invoice, error)
 
 	// Setting attendee
 	att := req.attendee
-	if att == nil {
+	if att != nil {
 		newAtt := &Attendee{
 			OrderID:   order.ID,
 			Action:    OrderActionClosed,
 			OrderStep: OrderStepClosed,
+			AccountID: att.AccountID,
+			Name:      att.Name,
+			Role:      att.Role,
 		}
 		go s.repository.CreateAttendee(newAtt)
 	}

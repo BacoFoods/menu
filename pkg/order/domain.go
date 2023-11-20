@@ -18,6 +18,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const (
@@ -520,11 +521,29 @@ type Attendee struct {
 
 type OrderStatus struct {
 	ID        uint           `json:"id,omitempty" gorm:"primaryKey"`
-	Code      string         `json:"code"`
-	OrderID   *uint          `json:"order_id,omitempty"`
+	Code      string         `json:"code" gorm:"uniqueIndex:idx_order_status_code"`
+	OrderID   *uint          `json:"order_id,omitempty" gorm:"uniqueIndex:idx_order_status_code"`
 	CreatedAt *time.Time     `json:"created_at,omitempty"`
 	UpdatedAt *time.Time     `json:"updated_at,omitempty"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+func (b *OrderStatus) BeforeCreate(tx *gorm.DB) (err error) {
+	cols := []clause.Column{
+		{
+			Name: "code",
+		},
+		{
+			Name: "order_id",
+		},
+	}
+
+	tx.Statement.AddClause(clause.OnConflict{
+		Columns:   cols,
+		DoUpdates: clause.Assignments(map[string]interface{}{"updated_at": time.Now()}),
+	})
+
+	return nil
 }
 
 func (os *OrderStatus) Next() OrderStatus {
@@ -587,10 +606,10 @@ func (t TipData) GetValueAndType() (string, float64) {
 }
 
 type CloseInvoiceRequest struct {
-	InvoiceID    string            `json:"invoice_id" swaggerignore:"true"`
-	DocumentType string            `json:"document"`
-	Payments     []payment.Payment `json:"payments" binding:"required"`
-	Observations string            `json:"observations"`
+	InvoiceID    string             `json:"invoice_id" swaggerignore:"true"`
+	DocumentType string             `json:"document"`
+	Payments     []*payment.Payment `json:"payments"`
+	Observations string             `json:"observations"`
 	attendee     *Attendee
 }
 

@@ -5,10 +5,11 @@ import (
 	"math"
 	"time"
 
+	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/client"
-
 	"github.com/BacoFoods/menu/pkg/payment"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const (
@@ -63,6 +64,7 @@ type Invoice struct {
 	Items               []Item            `json:"items"  gorm:"foreignKey:InvoiceID"`
 	Discounts           []DiscountApplied `json:"discounts"  gorm:"foreignKey:InvoiceID"`
 	Surcharges          []Surcharge       `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
+	Documents           []Document        `json:"documents" gorm:"foreignKey:InvoiceID"`
 	Cashier             string            `json:"shift"`
 	Waiter              string            `json:"waiter"`
 	SubTotal            float64           `json:"sub_total"`
@@ -207,4 +209,28 @@ type TaxDetail struct {
 	Amount     float64 `json:"amount"`
 	Base       float64 `json:"base"`
 	Percentage float64 `json:"percentage"`
+}
+
+type Document struct {
+	DocumentType string           `json:"document_type" gorm:"uniqueIndex:idx_document_type_code"`
+	Code         string           `json:"code" gorm:"uniqueIndex:idx_document_type_code"`
+	InvoiceID    uint             `json:"invoice_id" gorm:"uniqueIndex:idx_document_type_code"`
+	Client       internal.JSONMap `json:"client" gorm:"type:jsonb"`
+	Resolution   internal.JSONMap `json:"resolution" gorm:"type:jsonb"`
+	Seller       internal.JSONMap `json:"seller" gorm:"type:jsonb"`
+}
+
+func (b *Document) BeforeCreate(tx *gorm.DB) (err error) {
+	cols := []clause.Column{}
+	colsNames := []string{}
+	for _, field := range tx.Statement.Schema.PrimaryFields {
+		cols = append(cols, clause.Column{Name: field.DBName})
+		colsNames = append(colsNames, field.DBName)
+	}
+	tx.Statement.AddClause(clause.OnConflict{
+		Columns: cols,
+		// DoUpdates: clause.AssignmentColumns(colsNames),
+		DoNothing: true,
+	})
+	return nil
 }

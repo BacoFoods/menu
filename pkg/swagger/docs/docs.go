@@ -6837,6 +6837,15 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "request body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.CreateInvoiceRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -10381,6 +10390,70 @@ const docTemplate = `{
                 }
             }
         },
+        "/store/{id}/facturacion/config": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To find a facturacion config",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Facturacion"
+                ],
+                "summary": "To find a facturacion config",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "store id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/facturacion.FacturacionConfig"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/store/{id}/zones": {
             "get": {
                 "security": [
@@ -10518,6 +10591,159 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/store/{storeId}/facturacion/config": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To create a facturacion config",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Facturacion"
+                ],
+                "summary": "To create a facturacion config",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "store id",
+                        "name": "storeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "facturacion config request",
+                        "name": "config",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/facturacion.FacturacionConfig"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/facturacion.FacturacionConfig"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/store/{storeId}/facturacion/config/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To update a facturacion config",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Facturacion"
+                ],
+                "summary": "To update a facturacion config",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "store id",
+                        "name": "storeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "config id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "facturacion config request",
+                        "name": "config",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/facturacion.FacturacionConfig"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/facturacion.FacturacionConfig"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -12953,6 +13179,39 @@ const docTemplate = `{
                 }
             }
         },
+        "facturacion.FacturacionConfig": {
+            "type": "object",
+            "properties": {
+                "document_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_number": {
+                    "description": "starts at 0",
+                    "type": "integer"
+                },
+                "prefix": {
+                    "type": "string"
+                },
+                "resolution": {
+                    "description": "format should be  { \"from\": \u003cnum\u003e, \"to\": \u003cnum\u003e,  \"number\": \"string\", \"date_init\": \"DD-MM-YYYY\", \"date_end\": \"DD-MM-YYYY\" }",
+                    "$ref": "#/definitions/internal.JSONMap"
+                },
+                "seller": {
+                    "description": "format should be  { \"name\": \"string\", \"nit\": \"string\", \"address\": \"string\", \"city\": \"string\", \"regimen\": \"string\", \"phone\": \"string\" }",
+                    "$ref": "#/definitions/internal.JSONMap"
+                },
+                "store_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal.JSONMap": {
+            "type": "object",
+            "additionalProperties": true
+        },
         "invoice.DiscountApplied": {
             "type": "object",
             "properties": {
@@ -12979,6 +13238,29 @@ const docTemplate = `{
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "invoice.Document": {
+            "type": "object",
+            "properties": {
+                "client": {
+                    "$ref": "#/definitions/internal.JSONMap"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "document_type": {
+                    "type": "string"
+                },
+                "invoice_id": {
+                    "type": "integer"
+                },
+                "resolution": {
+                    "$ref": "#/definitions/internal.JSONMap"
+                },
+                "seller": {
+                    "$ref": "#/definitions/internal.JSONMap"
                 }
             }
         },
@@ -13009,6 +13291,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/invoice.DiscountApplied"
+                    }
+                },
+                "documents": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/invoice.Document"
                     }
                 },
                 "id": {
@@ -13338,9 +13626,6 @@ const docTemplate = `{
         },
         "order.CloseInvoiceRequest": {
             "type": "object",
-            "required": [
-                "payments"
-            ],
             "properties": {
                 "document": {
                     "type": "string"
@@ -13353,6 +13638,29 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/payment.Payment"
                     }
+                }
+            }
+        },
+        "order.CreateInvoiceRequest": {
+            "type": "object",
+            "properties": {
+                "discounts": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "document_data": {
+                    "$ref": "#/definitions/client.Client"
+                },
+                "document_type": {
+                    "type": "string"
+                },
+                "tip_amount": {
+                    "type": "number"
+                },
+                "tip_percentage": {
+                    "type": "integer"
                 }
             }
         },
