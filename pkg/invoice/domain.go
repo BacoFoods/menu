@@ -68,7 +68,7 @@ type Invoice struct {
 	Cashier             string            `json:"shift"`
 	Waiter              string            `json:"waiter"`
 	SubTotal            float64           `json:"sub_total"`
-	TotalDiscounts      float64           `json:"total_discounts,omitempty"`
+	TotalDiscounts      float64           `json:"total_discounts"`
 	TotalSurcharges     float64           `json:"total_surcharges,omitempty"`
 	Tip                 string            `json:"tip"`
 	TipAmount           float64           `json:"tip_amount"`
@@ -174,14 +174,14 @@ type DiscountApplied struct {
 	ID          uint           `json:"id"`
 	DiscountID  uint           `json:"discount_id"`
 	InvoiceID   *uint          `json:"invoice_id"`
-	Name        string         `json:"name,omitempty"`
+	Name        string         `json:"name"`
 	Type        string         `json:"type"`
-	Percentage  float64        `json:"percentage,omitempty" gorm:"precision:18;scale:2"`
+	Percentage  float64        `json:"percentage" gorm:"precision:18;scale:2"`
 	Amount      float64        `json:"amount,omitempty" gorm:"precision:18;scale:2"`
 	Description string         `json:"description,omitempty"`
 	CreatedAt   *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time     `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	DeletedAt   gorm.DeletedAt `json:"-" swaggerignore:"true"`
 }
 
 func (d *DiscountApplied) Apply(value float64) float64 {
