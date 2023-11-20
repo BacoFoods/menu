@@ -2,6 +2,7 @@ package invoice
 
 import (
 	"fmt"
+
 	"github.com/BacoFoods/menu/pkg/shared"
 
 	clientPKG "github.com/BacoFoods/menu/pkg/client"
@@ -205,3 +206,5 @@ func (s service) Print(invoiceID string) (*DTOPrintable, error) {
 	header.Items = items
 	return header, nil
 }
+
+var _ Service = (*service)(nil)

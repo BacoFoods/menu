@@ -48,4 +48,5 @@ func (r Routes) RegisterRoutes(private, public *gin.RouterGroup) {
 	private.POST("/order/:id/invoice/calculate", r.handler.CalculateInvoice)
 	public.GET("/order/:id/invoice/calculate", r.handler.PublicCalculateInvoice)
 	public.POST("/order/:id/checkout", r.handler.PublicCheckout)
+	private.POST("/invoice/:id/close", r.handler.CloseInvoice)
 }

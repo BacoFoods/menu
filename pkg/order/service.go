@@ -9,6 +9,7 @@ import (
 	"github.com/BacoFoods/menu/internal"
 	accounts "github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/client"
+	"github.com/BacoFoods/menu/pkg/invoice"
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/payment"
 	products "github.com/BacoFoods/menu/pkg/product"
@@ -49,6 +50,8 @@ type Service interface {
 	CalculateInvoice(orderID string, tip *tipData) (*invoices.Invoice, error)
 	CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoices.Invoice, error)
 	Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error)
+
+	CloseInvoice(CloseInvoiceRequest) (*invoices.Invoice, error)
 }
 
 type service struct {
@@ -726,6 +729,57 @@ func (s *service) queueComanda(orderId uint, tableId *uint, storeId *uint, items
 	}
 
 	return err
+}
+
+// CloseInvoice closes an invoice.
+func (s service) CloseInvoice(req CloseInvoiceRequest) (*invoice.Invoice, error) {
+	invoice, err := s.invoice.Get(req.InvoiceID)
+	if err != nil {
+		return nil, err
+	}
+
+	order, err := s.repository.Get(fmt.Sprint(invoice.OrderID))
+	if err != nil {
+		return nil, err
+	}
+
+	if order.CurrentStatus == OrderStatusClosed {
+		return nil, fmt.Errorf(ErrorOrderClosed)
+	}
+
+	now := time.Now()
+
+	nPayments := make([]payment.Payment, 0)
+	for _, p := range invoice.Payments {
+		nPayments = append(nPayments, payment.Payment{
+			InvoiceID:  &invoice.ID,
+			Method:     p.Method,
+			Quantity:   p.Quantity,
+			Tip:        p.Tip,
+			TotalValue: p.Quantity + p.Tip,
+			Status:     payment.PaymentStatusPaid,
+			Code:       p.Code,
+		})
+	}
+	invoice.Payments = append(invoice.Payments, nPayments...)
+	invoice.PaymentsObservation = req.Observations
+	invDB, err := s.invoice.CreateUpdate(invoice)
+	if err != nil {
+		return nil, err
+	}
+
+	order.CurrentStatus = OrderStatusClosed
+	order.Statuses = append(order.Statuses, OrderStatus{
+		Code:    OrderStatusClosed,
+		OrderID: &order.ID,
+	})
+	order.ClosedAt = &now
+
+	if _, err := s.repository.Update(order); err != nil {
+		return nil, err
+	}
+
+	return invDB, nil
 }
 
 var _ Service = &service{}

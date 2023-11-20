@@ -14,6 +14,10 @@ const (
 	ErrorPaymentDeleting = "error deleting payment"
 
 	ErrorPaymentMethodFinding = "error finding payment method"
+
+	PaymentStatusPaid     = "paid"
+	PaymentStatusPending  = "pending"
+	PaymentStatusCanceled = "canceled"
 )
 
 type Repository interface {

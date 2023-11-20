@@ -138,20 +138,20 @@ func (s service) CreatePaymentWithPaylot(invoiceID uint, total, tip float64, cus
 			// this prevents a new paylot and payment to be created, and we asume the invoice has been paid in full
 			// and invoices only have one payment.
 			// TODO: This should change when split-the-bill is introduced
-			if payment.Status == "paid" {
+			if payment.Status == PaymentStatusPaid {
 				return &payment, nil
 			}
 
 			// if a payment is pending and has the same value, return it and reuse the paylot
 			sameValue := payment.Quantity == float32(total) && payment.Tip == float32(tip)
-			if payment.Status == "pending" && sameValue {
+			if payment.Status == PaymentStatusPending && sameValue {
 				lastPayment = &payment
 				continue
 			}
 
 			// cancel any other pending payment
-			if (payment.Status == "pending" && !sameValue) || lastPayment != nil {
-				payment.Status = "canceled"
+			if (payment.Status == PaymentStatusPending && !sameValue) || lastPayment != nil {
+				payment.Status = PaymentStatusCanceled
 				// TODO: cancel paylot ?
 				_, err := s.Update(&payment)
 				if err != nil {
@@ -180,7 +180,7 @@ func (s service) CreatePaymentWithPaylot(invoiceID uint, total, tip float64, cus
 		Tip:         float32(tip),
 		TotalValue:  float32(paylotValue),
 		Code:        paylot.PaylotID,
-		Status:      "pending",
+		Status:      PaymentStatusPending,
 		CheckoutURL: &paylot.CheckoutURL,
 	})
 }

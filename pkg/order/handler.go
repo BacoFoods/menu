@@ -886,3 +886,35 @@ func (h *Handler) PublicCheckout(c *gin.Context) {
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
 }
+
+// CloseInvoice to handle a request to close an invoice
+// @Tags Invoice
+// @Summary To close an invoice
+// @Description To close an invoice
+// @Param id path string true "invoice id"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param invoice body CloseInvoiceRequest true "invoice"
+// @Success 200 {object} object{status=string,data=Invoice}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /invoice/{id}/close [post]
+func (h *Handler) CloseInvoice(c *gin.Context) {
+	var req CloseInvoiceRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		shared.LogError("error binding request body", LogHandler, "CloseInvoice", err, req)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	invoice, err := h.service.CloseInvoice(req)
+	if err != nil {
+		shared.LogError("error closing invoice", LogHandler, "CloseInvoice", err, invoice)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+}

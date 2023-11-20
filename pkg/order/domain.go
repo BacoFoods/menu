@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/shared"
 
 	"github.com/BacoFoods/menu/pkg/brand"
@@ -40,6 +41,7 @@ const (
 	ErrorOrderUpdatingClientName           = "error updating order client name"
 	ErrorOrderInvoiceCreation              = "error creating order invoice"
 	ErrorOrderInvoiceCalculation           = "error calculating invoice"
+	ErrorOrderClosed                       = "error order is closed"
 
 	ErrorOrderItemUpdate       = "error updating order item"
 	ErrorOrderItemGetting      = "error getting order item"
@@ -115,6 +117,7 @@ type Order struct {
 	Invoices      []invoice.Invoice `json:"invoices"  gorm:"foreignKey:OrderID" swaggerignore:"true"`
 	Attendees     []Attendee        `json:"attendees" gorm:"foreignKey:OrderID"`
 	ShiftID       *uint             `json:"shift_id"`
+	ClosedAt      *time.Time        `json:"closed_at" swaggerignore:"true"`
 	CreatedAt     *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt     *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt     *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
@@ -517,4 +520,11 @@ func (t tipData) GetValueAndType() (string, float64) {
 	}
 
 	return "", 0
+}
+
+type CloseInvoiceRequest struct {
+	InvoiceID    string             `json:"invoice_id" swaggerignore:"true"`
+	DocumentType string             `json:"document"`
+	Payments     []*payment.Payment `json:"payments" binding:"required"`
+	Observations string             `json:"observations"`
 }
