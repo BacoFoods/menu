@@ -53,7 +53,7 @@ func (h *Handler) Find(c *gin.Context) {
 	categories, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error finding categories", LogHandler, "Find", err, categories)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingCategory))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCategoryFinding))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(categories))
@@ -77,7 +77,7 @@ func (h *Handler) Get(c *gin.Context) {
 	category, err := h.service.Get(categoryID)
 	if err != nil {
 		shared.LogError("error getting category", LogHandler, "Get", err, category)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingCategory))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCategoryGetting))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(category))
@@ -99,14 +99,14 @@ func (h *Handler) Create(c *gin.Context) {
 	var requestBody Category
 	if err := c.BindJSON(&requestBody); err != nil {
 		shared.LogWarn("warning binding request fail", LogHandler, "Create", err)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorCategoryBadRequest))
 		return
 	}
 
 	category, err := h.service.Create(&requestBody)
 	if err != nil {
 		shared.LogError("error creating category", LogHandler, "Create", err, category)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingCategory))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCategoryCreating))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(category))
@@ -129,13 +129,13 @@ func (h *Handler) Update(c *gin.Context) {
 	var requestBody Category
 	if err := c.BindJSON(&requestBody); err != nil {
 		shared.LogWarn("warning binding request fail", LogHandler, "Update", err)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorCategoryBadRequest))
 		return
 	}
 	category, err := h.service.Update(&requestBody)
 	if err != nil {
 		shared.LogError("error updating category", LogHandler, "Update", err, category)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingCategory))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCategoryUpdating))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(category))
@@ -158,7 +158,7 @@ func (h *Handler) Delete(c *gin.Context) {
 	category, err := h.service.Delete(categoryID)
 	if err != nil {
 		shared.LogError("error deleting category", LogHandler, "Delete", err, category)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingCategory))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCategoryDeleting))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(category))
@@ -182,7 +182,7 @@ func (h *Handler) GetMenus(c *gin.Context) {
 	menus, err := h.service.GetMenus(categoryID)
 	if err != nil {
 		shared.LogError("error getting menus from category", LogHandler, "GetMenus", err, menus)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingMenus))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCategoryGettingMenus))
 		return
 	}
 
@@ -207,21 +207,21 @@ func (h *Handler) AddProduct(c *gin.Context) {
 	categoryID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		shared.LogWarn("warning parsing category id fail", LogHandler, "AddProduct", err)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorCategoryBadRequest))
 		return
 	}
 
 	productID, err := strconv.ParseUint(c.Param("productID"), 10, 64)
 	if err != nil {
 		shared.LogWarn("warning parsing product id fail", LogHandler, "AddProduct", err)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorCategoryBadRequest))
 		return
 	}
 
 	category, err := h.service.AddProduct(uint(categoryID), uint(productID))
 	if err != nil {
 		shared.LogError("error adding product to category", LogHandler, "AddProduct", err, category)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAddingProduct))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCategoryAddingProduct))
 		return
 	}
 
@@ -246,21 +246,21 @@ func (h *Handler) RemoveProduct(c *gin.Context) {
 	categoryID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		shared.LogWarn("warning parsing category id fail", LogHandler, "RemoveProduct", err)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorCategoryBadRequest))
 		return
 	}
 
 	productID, err := strconv.ParseUint(c.Param("productID"), 10, 64)
 	if err != nil {
 		shared.LogWarn("warning parsing product id fail", LogHandler, "RemoveProduct", err)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorCategoryBadRequest))
 		return
 	}
 
 	category, err := h.service.RemoveProduct(uint(categoryID), uint(productID))
 	if err != nil {
 		shared.LogError("error removing product from category", LogHandler, "RemoveProduct", err, category)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorRemovingProduct))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCategoryRemovingProduct))
 		return
 	}
 

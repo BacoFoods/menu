@@ -1,9 +1,11 @@
 package account
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 const (
@@ -28,9 +30,10 @@ func (r DBRepository) Create(account *Account) (*Account, error) {
 }
 
 func (r DBRepository) Get(username string) (*Account, error) {
-	if username == "" {
-		shared.LogWarn("error getting account", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(username) == "" {
+		err := fmt.Errorf(ErrorAccountIDEmpty)
+		shared.LogWarn("error getting account", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var account Account
@@ -92,4 +95,14 @@ func (r DBRepository) Update(account *Account) (*Account, error) {
 	}
 
 	return account, nil
+}
+
+func (r DBRepository) GetByID(id string) (*Account, error) {
+	var account Account
+	if err := r.db.Where("id = ?", id).First(&account).Error; err != nil {
+		shared.LogError("error getting account", LogDBRepository, "GetByID", err, id)
+		return nil, err
+	}
+
+	return &account, nil
 }

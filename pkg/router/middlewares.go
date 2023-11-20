@@ -3,6 +3,7 @@ package router
 import (
 	"encoding/base64"
 	"fmt"
+	"strings"
 
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/shared"
@@ -40,7 +41,7 @@ func AuthMiddleware(validator *idtoken.Validator) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenString := ctx.Request.Header.Get("Authorization")
 
-		if tokenString == "" {
+		if strings.TrimSpace(tokenString) == "" {
 			shared.LogWarn("token is empty", LogMiddleware, "Authentication", nil)
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return

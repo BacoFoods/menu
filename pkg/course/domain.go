@@ -11,6 +11,7 @@ const (
 	ErrorCourseBinding  string = "error binding course"
 	ErrorCourseCreating string = "error creating course"
 	ErrorCourseDeleting string = "error deleting course"
+	ErrorCourseIDEmpty  string = "course id is empty"
 )
 
 type Repository interface {

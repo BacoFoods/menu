@@ -252,7 +252,7 @@ func (h *Handler) CreatePaymentMethod(ctx *gin.Context) {
 	paymentMethod, err := h.service.CreatePaymentMethod(&body)
 	if err != nil {
 		shared.LogError("error creating payment method", LogHandler, "CreatePaymentMethod", err, body)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorPaymentCreating))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
 

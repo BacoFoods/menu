@@ -6,12 +6,13 @@ import (
 )
 
 const (
-	ErrorCreatingBrand = "error creating brand"
-	ErrorGettingBrand  = "error getting brand"
-	ErrorUpdatingBrand = "error updating brand"
-	ErrorDeletingBrand = "error deleting brand"
-	ErrorFindingBrand  = "error finding brand"
-	ErrorBadRequest    = "error bad request"
+	ErrorBrandCreating   = "error creating brand"
+	ErrorBrandGetting    = "error getting brand"
+	ErrorBrandUpdating   = "error updating brand"
+	ErrorBrandDeleting   = "error deleting brand"
+	ErrorBrandFinding    = "error finding brand"
+	ErrorBrandBadRequest = "error bad request"
+	ErrorBrandIDEmpty    = "brand id is empty"
 )
 
 type Brand struct {

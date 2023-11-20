@@ -5,6 +5,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 const LogDBRepository string = "pkg/product/db_repository"
@@ -42,9 +43,10 @@ func (r *DBRepository) Find(filters map[string]string) ([]Product, error) {
 
 // Get method for get a product in database
 func (r *DBRepository) Get(productID string) (*Product, error) {
-	if productID == "" {
-		shared.LogWarn("error getting product", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(productID) == "" {
+		err := fmt.Errorf(ErrorProductIDEmpty)
+		shared.LogWarn("error getting product", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var product Product

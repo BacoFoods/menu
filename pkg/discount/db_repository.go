@@ -1,9 +1,11 @@
 package discount
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 const LogDBRepository string = "pkg/discount/db_repository"
@@ -44,9 +46,10 @@ func (r *DBRepository) Find(filter map[string]string) ([]Discount, error) {
 }
 
 func (r *DBRepository) Get(discountID string) (*Discount, error) {
-	if discountID == "" {
-		shared.LogWarn("error getting discount", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(discountID) == "" {
+		err := fmt.Errorf(ErrorDiscountIDEmpty)
+		shared.LogWarn("error getting discount", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var discount Discount

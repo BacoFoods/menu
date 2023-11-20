@@ -3,6 +3,7 @@ package order
 import (
 	"fmt"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/BacoFoods/menu/pkg/channel"
@@ -43,6 +44,7 @@ const (
 	ErrorOrderInvoiceCreation              = "error creating order invoice"
 	ErrorOrderInvoiceCalculation           = "error calculating invoice"
 	ErrorOrderClosed                       = "error order is closed"
+	ErrorOrderIDEmpty                      = "order id is empty"
 
 	ErrorOrderItemUpdate       = "error updating order item"
 	ErrorOrderItemGetting      = "error getting order item"
@@ -79,6 +81,7 @@ type Repository interface {
 	Update(order *Order) (*Order, error)
 	FindByShift(shiftID uint) ([]Order, error)
 	AddProducts(order *Order, newItems []OrderItem) (*Order, error)
+	GetLastDayOrders(storeID string) ([]Order, error)
 
 	// OrderItem
 	UpdateOrderItem(orderItem *OrderItem) (*OrderItem, error)
@@ -351,7 +354,7 @@ func (o *Order) UpdateStatus(status string) error {
 		return nil
 	}
 
-	if status == OrderStatusCreated && o.CurrentStatus == "" {
+	if status == OrderStatusCreated && strings.TrimSpace(o.CurrentStatus) == "" {
 		o.CurrentStatus = status
 		o.Statuses = append(o.Statuses, OrderStatus{
 			Code:    OrderStatusCreated,

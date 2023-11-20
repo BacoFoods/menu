@@ -39,7 +39,7 @@ func NewHandler(service Service) *Handler {
 // @Failure 422 {object} shared.Response
 // @Router /shift/open [post]
 func (h *Handler) Open(c *gin.Context) {
-	accountID, ok := c.Get("account_uuid")
+	accountID, ok := c.Get("account_id")
 	if !ok {
 		shared.LogError("account_id not found from jwt", LogHandler, "Open", nil)
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse("account_id not found from jwt"))

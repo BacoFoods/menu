@@ -1,10 +1,12 @@
 package category
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 const LogDBRepository string = "pkg/category/db_repository"
@@ -38,9 +40,10 @@ func (r *DBRepository) Find(filters map[string]string) ([]Category, error) {
 
 // Get method for get a category in database
 func (r *DBRepository) Get(categoryID string) (*Category, error) {
-	if categoryID == "" {
-		shared.LogWarn("error getting category", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(categoryID) == "" {
+		err := fmt.Errorf(ErrorCategoryIDEmpty)
+		shared.LogWarn("error getting category", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var category Category

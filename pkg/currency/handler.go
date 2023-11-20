@@ -32,14 +32,14 @@ func (h *Handler) Create(ctx *gin.Context) {
 	var requestBody Currency
 	if err := ctx.BindJSON(&requestBody); err != nil {
 		shared.LogWarn("warning binding request fail", LogHandler, "Create", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorCurrencyBadRequest))
 		return
 	}
 
 	currency, err := h.service.Create(&requestBody)
 	if err != nil {
 		shared.LogError("error creating currency", LogHandler, "Create", err, currency)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingCurrency))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCurrencyCreation))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(currency))
@@ -67,7 +67,7 @@ func (h *Handler) Find(ctx *gin.Context) {
 	currency, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error getting all currency", LogHandler, "Find", err)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingCurrency))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCurrencyGetting))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(currency))
@@ -91,7 +91,7 @@ func (h *Handler) Get(ctx *gin.Context) {
 	currency, err := h.service.Get(currencyID)
 	if err != nil {
 		shared.LogError("error getting currency", LogHandler, "Get", err, currencyID)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingCurrency))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCurrencyGetting))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(currency))
@@ -114,13 +114,13 @@ func (h *Handler) Update(ctx *gin.Context) {
 	var requestBody Currency
 	if err := ctx.BindJSON(&requestBody); err != nil {
 		shared.LogError("error getting currency request body", LogHandler, "Update", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorCurrencyBadRequest))
 		return
 	}
 	currency, err := h.service.Update(requestBody)
 	if err != nil {
 		shared.LogError("error updating currency", LogHandler, "Update", err, currency)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingCurrency))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCurrencyUpdating))
 		return
 	}
 
@@ -144,7 +144,7 @@ func (h *Handler) Delete(ctx *gin.Context) {
 	currency, err := h.service.Delete(currencyID)
 	if err != nil {
 		shared.LogError("error deleting currency", LogHandler, "Delete", err, currencyID)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingCurrency))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCurrencyDeleting))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(currency))

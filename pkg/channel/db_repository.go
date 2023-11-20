@@ -1,8 +1,10 @@
 package channel
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
+	"strings"
 )
 
 const LogDBRepository string = "pkg/channel/db_repository"
@@ -37,9 +39,10 @@ func (r *DBRepository) Find(filters map[string]string) ([]Channel, error) {
 
 // Get method for get a channel in database
 func (r *DBRepository) Get(channelID string) (*Channel, error) {
-	if channelID == "" {
-		shared.LogWarn("error getting channel", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(channelID) == "" {
+		err := fmt.Errorf(ErrorChannelIDEmpty)
+		shared.LogWarn("error getting channel", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var channel Channel

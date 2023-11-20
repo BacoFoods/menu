@@ -12,7 +12,7 @@ const (
 )
 
 type Service interface {
-	Open(accountUUID string, startBalance float64) (*Shift, error)
+	Open(accountID string, startBalance float64) (*Shift, error)
 	Close(accountUUID string, endBalance float64) (*Shift, error)
 }
 
@@ -25,11 +25,22 @@ func NewService(repository Repository, accountRepository account.Repository) ser
 	return service{repository, accountRepository}
 }
 
-func (s service) Open(accountUUID string, startBalance float64) (*Shift, error) {
-	acc, err := s.accountRepository.GetByUUID(accountUUID)
+func (s service) Open(accountID string, startBalance float64) (*Shift, error) {
+	acc, err := s.accountRepository.GetByID(accountID)
 	if err != nil {
 		shared.LogError("failed to get account", LogService, "Open", err)
-		return nil, fmt.Errorf(ErrorGettingAccount)
+		return nil, fmt.Errorf(account.ErrorAccountGettingByID)
+	}
+
+	currentShift, err := s.repository.GetOpenShift(acc.StoreID)
+	if err != nil {
+		shared.LogError("failed to get open shift", LogService, "Open", err)
+		return nil, err
+	}
+
+	if currentShift != nil {
+		shared.LogWarn("shift already open to this store", LogService, "Open", nil)
+		return nil, fmt.Errorf(ErrorShiftOpeningAlreadyOpened)
 	}
 
 	now := time.Now()
@@ -50,13 +61,13 @@ func (s service) Close(accountUUID string, endBalance float64) (*Shift, error) {
 	acc, err := s.accountRepository.GetByUUID(accountUUID)
 	if err != nil {
 		shared.LogError("failed to get account", LogService, "Close", err)
-		return nil, fmt.Errorf(ErrorGettingAccount)
+		return nil, fmt.Errorf(account.ErrorAccountGettingByID)
 	}
 
 	openShift, err := s.repository.GetOpenShift(acc.StoreID)
 	if err != nil {
 		shared.LogError("failed to get open shift", LogService, "Close", err)
-		return nil, fmt.Errorf(ErrorGettingOpenShift)
+		return nil, fmt.Errorf(ErrorShiftGettingShiftOpened)
 	}
 
 	now := time.Now()

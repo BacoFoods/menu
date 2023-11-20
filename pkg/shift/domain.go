@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	ErrorGettingAccount   = "error getting account"
-	ErrorGettingOpenShift = "error getting open shift"
+	ErrorShiftGettingShiftOpened   = "error getting open shift"
+	ErrorShiftOpeningAlreadyOpened = "error opening shift, shift already open to this store"
 )
 
 type Repository interface {

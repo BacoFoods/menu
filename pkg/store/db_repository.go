@@ -1,11 +1,13 @@
 package store
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 const LogDBRepository string = "pkg/store/db_repository"
@@ -39,9 +41,10 @@ func (r *DBRepository) Find(filters map[string]string) ([]Store, error) {
 
 // Get method for get a store in database
 func (r *DBRepository) Get(storeID string) (*Store, error) {
-	if storeID == "" {
-		shared.LogWarn("error getting store", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(storeID) == "" {
+		err := fmt.Errorf(ErrorStoreIDEmpty)
+		shared.LogWarn("error getting store", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var store Store

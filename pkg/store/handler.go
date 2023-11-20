@@ -114,7 +114,7 @@ func (h Handler) Create(c *gin.Context) {
 	var request Store
 	if err := c.ShouldBindJSON(&request); err != nil {
 		shared.LogError("error binding json", LogHandler, "Create", err, request)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorStoreBadRequest))
 		return
 	}
 
@@ -146,7 +146,7 @@ func (h Handler) Update(c *gin.Context) {
 	var request Store
 	if err := c.ShouldBindJSON(&request); err != nil {
 		shared.LogWarn("warning binding request", LogHandler, "Update", err, request)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorStoreBadRequest))
 		return
 	}
 

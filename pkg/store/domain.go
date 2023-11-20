@@ -14,11 +14,13 @@ const (
 	ErrorStoreUpdate                = "error updating store"
 	ErrorStoreDelete                = "error deleting store"
 	ErrorStoreFind                  = "error finding store"
-	ErrorBadRequest                 = "error bad request"
+	ErrorStoreBadRequest            = "error bad request"
 	ErrorStoreEnable                = "error enabling store"
 	ErrorStoreAddingChannel         = "error adding channel"
 	ErrorStoreZonesGettingByStoreID = "error getting zones by store id"
 	ErrorStoreGettingChannels       = "error getting channels by brand id"
+	ErrorStoreCreationBrandIDNil    = "error creating store, brand id is nil"
+	ErrorStoreIDEmpty               = "store id is empty"
 )
 
 type Store struct {

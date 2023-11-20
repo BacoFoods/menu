@@ -12,6 +12,7 @@ const (
 	ErrorClientDeleting = "error deleting client"
 	ErrorClientListing  = "error listing clients"
 	ErrorClientGetting  = "error getting client"
+	ErrorClientIDEmpty  = "error client id empty"
 )
 
 type Repository interface {

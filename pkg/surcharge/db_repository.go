@@ -1,8 +1,10 @@
 package surcharge
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
+	"strings"
 )
 
 const LogDBRepository string = "pkg/surcharge/db_repository"
@@ -29,9 +31,10 @@ func (r *DBRepository) Find(filters map[string]string) ([]Surcharge, error) {
 }
 
 func (r *DBRepository) Get(surchargeID string) (*Surcharge, error) {
-	if surchargeID == "" {
-		shared.LogWarn("error getting surcharge", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(surchargeID) == "" {
+		err := fmt.Errorf(ErrorSurchargeIDEmpty)
+		shared.LogWarn("error getting surcharge", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var surcharge Surcharge

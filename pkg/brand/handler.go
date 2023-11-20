@@ -40,7 +40,7 @@ func (h Handler) Find(c *gin.Context) {
 	brands, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error finding brands", LogHandler, "Find", err, brands)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingBrand))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorBrandFinding))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(brands))
@@ -64,7 +64,7 @@ func (h Handler) Get(c *gin.Context) {
 	brand, err := h.service.Get(brandID)
 	if err != nil {
 		shared.LogError("error getting brand", LogHandler, "Get", err, brand)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingBrand))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorBrandGetting))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(brand))
@@ -87,14 +87,14 @@ func (h Handler) Create(c *gin.Context) {
 	var request Brand
 	if err := c.ShouldBindJSON(&request); err != nil {
 		shared.LogWarn("warning binding request", LogHandler, "Create", err, request)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBrandBadRequest))
 		return
 	}
 
 	brand, err := h.service.Create(&request)
 	if err != nil {
 		shared.LogError("error creating brand", LogHandler, "Create", err, brand)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingBrand))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorBrandCreating))
 		return
 	}
 
@@ -119,14 +119,14 @@ func (h Handler) Update(c *gin.Context) {
 	var request Brand
 	if err := c.ShouldBindJSON(&request); err != nil {
 		shared.LogWarn("warning binding request", LogHandler, "Update", err, request)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBrandUpdating))
 		return
 	}
 
 	brand, err := h.service.Update(&request)
 	if err != nil {
 		shared.LogError("error updating brand", LogHandler, "Update", err, brand)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingBrand))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorBrandUpdating))
 		return
 	}
 
@@ -151,7 +151,7 @@ func (h Handler) Delete(c *gin.Context) {
 	brand, err := h.service.Delete(brandID)
 	if err != nil {
 		shared.LogError("error deleting brand", LogHandler, "Delete", err, brand)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingBrand))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorBrandDeleting))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(brand))

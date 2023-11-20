@@ -2,6 +2,7 @@ package menu
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/shared"
@@ -43,9 +44,10 @@ func (r *DBRepository) Find(filters map[string]string) ([]Menu, error) {
 
 // Get method for get a menu in database
 func (r *DBRepository) Get(menuID string) (*Menu, error) {
-	if menuID == "" {
-		shared.LogWarn("error getting menu", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(menuID) == "" {
+		err := fmt.Errorf(ErrorMenuIDEmpty)
+		shared.LogWarn("error getting menu", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var menu Menu
@@ -108,7 +110,7 @@ func (r *DBRepository) FindByPlace(place, placeID string) ([]Menu, error) {
 		}
 
 	default:
-		return nil, fmt.Errorf(ErrorFindingByPlace)
+		return nil, fmt.Errorf(ErrorMenuFindingByPlace)
 	}
 
 	// Getting Menu by brandID

@@ -15,6 +15,7 @@ const (
 
 type Service interface {
 	Get(storeID string) (*CashAudit, error)
+	Create(storeID string, cashAudit *CashAudit) (*CashAudit, error)
 }
 
 type service struct {
@@ -72,7 +73,35 @@ func (s service) Get(storeID string) (*CashAudit, error) {
 	cashAudit.Discounts = GetTotalDiscounts(invoiceList)
 	cashAudit.Surcharges = GetTotalSourcharges(invoiceList)
 	cashAudit.Tips = GetTotalTips(invoiceList)
-	cashAudit.TotalSell = GetTotalSell(invoiceList)
+	// cashAudit.TotalSell = GetTotalSell(invoiceList)
 
 	return &cashAudit, nil
+}
+
+func (s service) Create(storeID string, cashReported *CashAudit) (*CashAudit, error) {
+	// Set Store details
+	auditStore, err := s.stores.Get(storeID)
+	if err != nil {
+		shared.LogError("error getting store", LogService, "Get", err, storeID)
+		return nil, fmt.Errorf(ErrorCashAuditGettingStore)
+	}
+	cashReported.StoreName = auditStore.Name
+
+	// Getting day's orders
+	orderList, err := s.orders.GetLastDayOrders(storeID)
+	if err != nil {
+		return nil, fmt.Errorf(ErrorCashAuditGettingOrders)
+	}
+
+	// Getting invoices from orders
+	invoiceList := GetInvoices(orderList)
+	paymentsList := GetPayments(invoiceList)
+
+	cashReported.Orders = uint(len(orderList))
+	cashReported.Eaters = GetTotalEaters(orderList)
+	cashReported.CashIncomesCalculated = GetTotalCashIncomes(paymentsList)
+	cashReported.CardIncomesCalculated = GetTotalCardIncomes(paymentsList)
+	cashReported.OnlineIncomesCalculated = GetTotalOnlineIncomes(paymentsList)
+
+	return cashReported, nil
 }
