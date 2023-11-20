@@ -370,7 +370,7 @@ func GetOrders(startDate string, endDate string, locationIDs []string) (string, 
 	var allOrders []PopappOrder
 	for _, locationID := range locationIDs {
 		url := fmt.Sprintf("https://api.popapp.io/orders/?start_date=%s&end_date=%s&location_id=%s&order=desc", startDate, endDate, locationID)
-		fmt.Println(url)
+		//fmt.Println(url)
 		// Crear la solicitud HTTP
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
@@ -500,7 +500,7 @@ func (e ReferenceError) Error() string {
 // GetReferences retrieves references from the database based on order type, platform, and product name.
 func (s Service) GetReferences(orderType, platform, productName string) string {
 	//var reference Reference
-	fmt.Println(orderType, platform, productName)
+	//fmt.Println(orderType, platform, productName)
 
 	var filter = make(map[string]string)
 	//filter["popapp"] = productName
@@ -510,7 +510,7 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 		switch orderType {
 		case "PICK_UP":
 			filter["popapp"] = productName
-			fmt.Printf("Filter: %v\n", filter)
+			//fmt.Printf("Filter: %v\n", filter)
 			reference, err := s.repository.Find(filter)
 			if err != nil {
 				shared.LogError("error getting reference row", LogDBRepository, "Find", err, filter)
@@ -549,7 +549,7 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE rappi_pick_up::text = $1::text LIMIT 1
 			// `
 			filter["rappi_pick_up"] = productName
-			fmt.Println(filter)
+			//fmt.Println(filter)
 			reference, err := s.repository.Find(filter)
 			if err != nil {
 				shared.LogError("error getting reference row", LogDBRepository, "Find", err, filter)
@@ -561,12 +561,12 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE rappi_bacu::text = $1::text LIMIT 1
 			// `
 			filter["rappi_bacu"] = productName
-			fmt.Printf("Filter: %v\n", filter)
+			//fmt.Printf("Filter: %v\n", filter)
 			reference, err := s.repository.Find(filter)
 			if err != nil {
 				shared.LogError("error getting reference row", LogDBRepository, "Find", err, filter)
 			}
-			fmt.Println(reference.ReferenciaDeliveryInline)
+			//fmt.Println(reference.ReferenciaDeliveryInline)
 			return reference.ReferenciaDeliveryInline
 		case "DELIVERY_BY_RESTAURANT":
 			// query = `
@@ -733,6 +733,10 @@ func (s Service) insertData() error {
 	if err != nil {
 		return err
 	}
+	err2 := s.repository.TruncateRecords()
+	if err2 != nil {
+		shared.LogError(err.Error(), LogDBRepository, "TruncateRecords", err)
+	}
 
 	// Comenzar desde la segunda fila para evitar la fila de encabezados
 	for _, row := range rows[1:] {
@@ -746,10 +750,6 @@ func (s Service) insertData() error {
 			DidiStu:                  getElement(row, 6),
 			DidiBacu:                 getElement(row, 7),
 			BacuMarketplace:          getElement(row, 8),
-		}
-		err2 := s.repository.TruncateRecords()
-		if err2 != nil {
-			shared.LogError(err.Error(), LogDBRepository, "TruncateRecords", err, reference)
 		}
 
 		err := s.repository.Create(&reference)

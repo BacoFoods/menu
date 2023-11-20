@@ -24,11 +24,27 @@ func (r *DBRepository) Create(reference *Reference) error {
 	return nil
 }
 
+// TruncateRecords truncates all records
 // TruncateRecords truncates all records in the YourModel table
 func (r *DBRepository) TruncateRecords() error {
-	if err := r.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Reference{}).Error; err != nil {
+	// Comienza una transacción
+	tx := r.db.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	// Trunca la tabla 'references' dentro de la transacción con condiciones
+	if err := tx.Unscoped().Where("true").Delete(&Reference{}).Error; err != nil {
+		// Revierte la transacción en caso de error
+		tx.Rollback()
 		return err
 	}
+
+	// Confirma la transacción si la eliminación fue exitosa
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 
