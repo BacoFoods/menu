@@ -12,7 +12,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/currency"
 	"github.com/BacoFoods/menu/pkg/database"
 	"github.com/BacoFoods/menu/pkg/menu"
-	"github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/taxes"
@@ -52,12 +51,12 @@ var _ = Describe("Service Menu", func() {
 			&brand.Brand{},
 			&store.Store{},
 			&channel.Channel{},
-			&overriders.Overriders{},
+			&product.Product{},
 		)
 
 		// Service Implementation
 		menuRepository := menu.NewDBRepository(db)
-		overriderRepository := overriders.NewDBRepository(db)
+		overriderRepository := product.NewDBRepository(db)
 		availabilityRepository = availability.NewDBRepository(db)
 		storeRepository := store.NewDBRepository(db)
 		categoryRepository := category.NewDBRepository(db)

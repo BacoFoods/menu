@@ -8,7 +8,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/database"
 	"github.com/BacoFoods/menu/pkg/menu"
-	"github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/store"
 	. "github.com/onsi/ginkgo"
@@ -46,7 +45,7 @@ var _ = Describe("Category", func() {
 		categoryRepository := category.NewDBRepository(db)
 		productRepository := product.NewDBRepository(db)
 		menuRepository := menu.NewDBRepository(db)
-		overriderRepository := overriders.NewDBRepository(db)
+		overriderRepository := product.NewDBRepository(db)
 		availabilityRepository := availability.NewDBRepository(db)
 		srv = category.NewService(categoryRepository, productRepository)
 		menuSrv = menu.NewService(menuRepository, overriderRepository, availabilityRepository, store.NewDBRepository(db), categoryRepository)

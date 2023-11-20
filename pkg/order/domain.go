@@ -98,7 +98,7 @@ type Repository interface {
 type Order struct {
 	ID            uint              `json:"id" gorm:"primaryKey"`
 	Statuses      []OrderStatus     `json:"status" gorm:"foreignKey:OrderID" swaggerignore:"true"`
-	Code          string            `json:"code"`
+	Code          string            `json:"code" swaggerignore:"true"`
 	CurrentStatus string            `json:"current_status"`
 	OrderType     string            `json:"order_type"`
 	ClientName    string            `json:"client_name"`
