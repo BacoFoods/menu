@@ -13600,15 +13600,18 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "discounts": {
+                    "description": "List of discount IDs to apply to the invoice",
                     "type": "array",
                     "items": {
                         "type": "integer"
                     }
                 },
                 "tip_amount": {
+                    "description": "Optional value grater than 0",
                     "type": "number"
                 },
                 "tip_percentage": {
+                    "description": "Optional value between 0 and 100",
                     "type": "integer"
                 }
             }
@@ -13645,21 +13648,26 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "discounts": {
+                    "description": "List of discount IDs to apply to the invoice",
                     "type": "array",
                     "items": {
                         "type": "integer"
                     }
                 },
                 "document_data": {
+                    "description": "Client data for the invoice",
                     "$ref": "#/definitions/client.Client"
                 },
                 "document_type": {
+                    "description": "Possible options are: POS, FEUnidentified, FEIdentified",
                     "type": "string"
                 },
                 "tip_amount": {
+                    "description": "Optional value grater than 0",
                     "type": "number"
                 },
                 "tip_percentage": {
+                    "description": "Optional value between 0 and 100",
                     "type": "integer"
                 }
             }

@@ -807,7 +807,10 @@ func (h *Handler) DeleteOrderType(c *gin.Context) {
 // Invoice
 
 type CreateInvoiceDocumentRequest struct {
-	DocumentType string         `json:"document_type"`
+	// Possible options are: POS, FEUnidentified, FEIdentified
+	DocumentType string `json:"document_type"`
+
+	// Client data for the invoice
 	DocumentData *client.Client `json:"document_data"`
 }
 

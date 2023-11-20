@@ -705,12 +705,15 @@ definitions:
   order.CalculateInvoiceRequest:
     properties:
       discounts:
+        description: List of discount IDs to apply to the invoice
         items:
           type: integer
         type: array
       tip_amount:
+        description: Optional value grater than 0
         type: number
       tip_percentage:
+        description: Optional value between 0 and 100
         type: integer
     type: object
   order.CheckoutRequest:
@@ -734,16 +737,21 @@ definitions:
   order.CreateInvoiceRequest:
     properties:
       discounts:
+        description: List of discount IDs to apply to the invoice
         items:
           type: integer
         type: array
       document_data:
         $ref: '#/definitions/client.Client'
+        description: Client data for the invoice
       document_type:
+        description: 'Possible options are: POS, FEUnidentified, FEIdentified'
         type: string
       tip_amount:
+        description: Optional value grater than 0
         type: number
       tip_percentage:
+        description: Optional value between 0 and 100
         type: integer
     type: object
   order.Order:
