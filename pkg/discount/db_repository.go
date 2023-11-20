@@ -24,6 +24,16 @@ func (r *DBRepository) Create(discount *Discount) (*Discount, error) {
 	return discount, nil
 }
 
+func (r *DBRepository) GetMany(ids []uint) ([]Discount, error) {
+	var discount []Discount
+	if err := r.db.Find(&discount, ids).Error; err != nil {
+		shared.LogError("error getting discounts", LogDBRepository, "GetMany", err, ids)
+		return nil, err
+	}
+
+	return discount, nil
+}
+
 func (r *DBRepository) Find(filter map[string]string) ([]Discount, error) {
 	var discount []Discount
 	if err := r.db.Find(&discount, filter).Error; err != nil {

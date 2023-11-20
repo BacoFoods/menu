@@ -798,6 +798,12 @@ func (h *Handler) CreateInvoice(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
 }
 
+type CalculateInvoiceRequest struct {
+	TipPercentage *int     `json:"tip_percentage"`
+	TipAmount     *float64 `json:"tip_amount"`
+	Discounts     []uint   `json:"discounts"`
+}
+
 // CalculateInvoice to handle a request to calculate an invoice
 // @Tags Order
 // @Summary To calculate an invoice
@@ -806,18 +812,19 @@ func (h *Handler) CreateInvoice(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path string true "Order ID"
-// @Param tip_percentage query number false "tip percentage 0-100"
-// @Param tip_amount query number false "tip amount. Positive number"
+// @Param body body CalculateInvoiceRequest true "request body"
 // @Success 200 {object} object{status=string,data=invoice.Invoice}
 // @Router /order/{id}/invoice/calculate [post]
 func (h *Handler) CalculateInvoice(c *gin.Context) {
 	orderID := c.Param("id")
-	tipData := tipData{
-		Percentage: c.Query("tip_percentage"),
-		Amount:     c.Query("tip_amount"),
+	var req CalculateInvoiceRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		shared.LogError("error binding request body", LogHandler, "CalculateInvoice", err, req)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
 	}
 
-	invoice, err := h.service.CalculateInvoice(orderID, &tipData)
+	invoice, err := h.service.CalculateInvoice(orderID, req)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCalculation))
 		return

@@ -211,6 +211,7 @@ func main() {
 		shiftRepository,
 		rabbitCh,
 		paymentService,
+		discountRepository,
 	)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)

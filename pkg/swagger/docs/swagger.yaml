@@ -294,12 +294,10 @@ definitions:
     properties:
       amount:
         type: number
-      brand_id:
-        type: integer
-      channel_id:
-        type: integer
       description:
         type: string
+      discount_id:
+        type: integer
       id:
         type: integer
       invoice_id:
@@ -308,10 +306,6 @@ definitions:
         type: string
       percentage:
         type: number
-      store_id:
-        type: integer
-      terms:
-        type: string
       type:
         type: string
     type: object
@@ -389,6 +383,8 @@ definitions:
         type: string
       description:
         type: string
+      discounted_price:
+        type: number
       hash:
         type: string
       id:
@@ -457,6 +453,8 @@ definitions:
         type: number
       name:
         type: string
+      percentage:
+        type: number
     type: object
   menu.Menu:
     properties:
@@ -526,6 +524,17 @@ definitions:
         type: string
       role:
         type: string
+    type: object
+  order.CalculateInvoiceRequest:
+    properties:
+      discounts:
+        items:
+          type: integer
+        type: array
+      tip_amount:
+        type: number
+      tip_percentage:
+        type: integer
     type: object
   order.CheckoutRequest:
     properties:
@@ -5076,14 +5085,12 @@ paths:
         name: id
         required: true
         type: string
-      - description: tip percentage 0-100
-        in: query
-        name: tip_percentage
-        type: number
-      - description: tip amount. Positive number
-        in: query
-        name: tip_amount
-        type: number
+      - description: request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/order.CalculateInvoiceRequest'
       produces:
       - application/json
       responses:

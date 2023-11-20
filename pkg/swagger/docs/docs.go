@@ -6518,16 +6518,13 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "number",
-                        "description": "tip percentage 0-100",
-                        "name": "tip_percentage",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "description": "tip amount. Positive number",
-                        "name": "tip_amount",
-                        "in": "query"
+                        "description": "request body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.CalculateInvoiceRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -12389,14 +12386,11 @@ const docTemplate = `{
                 "amount": {
                     "type": "number"
                 },
-                "brand_id": {
-                    "type": "integer"
-                },
-                "channel_id": {
-                    "type": "integer"
-                },
                 "description": {
                     "type": "string"
+                },
+                "discount_id": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"
@@ -12409,12 +12403,6 @@ const docTemplate = `{
                 },
                 "percentage": {
                     "type": "number"
-                },
-                "store_id": {
-                    "type": "integer"
-                },
-                "terms": {
-                    "type": "string"
                 },
                 "type": {
                     "type": "string"
@@ -12531,6 +12519,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "discounted_price": {
+                    "type": "number"
+                },
                 "hash": {
                     "type": "string"
                 },
@@ -12634,6 +12625,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "percentage": {
+                    "type": "number"
                 }
             }
         },
@@ -12738,6 +12732,23 @@ const docTemplate = `{
                 },
                 "role": {
                     "type": "string"
+                }
+            }
+        },
+        "order.CalculateInvoiceRequest": {
+            "type": "object",
+            "properties": {
+                "discounts": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "tip_amount": {
+                    "type": "number"
+                },
+                "tip_percentage": {
+                    "type": "integer"
                 }
             }
         },

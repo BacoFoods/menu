@@ -3,9 +3,9 @@ package order
 import (
 	"fmt"
 	"math"
-	"strconv"
 	"time"
 
+	"github.com/BacoFoods/menu/pkg/discount"
 	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/shared"
 
@@ -203,7 +203,20 @@ func (o *Order) RemoveProduct(product *product.Product) {
 	}
 }
 
-func (o *Order) ToInvoice(tip *tipData) {
+func applyDiscount(value float64, discounts []invoice.Discount) (newValue float64, appliedDiscount float64) {
+	newValue = value
+
+	for _, discount := range discounts {
+		newValue = discount.Apply(newValue)
+	}
+
+	newValue = math.Round(newValue)
+	appliedDiscount = value - newValue
+
+	return
+}
+
+func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 	// Remove invoices
 	o.Invoices = nil
 	subtotal := 0.0
@@ -215,8 +228,28 @@ func (o *Order) ToInvoice(tip *tipData) {
 		TableID:   o.TableID,
 		ShiftID:   o.ShiftID,
 		Items:     make([]invoice.Item, 0),
+		Discounts: make([]invoice.Discount, 0),
 		Client:    client.DefaultClient(),
 		BaseTax:   0,
+	}
+
+	// Adding discounts to invoice
+	for _, d := range discounts {
+		if d.Type != discount.DiscountTypePercentage {
+			// TODO: we only support percentage discounts as applying a value discounts
+			// makes tax calculations more complex
+
+			continue
+		}
+
+		newInvoice.Discounts = append(newInvoice.Discounts, invoice.Discount{
+			DiscountID:  d.ID,
+			Name:        d.Name,
+			Description: d.Description,
+			Percentage:  d.Percentage,
+			Amount:      0,
+			Type:        string(d.Type),
+		})
 	}
 
 	// Adding items to invoice
@@ -231,28 +264,32 @@ func (o *Order) ToInvoice(tip *tipData) {
 			taxPerc = item.TaxPercentage
 		}
 
-		productBaseTax := math.Floor(item.Price / (1 + taxPerc))
+		productPrice, appliedDiscount := applyDiscount(item.Price, newInvoice.Discounts)
+		productBaseTax := math.Floor(productPrice / (1 + taxPerc))
 		newInvoice.BaseTax += productBaseTax
-		newInvoice.Taxes += item.Price - productBaseTax
+		newInvoice.Taxes += productPrice - productBaseTax
+		newInvoice.TotalDiscounts += appliedDiscount
 
 		newInvoice.Items = append(newInvoice.Items, invoice.Item{
-			ProductID:     item.ProductID,
-			Name:          item.Name,
-			Description:   item.Description,
-			SKU:           item.SKU,
-			Price:         item.Price,
-			Comments:      item.Comments,
-			Hash:          item.Hash,
-			Tax:           tax,
-			TaxPercentage: taxPerc,
+			ProductID:       item.ProductID,
+			Name:            item.Name,
+			Description:     item.Description,
+			SKU:             item.SKU,
+			Price:           item.Price,
+			Comments:        item.Comments,
+			Hash:            item.Hash,
+			DiscountedPrice: productPrice,
+			Tax:             tax,
+			TaxPercentage:   taxPerc,
 		})
 
 		// Adding item price to subtotal
-		subtotal += item.Price
+		subtotal += productPrice
 
 		for _, modifier := range item.Modifiers {
 			// Adding modifier price to subtotal
-			subtotal += modifier.Price
+			modifierPrice, appliedDiscount := applyDiscount(modifier.Price, newInvoice.Discounts)
+			subtotal += modifierPrice
 
 			modifierTax := "ico" // Default tax
 			if modifier.Tax != "" {
@@ -264,19 +301,21 @@ func (o *Order) ToInvoice(tip *tipData) {
 				modifierTaxPerc = modifier.TaxPercentage
 			}
 
-			modifierBaseTax := math.Floor(modifier.Price / (1 + modifierTaxPerc))
+			modifierBaseTax := math.Floor(modifierPrice / (1 + modifierTaxPerc))
 			newInvoice.BaseTax += modifierBaseTax
-			newInvoice.Taxes += modifier.Price - modifierBaseTax
+			newInvoice.Taxes += modifierPrice - modifierBaseTax
+			newInvoice.TotalDiscounts += appliedDiscount
 
 			newInvoice.Items = append(newInvoice.Items, invoice.Item{
-				ProductID:     modifier.ProductID,
-				Name:          modifier.Name,
-				Description:   modifier.Description,
-				SKU:           modifier.SKU,
-				Price:         modifier.Price,
-				Comments:      modifier.Comments,
-				Tax:           modifierTax,
-				TaxPercentage: modifierTaxPerc,
+				ProductID:       modifier.ProductID,
+				Name:            modifier.Name,
+				Description:     modifier.Description,
+				SKU:             modifier.SKU,
+				Price:           modifier.Price,
+				Comments:        modifier.Comments,
+				DiscountedPrice: modifierPrice,
+				Tax:             modifierTax,
+				TaxPercentage:   modifierTaxPerc,
 			})
 		}
 	}
@@ -499,24 +538,18 @@ func (os *OrderStatus) Prev() OrderStatus {
 	}
 }
 
-type tipData struct {
-	Percentage string `json:"percentage"`
-	Amount     string `json:"value"`
+type TipData struct {
+	Percentage *int     `json:"percentage"`
+	Amount     *float64 `json:"value"`
 }
 
-func (t tipData) GetValueAndType() (string, float64) {
-	if t.Percentage != "" {
-		p, err := strconv.ParseFloat(t.Percentage, 64)
-		if err == nil && p > 0 {
-			return "percentage", p / 100
-		}
+func (t TipData) GetValueAndType() (string, float64) {
+	if t.Percentage != nil && *t.Percentage > 0 {
+		return "percentage", float64(*t.Percentage) / 100
 	}
 
-	if t.Amount != "" {
-		v, err := strconv.ParseFloat(t.Amount, 64)
-		if err == nil && v > 0 {
-			return "value", v
-		}
+	if t.Amount != nil && *t.Amount > 0 {
+		return "value", *t.Amount
 	}
 
 	return "", 0

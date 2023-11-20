@@ -9,6 +9,7 @@ import (
 	"github.com/BacoFoods/menu/internal"
 	accounts "github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/client"
+	"github.com/BacoFoods/menu/pkg/discount"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/payment"
@@ -47,11 +48,15 @@ type Service interface {
 	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
 	DeleteOrderType(orderTypeID string) error
 	CreateInvoice(orderID string) (*invoices.Invoice, error)
-	CalculateInvoice(orderID string, tip *tipData) (*invoices.Invoice, error)
+	CalculateInvoice(orderID string, req CalculateInvoiceRequest) (*invoices.Invoice, error)
 	CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoices.Invoice, error)
 	Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error)
 
 	CloseInvoice(CloseInvoiceRequest) (*invoices.Invoice, error)
+}
+
+type discountsSrv interface {
+	GetMany([]uint) ([]discount.Discount, error)
 }
 
 type service struct {
@@ -63,6 +68,7 @@ type service struct {
 	shift      shifts.Repository
 	rt         *internal.Rabbit
 	payments   payment.Service
+	discounts  discountsSrv
 }
 
 func NewService(repository Repository,
@@ -73,6 +79,7 @@ func NewService(repository Repository,
 	shift shifts.Repository,
 	rt *internal.Rabbit,
 	payments payment.Service,
+	discounts discountsSrv,
 ) service {
 	return service{repository,
 		table,
@@ -82,6 +89,7 @@ func NewService(repository Repository,
 		shift,
 		rt,
 		payments,
+		discounts,
 	}
 }
 
@@ -614,16 +622,23 @@ func (s service) CreateInvoice(orderID string) (*invoices.Invoice, error) {
 	return invoiceDB, nil
 }
 
-func (s service) CalculateInvoice(orderID string, tip *tipData) (*invoices.Invoice, error) {
+func (s service) CalculateInvoice(orderID string, req CalculateInvoiceRequest) (*invoices.Invoice, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
-		shared.LogError("error getting order", LogService, "CreateInvoice", err, orderID)
+		shared.LogError("error getting order", LogService, "CalculateInvoice", err, orderID)
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	order.ToInvoice(tip)
+	discounts, err := s.discounts.GetMany(req.Discounts)
+	if err != nil {
+		shared.LogError("error getting discounts", LogService, "CalculateInvoice", err, req.Discounts)
+	}
+
+	order.ToInvoice(&TipData{
+		Percentage: req.TipPercentage,
+		Amount:     req.TipAmount,
+	}, discounts...)
 	invoice := order.Invoices[0]
-	invoice.CalculateTaxDetails()
 
 	return &invoice, nil
 }
@@ -660,7 +675,9 @@ func (s service) CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoic
 }
 
 func (s service) Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error) {
-	invoice, err := s.CalculateInvoice(orderID, &tipData{Amount: fmt.Sprint(data.Tip)})
+	invoice, err := s.CalculateInvoice(orderID, CalculateInvoiceRequest{
+		TipAmount: &data.Tip,
+	})
 	if err != nil {
 		return nil, err
 	}
