@@ -45,7 +45,8 @@ func (h *Handler) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
-	response, err := GetOrders(requestBody.StartDate, requestBody.StartDate, requestBody.LocationIDs)
+	response, err := GetOrders(requestBody.StartDate, requestBody.EndDate, requestBody.LocationIDs)
+	//fmt.Println(response)
 	if err != nil {
 		fmt.Println("Error al obtener las ordenes:", err)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -25,7 +24,10 @@ func NewService(repository Repository) Service {
 
 func (s Service) HandleSIESAIntegration(orders []PopappOrder) ([]byte, error) {
 	// Construir el cuerpo del request para enviar la información de la orden
-	s.insertData()
+	err := s.insertData()
+	if err != nil {
+		return nil, err
+	}
 	doc := s.buildDocument(orders)
 
 	// Generate the Excel file as a byte slice
@@ -228,7 +230,7 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 
 		for _, item := range order.Items {
 			if isValidProduct(item.Producto.Nombre) {
-				fmt.Println(order.Tipo, order.Plataforma, item.Producto.Nombre)
+				//fmt.Println(order.Tipo, order.Plataforma, item.Producto.Nombre)
 				itemMovimiento := map[string]string{
 					"f470_id_co":           getF350IDCO(order.KeyLocal),                                         // Asigna el valor correspondiente al centro de operación
 					"f470_consec_docto":    "1",                                                                 // Consecutivo del documento auto-incremental
@@ -248,7 +250,7 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 			for _, itemGroup := range item.ItemGroups {
 				for _, modifier := range itemGroup.Modifiers {
 					if isValidProduct(modifier.Producto.Nombre) {
-						fmt.Println(order.Tipo, order.Plataforma, modifier.Producto.Nombre)
+						//fmt.Println(order.Tipo, order.Plataforma, modifier.Producto.Nombre)
 						modifierMovimiento := map[string]string{
 							"f470_id_co":           getF350IDCO(order.KeyLocal),                                              // Asigna el valor correspondiente al centro de operación
 							"f470_consec_docto":    "1",                                                                      // Consecutivo del documento auto-incremental
@@ -290,7 +292,7 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 	// }
 	// jsonString := string(jsonDoc)
 	// fmt.Println(jsonString)
-	fmt.Println("--------------------------------------------------")
+	//fmt.Println("--------------------------------------------------")
 	return doc
 }
 
@@ -368,6 +370,7 @@ func GetOrders(startDate string, endDate string, locationIDs []string) (string, 
 	var allOrders []PopappOrder
 	for _, locationID := range locationIDs {
 		url := fmt.Sprintf("https://api.popapp.io/orders/?start_date=%s&end_date=%s&location_id=%s&order=desc", startDate, endDate, locationID)
+		fmt.Println(url)
 		// Crear la solicitud HTTP
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
@@ -404,7 +407,7 @@ func GetOrders(startDate string, endDate string, locationIDs []string) (string, 
 	if err != nil {
 		return "", fmt.Errorf("error al codificar la lista de órdenes en formato JSON: %v", err)
 	}
-
+	//fmt.Println(string(ordersJSON))
 	return string(ordersJSON), nil
 }
 
@@ -497,14 +500,17 @@ func (e ReferenceError) Error() string {
 // GetReferences retrieves references from the database based on order type, platform, and product name.
 func (s Service) GetReferences(orderType, platform, productName string) string {
 	//var reference Reference
+	fmt.Println(orderType, platform, productName)
+
 	var filter = make(map[string]string)
-	filter["popapp"] = productName
+	//filter["popapp"] = productName
 	//var query string
 	switch platform {
 	case "Popapp":
 		switch orderType {
 		case "PICK_UP":
 			filter["popapp"] = productName
+			fmt.Printf("Filter: %v\n", filter)
 			reference, err := s.repository.Find(filter)
 			if err != nil {
 				shared.LogError("error getting reference row", LogDBRepository, "Find", err, filter)
@@ -543,6 +549,7 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE rappi_pick_up::text = $1::text LIMIT 1
 			// `
 			filter["rappi_pick_up"] = productName
+			fmt.Println(filter)
 			reference, err := s.repository.Find(filter)
 			if err != nil {
 				shared.LogError("error getting reference row", LogDBRepository, "Find", err, filter)
@@ -554,11 +561,12 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE rappi_bacu::text = $1::text LIMIT 1
 			// `
 			filter["rappi_bacu"] = productName
+			fmt.Printf("Filter: %v\n", filter)
 			reference, err := s.repository.Find(filter)
 			if err != nil {
 				shared.LogError("error getting reference row", LogDBRepository, "Find", err, filter)
-				return " "
 			}
+			fmt.Println(reference.ReferenciaDeliveryInline)
 			return reference.ReferenciaDeliveryInline
 		case "DELIVERY_BY_RESTAURANT":
 			// query = `
@@ -660,7 +668,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			reference, err := s.repository.Find(filter)
 			if err != nil {
 				shared.LogError("error getting reference row", LogDBRepository, "Find", err, filter)
-				return " "
 			}
 			return reference.ReferenciaDeliveryInline
 		case "DELIVERY_BY_PLATAFORMA":
@@ -671,7 +678,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			reference, err := s.repository.Find(filter)
 			if err != nil {
 				shared.LogError("error getting reference row", LogDBRepository, "Find", err, filter)
-				return " "
 			}
 			return reference.ReferenciaDeliveryInline
 		case "DELIVERY_BY_RESTAURANT":
@@ -682,7 +688,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			reference, err := s.repository.Find(filter)
 			if err != nil {
 				shared.LogError("error getting reference row", LogDBRepository, "Find", err, filter)
-				return " "
 			}
 			return reference.ReferenciaDeliveryInline
 		default:
@@ -701,7 +706,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 	// 	}
 	// 	return convertError(ReferenceError(fmt.Sprintf("error scanning row: %v", err)))
 	// }
-	return ""
 }
 
 // convertError converts a ReferenceError to a string.
@@ -721,13 +725,13 @@ func (s Service) insertData() error {
 	// Abrir el archivo Excel
 	xlsx, err := excelize.OpenFile("equivalencias.xlsx")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// Leer las celdas del archivo Excel y realizar inserciones en la base de datos
 	rows, err := xlsx.GetRows("Hoja1") // Asegúrate de que el nombre de la hoja sea correcto
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// Comenzar desde la segunda fila para evitar la fila de encabezados
@@ -747,10 +751,13 @@ func (s Service) insertData() error {
 		if err2 != nil {
 			shared.LogError(err.Error(), LogDBRepository, "TruncateRecords", err, reference)
 		}
+
 		err := s.repository.Create(&reference)
 		if err != nil {
 			shared.LogError(err.Error(), LogDBRepository, "Create", err, reference)
 		}
+
+		//fmt.Println(&reference)
 	}
 	fmt.Println("Datos insertados correctamente en la tabla equivalencias.")
 

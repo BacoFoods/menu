@@ -34,7 +34,7 @@ func (r *DBRepository) TruncateRecords() error {
 
 func (r *DBRepository) Find(filters map[string]string) (*Reference, error) {
 	var reference Reference
-	if err := r.db.Preload(clause.Associations).Find(&reference, filters).Limit(1).Error; err != nil {
+	if err := r.db.Unscoped().Preload(clause.Associations).Find(&reference, filters).Limit(1).Error; err != nil {
 		shared.LogError("error getting reference row", LogDBRepository, "Find", err, filters)
 		return nil, err
 	}
