@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/discount"
 	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/shared"
@@ -72,7 +73,7 @@ type OrderAction string
 
 type Repository interface {
 	// Order
-	Create(order *Order) (*Order, error)
+	Create(order *Order, ch *channel.Channel) (*Order, error)
 	Get(orderID string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
 	Update(order *Order) (*Order, error)
@@ -97,6 +98,7 @@ type Repository interface {
 type Order struct {
 	ID            uint              `json:"id" gorm:"primaryKey"`
 	Statuses      []OrderStatus     `json:"status" gorm:"foreignKey:OrderID" swaggerignore:"true"`
+	Code          string            `json:"code"`
 	CurrentStatus string            `json:"current_status"`
 	OrderType     string            `json:"order_type"`
 	ClientName    string            `json:"client_name"`

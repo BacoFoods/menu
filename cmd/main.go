@@ -212,6 +212,7 @@ func main() {
 		rabbitCh,
 		paymentService,
 		discountRepository,
+		channelRepository,
 	)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)

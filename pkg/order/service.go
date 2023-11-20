@@ -2,12 +2,14 @@ package order
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/BacoFoods/menu/internal"
 	accounts "github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/discount"
 	"github.com/BacoFoods/menu/pkg/invoice"
@@ -18,6 +20,7 @@ import (
 	shifts "github.com/BacoFoods/menu/pkg/shift"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 const (
@@ -59,6 +62,10 @@ type discountsSrv interface {
 	GetMany([]uint) ([]discount.Discount, error)
 }
 
+type channelSrv interface {
+	Get(string) (*channel.Channel, error)
+}
+
 type service struct {
 	repository Repository
 	table      tables.Repository
@@ -69,6 +76,7 @@ type service struct {
 	rt         *internal.Rabbit
 	payments   payment.Service
 	discounts  discountsSrv
+	channel    channelSrv
 }
 
 func NewService(repository Repository,
@@ -80,6 +88,7 @@ func NewService(repository Repository,
 	rt *internal.Rabbit,
 	payments payment.Service,
 	discounts discountsSrv,
+	channel channelSrv,
 ) service {
 	return service{repository,
 		table,
@@ -90,6 +99,7 @@ func NewService(repository Repository,
 		rt,
 		payments,
 		discounts,
+		channel,
 	}
 }
 
@@ -139,6 +149,22 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 		channelIDInt, _ := strconv.Atoi(value.(string))
 		channelID = uint(channelIDInt)
 	}
+	if channelID == 0 && order.ChannelID != nil {
+		shared.LogWarn("invalid channel from context - using channelID from request", LogService, "Create", nil, channelID)
+		channelID = *order.ChannelID
+	}
+
+	channel, err := s.channel.Get(fmt.Sprint(channelID))
+	if err == gorm.ErrRecordNotFound {
+		shared.LogWarn("channel not found", LogService, "Create", err, channelID)
+		return nil, errors.New("channel not found")
+	}
+
+	if err != nil {
+		shared.LogWarn("error getting channel", LogService, "Create", err, channelID)
+		return nil, err
+	}
+
 	brandID := uint(0)
 	if value := ctx.Value("brand_id"); value != nil {
 		brandIDInt, _ := strconv.Atoi(value.(string))
@@ -160,7 +186,7 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 		order.ShiftID = &shift.ID
 	}
 
-	newOrder, err := s.repository.Create(order)
+	newOrder, err := s.repository.Create(order, channel)
 	if err != nil {
 		shared.LogError("error creating order", LogService, "Create", err, *order)
 		return nil, fmt.Errorf(ErrorOrderCreation)
@@ -209,8 +235,10 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 
 	// Setting table
 	// TODO: Send create order and set table to repository to make a trx and rollback if error to avoid has order without table
-	if _, err := s.table.SetOrder(newOrder.TableID, &newOrder.ID); err != nil {
-		return nil, err
+	if newOrder.TableID != nil && *newOrder.TableID != 0 {
+		if _, err := s.table.SetOrder(newOrder.TableID, &newOrder.ID); err != nil {
+			return nil, err
+		}
 	}
 
 	// Getting order updated from db

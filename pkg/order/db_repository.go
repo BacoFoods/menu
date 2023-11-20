@@ -2,7 +2,9 @@ package order
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -23,9 +25,20 @@ func NewDBRepository(db *gorm.DB) *DBRepository {
 // Order methods
 
 // Create method for create a new order in database
-func (r *DBRepository) Create(order *Order) (*Order, error) {
+func (r *DBRepository) Create(order *Order, ch *channel.Channel) (*Order, error) {
+	isNew := order.ID == 0
 	if err := r.db.Save(order).Error; err != nil {
 		shared.LogError("error creating order", LogDBRepository, "Create", err, *order)
+		return nil, err
+	}
+
+	if isNew {
+		ch := strings.ToUpper(ch.ShortName)
+		order.Code = fmt.Sprintf("%s%d", ch, order.ID)
+	}
+
+	if err := r.db.Save(order).Error; err != nil {
+		shared.LogError("error updating order code", LogDBRepository, "Create", err, *order)
 		return nil, err
 	}
 
