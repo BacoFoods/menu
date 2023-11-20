@@ -896,7 +896,7 @@ func (h *Handler) PublicCheckout(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param invoice body CloseInvoiceRequest true "invoice"
-// @Success 200 {object} object{status=string,data=Invoice}
+// @Success 200 {object} object{status=string,data=invoice.Invoice}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 401 {object} shared.Response

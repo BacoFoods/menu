@@ -534,6 +534,19 @@ definitions:
       tip:
         type: number
     type: object
+  order.CloseInvoiceRequest:
+    properties:
+      document:
+        type: string
+      observations:
+        type: string
+      payments:
+        items:
+          $ref: '#/definitions/payment.Payment'
+        type: array
+    required:
+    - payments
+    type: object
   order.Order:
     properties:
       attendees:
@@ -3604,6 +3617,54 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To remove a client from an invoice
+      tags:
+      - Invoice
+  /invoice/{id}/close:
+    post:
+      consumes:
+      - application/json
+      description: To close an invoice
+      parameters:
+      - description: invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: invoice
+        in: body
+        name: invoice
+        required: true
+        schema:
+          $ref: '#/definitions/order.CloseInvoiceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Invoice'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To close an invoice
       tags:
       - Invoice
   /invoice/{id}/print:
