@@ -56,9 +56,13 @@ const (
 
 	TaxPercentage = 0.08
 
-	OrderStepCreated OrderStep = "created"
+	OrderStepCreated  OrderStep = "created"
+	OrderStepClosed   OrderStep = "closed"
+	OrderStepInvoiced OrderStep = "invoiced"
 
-	OrderActionCreated OrderAction = "fue atendido por"
+	OrderActionCreated  OrderAction = "fue atendido por"
+	OrderActionClosed   OrderAction = "fue cerrada por"
+	OrderActionInvoiced OrderAction = "fue facturado por"
 
 	LogDomain = "pkg/order/domain"
 
@@ -562,4 +566,5 @@ type CloseInvoiceRequest struct {
 	DocumentType string             `json:"document"`
 	Payments     []*payment.Payment `json:"payments" binding:"required"`
 	Observations string             `json:"observations"`
+	attendee     *Attendee
 }

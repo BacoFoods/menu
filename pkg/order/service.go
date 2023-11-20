@@ -50,7 +50,7 @@ type Service interface {
 	GetOrderType(orderTypeID string) (*OrderType, error)
 	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
 	DeleteOrderType(orderTypeID string) error
-	CreateInvoice(orderID string) (*invoices.Invoice, error)
+	CreateInvoice(orderID string, att *Attendee) (*invoices.Invoice, error)
 	CalculateInvoice(orderID string, req CalculateInvoiceRequest) (*invoices.Invoice, error)
 	CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoices.Invoice, error)
 	Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error)
@@ -623,7 +623,7 @@ func (s service) DeleteOrderType(orderTypeID string) error {
 
 // Invoice
 
-func (s service) CreateInvoice(orderID string) (*invoices.Invoice, error) {
+func (s service) CreateInvoice(orderID string, att *Attendee) (*invoices.Invoice, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "CreateInvoice", err, orderID)
@@ -641,10 +641,29 @@ func (s service) CreateInvoice(orderID string) (*invoices.Invoice, error) {
 	}
 
 	invoice := order.Invoices[0]
+	if att != nil {
+		invoice.Cashier = att.Name
+	}
+
+	for _, at := range order.Attendees {
+		if at.Action == OrderActionCreated {
+			invoice.Waiter = at.Name
+			break
+		}
+	}
+
 	invoiceDB, err := s.invoice.CreateUpdate(&invoice)
 	if err != nil {
 		shared.LogError("error creating invoice", LogService, "CreateInvoice", err, invoice)
 		return nil, fmt.Errorf(invoices.ErrorInvoiceCreation)
+	}
+
+	if att != nil {
+		att.OrderID = order.ID
+		att.Action = OrderActionInvoiced
+		att.OrderStep = OrderStepInvoiced
+
+		go s.repository.CreateAttendee(att)
 	}
 
 	return invoiceDB, nil
@@ -822,6 +841,14 @@ func (s service) CloseInvoice(req CloseInvoiceRequest) (*invoice.Invoice, error)
 
 	if _, err := s.repository.Update(order); err != nil {
 		return nil, err
+	}
+
+	att := req.attendee
+	if att == nil {
+		att.OrderID = order.ID
+		att.Action = OrderActionClosed
+		att.OrderStep = OrderStepClosed
+		go s.repository.CreateAttendee(att)
 	}
 
 	return invDB, nil
