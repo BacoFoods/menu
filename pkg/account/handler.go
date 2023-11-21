@@ -4,6 +4,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 const LogHandler = "pkg/account/handler.go"
@@ -31,7 +32,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 	var requestBody RequestAccount
 	if err := ctx.BindJSON(&requestBody); err != nil {
 		shared.LogWarn("warning binding request fail", LogHandler, "Create", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorAccountBadRequest))
 		return
 	}
 
@@ -60,7 +61,7 @@ func (h *Handler) CreatePinUser(ctx *gin.Context) {
 	var request RequestPinUser
 	if err := ctx.BindJSON(&request); err != nil {
 		shared.LogWarn("warning binding request fail", LogHandler, "CreatePinUser", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorAccountBadRequest))
 		return
 	}
 
@@ -95,7 +96,7 @@ func (h *Handler) Login(ctx *gin.Context) {
 	var request RequestLogin
 	if err := ctx.BindJSON(&request); err != nil {
 		shared.LogWarn("warning binding request fail", LogHandler, "Login", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorAccountBadRequest))
 		return
 	}
 
@@ -131,7 +132,7 @@ func (h *Handler) LoginPin(ctx *gin.Context) {
 	var request RequestLoginPin
 	if err := ctx.BindJSON(&request); err != nil {
 		shared.LogWarn("warning binding request fail", LogHandler, "LoginPin", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorAccountBadRequest))
 		return
 	}
 
@@ -172,9 +173,9 @@ func (h *Handler) LoginPin(ctx *gin.Context) {
 // @Router /account/{id} [delete]
 func (h *Handler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
-	if id == "" {
+	if strings.TrimSpace(id) == "" {
 		shared.LogWarn("warning binding request fail", LogHandler, "Delete", nil)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorAccountBadRequest))
 		return
 	}
 
@@ -258,7 +259,7 @@ func (h *Handler) Update(ctx *gin.Context) {
 	var requestBody RequestAccountUpdate
 	if err := ctx.BindJSON(&requestBody); err != nil {
 		shared.LogWarn("warning binding request fail", LogHandler, "Update", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorAccountBadRequest))
 		return
 	}
 

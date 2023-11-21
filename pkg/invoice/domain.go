@@ -29,6 +29,7 @@ const (
 	ErrorInvoicePrintingHeader           = "error printing invoice header"
 	ErrorInvoicePrintingItems            = "error printing invoice items"
 	ErrorInvoiceGettingByID              = "error getting invoice by id"
+	ErrorInvoiceIDEmpty                  = "error invoice id empty"
 
 	TaxPercentage     = 0.08
 	TipTypePercentage = "PERCENTAGE"

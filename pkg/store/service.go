@@ -48,6 +48,10 @@ func (s service) Get(storeID string) (*Store, error) {
 
 // Create creates a new store object.
 func (s service) Create(store *Store) (*Store, error) {
+	if store.BrandID == nil {
+		return nil, fmt.Errorf(ErrorStoreCreationBrandIDNil)
+	}
+
 	channels, err := s.channel.Find(map[string]string{"brand_id": fmt.Sprintf("%v", *store.BrandID)})
 	if err != nil {
 		shared.LogError("error getting channels by brand id", LogService, "Create", err, store.BrandID)

@@ -32,14 +32,14 @@ func (h *Handler) Create(ctx *gin.Context) {
 	var requestBody Discount
 	if err := ctx.BindJSON(&requestBody); err != nil {
 		shared.LogWarn("warning binding request fail", LogHandler, "Create", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorDiscountBadRequest))
 		return
 	}
 
 	discount, err := h.service.Create(&requestBody)
 	if err != nil {
 		shared.LogError("error creating discount", LogHandler, "Create", err, discount)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingDiscount))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDiscountCreation))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(discount))
@@ -75,7 +75,7 @@ func (h *Handler) Find(ctx *gin.Context) {
 	discounts, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error finding discounts", LogHandler, "Find", err, discounts)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingDiscount))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDiscountFinding))
 		return
 	}
 
@@ -100,7 +100,7 @@ func (h *Handler) Get(ctx *gin.Context) {
 	discount, err := h.service.Get(discountID)
 	if err != nil {
 		shared.LogError("error getting discount", LogHandler, "Get", err, discountID)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingDiscount))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDiscountGetting))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(discount))
@@ -123,13 +123,13 @@ func (h *Handler) Update(ctx *gin.Context) {
 	var requestBody Discount
 	if err := ctx.BindJSON(&requestBody); err != nil {
 		shared.LogError("error getting discount request body", LogHandler, "Update", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorDiscountBadRequest))
 		return
 	}
 	discount, err := h.service.Update(requestBody)
 	if err != nil {
 		shared.LogError("error updating discount", LogHandler, "Update", err, discount)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingDiscount))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDiscountUpdating))
 		return
 	}
 
@@ -153,7 +153,7 @@ func (h *Handler) Delete(ctx *gin.Context) {
 	discount, err := h.service.Delete(discountID)
 	if err != nil {
 		shared.LogError("error deleting discount", LogHandler, "Delete", err, discountID)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingDiscount))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDiscountDeleting))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(discount))

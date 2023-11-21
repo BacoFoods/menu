@@ -52,7 +52,7 @@ func (h *Handler) Find(c *gin.Context) {
 	channels, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error finding channels", LogHandler, "Find", err, channels)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingChannel))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorChannelFinding))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(channels))
@@ -76,7 +76,7 @@ func (h *Handler) Get(c *gin.Context) {
 	channel, err := h.service.Get(channelID)
 	if err != nil {
 		shared.LogError("error getting channel", LogHandler, "Get", err, channel)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingChannel))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorChannelGetting))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(channel))
@@ -99,13 +99,13 @@ func (h *Handler) Create(c *gin.Context) {
 	var request Channel
 	if err := c.ShouldBindJSON(&request); err != nil {
 		shared.LogWarn("warning binding request", LogHandler, "Create", err, request)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorChannelBadRequest))
 		return
 	}
 	channel, err := h.service.Create(&request)
 	if err != nil {
 		shared.LogError("error creating channel", LogHandler, "Create", err, channel)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingChannel))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorChannelCreating))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(channel))
@@ -130,14 +130,14 @@ func (h *Handler) Update(c *gin.Context) {
 	var request Channel
 	if err := c.ShouldBindJSON(&request); err != nil {
 		shared.LogWarn("warning binding request", LogHandler, "Update", err, request)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorChannelBadRequest))
 		return
 	}
 
 	channel, err := h.service.Update(&request)
 	if err != nil {
 		shared.LogError("error updating channel", LogHandler, "Update", err, request)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingChannel))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorChannelUpdating))
 		return
 	}
 
@@ -162,7 +162,7 @@ func (h *Handler) Delete(c *gin.Context) {
 	channel, err := h.service.Delete(channelID)
 	if err != nil {
 		shared.LogError("error deleting channel", LogHandler, "Delete", err, channel)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingChannel))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorChannelDeleting))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(channel))

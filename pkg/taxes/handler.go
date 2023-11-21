@@ -32,14 +32,14 @@ func (h *Handler) Create(ctx *gin.Context) {
 	var requestBody Tax
 	if err := ctx.BindJSON(&requestBody); err != nil {
 		shared.LogWarn("warning binding request fail", LogHandler, "Create", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorTaxBadRequest))
 		return
 	}
 
 	tax, err := h.service.Create(&requestBody)
 	if err != nil {
 		shared.LogError("error creating tax", LogHandler, "Create", err, tax)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingTax))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorTaxCreating))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(tax))
@@ -67,7 +67,7 @@ func (h *Handler) Find(ctx *gin.Context) {
 	tax, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error getting all tax", LogHandler, "Find", err)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingTax))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorTaxGetting))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(tax))
@@ -91,7 +91,7 @@ func (h *Handler) Get(ctx *gin.Context) {
 	tax, err := h.service.Get(taxID)
 	if err != nil {
 		shared.LogError("error getting tax", LogHandler, "Get", err, taxID)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingTax))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorTaxGetting))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(tax))
@@ -114,13 +114,13 @@ func (h *Handler) Update(ctx *gin.Context) {
 	var requestBody Tax
 	if err := ctx.BindJSON(&requestBody); err != nil {
 		shared.LogError("error getting tax request body", LogHandler, "Update", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorTaxBadRequest))
 		return
 	}
 	tax, err := h.service.Update(requestBody)
 	if err != nil {
 		shared.LogError("error updating tax", LogHandler, "Update", err, tax)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingTax))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorTaxUpdating))
 		return
 	}
 
@@ -144,7 +144,7 @@ func (h *Handler) Delete(ctx *gin.Context) {
 	tax, err := h.service.Delete(taxID)
 	if err != nil {
 		shared.LogError("error deleting tax", LogHandler, "Delete", err, taxID)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingTax))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorTaxDeleting))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(tax))

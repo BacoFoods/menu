@@ -8,18 +8,19 @@ import (
 )
 
 const (
-	ErrorBadRequest           string = "error bad request"
-	ErrorFindingMenu          string = "error finding menu"
-	ErrorFindingByPlace       string = "error finding menu by place"
-	ErrorGettingMenu          string = "error getting menu"
-	ErrorCreatingMenu         string = "error creating menu"
-	ErrorUpdatingMenu         string = "error updating menu"
-	ErrorDeletingMenu         string = "error deleting menu"
-	ErrorUpdatingAvailability string = "error updating availability"
-	ErrorFindingChannels      string = "error finding channels"
-	ErrorAddingCategory       string = "error adding category"
-	ErrorRemovingCategory     string = "error removing category"
-	ErrorMenuWrongBrand       string = "error adding category to menu wrong brand"
+	ErrorMenuBadRequest           string = "error bad request"
+	ErrorMenuIDEmpty              string = "error menu id empty"
+	ErrorMenuFinding              string = "error finding menu"
+	ErrorMenuFindingByPlace       string = "error finding menu by place"
+	ErrorMenuGetting              string = "error getting menu"
+	ErrorMenuCreating             string = "error creating menu"
+	ErrorMenuUpdating             string = "error updating menu"
+	ErrorMenuDeleting             string = "error deleting menu"
+	ErrorMenuUpdatingAvailability string = "error updating availability"
+	ErrorMenuFindingChannels      string = "error finding channels"
+	ErrorMenuAddingCategory       string = "error adding category"
+	ErrorMenuRemovingCategory     string = "error removing category"
+	ErrorMenuWrongBrand           string = "error adding category to menu wrong brand"
 )
 
 type Repository interface {

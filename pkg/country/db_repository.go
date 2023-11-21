@@ -1,9 +1,11 @@
 package country
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 const LogDBRepository string = "pkg/country/db_repository"
@@ -36,9 +38,10 @@ func (r *DBRepository) Find(query map[string]string) ([]Country, error) {
 }
 
 func (r *DBRepository) Get(countryID string) (*Country, error) {
-	if countryID == "" {
-		shared.LogWarn("error getting country", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(countryID) == "" {
+		err := fmt.Errorf(ErrorCountryIDEmpty)
+		shared.LogWarn("error getting country", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var country Country

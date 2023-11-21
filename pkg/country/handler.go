@@ -33,14 +33,14 @@ func (h *Handler) Create(ctx *gin.Context) {
 	var requestBody Country
 	if err := ctx.BindJSON(&requestBody); err != nil {
 		shared.LogWarn("warning binding request fail", LogHandler, "Create", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorCountryBadRequest))
 		return
 	}
 
 	country, err := h.service.Create(&requestBody)
 	if err != nil {
 		shared.LogError("error creating country", LogHandler, "Create", err, country)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingCountry))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCountryCreating))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(country))
@@ -68,7 +68,7 @@ func (h *Handler) Find(ctx *gin.Context) {
 	country, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error getting all country", LogHandler, "Find", err)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingCountry))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCountryGetting))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(country))
@@ -92,7 +92,7 @@ func (h *Handler) Get(ctx *gin.Context) {
 	country, err := h.service.Get(countryID)
 	if err != nil {
 		shared.LogError("error getting country", LogHandler, "Get", err, countryID)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingCountry))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCountryGetting))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(country))
@@ -115,13 +115,13 @@ func (h *Handler) Update(ctx *gin.Context) {
 	var requestBody Country
 	if err := ctx.BindJSON(&requestBody); err != nil {
 		shared.LogError("error getting country request body", LogHandler, "Update", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorCountryBadRequest))
 		return
 	}
 	country, err := h.service.Update(requestBody)
 	if err != nil {
 		shared.LogError("error updating country", LogHandler, "Update", err, country)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingCountry))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCountryUpdating))
 		return
 	}
 
@@ -145,7 +145,7 @@ func (h *Handler) Delete(ctx *gin.Context) {
 	country, err := h.service.Delete(countryID)
 	if err != nil {
 		shared.LogError("error deleting country", LogHandler, "Delete", err, countryID)
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingCountry))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCountryDeleting))
 		return
 	}
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(country))

@@ -7,15 +7,16 @@ import (
 )
 
 const (
-	ErrorBadRequest       string = "error bad request"
-	ErrorFindingCategory  string = "error finding category"
-	ErrorGettingCategory  string = "error getting category"
-	ErrorCreatingCategory string = "error creating category"
-	ErrorUpdatingCategory string = "error updating category"
-	ErrorDeletingCategory string = "error deleting category"
-	ErrorGettingMenus     string = "error getting menus from category id"
-	ErrorAddingProduct    string = "error adding product to category"
-	ErrorRemovingProduct  string = "error removing product from category"
+	ErrorCategoryBadRequest      string = "error bad request"
+	ErrorCategoryIDEmpty         string = "error category id empty"
+	ErrorCategoryFinding         string = "error finding category"
+	ErrorCategoryGetting         string = "error getting category"
+	ErrorCategoryCreating        string = "error creating category"
+	ErrorCategoryUpdating        string = "error updating category"
+	ErrorCategoryDeleting        string = "error deleting category"
+	ErrorCategoryGettingMenus    string = "error getting menus from category id"
+	ErrorCategoryAddingProduct   string = "error adding product to category"
+	ErrorCategoryRemovingProduct string = "error removing product from category"
 )
 
 type Category struct {

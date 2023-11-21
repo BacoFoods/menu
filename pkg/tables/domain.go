@@ -19,6 +19,7 @@ const (
 	ErrorTableNotFound     = "error table not found"
 	ErrorTableScanningQR   = "error scanning qr"
 	ErrorTableGeneratingQR = "error generating qr"
+	ErrorTableIDEmpty      = "error table id empty"
 )
 
 const (

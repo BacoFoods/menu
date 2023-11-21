@@ -20,12 +20,12 @@ type GormFramework struct {
 }
 
 func MustNewGormFramework(customDSN string) *GormFramework {
-	if customDSN == "" {
+	if strings.TrimSpace(customDSN) == "" {
 		customDSN = dsn()
 	}
 
 	logrus.Debugf("Connecting to database: %s", escapeDSN(customDSN))
-	db, err := gorm.Open(gormpostgres.Open(dsn()), &gorm.Config{})
+	db, err := gorm.Open(gormpostgres.Open(dsn()), &gorm.Config{TranslateError: true})
 	if err != nil {
 		logrus.Fatalf("error connecting to database: %s", escapeDSN(customDSN))
 		return nil
@@ -78,7 +78,7 @@ func dsn() string {
 }
 
 func escapeDSN(customDSN string) string {
-	if customDSN == "" {
+	if strings.TrimSpace(customDSN) == "" {
 		customDSN = dsn()
 	}
 	return strings.ReplaceAll(

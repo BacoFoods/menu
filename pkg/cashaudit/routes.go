@@ -11,5 +11,6 @@ func NewRoutes(handler *Handler) Routes {
 }
 
 func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
+	router.POST("/cash-audit", r.handler.Create)
 	router.GET("/cash-audit", r.handler.Get)
 }

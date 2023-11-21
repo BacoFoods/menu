@@ -6,12 +6,13 @@ import (
 )
 
 const (
-	ErrorBadRequest      string = "error bad request"
-	ErrorFindingChannel  string = "error finding channel"
-	ErrorCreatingChannel string = "error creating channel"
-	ErrorGettingChannel  string = "error getting channel"
-	ErrorUpdatingChannel string = "error updating channel"
-	ErrorDeletingChannel string = "error deleting channel"
+	ErrorChannelBadRequest string = "error bad request"
+	ErrorChannelFinding    string = "error finding channel"
+	ErrorChannelCreating   string = "error creating channel"
+	ErrorChannelGetting    string = "error getting channel"
+	ErrorChannelUpdating   string = "error updating channel"
+	ErrorChannelDeleting   string = "error deleting channel"
+	ErrorChannelIDEmpty    string = "error channel id empty"
 )
 
 type Channel struct {

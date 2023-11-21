@@ -47,9 +47,10 @@ func (r *DBRepository) Create(order *Order, ch *channel.Channel) (*Order, error)
 
 // Get method for get an order from database
 func (r *DBRepository) Get(orderID string) (*Order, error) {
-	if orderID == "" {
-		shared.LogWarn("error getting order", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(orderID) == "" {
+		err := fmt.Errorf(ErrorOrderIDEmpty)
+		shared.LogWarn("error getting order", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var order Order
@@ -143,6 +144,19 @@ func (r *DBRepository) FindByShift(shiftID uint) ([]Order, error) {
 	var orders []Order
 	if err := r.db.Preload(clause.Associations).Find(&orders, "shift_id = ?", shiftID).Error; err != nil {
 		shared.LogError("error finding orders", LogDBRepository, "FindByShift", err, shiftID)
+		return nil, err
+	}
+
+	return orders, nil
+}
+
+// GetLastDayOrders method for get day's orders from database
+func (r *DBRepository) GetLastDayOrders(storeID string) ([]Order, error) {
+	var orders []Order
+	if err := r.db.Preload(clause.Associations).
+		Where("store_id = ? AND created_at >= NOW() - INTERVAL '1' DAY", storeID).
+		Find(&orders).Error; err != nil {
+		shared.LogError("error getting orders", LogDBRepository, "GetLastDayOrders", err, storeID)
 		return nil, err
 	}
 

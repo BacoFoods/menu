@@ -12,8 +12,13 @@ const (
 	ErrorPaymentFinding  = "error finding payment"
 	ErrorPaymentUpdating = "error updating payment"
 	ErrorPaymentDeleting = "error deleting payment"
+	ErrorPaymentIDEmpty  = "error payment id empty"
 
-	ErrorPaymentMethodFinding = "error finding payment method"
+	ErrorPaymentMethodFinding       = "error finding payment method"
+	ErrorPaymentMethodWrongCode     = "error payment method wrong code"
+	ErrorPaymentMethodEmptyCode     = "error payment method empty code"
+	ErrorPaymentMethodAlreadyExists = "error payment method already exists"
+	ErrorPaymentMethodCreation      = "error payment method creation"
 
 	PaymentStatusPaid     = "paid"
 	PaymentStatusPending  = "pending"
@@ -67,15 +72,14 @@ type Payment struct {
 }
 
 type PaymentMethod struct {
-	ID        uint            `json:"id"`
-	Name      string          `json:"name"`
-	BrandID   *uint           `json:"brand_id"`
-	StoreID   *uint           `json:"store_id"`
-	ChannelID *uint           `json:"channel_id"`
-	ShortName string          `json:"short_name"`
-	Code      string          `json:"code"`
-	Franchise string          `json:"franchise"`
-	CreatedAt *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	Name        string          `json:"name"`
+	BrandID     *uint           `json:"brand_id"`
+	StoreID     *uint           `json:"store_id"`
+	ChannelID   *uint           `json:"channel_id"`
+	ShortName   string          `json:"short_name"`
+	Code        string          `json:"code" gorm:"primaryKey;autoIncrement:false;uniqueIndex" binding:"required"`
+	Description string          `json:"description"`
+	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }

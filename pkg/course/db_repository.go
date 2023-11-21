@@ -1,8 +1,10 @@
 package course
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
+	"strings"
 )
 
 const LogRepository = "pkg/course/repository"
@@ -26,9 +28,10 @@ func (r DBRepository) Find(filter map[string]any) ([]Course, error) {
 }
 
 func (r DBRepository) Get(courseID string) (Course, error) {
-	if courseID == "" {
-		shared.LogWarn("error getting course", LogRepository, "Get", shared.ErrorIDEmpty)
-		return Course{}, shared.ErrorIDEmpty
+	if strings.TrimSpace(courseID) == "" {
+		err := fmt.Errorf(ErrorCourseIDEmpty)
+		shared.LogWarn("error getting course", LogRepository, "Get", err)
+		return Course{}, err
 	}
 
 	var course Course
