@@ -130,7 +130,7 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 		{
 			"F350_ID_CO":                    getF350IDCO(orders[0].KeyLocal),                                                                                         // Asigna el valor correspondiente al centro de operación de la primera orden
 			"F350_ID_TIPO_DOCTO":            "FVR",                                                                                                                   // Siempre es FVR
-			"F350_CONSEC_DOCTO":             "1",                                                                                                                     // TODO: Falta por validar el consecutivo del documento
+			"F350_CONSEC_DOCTO":             "1",                                                                                                                     // "1" para ser autoincremental para integración
 			"F350_FECHA":                    formatDate(orders[0].FechaCreacion),                                                                                     // Asigna el valor correspondiente a la fecha de la primera orden
 			"f461_id_co_fact":               getF350IDCO(orders[0].KeyLocal),                                                                                         // Asigna el valor correspondiente al centro de operación de la primera orden
 			"f461_notas":                    "Orden " + orders[0].DisplayID + " - el " + formatDate(orders[0].FechaCreacion) + " - del pdv " + orders[0].NombreStore, // Nota correspondiente a la primera orden procesada
@@ -140,7 +140,6 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 	doc["Docto. ventas comercial"] = doctoVentasComercial
 
 	// Construir la sección "Descuentos" del documento
-	// Puedes iterar sobre los descuentos de la orden y agregarlos a la estructura del documento
 	descuentos := []map[string]string{}
 	var descuento float64
 	registroDescuento := 1 // Número de registro para el descuento
@@ -170,11 +169,6 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 		shareDescuento := descuento / totalItems
 
 		for _, item := range order.Items {
-			// Ignora si el precio unitario es 0
-			// if item.Producto.PrecioUnitario == 0 {
-			// 	registroDescuento++ // Incrementar el número de registro sin agregar el descuento
-			// 	continue
-			// }
 
 			descuentoRegistro := shareDescuento * float64(item.Producto.PrecioUnitario)
 			descuentoTotalRegistro := shareDescuento * float64(item.Cantidad) * float64(item.Producto.PrecioUnitario)
@@ -195,11 +189,6 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 			for _, itemGroup := range item.ItemGroups {
 				// Recorrer los modifiers del itemGroup actual
 				for _, modifier := range itemGroup.Modifiers {
-					// Ignore if unit price is 0
-					// if modifier.Producto.PrecioUnitario == 0 {
-					// 	registroDescuento++ // Incrementar el número de registro sin agregar el descuento
-					// 	continue
-					// }
 
 					descuentoRegistro := shareDescuento * (float64(modifier.Producto.PrecioUnitario) / 1.08)
 					descuentoTotalRegistro := shareDescuento * (float64(item.Cantidad) * (float64(modifier.Producto.PrecioUnitario) / 1.08))
@@ -239,7 +228,7 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 					"f470_id_co_movto":     getF350IDCO(order.KeyLocal),                                         // Asigna el valor correspondiente al centro de operación
 					"f470_cant_base":       strconv.Itoa(item.Cantidad),                                         // Asigna la cantidad del item
 					"f470_vlr_bruto":       calculateGrossValue(item.Cantidad, item.Producto.PrecioUnitario),    // Valor bruto del item
-					"f470_referencia_item": s.GetReferences(order.Tipo, order.Plataforma, item.Producto.Nombre), // TODO: Falta por validar como se hará el cruce de referencias
+					"f470_referencia_item": s.GetReferences(order.Tipo, order.Plataforma, item.Producto.Nombre), // Cruce de referencias por tabla de equivalencias
 				}
 				movimientos = append(movimientos, itemMovimiento)
 				registro++ // Incrementar el número de registro
@@ -250,7 +239,6 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 			for _, itemGroup := range item.ItemGroups {
 				for _, modifier := range itemGroup.Modifiers {
 					if isValidProduct(modifier.Producto.Nombre) {
-						//fmt.Println(order.Tipo, order.Plataforma, modifier.Producto.Nombre)
 						modifierMovimiento := map[string]string{
 							"f470_id_co":           getF350IDCO(order.KeyLocal),                                              // Asigna el valor correspondiente al centro de operación
 							"f470_consec_docto":    "1",                                                                      // Consecutivo del documento auto-incremental
@@ -282,17 +270,6 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 	cuotasCxC = append(cuotasCxC, itemcuotasCxC)
 	doc["Cuotas CxC"] = cuotasCxC
 
-	//fmt.Println(doc)
-
-	//jsonDoc, err := json.Marshal(doc)
-	// if err != nil {
-	// 	// Manejar el error si ocurre
-	// 	fmt.Printf("Error al convertir a JSON: %v", err)
-	// 	return nil
-	// }
-	// jsonString := string(jsonDoc)
-	// fmt.Println(jsonString)
-	//fmt.Println("--------------------------------------------------")
 	return doc
 }
 
@@ -499,18 +476,13 @@ func (e ReferenceError) Error() string {
 
 // GetReferences retrieves references from the database based on order type, platform, and product name.
 func (s Service) GetReferences(orderType, platform, productName string) string {
-	//var reference Reference
-	//fmt.Println(orderType, platform, productName)
 
 	var filter = make(map[string]string)
-	//filter["popapp"] = productName
-	//var query string
 	switch platform {
 	case "Popapp":
 		switch orderType {
 		case "PICK_UP":
 			filter["popapp"] = productName
-			//fmt.Printf("Filter: %v\n", filter)
 			reference, err := s.repository.Find(filter)
 			if err != nil {
 				shared.LogError("error getting reference row", LogDBRepository, "Find", err, filter)
@@ -518,9 +490,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			}
 			return reference.ReferenciaDeliveryInline
 		case "DINE_IN":
-			// query = `
-			// 	SELECT referencia_pdv FROM equivalencias WHERE popapp::text = $1::text LIMIT 1
-			// `
 			filter["popapp"] = productName
 			reference, err := s.repository.Find(filter)
 			if err != nil {
@@ -529,9 +498,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			}
 			return reference.ReferenciaPdv
 		case "DELIVERY_BY_RESTAURANT":
-			// query = `
-			// 	SELECT referencia_pdv FROM equivalencias WHERE popapp::text = $1::text LIMIT 1
-			// `
 			filter["popapp"] = productName
 			reference, err := s.repository.Find(filter)
 			if err != nil {
@@ -545,9 +511,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 	case "RAPPI":
 		switch orderType {
 		case "PICK_UP":
-			// query = `
-			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE rappi_pick_up::text = $1::text LIMIT 1
-			// `
 			filter["rappi_pick_up"] = productName
 			//fmt.Println(filter)
 			reference, err := s.repository.Find(filter)
@@ -557,21 +520,13 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			}
 			return reference.ReferenciaDeliveryInline
 		case "DELIVERY_BY_PLATAFORMA":
-			// query = `
-			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE rappi_bacu::text = $1::text LIMIT 1
-			// `
 			filter["rappi_bacu"] = productName
-			//fmt.Printf("Filter: %v\n", filter)
 			reference, err := s.repository.Find(filter)
 			if err != nil {
 				shared.LogError("error getting reference row", LogDBRepository, "Find", err, filter)
 			}
-			//fmt.Println(reference.ReferenciaDeliveryInline)
 			return reference.ReferenciaDeliveryInline
 		case "DELIVERY_BY_RESTAURANT":
-			// query = `
-			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE rappi_bacu::text = $1::text LIMIT 1
-			// `
 			filter["rappi_bacu"] = productName
 			reference, err := s.repository.Find(filter)
 			if err != nil {
@@ -585,9 +540,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 	case "DiDi":
 		switch orderType {
 		case "PICK_UP":
-			// query = `
-			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE didi_bacu::text = $1::text LIMIT 1
-			// `
 			filter["didi_bacu"] = productName
 			reference, err := s.repository.Find(filter)
 			if err != nil {
@@ -596,9 +548,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			}
 			return reference.ReferenciaDeliveryInline
 		case "DELIVERY_BY_PLATAFORMA":
-			// query = `
-			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE didi_bacu::text = $1::text LIMIT 1
-			// `
 			filter["didi_bacu"] = productName
 			reference, err := s.repository.Find(filter)
 			if err != nil {
@@ -607,9 +556,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			}
 			return reference.ReferenciaDeliveryInline
 		case "DELIVERY_BY_RESTAURANT":
-			// query = `
-			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE didi_bacu::text = $1::text LIMIT 1
-			// `
 			filter["didi_bacu"] = productName
 			reference, err := s.repository.Find(filter)
 			if err != nil {
@@ -623,9 +569,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 	case "BACOMARKETPLACE":
 		switch orderType {
 		case "PICK_UP":
-			// query = `
-			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE bacu_marketplace::text = $1::text LIMIT 1
-			// `
 			filter["bacu_marketplace"] = productName
 			reference, err := s.repository.Find(filter)
 			if err != nil {
@@ -634,9 +577,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			}
 			return reference.ReferenciaDeliveryInline
 		case "DELIVERY_BY_PLATAFORMA":
-			// query = `
-			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE bacu_marketplace::text = $1::text LIMIT 1
-			// `
 			filter["bacu_marketplace"] = productName
 			reference, err := s.repository.Find(filter)
 			if err != nil {
@@ -645,9 +585,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			}
 			return reference.ReferenciaDeliveryInline
 		case "DELIVERY_BY_RESTAURANT":
-			// query = `
-			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE bacu_marketplace::text = $1::text LIMIT 1
-			// `
 			filter["bacu_marketplace"] = productName
 			reference, err := s.repository.Find(filter)
 			if err != nil {
@@ -661,9 +598,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 	case "ORDERINTABLE":
 		switch orderType {
 		case "PICK_UP":
-			// query = `
-			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE bacu_marketplace::text = $1::text LIMIT 1
-			// `
 			filter["bacu_marketplace"] = productName
 			reference, err := s.repository.Find(filter)
 			if err != nil {
@@ -671,9 +605,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			}
 			return reference.ReferenciaDeliveryInline
 		case "DELIVERY_BY_PLATAFORMA":
-			// query = `
-			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE bacu_marketplace::text = $1::text LIMIT 1
-			// `
 			filter["bacu_marketplace"] = productName
 			reference, err := s.repository.Find(filter)
 			if err != nil {
@@ -681,9 +612,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 			}
 			return reference.ReferenciaDeliveryInline
 		case "DELIVERY_BY_RESTAURANT":
-			// query = `
-			// 	SELECT referencia_delivery_inline FROM equivalencias WHERE bacu_marketplace::text = $1::text LIMIT 1
-			// `
 			filter["bacu_marketplace"] = productName
 			reference, err := s.repository.Find(filter)
 			if err != nil {
@@ -696,16 +624,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 	default:
 		return convertError(ReferenceError(fmt.Sprintf("unsupported platform: %s", platform)))
 	}
-	//fmt.Println(platform,orderType,productName)
-	//row := db.QueryRow(query, productName)
-
-	// err = row.Scan(&reference)
-	// if err != nil {
-	// 	if err == sql.ErrNoRows {
-	// 		return convertError(ReferenceError("no references found for the given conditions"))
-	// 	}
-	// 	return convertError(ReferenceError(fmt.Sprintf("error scanning row: %v", err)))
-	// }
 }
 
 // convertError converts a ReferenceError to a string.
@@ -756,8 +674,6 @@ func (s Service) insertData() error {
 		if err != nil {
 			shared.LogError(err.Error(), LogDBRepository, "Create", err, reference)
 		}
-
-		//fmt.Println(&reference)
 	}
 	fmt.Println("Datos insertados correctamente en la tabla equivalencias.")
 
