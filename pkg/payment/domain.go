@@ -77,7 +77,7 @@ type PaymentMethod struct {
 	StoreID     *uint           `json:"store_id"`
 	ChannelID   *uint           `json:"channel_id"`
 	ShortName   string          `json:"short_name"`
-	Code        string          `json:"code" gorm:"primaryKey;autoIncrement:false;uniqueIndex" binding:"required"`
+	Code        string          `json:"code" gorm:"primaryKey;autoIncrement:false;index:idx_payment_method_code,uniqueIndex" binding:"required"`
 	Description string          `json:"description"`
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`

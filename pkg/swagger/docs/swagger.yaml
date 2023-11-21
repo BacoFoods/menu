@@ -179,6 +179,17 @@ definitions:
         description: Reported section is for the reported values from cashier
         type: number
     type: object
+  cashaudit.DTOCashAudit:
+    properties:
+      card_incomes:
+        type: number
+      cash_incomes:
+        type: number
+      online_incomes:
+        type: number
+      total_sell:
+        type: number
+    type: object
   category.Category:
     properties:
       brand_id:
@@ -1858,7 +1869,7 @@ paths:
         name: cashAudit
         required: true
         schema:
-          $ref: '#/definitions/cashaudit.CashAudit'
+          $ref: '#/definitions/cashaudit.DTOCashAudit'
       produces:
       - application/json
       responses:

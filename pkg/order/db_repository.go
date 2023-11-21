@@ -153,7 +153,8 @@ func (r *DBRepository) FindByShift(shiftID uint) ([]Order, error) {
 // GetLastDayOrders method for get day's orders from database
 func (r *DBRepository) GetLastDayOrders(storeID string) ([]Order, error) {
 	var orders []Order
-	if err := r.db.Preload(clause.Associations).
+	if err := r.db.Debug().Preload(clause.Associations).
+		Preload("Invoices.Payments").
 		Where("store_id = ? AND created_at >= NOW() - INTERVAL '1' DAY", storeID).
 		Find(&orders).Error; err != nil {
 		shared.LogError("error getting orders", LogDBRepository, "GetLastDayOrders", err, storeID)

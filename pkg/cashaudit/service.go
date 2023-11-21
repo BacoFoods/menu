@@ -93,6 +93,10 @@ func (s service) Create(storeID string, cashReported *CashAudit) (*CashAudit, er
 		return nil, fmt.Errorf(ErrorCashAuditGettingOrders)
 	}
 
+	if len(orderList) == 0 {
+		return nil, fmt.Errorf(ErrorCashAuditGettingOrders)
+	}
+
 	// Getting invoices from orders
 	invoiceList := GetInvoices(orderList)
 	paymentsList := GetPayments(invoiceList)

@@ -54,7 +54,7 @@ func (h Handler) Get(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param cashAudit body CashAudit true "Cash Audit"
+// @Param cashAudit body DTOCashAudit true "Cash Audit"
 // @Success 200 {object} object{status=string,data=CashAudit}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response

@@ -1154,7 +1154,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/cashaudit.CashAudit"
+                            "$ref": "#/definitions/cashaudit.DTOCashAudit"
                         }
                     }
                 ],
@@ -12277,6 +12277,23 @@ const docTemplate = `{
                 },
                 "total_sell_reported": {
                     "description": "Reported section is for the reported values from cashier",
+                    "type": "number"
+                }
+            }
+        },
+        "cashaudit.DTOCashAudit": {
+            "type": "object",
+            "properties": {
+                "card_incomes": {
+                    "type": "number"
+                },
+                "cash_incomes": {
+                    "type": "number"
+                },
+                "online_incomes": {
+                    "type": "number"
+                },
+                "total_sell": {
                     "type": "number"
                 }
             }
