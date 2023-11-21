@@ -56,3 +56,49 @@ func (r *DBRepository) Find(filters map[string]string) (*Reference, error) {
 	}
 	return &reference, nil
 }
+
+func (r *DBRepository) FindReferences(filters map[string]string) ([]Reference, error) {
+	var reference []Reference
+	if err := r.db.Find(&reference, filters).Error; err != nil {
+		shared.LogError("error finding reference", LogDBRepository, "FindReferences", err, filters)
+		return nil, err
+	}
+	return reference, nil
+}
+
+// Create method for create a new category in database
+func (r *DBRepository) CreateReference(reference *Reference) (*Reference, error) {
+	if err := r.db.Preload(clause.Associations).Save(reference).Error; err != nil {
+		shared.LogError("error creating category", LogDBRepository, "CreateReference", err, reference)
+		return nil, err
+	}
+	return reference, nil
+}
+
+// Delete method for delete a reference in database
+func (r *DBRepository) DeleteReference(referenceID string) (*Reference, error) {
+	var reference Reference
+	if err := r.db.First(&reference, referenceID).Error; err != nil {
+		shared.LogError("error getting category", LogDBRepository, "Delete", err, referenceID)
+		return nil, err
+	}
+	if err := r.db.Delete(&reference).Error; err != nil {
+		shared.LogError("error deleting category", LogDBRepository, "Delete", err, reference)
+		return nil, err
+	}
+	return &reference, nil
+}
+
+// Update method for update a reference in database
+func (r *DBRepository) UpdateReference(reference *Reference) (*Reference, error) {
+	var referenceDB Reference
+	if err := r.db.Preload(clause.Associations).First(&referenceDB, reference.ID).Error; err != nil {
+		shared.LogError("error getting category", LogDBRepository, "UpdateReference", err, reference)
+		return nil, err
+	}
+	if err := r.db.Model(&referenceDB).Updates(reference).Error; err != nil {
+		shared.LogError("error updating category", LogDBRepository, "UpdateReference", err, reference)
+		return nil, err
+	}
+	return &referenceDB, nil
+}

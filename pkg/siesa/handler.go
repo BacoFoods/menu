@@ -80,24 +80,126 @@ func (h *Handler) Create(ctx *gin.Context) {
 	ctx.Data(http.StatusOK, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFile)
 }
 
-// country, err := h.service.Create(&requestBody)
-// if err != nil {
-// 	shared.LogError("error creating country", LogHandler, "Create", err, country)
-// 	ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingCountry))
-// 	return
-// }
-// ctx.JSON(http.StatusOK, shared.SuccessResponse(country))
+// FindReferences handles a request to find references based on filters
+// @Tags SIESA
+// @Summary Find references
+// @Description Find references based on filters
+// @Param referencia_pdv query string false "PDV Reference"
+// @Param referencia_delivery_inline query string false "Delivery Inline Reference"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} shared.Response
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /siesa/reference [get]
+func (h *Handler) FindReferences(ctx *gin.Context) {
+	filters := make(map[string]string)
 
-// startDate := "2023-10-12"
-// endDate := "2023-10-13"
-// locationIDs := []string{"bacuzonag"}
+	referenciaPDV := ctx.Query("referencia_pdv")
+	if referenciaPDV != "" {
+		filters["referencia_pdv"] = referenciaPDV
+	}
 
-// // Obtener las ordenes
-// response, err := GetOrders(startDate, endDate, locationIDs)
-// if err != nil {
-// 	fmt.Println("Error al obtener las ordenes:", err)
-// 	return
-// }
-//fmt.Println("Respuesta del servidor:", response)
+	referenciaDeliveryInline := ctx.Query("referencia_delivery_inline")
+	if referenciaDeliveryInline != "" {
+		filters["referencia_delivery_inline"] = referenciaDeliveryInline
+	}
 
-// Llamar a la función para manejar la integración con SIESA
+	// Check if both filters are empty, and if so, don't apply any filters
+	if referenciaPDV == "" && referenciaDeliveryInline == "" {
+		filters = nil
+	}
+
+	references, err := h.service.FindReferences(filters)
+	if err != nil {
+		shared.LogError("error getting references", LogHandler, "FindReferences", err)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingReferences))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(references))
+}
+
+// CreateReference handles a request to create a reference
+// @Tags SIESA
+// @Summary Create a reference
+// @Description Create a reference
+// @Param reference body Reference true "Reference request"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} shared.Response
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /siesa/reference [post]
+func (h *Handler) CreateReference(ctx *gin.Context) {
+	var requestBody Reference
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		shared.LogWarn("warning binding request failed", LogHandler, "CreateReference", err)
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	reference, err := h.service.CreateReference(&requestBody)
+	if err != nil {
+		shared.LogError("error creating reference", LogHandler, "CreateReference", err, reference)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingReference))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(reference))
+}
+
+// Delete to handle a request to delete a reference
+// @Tags SIESA
+// @Summary To delete a reference
+// @Description To delete a reference
+// @Param id path string true "reference id"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=Reference}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /siesa/reference/{id} [delete]
+func (h *Handler) DeleteReference(c *gin.Context) {
+	referenceID := c.Param("id")
+	reference, err := h.service.DeleteReference(referenceID)
+	if err != nil {
+		shared.LogError("error deleting category", LogHandler, "DeleteReference", err, reference)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingReference))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(reference))
+}
+
+// Update to handle a request to update a reference
+// @Tags SIESA
+// @Summary To update a reference
+// @Description To update a reference
+// @Param id path string true "reference id"
+// @Param reference body Reference true "reference request"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=Reference}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /siesa/reference/{id} [patch]
+func (h *Handler) UpdateReference(c *gin.Context) {
+	var requestBody Reference
+	if err := c.BindJSON(&requestBody); err != nil {
+		shared.LogWarn("warning binding request fail", LogHandler, "UpdateReference", err)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+	category, err := h.service.UpdateReference(&requestBody)
+	if err != nil {
+		shared.LogError("error updating category", LogHandler, "Update", err, category)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingReference))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(category))
+}

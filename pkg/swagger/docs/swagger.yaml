@@ -450,7 +450,7 @@ definitions:
       start_date:
         type: string
       store_id:
-        type: string
+        type: integer
     type: object
   country.Country:
     properties:
@@ -1397,8 +1397,29 @@ definitions:
     required:
     - start_balance
     type: object
-<<<<<<< HEAD
-=======
+  siesa.Reference:
+    properties:
+      bacu_marketplace:
+        type: string
+      categoria:
+        type: string
+      didi_bacu:
+        type: string
+      didi_stu:
+        type: string
+      id:
+        type: integer
+      popapp:
+        type: string
+      rappi_bacu:
+        type: string
+      rappi_pick_up:
+        type: string
+      referencia_delivery_inline:
+        type: string
+      referencia_pdv:
+        type: string
+    type: object
   siesa.RequestExcelCreate:
     properties:
       end_date:
@@ -1410,51 +1431,6 @@ definitions:
       start_date:
         type: string
     type: object
-  status.CreateStatus:
-    properties:
-      active:
-        type: boolean
-      code:
-        type: string
-      color:
-        type: string
-      name:
-        type: string
-    required:
-    - code
-    - name
-    type: object
-  status.Status:
-    properties:
-      active:
-        type: boolean
-      code:
-        type: string
-      color:
-        type: string
-      created_at:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      updated_at:
-        type: string
-    type: object
-  status.UpdateStatus:
-    properties:
-      code:
-        type: string
-      color:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-    required:
-    - id
-    type: object
->>>>>>> d9351d1 (feat: export XSL with POST)
   store.Store:
     properties:
       address:
@@ -8210,8 +8186,6 @@ paths:
       summary: Open shift
       tags:
       - Shift
-<<<<<<< HEAD
-=======
   /siesa:
     post:
       consumes:
@@ -8249,69 +8223,27 @@ paths:
       summary: Generate an Excel file with orders
       tags:
       - SIESA
-  /status:
+  /siesa/reference:
     get:
       consumes:
       - application/json
-      description: To find status
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/status.Status'
-                  type: array
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: To find status
-      tags:
-      - Status
-    patch:
-      consumes:
-      - application/json
-      description: To update status
+      description: Find references based on filters
       parameters:
-      - description: status to update
-        in: body
-        name: status
-        required: true
-        schema:
-          $ref: '#/definitions/status.UpdateStatus'
+      - description: PDV Reference
+        in: query
+        name: referencia_pdv
+        type: string
+      - description: Delivery Inline Reference
+        in: query
+        name: referencia_delivery_inline
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/status.Status'
-                status:
-                  type: string
-              type: object
+            $ref: '#/definitions/shared.Response'
         "400":
           description: Bad Request
           schema:
@@ -8326,34 +8258,27 @@ paths:
             $ref: '#/definitions/shared.Response'
       security:
       - ApiKeyAuth: []
-      summary: To update status
+      summary: Find references
       tags:
-      - Status
+      - SIESA
     post:
       consumes:
       - application/json
-      description: To create a status
+      description: Create a reference
       parameters:
-      - description: status request
+      - description: Reference request
         in: body
-        name: status
+        name: reference
         required: true
         schema:
-          $ref: '#/definitions/status.CreateStatus'
+          $ref: '#/definitions/siesa.Reference'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/status.Status'
-                status:
-                  type: string
-              type: object
+            $ref: '#/definitions/shared.Response'
         "400":
           description: Bad Request
           schema:
@@ -8364,26 +8289,20 @@ paths:
             $ref: '#/definitions/shared.Response'
       security:
       - ApiKeyAuth: []
-      summary: To create a status
+      summary: Create a reference
       tags:
-      - Status
-  /status/{id}:
+      - SIESA
+  /siesa/reference/{id}:
     delete:
       consumes:
       - application/json
-      description: To delete a status
+      description: To delete a reference
       parameters:
-      - description: statusID
+      - description: reference id
         in: path
         name: id
         required: true
         type: string
-      - description: status request
-        in: body
-        name: status
-        required: true
-        schema:
-          $ref: '#/definitions/status.Status'
       produces:
       - application/json
       responses:
@@ -8394,7 +8313,7 @@ paths:
             - type: object
             - properties:
                 data:
-                  type: string
+                  $ref: '#/definitions/siesa.Reference'
                 status:
                   type: string
               type: object
@@ -8408,19 +8327,25 @@ paths:
             $ref: '#/definitions/shared.Response'
       security:
       - ApiKeyAuth: []
-      summary: To delete a status
+      summary: To delete a reference
       tags:
-      - Status
-    get:
+      - SIESA
+    patch:
       consumes:
       - application/json
-      description: To find status by id
+      description: To update a reference
       parameters:
-      - description: status id
+      - description: reference id
         in: path
         name: id
         required: true
         type: string
+      - description: reference request
+        in: body
+        name: reference
+        required: true
+        schema:
+          $ref: '#/definitions/siesa.Reference'
       produces:
       - application/json
       responses:
@@ -8431,16 +8356,12 @@ paths:
             - type: object
             - properties:
                 data:
-                  $ref: '#/definitions/status.Status'
+                  $ref: '#/definitions/siesa.Reference'
                 status:
                   type: string
               type: object
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "401":
-          description: Unauthorized
           schema:
             $ref: '#/definitions/shared.Response'
         "422":
@@ -8449,10 +8370,9 @@ paths:
             $ref: '#/definitions/shared.Response'
       security:
       - ApiKeyAuth: []
-      summary: To find status by id
+      summary: To update a reference
       tags:
-      - Status
->>>>>>> d9351d1 (feat: export XSL with POST)
+      - SIESA
   /store:
     get:
       consumes:

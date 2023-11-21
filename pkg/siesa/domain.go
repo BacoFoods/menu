@@ -7,8 +7,12 @@ import (
 )
 
 const (
-	ErrorBadRequest     = "error bad request"
-	ErrorInternalServer = "internal server error"
+	ErrorBadRequest        = "error bad request"
+	ErrorInternalServer    = "internal server error"
+	ErrorGettingReferences = "error getting reference"
+	ErrorCreatingReference = "error creating reference"
+	ErrorDeletingReference = "error deleting reference"
+	ErrorUpdatingReference = "error updating reference"
 )
 
 type Reference struct {
@@ -31,4 +35,8 @@ type Repository interface {
 	Create(*Reference) error
 	TruncateRecords() error
 	Find(map[string]string) (*Reference, error)
+	FindReferences(query map[string]string) ([]Reference, error)
+	CreateReference(*Reference) (*Reference, error)
+	DeleteReference(string) (*Reference, error)
+	UpdateReference(*Reference) (*Reference, error)
 }

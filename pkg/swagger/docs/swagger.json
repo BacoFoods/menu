@@ -10869,8 +10869,6 @@
                 }
             }
         },
-<<<<<<< HEAD
-=======
         "/siesa": {
             "post": {
                 "security": [
@@ -10928,14 +10926,14 @@
                 }
             }
         },
-        "/status": {
+        "/siesa/reference": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To find status",
+                "description": "Find references based on filters",
                 "consumes": [
                     "application/json"
                 ],
@@ -10943,32 +10941,28 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Status"
+                    "SIESA"
                 ],
-                "summary": "To find status",
+                "summary": "Find references",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "PDV Reference",
+                        "name": "referencia_pdv",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Delivery Inline Reference",
+                        "name": "referencia_delivery_inline",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/status.Status"
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/shared.Response"
                         }
                     },
                     "400": {
@@ -10997,7 +10991,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To create a status",
+                "description": "Create a reference",
                 "consumes": [
                     "application/json"
                 ],
@@ -11005,18 +10999,67 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Status"
+                    "SIESA"
                 ],
-                "summary": "To create a status",
+                "summary": "Create a reference",
                 "parameters": [
                     {
-                        "description": "status request",
-                        "name": "status",
+                        "description": "Reference request",
+                        "name": "reference",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/status.CreateStatus"
+                            "$ref": "#/definitions/siesa.Reference"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/siesa/reference/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To delete a reference",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SIESA"
+                ],
+                "summary": "To delete a reference",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "reference id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -11031,7 +11074,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/status.Status"
+                                            "$ref": "#/definitions/siesa.Reference"
                                         },
                                         "status": {
                                             "type": "string"
@@ -11061,7 +11104,7 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To update status",
+                "description": "To update a reference",
                 "consumes": [
                     "application/json"
                 ],
@@ -11069,164 +11112,24 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Status"
+                    "SIESA"
                 ],
-                "summary": "To update status",
-                "parameters": [
-                    {
-                        "description": "status to update",
-                        "name": "status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/status.UpdateStatus"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/status.Status"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/status/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To find status by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Status"
-                ],
-                "summary": "To find status by id",
+                "summary": "To update a reference",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "status id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/status.Status"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To delete a status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Status"
-                ],
-                "summary": "To delete a status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "statusID",
+                        "description": "reference id",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "status request",
-                        "name": "status",
+                        "description": "reference request",
+                        "name": "reference",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/status.Status"
+                            "$ref": "#/definitions/siesa.Reference"
                         }
                     }
                 ],
@@ -11242,7 +11145,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "string"
+                                            "$ref": "#/definitions/siesa.Reference"
                                         },
                                         "status": {
                                             "type": "string"
@@ -11267,7 +11170,6 @@
                 }
             }
         },
->>>>>>> d9351d1 (feat: export XSL with POST)
         "/store": {
             "get": {
                 "security": [
@@ -14600,7 +14502,7 @@
                     "type": "string"
                 },
                 "store_id": {
-                    "type": "string"
+                    "type": "integer"
                 }
             }
         },
@@ -16010,8 +15912,41 @@
                 }
             }
         },
-<<<<<<< HEAD
-=======
+        "siesa.Reference": {
+            "type": "object",
+            "properties": {
+                "bacu_marketplace": {
+                    "type": "string"
+                },
+                "categoria": {
+                    "type": "string"
+                },
+                "didi_bacu": {
+                    "type": "string"
+                },
+                "didi_stu": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "popapp": {
+                    "type": "string"
+                },
+                "rappi_bacu": {
+                    "type": "string"
+                },
+                "rappi_pick_up": {
+                    "type": "string"
+                },
+                "referencia_delivery_inline": {
+                    "type": "string"
+                },
+                "referencia_pdv": {
+                    "type": "string"
+                }
+            }
+        },
         "siesa.RequestExcelCreate": {
             "type": "object",
             "properties": {
@@ -16029,74 +15964,6 @@
                 }
             }
         },
-        "status.CreateStatus": {
-            "type": "object",
-            "required": [
-                "code",
-                "name"
-            ],
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "code": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "status.Status": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "code": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "status.UpdateStatus": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
->>>>>>> d9351d1 (feat: export XSL with POST)
         "store.Store": {
             "type": "object",
             "properties": {

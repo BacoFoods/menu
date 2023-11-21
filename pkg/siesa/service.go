@@ -775,3 +775,19 @@ func (s Service) Find(query map[string]string) (*Reference, error) {
 func (s Service) TruncateRecords() error {
 	return s.repository.TruncateRecords()
 }
+
+func (s Service) FindReferences(query map[string]string) ([]Reference, error) {
+	return s.repository.FindReferences(query)
+}
+
+func (s Service) CreateReference(reference *Reference) (*Reference, error) {
+	return s.repository.CreateReference(reference)
+}
+
+func (s Service) DeleteReference(referenceID string) (*Reference, error) {
+	return s.repository.DeleteReference(referenceID)
+}
+
+func (s Service) UpdateReference(reference *Reference) (*Reference, error) {
+	return s.repository.UpdateReference(reference)
+}
