@@ -153,3 +153,71 @@ func (r *DBRepository) DeletePaymentMethod(code string) (*PaymentMethod, error) 
 
 	return paymentMethod, nil
 }
+
+func (r *DBRepository) CreateDefaultPaymentMethods(brandID *uint) ([]PaymentMethod, error) {
+	paymentMethods := []PaymentMethod{
+		{
+			Name:        PaymentMethodCash,
+			BrandID:     brandID,
+			ShortName:   PaymentMethodCash,
+			Code:        PaymentMethodCash,
+			Description: PaymentMethodCash,
+		},
+		{
+			Name:        PaymentMethodCardVisa,
+			BrandID:     brandID,
+			ShortName:   PaymentMethodCardVisa,
+			Code:        PaymentMethodCardVisa,
+			Description: PaymentMethodCardVisa,
+		},
+		{
+			Name:        PaymentMethodCardMaster,
+			BrandID:     brandID,
+			ShortName:   PaymentMethodCardMaster,
+			Code:        PaymentMethodCardMaster,
+			Description: PaymentMethodCardMaster,
+		},
+		{
+			Name:        PaymentMethodCardAmex,
+			BrandID:     brandID,
+			ShortName:   PaymentMethodCardAmex,
+			Code:        PaymentMethodCardAmex,
+			Description: PaymentMethodCardAmex,
+		},
+		{
+			Name:        PaymentMethodCardDinners,
+			BrandID:     brandID,
+			ShortName:   PaymentMethodCardDinners,
+			Code:        PaymentMethodCardDinners,
+			Description: PaymentMethodCardDinners,
+		},
+		{
+			Name:        PaymentMethodBold,
+			BrandID:     brandID,
+			ShortName:   PaymentMethodBold,
+			Code:        PaymentMethodBold,
+			Description: PaymentMethodBold,
+		},
+		{
+			Name:        PaymentMethodBono,
+			BrandID:     brandID,
+			ShortName:   PaymentMethodBono,
+			Code:        PaymentMethodBono,
+			Description: PaymentMethodBono,
+		},
+		{
+			Name:        PaymentMethodYuno,
+			BrandID:     brandID,
+			ShortName:   PaymentMethodYuno,
+			Code:        PaymentMethodYuno,
+			Description: PaymentMethodYuno,
+		},
+	}
+
+	if err := r.db.CreateInBatches(&paymentMethods, len(paymentMethods)).Error; err != nil {
+		shared.LogError(ErrorPaymentMethodCreation, LogRepository, "CreateDefaultPaymentMethods", err, paymentMethods)
+		return nil, err
+	}
+
+	return paymentMethods, nil
+}

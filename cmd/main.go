@@ -162,9 +162,18 @@ func main() {
 	currencyHandler := currency.NewHandler(currencyService)
 	currencyRoutes := currency.NewRoutes(currencyHandler)
 
+	// Paylots API
+	paylotsApi := paymentms.NewPaymentsAPI(http.DefaultClient, internal.Config.PaylotsConfig.Host)
+
+	// Payment
+	paymentRepository := payment.NewDBRepository(gormDB)
+	paymentService := payment.NewService(paymentRepository, paylotsApi)
+	paymentHandler := payment.NewHandler(paymentService)
+	paymentRoutes := payment.NewRoutes(paymentHandler)
+
 	// Brand
 	brandRepository := brand.NewDBRepository(gormDB)
-	brandService := brand.NewService(brandRepository, channelRepository)
+	brandService := brand.NewService(brandRepository, channelRepository, paymentRepository)
 	brandHandler := brand.NewHandler(brandService)
 	brandRoutes := brand.NewRoutes(brandHandler)
 
@@ -191,15 +200,6 @@ func main() {
 	shiftService := shift.NewService(shiftRepository, accountRepository)
 	shiftHandler := shift.NewHandler(shiftService)
 	shiftRoutes := shift.NewRoutes(shiftHandler)
-
-	// Paylots API
-	paylotsApi := paymentms.NewPaymentsAPI(http.DefaultClient, internal.Config.PaylotsConfig.Host)
-
-	// Payment
-	paymentRepository := payment.NewDBRepository(gormDB)
-	paymentService := payment.NewService(paymentRepository, paylotsApi)
-	paymentHandler := payment.NewHandler(paymentService)
-	paymentRoutes := payment.NewRoutes(paymentHandler)
 
 	// Order
 	orderRepository := order.NewDBRepository(gormDB)

@@ -23,6 +23,15 @@ const (
 	PaymentStatusPaid     = "paid"
 	PaymentStatusPending  = "pending"
 	PaymentStatusCanceled = "canceled"
+
+	PaymentMethodCash        = "cash"
+	PaymentMethodCardVisa    = "card-visa"
+	PaymentMethodCardMaster  = "card-master"
+	PaymentMethodCardAmex    = "card-amex"
+	PaymentMethodCardDinners = "card-dinners"
+	PaymentMethodBold        = "bold"
+	PaymentMethodBono        = "bono"
+	PaymentMethodYuno        = "yuno"
 )
 
 type Repository interface {
@@ -35,6 +44,7 @@ type Repository interface {
 	FindPaymentMethods(filter map[string]any) ([]PaymentMethod, error)
 	GetPaymentMethod(paymentMethodID string) (*PaymentMethod, error)
 	CreatePaymentMethod(*PaymentMethod) (*PaymentMethod, error)
+	CreateDefaultPaymentMethods(brandID *uint) ([]PaymentMethod, error)
 	UpdatePaymentMethod(*PaymentMethod) (*PaymentMethod, error)
 	DeletePaymentMethod(string) (*PaymentMethod, error)
 }
@@ -72,6 +82,7 @@ type Payment struct {
 }
 
 type PaymentMethod struct {
+	ID          uint            `json:"id" gorm:"primaryKey;autoIncrement:true"`
 	Name        string          `json:"name"`
 	BrandID     *uint           `json:"brand_id"`
 	StoreID     *uint           `json:"store_id"`

@@ -104,6 +104,20 @@ func GetTotalCardIncomes(payments []payment.Payment) float64 {
 	return total
 }
 
+func GetTotalOtherIncomes(payments []payment.Payment) float64 {
+	total := 0.0
+	for _, paymnt := range payments {
+		switch paymnt.Method {
+		case payment.PaymentMethodBold:
+			total += float64(paymnt.TotalValue)
+		case payment.PaymentMethodBono:
+			total += float64(paymnt.TotalValue)
+		}
+	}
+
+	return total
+}
+
 func GetTotalDiscounts(invoices []invoice.Invoice) float64 {
 	total := 0.0
 	for _, invoice := range invoices {

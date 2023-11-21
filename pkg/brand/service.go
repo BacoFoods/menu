@@ -2,6 +2,7 @@ package brand
 
 import (
 	channels "github.com/BacoFoods/menu/pkg/channel"
+	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/shared"
 )
 
@@ -17,13 +18,14 @@ type Service interface {
 
 // service is the default implementation of the Service interface for Brand.
 type service struct {
-	repository Repository
-	channel    channels.Repository
+	repository     Repository
+	channel        channels.Repository
+	paymentMethods payment.Repository
 }
 
 // NewService creates a new instance of the service for Brand, using the provided repository implementation.
-func NewService(repository Repository, channel channels.Repository) service {
-	return service{repository, channel}
+func NewService(repository Repository, channel channels.Repository, paymentMethods payment.Repository) service {
+	return service{repository, channel, paymentMethods}
 }
 
 // Find returns a list of Brand objects filtering by query map.
@@ -69,6 +71,11 @@ func (s service) Create(brand *Brand) (*Brand, error) {
 		Enabled:   false,
 	}); err != nil {
 		shared.LogWarn("error creating default channel Domicilio for brand", LogService, "Create", err, newBrand.ID)
+	}
+
+	// Create Default Payment Methods
+	if _, err := s.paymentMethods.CreateDefaultPaymentMethods(&newBrand.ID); err != nil {
+		shared.LogWarn("error creating default payment methods for brand", LogService, "Create", err, newBrand.ID)
 	}
 
 	return newBrand, nil
