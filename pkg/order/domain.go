@@ -58,9 +58,13 @@ const (
 
 	TaxPercentage = 0.08
 
-	OrderStepCreated OrderStep = "created"
+	OrderStepCreated  OrderStep = "created"
+	OrderStepClosed   OrderStep = "closed"
+	OrderStepInvoiced OrderStep = "invoiced"
 
-	OrderActionCreated OrderAction = "fue atendido por"
+	OrderActionCreated  OrderAction = "fue atendido por"
+	OrderActionClosed   OrderAction = "fue cerrada por"
+	OrderActionInvoiced OrderAction = "fue facturado por"
 
 	LogDomain = "pkg/order/domain"
 
@@ -101,7 +105,7 @@ type Repository interface {
 type Order struct {
 	ID            uint              `json:"id" gorm:"primaryKey"`
 	Statuses      []OrderStatus     `json:"status" gorm:"foreignKey:OrderID" swaggerignore:"true"`
-	Code          string            `json:"code"`
+	Code          string            `json:"code" swaggerignore:"true"`
 	CurrentStatus string            `json:"current_status"`
 	OrderType     string            `json:"order_type"`
 	ClientName    string            `json:"client_name"`
@@ -565,4 +569,5 @@ type CloseInvoiceRequest struct {
 	DocumentType string             `json:"document"`
 	Payments     []*payment.Payment `json:"payments" binding:"required"`
 	Observations string             `json:"observations"`
+	attendee     *Attendee
 }

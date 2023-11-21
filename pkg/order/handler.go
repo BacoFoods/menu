@@ -1,6 +1,7 @@
 package order
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -21,6 +22,34 @@ func NewHandler(service Service) *Handler {
 }
 
 // Order
+
+func (h *Handler) ctxAttendee(ctx context.Context) *Attendee {
+	username := ""
+	if ctx.Value("account_name") != nil {
+		username = ctx.Value("account_name").(string)
+	}
+
+	role := ""
+	if ctx.Value("role") != nil {
+		role = ctx.Value("role").(string)
+	}
+	accountID := ""
+	if ctx.Value("account_id") != nil {
+		accountID = ctx.Value("account_uuid").(string)
+	}
+
+	id, err := strconv.Atoi(accountID)
+	if err != nil {
+		shared.LogError("error parsing account id", LogHandler, "ctxAttendee", err, accountID)
+		return nil
+	}
+
+	return &Attendee{
+		AccountID: uint(id),
+		Name:      username,
+		Role:      role,
+	}
+}
 
 // Create to handle a request to create an order
 // @Tags Order
@@ -789,7 +818,8 @@ func (h *Handler) DeleteOrderType(c *gin.Context) {
 func (h *Handler) CreateInvoice(c *gin.Context) {
 	orderID := c.Param("id")
 
-	invoice, err := h.service.CreateInvoice(orderID)
+	att := h.ctxAttendee(c)
+	invoice, err := h.service.CreateInvoice(orderID, att)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCreation))
 		return
@@ -915,6 +945,9 @@ func (h *Handler) CloseInvoice(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
+
+	att := h.ctxAttendee(c)
+	req.attendee = att
 
 	invoice, err := h.service.CloseInvoice(req)
 	if err != nil {
