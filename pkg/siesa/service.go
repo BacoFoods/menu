@@ -219,7 +219,6 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 
 		for _, item := range order.Items {
 			if isValidProduct(item.Producto.Nombre) {
-				//fmt.Println(order.Tipo, order.Plataforma, item.Producto.Nombre)
 				itemMovimiento := map[string]string{
 					"f470_id_co":           getF350IDCO(order.KeyLocal),                                         // Asigna el valor correspondiente al centro de operación
 					"f470_consec_docto":    "1",                                                                 // Consecutivo del documento auto-incremental
@@ -347,7 +346,6 @@ func GetOrders(startDate string, endDate string, locationIDs []string) (string, 
 	var allOrders []PopappOrder
 	for _, locationID := range locationIDs {
 		url := fmt.Sprintf("https://api.popapp.io/orders/?start_date=%s&end_date=%s&location_id=%s&order=desc", startDate, endDate, locationID)
-		//fmt.Println(url)
 		// Crear la solicitud HTTP
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
@@ -384,7 +382,6 @@ func GetOrders(startDate string, endDate string, locationIDs []string) (string, 
 	if err != nil {
 		return "", fmt.Errorf("error al codificar la lista de órdenes en formato JSON: %v", err)
 	}
-	//fmt.Println(string(ordersJSON))
 	return string(ordersJSON), nil
 }
 
@@ -512,7 +509,6 @@ func (s Service) GetReferences(orderType, platform, productName string) string {
 		switch orderType {
 		case "PICK_UP":
 			filter["rappi_pick_up"] = productName
-			//fmt.Println(filter)
 			reference, err := s.repository.Find(filter)
 			if err != nil {
 				shared.LogError("error getting reference row", LogDBRepository, "Find", err, filter)
