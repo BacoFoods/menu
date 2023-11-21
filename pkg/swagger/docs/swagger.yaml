@@ -142,13 +142,19 @@ definitions:
     properties:
       card_incomes:
         type: number
+      card_incomes_reported:
+        type: number
       cash_incomes:
+        type: number
+      cash_incomes_reported:
         type: number
       discounts:
         type: number
       eaters:
         type: integer
       online_incomes:
+        type: number
+      online_incomes_reported:
         type: number
       orders:
         type: integer
@@ -167,6 +173,10 @@ definitions:
       tips:
         type: number
       total_sell:
+        description: Calculated section is for the calculated values from invoices
+        type: number
+      total_sell_reported:
+        description: Reported section is for the reported values from cashier
         type: number
     type: object
   category.Category:
@@ -852,16 +862,16 @@ definitions:
         type: integer
       code:
         type: string
-      franchise:
+      description:
         type: string
-      id:
-        type: integer
       name:
         type: string
       short_name:
         type: string
       store_id:
         type: integer
+    required:
+    - code
     type: object
   product.Modifier:
     properties:
@@ -1836,6 +1846,48 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To get cash audit
+      tags:
+      - Cash Audit
+    post:
+      consumes:
+      - application/json
+      description: To create cash audit
+      parameters:
+      - description: Cash Audit
+        in: body
+        name: cashAudit
+        required: true
+        schema:
+          $ref: '#/definitions/cashaudit.CashAudit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/cashaudit.CashAudit'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To create cash audit
       tags:
       - Cash Audit
   /category:
@@ -5896,15 +5948,15 @@ paths:
       summary: To create payment method
       tags:
       - PaymentMethod
-  /payment-method/{id}:
+  /payment-method/{code}:
     delete:
       consumes:
       - application/json
       description: To delete payment method
       parameters:
-      - description: payment method id
+      - description: payment method code
         in: path
-        name: id
+        name: code
         required: true
         type: string
       produces:
@@ -5938,6 +5990,7 @@ paths:
       summary: To delete payment method
       tags:
       - PaymentMethod
+  /payment-method/{id}:
     get:
       consumes:
       - application/json

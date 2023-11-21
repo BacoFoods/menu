@@ -1129,6 +1129,76 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To create cash audit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cash Audit"
+                ],
+                "summary": "To create cash audit",
+                "parameters": [
+                    {
+                        "description": "Cash Audit",
+                        "name": "cashAudit",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cashaudit.CashAudit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/cashaudit.CashAudit"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
             }
         },
         "/category": {
@@ -7856,14 +7926,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/payment-method/{id}": {
-            "get": {
+        "/payment-method/{code}": {
+            "delete": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To get a payment method by id",
+                "description": "To delete payment method",
                 "consumes": [
                     "application/json"
                 ],
@@ -7873,12 +7943,12 @@ const docTemplate = `{
                 "tags": [
                     "PaymentMethod"
                 ],
-                "summary": "To get a payment method by id",
+                "summary": "To delete payment method",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "payment method id",
-                        "name": "id",
+                        "description": "payment method code",
+                        "name": "code",
                         "in": "path",
                         "required": true
                     }
@@ -7924,14 +7994,16 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
+            }
+        },
+        "/payment-method/{id}": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To delete payment method",
+                "description": "To get a payment method by id",
                 "consumes": [
                     "application/json"
                 ],
@@ -7941,7 +8013,7 @@ const docTemplate = `{
                 "tags": [
                     "PaymentMethod"
                 ],
-                "summary": "To delete payment method",
+                "summary": "To get a payment method by id",
                 "parameters": [
                     {
                         "type": "string",
@@ -12154,7 +12226,13 @@ const docTemplate = `{
                 "card_incomes": {
                     "type": "number"
                 },
+                "card_incomes_reported": {
+                    "type": "number"
+                },
                 "cash_incomes": {
+                    "type": "number"
+                },
+                "cash_incomes_reported": {
                     "type": "number"
                 },
                 "discounts": {
@@ -12164,6 +12242,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "online_incomes": {
+                    "type": "number"
+                },
+                "online_incomes_reported": {
                     "type": "number"
                 },
                 "orders": {
@@ -12191,6 +12272,11 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "total_sell": {
+                    "description": "Calculated section is for the calculated values from invoices",
+                    "type": "number"
+                },
+                "total_sell_reported": {
+                    "description": "Reported section is for the reported values from cashier",
                     "type": "number"
                 }
             }
@@ -13212,6 +13298,9 @@ const docTemplate = `{
         },
         "payment.PaymentMethod": {
             "type": "object",
+            "required": [
+                "code"
+            ],
             "properties": {
                 "brand_id": {
                     "type": "integer"
@@ -13222,11 +13311,8 @@ const docTemplate = `{
                 "code": {
                     "type": "string"
                 },
-                "franchise": {
+                "description": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
