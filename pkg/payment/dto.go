@@ -3,7 +3,7 @@ package payment
 type DTOPayment struct {
 	InvoiceID uint    `json:"invoice_id" binding:"required"`
 	Method    string  `json:"method" binding:"required"`
-	Quantity  float32 `json:"quantity" binding:"required"`
+	Quantity  float64 `json:"quantity" binding:"required"`
 }
 
 func (dto DTOPayment) ToPayment() *Payment {

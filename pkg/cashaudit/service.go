@@ -49,31 +49,31 @@ func (s service) Get(storeID string) (*CashAudit, error) {
 	cashAudit.StoreName = auditStore.Name
 
 	// Set Shift details
-	lastShift, err := s.shifts.GetLastShift(storeID)
-	if err != nil {
-		shared.LogError("error getting last shift", LogService, "Get", err, storeID)
-		return nil, fmt.Errorf(ErrorCashAuditGettingLastShift)
-	}
-	cashAudit.ShiftOpen = lastShift.StartTime
-	cashAudit.ShiftStartBalance = lastShift.StartBalance
-	cashAudit.ShiftClose = lastShift.EndTime
-	cashAudit.ShiftEndBalance = lastShift.EndBalance
+	// TODO: Shifts not already implemented, so create shifts to work with balance
 
 	// Set Orders details
-	orderList, err := s.orders.FindByShift(lastShift.ID)
+	orderList, err := s.orders.GetLastDayOrders(storeID)
 	if err != nil {
-		shared.LogError("error getting orders by shift", LogService, "Get", err, lastShift.ID)
+		shared.LogError("error getting last day orders", LogService, "Get", err, storeID)
 		return nil, fmt.Errorf(ErrorCashAuditGettingOrders)
 	}
+
+	if len(orderList) == 0 {
+		return nil, fmt.Errorf(ErrorCashAuditNotOrdersFound)
+	}
+
 	cashAudit.Orders = uint(len(orderList))
 	cashAudit.Eaters = GetTotalEaters(orderList)
 
-	// Set Invoices details
+	// Getting invoices from orders
 	invoiceList := GetInvoices(orderList)
-	cashAudit.Discounts = GetTotalDiscounts(invoiceList)
-	cashAudit.Surcharges = GetTotalSourcharges(invoiceList)
-	cashAudit.Tips = GetTotalTips(invoiceList)
-	// cashAudit.TotalSell = GetTotalSell(invoiceList)
+	paymentsList := GetPayments(invoiceList)
+
+	cashAudit.Orders = uint(len(orderList))
+	cashAudit.Eaters = GetTotalEaters(orderList)
+	cashAudit.TotalIncomes = GetTotalIncomes(paymentsList)
+	cashAudit.TotalSell = GetTotalSell(invoiceList)
+	cashAudit.BruteSell = GetBruteSell(invoiceList)
 
 	return &cashAudit, nil
 }
@@ -94,7 +94,7 @@ func (s service) Create(storeID string, cashReported *CashAudit) (*CashAudit, er
 	}
 
 	if len(orderList) == 0 {
-		return nil, fmt.Errorf(ErrorCashAuditGettingOrders)
+		return nil, fmt.Errorf(ErrorCashAuditNotOrdersFound)
 	}
 
 	// Getting invoices from orders
@@ -103,9 +103,9 @@ func (s service) Create(storeID string, cashReported *CashAudit) (*CashAudit, er
 
 	cashReported.Orders = uint(len(orderList))
 	cashReported.Eaters = GetTotalEaters(orderList)
-	cashReported.CashIncomesCalculated = GetTotalCashIncomes(paymentsList)
-	cashReported.CardIncomesCalculated = GetTotalCardIncomes(paymentsList)
-	cashReported.OnlineIncomesCalculated = GetTotalOnlineIncomes(paymentsList)
+	cashReported.TotalIncomes = GetTotalIncomes(paymentsList)
+	cashReported.TotalSell = GetTotalSell(invoiceList)
+	cashReported.BruteSell = GetBruteSell(invoiceList)
 
 	return cashReported, nil
 }

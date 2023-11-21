@@ -143,7 +143,7 @@ func (s service) CreatePaymentWithPaylot(invoiceID uint, total, tip float64, cus
 			}
 
 			// if a payment is pending and has the same value, return it and reuse the paylot
-			sameValue := payment.Quantity == float32(total) && payment.Tip == float32(tip)
+			sameValue := payment.Quantity == total && payment.Tip == tip
 			if payment.Status == PaymentStatusPending && sameValue {
 				lastPayment = &payment
 				continue
@@ -176,9 +176,9 @@ func (s service) CreatePaymentWithPaylot(invoiceID uint, total, tip float64, cus
 	return s.Create(&Payment{
 		InvoiceID:   &invoiceID,
 		Method:      "PagosBacu", // TODO: payment method category (?) - origin (?)
-		Quantity:    float32(total),
-		Tip:         float32(tip),
-		TotalValue:  float32(paylotValue),
+		Quantity:    total,
+		Tip:         tip,
+		TotalValue:  paylotValue,
 		Code:        paylot.PaylotID,
 		Status:      PaymentStatusPending,
 		CheckoutURL: &paylot.CheckoutURL,
