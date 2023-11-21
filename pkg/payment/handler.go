@@ -295,7 +295,7 @@ func (h *Handler) UpdatePaymentMethod(ctx *gin.Context) {
 // @Tags PaymentMethod
 // @Summary To delete payment method
 // @Description To delete payment method
-// @Param id path string true "payment method id"
+// @Param code path string true "payment method code"
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -303,13 +303,13 @@ func (h *Handler) UpdatePaymentMethod(ctx *gin.Context) {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 401 {object} shared.Response
-// @Router /payment-method/{id} [delete]
+// @Router /payment-method/{code} [delete]
 func (h *Handler) DeletePaymentMethod(ctx *gin.Context) {
-	paymentMethodID := ctx.Param("id")
+	paymentMethodCode := ctx.Param("code")
 
-	paymentMethod, err := h.service.DeletePaymentMethod(paymentMethodID)
+	paymentMethod, err := h.service.DeletePaymentMethod(paymentMethodCode)
 	if err != nil {
-		shared.LogError("error deleting payment method", LogHandler, "DeletePaymentMethod", err, paymentMethodID)
+		shared.LogError("error deleting payment method", LogHandler, "DeletePaymentMethod", err, paymentMethodCode)
 		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorPaymentDeleting))
 		return
 	}
