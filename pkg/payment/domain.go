@@ -32,6 +32,7 @@ const (
 	PaymentMethodBold        = "bold"
 	PaymentMethodBono        = "bono"
 	PaymentMethodYuno        = "yuno"
+	PaymentMethodUntracked   = "untracked"
 )
 
 type Repository interface {
@@ -61,13 +62,13 @@ type Payment struct {
 	Method string `json:"method" binding:"required"`
 
 	// Quantity is the amount of money paid
-	Quantity float32 `json:"quantity" gorm:"precision:18;scale:4" binding:"required"`
+	Quantity float64 `json:"quantity" gorm:"precision:18;scale:4" binding:"required"`
 
 	// Tip is the amount of money paid
-	Tip float32 `json:"tip" gorm:"precision:18;scale:4" binding:"required"`
+	Tip float64 `json:"tip" gorm:"precision:18;scale:4" binding:"required"`
 
 	// TotalValue is the paid = quantity + tip
-	TotalValue float32 `json:"total_value" gorm:"precision:18;scale:4" binding:"required"`
+	TotalValue float64 `json:"total_value" gorm:"precision:18;scale:4" binding:"required"`
 
 	// Code is the reference number of the payment
 	Code string `json:"code"`

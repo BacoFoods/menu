@@ -50,7 +50,7 @@ type Service interface {
 	GetOrderType(orderTypeID string) (*OrderType, error)
 	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
 	DeleteOrderType(orderTypeID string) error
-	CreateInvoice(orderID string, att *Attendee) (*invoices.Invoice, error)
+	CreateInvoice(orderID string, att *Attendee, tip *TipData, discounts []uint) (*invoices.Invoice, error)
 	CalculateInvoice(orderID string, req CalculateInvoiceRequest) (*invoices.Invoice, error)
 	CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoices.Invoice, error)
 	Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error)
@@ -126,7 +126,7 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	}
 
 	order.SetItems(prods, modifiers)
-	order.ToInvoice(nil)
+	// order.ToInvoice(nil) // TODO: check if this is needed for oit, commented because it was causing an error duplicating invoice
 
 	// Setting order status
 	order.CurrentStatus = OrderStatusCreated
@@ -523,13 +523,11 @@ func (s service) ReleaseTable(orderID string) (*Order, error) {
 
 	order.TableID = nil
 	order.Table = nil
-	orderDB, err := s.repository.Update(order)
-	if err != nil {
-		shared.LogError("error updating order", LogService, "ReleaseTable", err, *order)
-		return nil, fmt.Errorf(ErrorOrderUpdate)
+	if err := s.repository.Delete(fmt.Sprintf("%d", order.ID)); err != nil {
+		return nil, err
 	}
 
-	return orderDB, nil
+	return order, nil
 }
 
 func (s service) AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error) {
@@ -623,14 +621,20 @@ func (s service) DeleteOrderType(orderTypeID string) error {
 
 // Invoice
 
-func (s service) CreateInvoice(orderID string, att *Attendee) (*invoices.Invoice, error) {
+func (s service) CreateInvoice(orderID string, att *Attendee, tip *TipData, discountsIds []uint) (*invoices.Invoice, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "CreateInvoice", err, orderID)
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	order.ToInvoice(nil)
+	discounts, err := s.discounts.GetMany(discountsIds)
+	if err != nil {
+		shared.LogError("error getting discounts", LogService, "CreateInvoice", err, discounts)
+		return nil, fmt.Errorf(ErrorOrderInvoiceCreationDiscounts)
+	}
+
+	order.ToInvoice(tip, discounts...)
 	if err := order.UpdateStatus(OrderStatusPaying); err != nil {
 		shared.LogError("error updating order status", LogService, "CreateInvoice", err, order)
 		return nil, fmt.Errorf(ErrorOrderUpdateStatus)
@@ -640,7 +644,7 @@ func (s service) CreateInvoice(orderID string, att *Attendee) (*invoices.Invoice
 		return nil, fmt.Errorf(ErrorOrderUpdate)
 	}
 
-	invoice := order.Invoices[0]
+	invoice := order.Invoices[0] // TODO: work with multiple invoices
 	if att != nil {
 		invoice.Cashier = att.Name
 	}
@@ -802,7 +806,8 @@ func (s service) CloseInvoice(req CloseInvoiceRequest) (*invoice.Invoice, error)
 		return nil, err
 	}
 
-	order, err := s.repository.Get(fmt.Sprint(invoice.OrderID))
+	// Validating order status
+	order, err := s.repository.Get(fmt.Sprint(*invoice.OrderID))
 	if err != nil {
 		return nil, err
 	}
@@ -811,10 +816,9 @@ func (s service) CloseInvoice(req CloseInvoiceRequest) (*invoice.Invoice, error)
 		return nil, fmt.Errorf(ErrorOrderClosed)
 	}
 
-	now := time.Now()
-
+	// Setting payment
 	nPayments := make([]payment.Payment, 0)
-	for _, p := range invoice.Payments {
+	for _, p := range req.Payments {
 		nPayments = append(nPayments, payment.Payment{
 			InvoiceID:  &invoice.ID,
 			Method:     p.Method,
@@ -827,28 +831,35 @@ func (s service) CloseInvoice(req CloseInvoiceRequest) (*invoice.Invoice, error)
 	}
 	invoice.Payments = append(invoice.Payments, nPayments...)
 	invoice.PaymentsObservation = req.Observations
+
+	// Saving invoice changes
 	invDB, err := s.invoice.CreateUpdate(invoice)
 	if err != nil {
 		return nil, err
 	}
 
+	// Updating order status
 	order.CurrentStatus = OrderStatusClosed
 	order.Statuses = append(order.Statuses, OrderStatus{
 		Code:    OrderStatusClosed,
 		OrderID: &order.ID,
 	})
+	now := time.Now()
 	order.ClosedAt = &now
 
 	if _, err := s.repository.Update(order); err != nil {
 		return nil, err
 	}
 
+	// Setting attendee
 	att := req.attendee
 	if att == nil {
-		att.OrderID = order.ID
-		att.Action = OrderActionClosed
-		att.OrderStep = OrderStepClosed
-		go s.repository.CreateAttendee(att)
+		newAtt := &Attendee{
+			OrderID:   order.ID,
+			Action:    OrderActionClosed,
+			OrderStep: OrderStepClosed,
+		}
+		go s.repository.CreateAttendee(newAtt)
 	}
 
 	return invDB, nil

@@ -122,3 +122,20 @@ type InvoiceCheckout struct {
 	Payment *payment.Payment `json:"payment"`
 	Invoice *invoice.Invoice `json:"invoice"`
 }
+
+type CalculateInvoiceRequest struct {
+	TipPercentage *int     `json:"tip_percentage"`
+	TipAmount     *float64 `json:"tip_amount"`
+	Discounts     []uint   `json:"discounts"`
+}
+
+func (r CalculateInvoiceRequest) GetTip() *TipData {
+	return &TipData{
+		Percentage: r.TipPercentage,
+		Amount:     r.TipAmount,
+	}
+}
+
+func (r CalculateInvoiceRequest) GetDiscountsIDs() []uint {
+	return r.Discounts
+}

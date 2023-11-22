@@ -111,8 +111,9 @@ func (r tableRepository) SetOrder(tableID, orderID *uint) (*Table, error) {
 
 func (r tableRepository) RemoveOrder(tableID *uint) (*Table, error) {
 	if tableID == nil {
-		shared.LogWarn("tableId is null, releasing table", LogRepository, "RemoveOrder", nil, nil)
-		return nil, nil
+		err := fmt.Errorf(ErrorTableIDEmpty)
+		shared.LogError("tableId is null, releasing table", LogRepository, "RemoveOrder", err, nil)
+		return nil, err
 	}
 
 	var table Table

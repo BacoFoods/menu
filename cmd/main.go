@@ -78,6 +78,8 @@ func main() {
 		&shift.Shift{},
 		&tables.QR{},
 		&assets.Asset{},
+		&cashaudit.CashAudit{},
+		&cashaudit.Income{},
 	)
 
 	rabbitCh := internal.MustNewRabbitMQ(internal.Config.RabbitConfig.ComandasQueue, internal.Config.RabbitConfig.Host, internal.Config.RabbitConfig.Port)
@@ -228,8 +230,9 @@ func main() {
 	temporalRoutes := temporal.NewRoutes(temporalHandler)
 
 	// CashAudit
-	cashAuditRepository := cashaudit.NewService(storeRepository, orderRepository, invoiceRepository, shiftRepository)
-	cashAuditHandler := cashaudit.NewHandler(cashAuditRepository)
+	cashAuditRepository := cashaudit.NewDBRepository(gormDB)
+	cashAuditService := cashaudit.NewService(cashAuditRepository, storeRepository, orderRepository, invoiceRepository, shiftRepository)
+	cashAuditHandler := cashaudit.NewHandler(cashAuditService)
 	cashAuditRoutes := cashaudit.NewRoutes(cashAuditHandler)
 
 	// Assets

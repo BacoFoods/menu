@@ -28,6 +28,7 @@ const (
 	ErrorBadRequestTableID                 = "error bad request wrong table id"
 	ErrorBadRequestStoreID                 = "error bad request wrong store id"
 	ErrorBadRequestOrderSeats              = "error bad request wrong order seats can't be less than 0"
+	ErrorOrderDeleting                     = "error deleting order"
 	ErrorOrderCreation                     = "error creating order"
 	ErrorOrderGetting                      = "error getting order"
 	ErrorOrderFind                         = "error finding orders"
@@ -42,6 +43,7 @@ const (
 	ErrorOrderUpdatingComments             = "error updating order comments"
 	ErrorOrderUpdatingClientName           = "error updating order client name"
 	ErrorOrderInvoiceCreation              = "error creating order invoice"
+	ErrorOrderInvoiceCreationDiscounts     = "error creating order invoice getting discounts"
 	ErrorOrderInvoiceCalculation           = "error calculating invoice"
 	ErrorOrderClosed                       = "error order is closed"
 	ErrorOrderIDEmpty                      = "order id is empty"
@@ -73,6 +75,28 @@ const (
 	OrderStatusClosed  = "closed"
 )
 
+func applyDiscount(value float64, discounts []invoice.Discount) (newValue float64, appliedDiscount float64) {
+	newValue = value
+
+	for _, discount := range discounts {
+		newValue = discount.Apply(newValue)
+	}
+
+	newValue = math.Round(newValue)
+	appliedDiscount = value - newValue
+
+	return
+}
+
+func OrderStatusValid(status string) bool {
+	switch status {
+	case OrderStatusCreated, OrderStatusPaying, OrderStatusClosed:
+		return true
+	default:
+		return false
+	}
+}
+
 type OrderStep string
 
 type OrderAction string
@@ -86,6 +110,8 @@ type Repository interface {
 	FindByShift(shiftID uint) ([]Order, error)
 	AddProducts(order *Order, newItems []OrderItem) (*Order, error)
 	GetLastDayOrders(storeID string) ([]Order, error)
+	GetLastDayOrdersByStatus(storeID string, status string) ([]Order, error)
+	Delete(orderID string) error
 
 	// OrderItem
 	UpdateOrderItem(orderItem *OrderItem) (*OrderItem, error)
@@ -210,19 +236,6 @@ func (o *Order) RemoveProduct(product *product.Product) {
 			return
 		}
 	}
-}
-
-func applyDiscount(value float64, discounts []invoice.Discount) (newValue float64, appliedDiscount float64) {
-	newValue = value
-
-	for _, discount := range discounts {
-		newValue = discount.Apply(newValue)
-	}
-
-	newValue = math.Round(newValue)
-	appliedDiscount = value - newValue
-
-	return
 }
 
 func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
@@ -565,9 +578,17 @@ func (t TipData) GetValueAndType() (string, float64) {
 }
 
 type CloseInvoiceRequest struct {
-	InvoiceID    string             `json:"invoice_id" swaggerignore:"true"`
-	DocumentType string             `json:"document"`
-	Payments     []*payment.Payment `json:"payments" binding:"required"`
-	Observations string             `json:"observations"`
+	InvoiceID    string            `json:"invoice_id" swaggerignore:"true"`
+	DocumentType string            `json:"document"`
+	Payments     []payment.Payment `json:"payments" binding:"required"`
+	Observations string            `json:"observations"`
 	attendee     *Attendee
+}
+
+func (c *CloseInvoiceRequest) GetTotalTips() float64 {
+	total := 0.0
+	for _, p := range c.Payments {
+		total += p.Tip
+	}
+	return total
 }

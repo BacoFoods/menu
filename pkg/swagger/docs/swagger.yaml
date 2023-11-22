@@ -140,23 +140,30 @@ definitions:
     type: object
   cashaudit.CashAudit:
     properties:
-      card_incomes:
+      brute_sell:
         type: number
       card_incomes_reported:
         type: number
-      cash_incomes:
-        type: number
       cash_incomes_reported:
         type: number
+      differences:
+        description: To save the differences between calculated and reported founded
+          by system
+        type: string
       discounts:
         type: number
       eaters:
         type: integer
-      online_incomes:
-        type: number
+      id:
+        type: integer
+      observations:
+        description: To save the observations or issues reported from cashier
+        type: string
       online_incomes_reported:
         type: number
       orders:
+        type: integer
+      orders_closed:
         type: integer
       shift_close:
         type: string
@@ -166,17 +173,24 @@ definitions:
         type: string
       shift_start_balance:
         type: number
+      store_id:
+        type: integer
       store_name:
         type: string
       surcharges:
         type: number
-      tips:
+      tips_reported:
+        description: Reported section is for the reported values from cashier
         type: number
+      total_incomes:
+        items:
+          $ref: '#/definitions/cashaudit.Income'
+        type: array
       total_sell:
-        description: Calculated section is for the calculated values from invoices
         type: number
       total_sell_reported:
-        description: Reported section is for the reported values from cashier
+        type: number
+      total_tips:
         type: number
     type: object
   cashaudit.DTOCashAudit:
@@ -189,6 +203,25 @@ definitions:
         type: number
       total_sell:
         type: number
+    type: object
+  cashaudit.Income:
+    properties:
+      cash_audit_id:
+        type: integer
+      id:
+        type: integer
+      income:
+        type: number
+      origin:
+        type: string
+      type:
+        enum:
+        - tip
+        - cash
+        - online
+        - card
+        - other
+        type: string
     type: object
   category.Category:
     properties:
@@ -875,6 +908,8 @@ definitions:
         type: string
       description:
         type: string
+      id:
+        type: integer
       name:
         type: string
       short_name:
@@ -1827,7 +1862,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: To get cash audit
+      description: Just calculate the cash audit only for closed orders
       produces:
       - application/json
       responses:
@@ -1856,13 +1891,14 @@ paths:
             $ref: '#/definitions/shared.Response'
       security:
       - ApiKeyAuth: []
-      summary: To get cash audit
+      summary: Just calculate the cash audit only for closed orders
       tags:
       - Cash Audit
     post:
       consumes:
       - application/json
-      description: To create cash audit
+      description: To create cash audit only for closed orders, if cash audit already
+        exists, it will return the existing cash audit
       parameters:
       - description: Cash Audit
         in: body
@@ -1898,7 +1934,7 @@ paths:
             $ref: '#/definitions/shared.Response'
       security:
       - ApiKeyAuth: []
-      summary: To create cash audit
+      summary: To create cash audit only for closed orders
       tags:
       - Cash Audit
   /category:
@@ -5113,6 +5149,12 @@ paths:
       - application/json
       description: To create an invoice
       parameters:
+      - description: Order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/order.OrderDTO'
       - description: Order ID
         in: path
         name: id
@@ -6820,7 +6862,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: To calculate an invoice
+      description: Public entpodint to calculate an invoice
       parameters:
       - description: Order ID
         in: path
@@ -6841,7 +6883,7 @@ paths:
                 status:
                   type: string
               type: object
-      summary: To calculate an invoice
+      summary: Public endpoint to calculate an invoice
       tags:
       - Order
   /public/tables/scan/{qrId}:

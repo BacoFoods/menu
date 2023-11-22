@@ -21,8 +21,8 @@ func NewHandler(service Service) *Handler {
 
 // Get to handle get cash audit request
 // @Tags Cash Audit
-// @Summary To get cash audit
-// @Description To get cash audit
+// @Summary Just calculate the cash audit only for closed orders
+// @Description Just calculate the cash audit only for closed orders
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -49,8 +49,8 @@ func (h Handler) Get(c *gin.Context) {
 
 // Create to handle create cash audit request
 // @Tags Cash Audit
-// @Summary To create cash audit
-// @Description To create cash audit
+// @Summary To create cash audit only for closed orders
+// @Description To create cash audit only for closed orders, if cash audit already exists, it will return the existing cash audit
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
