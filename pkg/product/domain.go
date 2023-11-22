@@ -40,25 +40,26 @@ const (
 )
 
 type Product struct {
-	ID          uint               `json:"id"`
-	Name        string             `json:"name"`
-	Description string             `json:"description"`
-	Image       string             `json:"image"`
-	SKU         string             `json:"sku"`
-	Price       float64            `json:"price" gorm:"precision:18;scale:2"`
-	TaxID       *uint              `json:"tax_id"`
-	Tax         *taxes.Tax         `json:"tax" swaggerignore:"true"`
-	DiscountID  *uint              `json:"discount_id"`
-	Discount    *discount.Discount `json:"discount" gorm:"foreignKey:DiscountID" swaggerignore:"true"`
-	Unit        string             `json:"unit"`
-	BrandID     *uint              `json:"brand_id" binding:"required"`
-	Color       string             `json:"color"`
-	Enabled     bool               `json:"enabled"`
-	ImageURL    *string            `json:"image_url"`
-	Modifiers   []Modifier         `json:"modifiers" gorm:"many2many:product_modifiers;"`
-	CreatedAt   *time.Time         `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt   *time.Time         `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   *gorm.DeletedAt    `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID             uint               `json:"id"`
+	Name           string             `json:"name"`
+	Description    string             `json:"description"`
+	Image          string             `json:"image"`
+	SKU            string             `json:"sku"`
+	SKUAggregators string             `json:"sku_aggregators"`
+	Price          float64            `json:"price" gorm:"precision:18;scale:2"`
+	TaxID          *uint              `json:"tax_id"`
+	Tax            *taxes.Tax         `json:"tax" swaggerignore:"true"`
+	DiscountID     *uint              `json:"discount_id"`
+	Discount       *discount.Discount `json:"discount" gorm:"foreignKey:DiscountID" swaggerignore:"true"`
+	Unit           string             `json:"unit"`
+	BrandID        *uint              `json:"brand_id" binding:"required"`
+	Color          string             `json:"color"`
+	Enabled        bool               `json:"enabled"`
+	ImageURL       *string            `json:"image_url"`
+	Modifiers      []Modifier         `json:"modifiers" gorm:"many2many:product_modifiers;"`
+	CreatedAt      *time.Time         `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt      *time.Time         `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt      *gorm.DeletedAt    `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type Modifier struct {

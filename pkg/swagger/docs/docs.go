@@ -13529,6 +13529,9 @@ const docTemplate = `{
                 "sku": {
                     "type": "string"
                 },
+                "sku_aggregators": {
+                    "type": "string"
+                },
                 "tax_id": {
                     "type": "integer"
                 },
@@ -13595,6 +13598,12 @@ const docTemplate = `{
                 },
                 "code": {
                     "type": "string"
+                },
+                "country": {
+                    "$ref": "#/definitions/country.Country"
+                },
+                "country_id": {
+                    "type": "integer"
                 },
                 "email": {
                     "type": "string"
