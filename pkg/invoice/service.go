@@ -21,6 +21,9 @@ type Service interface {
 	RemoveClient(invoiceID string, clientID string) (*Invoice, error)
 	Split(invoiceID string, invoices [][]uint) ([]Invoice, error)
 	Print(invoiceID string) (*DTOPrintable, error)
+
+	FindDiscountApplied() ([]DiscountApplied, error)
+	RemoveDiscountApplied(discountAppliedID string) (DiscountApplied, error)
 }
 
 type service struct {
@@ -205,6 +208,26 @@ func (s service) Print(invoiceID string) (*DTOPrintable, error) {
 
 	header.Items = items
 	return header, nil
+}
+
+// FindDiscountApplied returns a list of DiscountApplied objects.
+func (s service) FindDiscountApplied() ([]DiscountApplied, error) {
+	discountApplied, err := s.repository.FindDiscountApplied()
+	if err != nil {
+		return nil, fmt.Errorf(ErrorDiscountAppliedFind)
+	}
+
+	return discountApplied, nil
+}
+
+// RemoveDiscountApplied removes a discount applied.
+func (s service) RemoveDiscountApplied(discountAppliedID string) (DiscountApplied, error) {
+	discountApplied, err := s.repository.RemoveDiscountApplied(discountAppliedID)
+	if err != nil {
+		return DiscountApplied{}, fmt.Errorf(ErrorDiscountAppliedRemove)
+	}
+
+	return discountApplied, nil
 }
 
 var _ Service = (*service)(nil)

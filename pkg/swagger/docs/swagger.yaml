@@ -344,7 +344,7 @@ definitions:
       value:
         type: number
     type: object
-  invoice.Discount:
+  invoice.DiscountApplied:
     properties:
       amount:
         type: number
@@ -377,7 +377,7 @@ definitions:
         type: integer
       discounts:
         items:
-          $ref: '#/definitions/invoice.Discount'
+          $ref: '#/definitions/invoice.DiscountApplied'
         type: array
       id:
         type: integer
@@ -3401,6 +3401,98 @@ paths:
       summary: To create a discount
       tags:
       - Discount
+  /discount-applied:
+    get:
+      consumes:
+      - application/json
+      description: To find discount applied
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  allOf:
+                  - type: object
+                  - properties:
+                      invoices:
+                        items:
+                          $ref: '#/definitions/invoice.Invoice'
+                        type: array
+                    type: object
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find discount applied
+      tags:
+      - InvoiceApplied
+  /discount-applied/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To remove discount applied
+      parameters:
+      - description: invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  allOf:
+                  - type: object
+                  - properties:
+                      invoices:
+                        items:
+                          $ref: '#/definitions/invoice.DiscountApplied'
+                        type: array
+                    type: object
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To remove discount applied
+      tags:
+      - InvoiceApplied
   /discount/{id}:
     delete:
       consumes:

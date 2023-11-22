@@ -147,3 +147,27 @@ func (r *DBRepository) Print(invoiceID string) (*DTOPrintable, error) {
 
 	return &invoice, nil
 }
+
+// FindDiscountApplied to find invoices with discount applied
+func (r *DBRepository) FindDiscountApplied() ([]DiscountApplied, error) {
+	var invoices []DiscountApplied
+	if err := r.db.Find(&invoices).Error; err != nil {
+		shared.LogError("error finding invoices", LogRepository, "FindDiscountApplied", err)
+		return nil, err
+	}
+	return invoices, nil
+}
+
+// RemoveDiscountApplied to remove a discount applied
+func (r *DBRepository) RemoveDiscountApplied(discountAppliedID string) (DiscountApplied, error) {
+	var discountApplied DiscountApplied
+	if err := r.db.First(&discountApplied, discountAppliedID).Error; err != nil {
+		shared.LogError("error getting discount applied", LogRepository, "RemoveDiscountApplied", err, discountAppliedID)
+		return discountApplied, err
+	}
+	if err := r.db.Delete(&discountApplied).Error; err != nil {
+		shared.LogError("error removing discount applied", LogRepository, "RemoveDiscountApplied", err, discountAppliedID)
+		return discountApplied, err
+	}
+	return discountApplied, nil
+}

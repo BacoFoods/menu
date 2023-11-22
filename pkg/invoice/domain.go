@@ -31,6 +31,9 @@ const (
 	ErrorInvoiceGettingByID              = "error getting invoice by id"
 	ErrorInvoiceIDEmpty                  = "error invoice id empty"
 
+	ErrorDiscountAppliedFind   = "error finding discount applied"
+	ErrorDiscountAppliedRemove = "error removing discount applied"
+
 	TaxPercentage     = 0.08
 	TipTypePercentage = "PERCENTAGE"
 	TipTypeAmount     = "AMOUNT"
@@ -45,6 +48,9 @@ type Repository interface {
 	CreateBatch(invoices []Invoice) ([]Invoice, error)
 	Delete(invoiceID string) error
 	Print(invoiceID string) (*DTOPrintable, error)
+
+	FindDiscountApplied() ([]DiscountApplied, error)
+	RemoveDiscountApplied(discountAppliedID string) (DiscountApplied, error)
 }
 
 type Invoice struct {
