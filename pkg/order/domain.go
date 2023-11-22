@@ -238,6 +238,15 @@ func (o *Order) RemoveProduct(product *product.Product) {
 	}
 }
 
+// ToInvoice uses next definitions:
+// Product Price: is the price of the product without any discount
+// Product Discounted Price: is the price of the product after applying discounts
+// Product Base Tax: is the product price applied discount minus the tax amount
+// Product Tax: is the tax amount of the product
+// TotalTips: is the sum of all tips
+// SubTotal: is the sum of all Product Discounted Prices
+// BaseTax: is the sum of all Product Base Taxes
+// Total: is the sum of SubTotal + TotalTips
 func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 	// Remove invoices
 	o.Invoices = nil

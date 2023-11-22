@@ -146,6 +146,11 @@ definitions:
         type: number
       cash_incomes_reported:
         type: number
+      cashier_account_id:
+        type: integer
+      confirmation:
+        description: To save the confirmation from cashier
+        type: boolean
       differences:
         description: To save the differences between calculated and reported founded
           by system
@@ -1941,6 +1946,49 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To create cash audit only for closed orders
+      tags:
+      - Cash Audit
+  /cash-audit/{id}/confirm:
+    post:
+      consumes:
+      - application/json
+      description: To confirm cash audit only for closed orders, if cash audit already
+        exists, it will return the existing cash audit
+      parameters:
+      - description: Cash Audit ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/cashaudit.CashAudit'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To confirm cash audit only for closed orders
       tags:
       - Cash Audit
   /category:

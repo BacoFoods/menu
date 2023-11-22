@@ -11,6 +11,7 @@ import (
 
 const (
 	ErrorCashAuditCreating           = "error creating cash audit"
+	ErrorCashAuditUpdating           = "error updating cash audit"
 	ErrorCashAuditGetting            = "error getting cash audit"
 	ErrorCashAuditGettingStore       = "error getting store"
 	ErrorCashAuditGettingStoreID     = "error getting store id"
@@ -31,6 +32,7 @@ const (
 
 type Repository interface {
 	Get(storeID string) (*CashAudit, error)
+	Update(cashAudit *CashAudit) (*CashAudit, error)
 	GetTodayCashAudit(storeID string) (*CashAudit, error)
 	Create(cashAudit *CashAudit) (*CashAudit, error)
 }
@@ -51,6 +53,7 @@ type CashAudit struct {
 	StoreID           *uint      `json:"store_id"`
 	StoreName         string     `json:"store_name"`
 	ShiftOpen         *time.Time `json:"shift_open"`
+	CashierAccountID  *uint      `json:"cashier_account_id"`
 	ShiftStartBalance float64    `json:"shift_start_balance"`
 	ShiftClose        *time.Time `json:"shift_close"`
 	ShiftEndBalance   float64    `json:"shift_end_balance"`
@@ -69,8 +72,9 @@ type CashAudit struct {
 	CashIncomesReported   float64        `json:"cash_incomes_reported"`
 	OnlineIncomesReported float64        `json:"online_incomes_reported"`
 	CardIncomesReported   float64        `json:"card_incomes_reported"`
-	Differences           string         `json:"differences"`  // To save the differences between calculated and reported founded by system
-	Observations          string         `json:"observations"` // To save the observations or issues reported from cashier
+	Differences           string         `json:"differences"`                       // To save the differences between calculated and reported founded by system
+	Observations          string         `json:"observations"`                      // To save the observations or issues reported from cashier
+	Confirmation          bool           `json:"confirmation" gorm:"default:false"` // To save the confirmation from cashier
 	CreatedAt             *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt             *time.Time     `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt             gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
@@ -103,7 +107,7 @@ func GetTotalEaters(orders []orderPKG.Order) uint {
 func GetTotalSell(invoices []invoice.Invoice) float64 {
 	total := 0.0
 	for _, inv := range invoices {
-		total += inv.SubTotal
+		total += inv.SubTotal + inv.TipAmount
 	}
 
 	return total
@@ -112,7 +116,7 @@ func GetTotalSell(invoices []invoice.Invoice) float64 {
 func GetBruteSell(invoices []invoice.Invoice) float64 {
 	total := 0.0
 	for _, inv := range invoices {
-		total += inv.Total
+		total += inv.BaseTax
 	}
 
 	return total

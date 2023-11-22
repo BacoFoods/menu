@@ -1201,6 +1201,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/cash-audit/{id}/confirm": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To confirm cash audit only for closed orders, if cash audit already exists, it will return the existing cash audit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cash Audit"
+                ],
+                "summary": "To confirm cash audit only for closed orders",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cash Audit ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/cashaudit.CashAudit"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/category": {
             "get": {
                 "security": [
@@ -12401,6 +12471,13 @@ const docTemplate = `{
                 },
                 "cash_incomes_reported": {
                     "type": "number"
+                },
+                "cashier_account_id": {
+                    "type": "integer"
+                },
+                "confirmation": {
+                    "description": "To save the confirmation from cashier",
+                    "type": "boolean"
                 },
                 "differences": {
                     "description": "To save the differences between calculated and reported founded by system",

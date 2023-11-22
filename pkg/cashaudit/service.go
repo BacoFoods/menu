@@ -16,6 +16,7 @@ const (
 type Service interface {
 	Get(storeID string) (*CashAudit, error)
 	Create(storeID string, cashAudit *CashAudit) (*CashAudit, error)
+	Confirm(cashAuditID string) (*CashAudit, error)
 }
 
 type service struct {
@@ -71,6 +72,22 @@ func (s service) Create(storeID string, cashReported *CashAudit) (*CashAudit, er
 
 	// Create cash audit
 	cashAudit, err = s.repository.Create(cashAudit)
+	if err != nil {
+		return nil, err
+	}
+
+	return cashAudit, nil
+}
+
+func (s service) Confirm(cashAuditID string) (*CashAudit, error) {
+	cashAudit, err := s.repository.Get(cashAuditID)
+	if err != nil {
+		return nil, err
+	}
+
+	cashAudit.Confirmation = true
+
+	cashAudit, err = s.repository.Update(cashAudit)
 	if err != nil {
 		return nil, err
 	}

@@ -30,6 +30,15 @@ func (r *DBRepository) Get(storeID string) (*CashAudit, error) {
 	return &cashAudit, nil
 }
 
+func (r *DBRepository) Update(cashAudit *CashAudit) (*CashAudit, error) {
+	if err := r.db.Save(cashAudit).Error; err != nil {
+		shared.LogError("error updating cash audit", LogDBRepository, "Update", err, cashAudit)
+		return nil, fmt.Errorf(ErrorCashAuditUpdating)
+	}
+
+	return cashAudit, nil
+}
+
 func (r *DBRepository) Create(cashAudit *CashAudit) (*CashAudit, error) {
 	if err := r.db.Save(cashAudit).Error; err != nil {
 		shared.LogError("error creating cash audit", LogDBRepository, "Create", err, cashAudit)
