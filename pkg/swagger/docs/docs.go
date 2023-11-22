@@ -1100,7 +1100,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/cashaudit.CashAudit"
+                                            "$ref": "#/definitions/cashaudit.DTOCashAuditCategories"
                                         },
                                         "status": {
                                             "type": "string"
@@ -1170,6 +1170,78 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
+                                            "$ref": "#/definitions/cashaudit.DTOCashAuditCategories"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/cash-audit/confirm": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To confirm cash audit only for closed orders, if cash audit already exists, it will return the existing cash audit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cash Audit"
+                ],
+                "summary": "To confirm cash audit only for closed orders",
+                "parameters": [
+                    {
+                        "description": "Cash Audit Confirmation",
+                        "name": "cashAudit",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cashaudit.DTOCashAuditConfirmationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
                                             "$ref": "#/definitions/cashaudit.CashAudit"
                                         },
                                         "status": {
@@ -1201,14 +1273,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/cash-audit/{id}/confirm": {
-            "post": {
+        "/cash-audit/orders-closed": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To confirm cash audit only for closed orders, if cash audit already exists, it will return the existing cash audit",
+                "description": "To validate if all orders are closed",
                 "consumes": [
                     "application/json"
                 ],
@@ -1218,16 +1290,7 @@ const docTemplate = `{
                 "tags": [
                     "Cash Audit"
                 ],
-                "summary": "To confirm cash audit only for closed orders",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Cash Audit ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "To validate if all orders are closed",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1240,7 +1303,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/cashaudit.CashAudit"
+                                            "type": "string"
                                         },
                                         "status": {
                                             "type": "string"
@@ -12496,14 +12559,14 @@ const docTemplate = `{
                     "description": "To save the observations or issues reported from cashier",
                     "type": "string"
                 },
-                "online_incomes_reported": {
-                    "type": "number"
-                },
                 "orders": {
                     "type": "integer"
                 },
                 "orders_closed": {
                     "type": "integer"
+                },
+                "other_incomes_reported": {
+                    "type": "number"
                 },
                 "shift_close": {
                     "type": "string"
@@ -12542,7 +12605,21 @@ const docTemplate = `{
                 "total_sell_reported": {
                     "type": "number"
                 },
-                "total_tips": {
+                "total_tips_invoices": {
+                    "type": "number"
+                },
+                "total_tips_payments": {
+                    "type": "number"
+                }
+            }
+        },
+        "cashaudit.DTOCard": {
+            "type": "object",
+            "properties": {
+                "origin": {
+                    "type": "string"
+                },
+                "unit": {
                     "type": "number"
                 }
             }
@@ -12556,11 +12633,109 @@ const docTemplate = `{
                 "cash_incomes": {
                     "type": "number"
                 },
-                "online_incomes": {
+                "other_incomes": {
                     "type": "number"
+                }
+            }
+        },
+        "cashaudit.DTOCashAuditCategories": {
+            "type": "object",
+            "properties": {
+                "brute_sell": {
+                    "type": "number"
+                },
+                "incomes": {
+                    "$ref": "#/definitions/cashaudit.DTOIncome"
+                },
+                "orders_length": {
+                    "type": "integer"
+                },
+                "seats": {
+                    "type": "integer"
                 },
                 "total_sell": {
                     "type": "number"
+                },
+                "variables": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cashaudit.DTOVariable"
+                    }
+                }
+            }
+        },
+        "cashaudit.DTOCashAuditConfirmationRequest": {
+            "type": "object",
+            "properties": {
+                "cash_audit_id": {
+                    "type": "string"
+                },
+                "observations": {
+                    "type": "string"
+                }
+            }
+        },
+        "cashaudit.DTODiscounts": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "number"
+                }
+            }
+        },
+        "cashaudit.DTOIncome": {
+            "type": "object",
+            "properties": {
+                "cards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cashaudit.DTOCard"
+                    }
+                },
+                "cash": {
+                    "type": "number"
+                },
+                "others": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cashaudit.DTOOther"
+                    }
+                }
+            }
+        },
+        "cashaudit.DTOOther": {
+            "type": "object",
+            "properties": {
+                "origin": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "number"
+                }
+            }
+        },
+        "cashaudit.DTOTips": {
+            "type": "object",
+            "properties": {
+                "origin": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "number"
+                }
+            }
+        },
+        "cashaudit.DTOVariable": {
+            "type": "object",
+            "properties": {
+                "discounts": {
+                    "$ref": "#/definitions/cashaudit.DTODiscounts"
+                },
+                "tips": {
+                    "$ref": "#/definitions/cashaudit.DTOTips"
                 }
             }
         },
@@ -12577,9 +12752,11 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "origin": {
+                    "description": "For payment method",
                     "type": "string"
                 },
                 "type": {
+                    "description": "To know if is a tip, cash, online, card or other income",
                     "type": "string",
                     "enum": [
                         "tip",

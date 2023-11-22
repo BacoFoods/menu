@@ -20,6 +20,33 @@ func NewHandler(service Service) *Handler {
 	return &Handler{service}
 }
 
+// OrdersClosedValidation to handle orders closed validation request
+// @Tags Cash Audit
+// @Summary To validate if all orders are closed
+// @Description To validate if all orders are closed
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=string}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /cash-audit/orders-closed [get]
+func (h Handler) OrdersClosedValidation(c *gin.Context) {
+	storeID, ok := c.Get("store_id")
+	if !ok {
+		shared.LogWarn("error getting store id", LogHandler, "OrdersClosedValidation", fmt.Errorf(ErrorCashAuditGettingStoreID))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorCashAuditGettingStoreID))
+	}
+
+	if err := h.service.AllOrdersClosed(storeID.(string)); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse("all orders closed"))
+}
+
 // Get to handle get cash audit request
 // @Tags Cash Audit
 // @Summary Just calculate the cash audit only for closed orders
@@ -27,7 +54,7 @@ func NewHandler(service Service) *Handler {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} object{status=string,data=CashAudit}
+// @Success 200 {object} object{status=string,data=DTOCashAuditCategories}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 401 {object} shared.Response
@@ -45,7 +72,7 @@ func (h Handler) Get(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(&cashAudit))
+	c.JSON(http.StatusOK, shared.SuccessResponse(ToDTOCashAuditCategories(*cashAudit)))
 }
 
 // Create to handle create cash audit request
@@ -56,7 +83,7 @@ func (h Handler) Get(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param cashAudit body DTOCashAudit true "Cash Audit"
-// @Success 200 {object} object{status=string,data=CashAudit}
+// @Success 200 {object} object{status=string,data=DTOCashAuditCategories}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 401 {object} shared.Response
@@ -92,7 +119,7 @@ func (h Handler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(&createdCashAudit))
+	c.JSON(http.StatusOK, shared.SuccessResponse(ToDTOCashAuditCategories(*createdCashAudit)))
 }
 
 // Confirm to handle confirm cash audit request
@@ -102,14 +129,20 @@ func (h Handler) Create(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param id path int true "Cash Audit ID"
+// @Param cashAudit body DTOCashAuditConfirmationRequest true "Cash Audit Confirmation"
 // @Success 200 {object} object{status=string,data=CashAudit}
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 401 {object} shared.Response
-// @Router /cash-audit/{id}/confirm [post]
+// @Router /cash-audit/confirm [post]
 func (h Handler) Confirm(c *gin.Context) {
-	cashAudit, err := h.service.Confirm(c.Param("id"))
+	var dto DTOCashAuditConfirmationRequest
+	if err := c.ShouldBindJSON(&dto); err != nil {
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	cashAudit, err := h.service.Confirm(dto.CashAuditID, dto.Observations)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return

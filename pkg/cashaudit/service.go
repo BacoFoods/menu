@@ -14,9 +14,10 @@ const (
 )
 
 type Service interface {
+	AllOrdersClosed(storeID string) error
 	Get(storeID string) (*CashAudit, error)
 	Create(storeID string, cashAudit *CashAudit) (*CashAudit, error)
-	Confirm(cashAuditID string) (*CashAudit, error)
+	Confirm(cashAuditID, observations string) (*CashAudit, error)
 }
 
 type service struct {
@@ -41,11 +42,11 @@ func NewService(repository Repository,
 	}
 }
 
-func (s service) Get(storeID string) (*CashAudit, error) {
-	if err := s.validateAllOrdersClosed(storeID); err != nil {
-		return nil, err
-	}
+func (s service) AllOrdersClosed(storeID string) error {
+	return s.validateAllOrdersClosed(storeID)
+}
 
+func (s service) Get(storeID string) (*CashAudit, error) {
 	return s.calculateCashAudit(storeID, order.OrderStatusClosed)
 }
 
@@ -72,7 +73,7 @@ func (s service) Create(storeID string, cashReported *CashAudit) (*CashAudit, er
 	cashAudit.TipsReported = cashReported.TipsReported
 	cashAudit.TotalSellReported = cashReported.TotalSellReported
 	cashAudit.CashIncomesReported = cashReported.CashIncomesReported
-	cashAudit.OnlineIncomesReported = cashReported.OnlineIncomesReported
+	cashAudit.OtherIncomesReported = cashReported.OtherIncomesReported
 	cashAudit.CardIncomesReported = cashReported.CardIncomesReported
 
 	// Validate discrepancies between reported and calculated
@@ -87,13 +88,14 @@ func (s service) Create(storeID string, cashReported *CashAudit) (*CashAudit, er
 	return cashAudit, nil
 }
 
-func (s service) Confirm(cashAuditID string) (*CashAudit, error) {
+func (s service) Confirm(cashAuditID, observations string) (*CashAudit, error) {
 	cashAudit, err := s.repository.Get(cashAuditID)
 	if err != nil {
 		return nil, err
 	}
 
 	cashAudit.Confirmation = true
+	cashAudit.Observations = observations
 
 	cashAudit, err = s.repository.Update(cashAudit)
 	if err != nil {
@@ -144,7 +146,8 @@ func (s service) calculateCashAudit(storeID string, status string) (*CashAudit, 
 	// Setting tips
 	cashAudit.Incomes = append(cashAudit.Incomes, GetTipIncomes(paymentsList)...)
 
-	cashAudit.TotalTips = GetTotalTips(paymentsList)
+	cashAudit.TotalTipsPayments = GetTotalTipsPayments(paymentsList)
+	cashAudit.TotalTipsInvoices = GetTotalTipsInvoices(invoiceList)
 	cashAudit.TotalDiscounts = GetTotalDiscounts(invoiceList)
 	cashAudit.TotalSell = GetTotalSell(invoiceList)
 	cashAudit.BruteSell = GetBruteSell(invoiceList)

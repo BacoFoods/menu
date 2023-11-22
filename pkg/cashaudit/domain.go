@@ -42,8 +42,8 @@ type Income struct {
 	ID          uint           `json:"id"`
 	CashAuditID *uint          `json:"cash_audit_id"`
 	Income      float64        `json:"income" gorm:"precision:18;scale:4"`
-	Origin      string         `json:"origin"`
-	Type        string         `json:"type" enums:"tip,cash,online,card,other"`
+	Origin      string         `json:"origin"`                                  // For payment method
+	Type        string         `json:"type" enums:"tip,cash,online,card,other"` // To know if is a tip, cash, online, card or other income
 	CreatedAt   *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time     `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
@@ -63,22 +63,23 @@ type CashAudit struct {
 	Eaters            uint       `json:"eaters"`
 	TotalDiscounts    float64    `json:"discounts"`
 	TotalSurcharges   float64    `json:"surcharges"`
-	TotalTips         float64    `json:"total_tips"`
+	TotalTipsInvoices float64    `json:"total_tips_invoices"`
+	TotalTipsPayments float64    `json:"total_tips_payments"`
 	TotalSell         float64    `json:"total_sell"`
 	BruteSell         float64    `json:"brute_sell"`
 	Incomes           []Income   `json:"total_incomes" gorm:"foreignKey:CashAuditID"`
 	// Reported section is for the reported values from cashier
-	TipsReported          float64        `json:"tips_reported"`
-	TotalSellReported     float64        `json:"total_sell_reported"`
-	CashIncomesReported   float64        `json:"cash_incomes_reported"`
-	OnlineIncomesReported float64        `json:"online_incomes_reported"`
-	CardIncomesReported   float64        `json:"card_incomes_reported"`
-	Differences           string         `json:"differences"`                       // To save the differences between calculated and reported founded by system
-	Observations          string         `json:"observations"`                      // To save the observations or issues reported from cashier
-	Confirmation          bool           `json:"confirmation" gorm:"default:false"` // To save the confirmation from cashier
-	CreatedAt             *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt             *time.Time     `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt             gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	TipsReported         float64        `json:"tips_reported"`
+	TotalSellReported    float64        `json:"total_sell_reported"`
+	CashIncomesReported  float64        `json:"cash_incomes_reported"`
+	OtherIncomesReported float64        `json:"other_incomes_reported"`
+	CardIncomesReported  float64        `json:"card_incomes_reported"`
+	Differences          string         `json:"differences"`                       // To save the differences between calculated and reported founded by system
+	Observations         string         `json:"observations"`                      // To save the observations or issues reported from cashier
+	Confirmation         bool           `json:"confirmation" gorm:"default:false"` // To save the confirmation from cashier
+	CreatedAt            *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt            *time.Time     `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt            gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 func GetInvoices(orders []orderPKG.Order) []invoice.Invoice {
@@ -212,10 +213,19 @@ func GetTipIncomes(payments []payment.Payment) []Income {
 	return totalTipsSlice
 }
 
-func GetTotalTips(payments []payment.Payment) float64 {
+func GetTotalTipsPayments(payments []payment.Payment) float64 {
 	total := 0.0
 	for _, payment := range payments {
 		total += payment.Tip
+	}
+
+	return total
+}
+
+func GetTotalTipsInvoices(invoices []invoice.Invoice) float64 {
+	total := 0.0
+	for _, invoice := range invoices {
+		total += invoice.TipAmount
 	}
 
 	return total

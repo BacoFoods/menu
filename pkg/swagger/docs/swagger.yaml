@@ -164,12 +164,12 @@ definitions:
       observations:
         description: To save the observations or issues reported from cashier
         type: string
-      online_incomes_reported:
-        type: number
       orders:
         type: integer
       orders_closed:
         type: integer
+      other_incomes_reported:
+        type: number
       shift_close:
         type: string
       shift_end_balance:
@@ -195,7 +195,16 @@ definitions:
         type: number
       total_sell_reported:
         type: number
-      total_tips:
+      total_tips_invoices:
+        type: number
+      total_tips_payments:
+        type: number
+    type: object
+  cashaudit.DTOCard:
+    properties:
+      origin:
+        type: string
+      unit:
         type: number
     type: object
   cashaudit.DTOCashAudit:
@@ -204,10 +213,73 @@ definitions:
         type: number
       cash_incomes:
         type: number
-      online_incomes:
+      other_incomes:
         type: number
+    type: object
+  cashaudit.DTOCashAuditCategories:
+    properties:
+      brute_sell:
+        type: number
+      incomes:
+        $ref: '#/definitions/cashaudit.DTOIncome'
+      orders_length:
+        type: integer
+      seats:
+        type: integer
       total_sell:
         type: number
+      variables:
+        items:
+          $ref: '#/definitions/cashaudit.DTOVariable'
+        type: array
+    type: object
+  cashaudit.DTOCashAuditConfirmationRequest:
+    properties:
+      cash_audit_id:
+        type: string
+      observations:
+        type: string
+    type: object
+  cashaudit.DTODiscounts:
+    properties:
+      name:
+        type: string
+      unit:
+        type: number
+    type: object
+  cashaudit.DTOIncome:
+    properties:
+      cards:
+        items:
+          $ref: '#/definitions/cashaudit.DTOCard'
+        type: array
+      cash:
+        type: number
+      others:
+        items:
+          $ref: '#/definitions/cashaudit.DTOOther'
+        type: array
+    type: object
+  cashaudit.DTOOther:
+    properties:
+      origin:
+        type: string
+      unit:
+        type: number
+    type: object
+  cashaudit.DTOTips:
+    properties:
+      origin:
+        type: string
+      unit:
+        type: number
+    type: object
+  cashaudit.DTOVariable:
+    properties:
+      discounts:
+        $ref: '#/definitions/cashaudit.DTODiscounts'
+      tips:
+        $ref: '#/definitions/cashaudit.DTOTips'
     type: object
   cashaudit.Income:
     properties:
@@ -218,8 +290,10 @@ definitions:
       income:
         type: number
       origin:
+        description: For payment method
         type: string
       type:
+        description: To know if is a tip, cash, online, card or other income
         enum:
         - tip
         - cash
@@ -1884,7 +1958,7 @@ paths:
             - type: object
             - properties:
                 data:
-                  $ref: '#/definitions/cashaudit.CashAudit'
+                  $ref: '#/definitions/cashaudit.DTOCashAuditCategories'
                 status:
                   type: string
               type: object
@@ -1927,7 +2001,7 @@ paths:
             - type: object
             - properties:
                 data:
-                  $ref: '#/definitions/cashaudit.CashAudit'
+                  $ref: '#/definitions/cashaudit.DTOCashAuditCategories'
                 status:
                   type: string
               type: object
@@ -1948,18 +2022,19 @@ paths:
       summary: To create cash audit only for closed orders
       tags:
       - Cash Audit
-  /cash-audit/{id}/confirm:
+  /cash-audit/confirm:
     post:
       consumes:
       - application/json
       description: To confirm cash audit only for closed orders, if cash audit already
         exists, it will return the existing cash audit
       parameters:
-      - description: Cash Audit ID
-        in: path
-        name: id
+      - description: Cash Audit Confirmation
+        in: body
+        name: cashAudit
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/cashaudit.DTOCashAuditConfirmationRequest'
       produces:
       - application/json
       responses:
@@ -1989,6 +2064,42 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To confirm cash audit only for closed orders
+      tags:
+      - Cash Audit
+  /cash-audit/orders-closed:
+    get:
+      consumes:
+      - application/json
+      description: To validate if all orders are closed
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  type: string
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To validate if all orders are closed
       tags:
       - Cash Audit
   /category:
