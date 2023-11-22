@@ -27,12 +27,8 @@ func (r *DBRepository) Create(discount *Discount) (*Discount, error) {
 }
 
 func (r *DBRepository) GetMany(ids []uint) ([]Discount, error) {
-	if len(ids) == 0 {
-		return nil, nil
-	}
-
 	var discount []Discount
-	if err := r.db.Find(&discount, ids).Error; err != nil {
+	if err := r.db.Where("id IN ?", ids).Find(&discount).Error; err != nil {
 		shared.LogError("error getting discounts", LogDBRepository, "GetMany", err, ids)
 		return nil, err
 	}
