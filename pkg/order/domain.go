@@ -75,7 +75,7 @@ const (
 	OrderStatusClosed  = "closed"
 )
 
-func applyDiscount(value float64, discounts []invoice.Discount) (newValue float64, appliedDiscount float64) {
+func applyDiscount(value float64, discounts []invoice.DiscountApplied) (newValue float64, appliedDiscount float64) {
 	newValue = value
 
 	for _, discount := range discounts {
@@ -85,7 +85,7 @@ func applyDiscount(value float64, discounts []invoice.Discount) (newValue float6
 	newValue = math.Round(newValue)
 	appliedDiscount = value - newValue
 
-	return
+	return newValue, appliedDiscount
 }
 
 func OrderStatusValid(status string) bool {
@@ -250,7 +250,7 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 		TableID:   o.TableID,
 		ShiftID:   o.ShiftID,
 		Items:     make([]invoice.Item, 0),
-		Discounts: make([]invoice.Discount, 0),
+		Discounts: make([]invoice.DiscountApplied, 0),
 		Client:    client.DefaultClient(),
 		BaseTax:   0,
 	}
@@ -264,7 +264,7 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 			continue
 		}
 
-		newInvoice.Discounts = append(newInvoice.Discounts, invoice.Discount{
+		newInvoice.Discounts = append(newInvoice.Discounts, invoice.DiscountApplied{
 			DiscountID:  d.ID,
 			Name:        d.Name,
 			Description: d.Description,

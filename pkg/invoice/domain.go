@@ -55,7 +55,7 @@ type Invoice struct {
 	ChannelID           *uint             `json:"channel_id" binding:"required"`
 	TableID             *uint             `json:"table_id"`
 	Items               []Item            `json:"items"  gorm:"foreignKey:InvoiceID"`
-	Discounts           []Discount        `json:"discounts"  gorm:"foreignKey:InvoiceID"`
+	Discounts           []DiscountApplied `json:"discounts"  gorm:"foreignKey:InvoiceID"`
 	Surcharges          []Surcharge       `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
 	Cashier             string            `json:"shift"`
 	Waiter              string            `json:"waiter"`
@@ -162,7 +162,7 @@ type Item struct {
 	DeletedAt       *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
-type Discount struct {
+type DiscountApplied struct {
 	ID          uint           `json:"id"`
 	DiscountID  uint           `json:"discount_id"`
 	InvoiceID   *uint          `json:"invoice_id"`
@@ -176,7 +176,7 @@ type Discount struct {
 	DeletedAt   gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
-func (d *Discount) Apply(value float64) float64 {
+func (d *DiscountApplied) Apply(value float64) float64 {
 	return math.Max(value-(value*d.Percentage/100), 0)
 }
 

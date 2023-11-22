@@ -67,7 +67,7 @@ func main() {
 		&order.OrderStatus{},
 		&invoice.Invoice{},
 		&invoice.Item{},
-		&invoice.Discount{},
+		&invoice.DiscountApplied{},
 		&invoice.Surcharge{},
 		&account.Account{},
 		&course.Course{},
