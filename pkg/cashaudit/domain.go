@@ -17,6 +17,7 @@ const (
 	ErrorCashAuditGettingStoreID     = "error getting store id"
 	ErrorCashAuditGettingLastShift   = "error getting last shift"
 	ErrorCashAuditGettingOrders      = "error getting orders"
+	ErrorCashAuditNotAllOrdersClosed = "error not all orders closed"
 	ErrorCashAuditNotOrdersFound     = "error not orders found"
 	ErrorCashAuditInvalidOrderStatus = "error invalid order status"
 

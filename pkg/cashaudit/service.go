@@ -42,10 +42,18 @@ func NewService(repository Repository,
 }
 
 func (s service) Get(storeID string) (*CashAudit, error) {
+	if err := s.validateAllOrdersClosed(storeID); err != nil {
+		return nil, err
+	}
+
 	return s.calculateCashAudit(storeID, order.OrderStatusClosed)
 }
 
 func (s service) Create(storeID string, cashReported *CashAudit) (*CashAudit, error) {
+	if err := s.validateAllOrdersClosed(storeID); err != nil {
+		return nil, err
+	}
+
 	todayCashAudit, err := s.repository.GetTodayCashAudit(storeID)
 	if err != nil {
 		return nil, err
@@ -168,4 +176,22 @@ func (s service) validateDiscrepancy(cashAudit *CashAudit) string {
 	}
 
 	return ""
+}
+
+func (s service) validateAllOrdersClosed(storeID string) error {
+	orderClosedList, err := s.orders.GetLastDayOrdersByStatus(storeID, order.OrderStatusClosed)
+	if err != nil {
+		return fmt.Errorf(ErrorCashAuditGettingOrders)
+	}
+
+	orderList, err := s.orders.GetLastDayOrders(storeID)
+	if err != nil {
+		return fmt.Errorf(ErrorCashAuditGettingOrders)
+	}
+
+	if len(orderClosedList) != len(orderList) {
+		return fmt.Errorf(ErrorCashAuditNotAllOrdersClosed)
+	}
+
+	return nil
 }
