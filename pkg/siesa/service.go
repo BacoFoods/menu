@@ -345,7 +345,7 @@ func GetOrders(startDate string, endDate string, locationIDs []string) (string, 
 	// Construir la URL
 	var allOrders []PopappOrder
 	for _, locationID := range locationIDs {
-		url := fmt.Sprintf("https://api.popapp.io/orders/?start_date=%s&end_date=%s&location_id=%s&order=desc", startDate, endDate, locationID)
+		url := fmt.Sprintf("https://serverless.popapp.io/apipopapp/orders/?start_date=%s&end_date=%s&location_id=%s&order=desc", startDate, endDate, locationID)
 		// Crear la solicitud HTTP
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
