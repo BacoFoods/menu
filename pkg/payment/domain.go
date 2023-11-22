@@ -32,6 +32,7 @@ const (
 	PaymentMethodBold        = "bold"
 	PaymentMethodBono        = "bono"
 	PaymentMethodYuno        = "yuno"
+	PaymentMethodUntracked   = "untracked"
 )
 
 type Repository interface {

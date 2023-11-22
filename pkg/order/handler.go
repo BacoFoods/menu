@@ -809,6 +809,7 @@ func (h *Handler) DeleteOrderType(c *gin.Context) {
 // @Tags Order
 // @Summary To create an invoice
 // @Description To create an invoice
+// @Param order body OrderDTO true "Order"
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -817,21 +818,21 @@ func (h *Handler) DeleteOrderType(c *gin.Context) {
 // @Router /order/{id}/invoice [post]
 func (h *Handler) CreateInvoice(c *gin.Context) {
 	orderID := c.Param("id")
+	var req CalculateInvoiceRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		shared.LogError("error binding request body", LogHandler, "CalculateInvoice", err, req)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
 
 	att := h.ctxAttendee(c)
-	invoice, err := h.service.CreateInvoice(orderID, att)
+	invoice, err := h.service.CreateInvoice(orderID, att, req.GetTip(), req.GetDiscountsIDs())
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCreation))
 		return
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
-}
-
-type CalculateInvoiceRequest struct {
-	TipPercentage *int     `json:"tip_percentage"`
-	TipAmount     *float64 `json:"tip_amount"`
-	Discounts     []uint   `json:"discounts"`
 }
 
 // CalculateInvoice to handle a request to calculate an invoice
@@ -863,10 +864,10 @@ func (h *Handler) CalculateInvoice(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
 }
 
-// CalculateInvoice to handle a request to calculate an invoice
+// PublicCalculateInvoice to handle a request to calculate an invoice
 // @Tags Order
-// @Summary To calculate an invoice
-// @Description To calculate an invoice
+// @Summary Public endpoint to calculate an invoice
+// @Description Public entpodint to calculate an invoice
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
@@ -945,6 +946,8 @@ func (h *Handler) CloseInvoice(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
+
+	req.InvoiceID = c.Param("id")
 
 	att := h.ctxAttendee(c)
 	req.attendee = att

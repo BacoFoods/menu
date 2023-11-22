@@ -1077,7 +1077,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To get cash audit",
+                "description": "Just calculate the cash audit only for closed orders",
                 "consumes": [
                     "application/json"
                 ],
@@ -1087,7 +1087,7 @@ const docTemplate = `{
                 "tags": [
                     "Cash Audit"
                 ],
-                "summary": "To get cash audit",
+                "summary": "Just calculate the cash audit only for closed orders",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1136,7 +1136,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To create cash audit",
+                "description": "To create cash audit only for closed orders, if cash audit already exists, it will return the existing cash audit",
                 "consumes": [
                     "application/json"
                 ],
@@ -1146,7 +1146,7 @@ const docTemplate = `{
                 "tags": [
                     "Cash Audit"
                 ],
-                "summary": "To create cash audit",
+                "summary": "To create cash audit only for closed orders",
                 "parameters": [
                     {
                         "description": "Cash Audit",
@@ -6529,6 +6529,15 @@ const docTemplate = `{
                 "summary": "To create an invoice",
                 "parameters": [
                     {
+                        "description": "Order",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.OrderDTO"
+                        }
+                    },
+                    {
                         "type": "string",
                         "description": "Order ID",
                         "name": "id",
@@ -9326,7 +9335,7 @@ const docTemplate = `{
         },
         "/public/order/{id}/invoice/calculate": {
             "get": {
-                "description": "To calculate an invoice",
+                "description": "Public entpodint to calculate an invoice",
                 "consumes": [
                     "application/json"
                 ],
@@ -9336,7 +9345,7 @@ const docTemplate = `{
                 "tags": [
                     "Order"
                 ],
-                "summary": "To calculate an invoice",
+                "summary": "Public endpoint to calculate an invoice",
                 "parameters": [
                     {
                         "type": "string",
@@ -12223,17 +12232,18 @@ const docTemplate = `{
         "cashaudit.CashAudit": {
             "type": "object",
             "properties": {
-                "card_incomes": {
+                "brute_sell": {
                     "type": "number"
                 },
                 "card_incomes_reported": {
                     "type": "number"
                 },
-                "cash_incomes": {
-                    "type": "number"
-                },
                 "cash_incomes_reported": {
                     "type": "number"
+                },
+                "differences": {
+                    "description": "To save the differences between calculated and reported founded by system",
+                    "type": "string"
                 },
                 "discounts": {
                     "type": "number"
@@ -12241,13 +12251,20 @@ const docTemplate = `{
                 "eaters": {
                     "type": "integer"
                 },
-                "online_incomes": {
-                    "type": "number"
+                "id": {
+                    "type": "integer"
+                },
+                "observations": {
+                    "description": "To save the observations or issues reported from cashier",
+                    "type": "string"
                 },
                 "online_incomes_reported": {
                     "type": "number"
                 },
                 "orders": {
+                    "type": "integer"
+                },
+                "orders_closed": {
                     "type": "integer"
                 },
                 "shift_close": {
@@ -12262,21 +12279,32 @@ const docTemplate = `{
                 "shift_start_balance": {
                     "type": "number"
                 },
+                "store_id": {
+                    "type": "integer"
+                },
                 "store_name": {
                     "type": "string"
                 },
                 "surcharges": {
                     "type": "number"
                 },
-                "tips": {
+                "tips_reported": {
+                    "description": "Reported section is for the reported values from cashier",
                     "type": "number"
                 },
+                "total_incomes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cashaudit.Income"
+                    }
+                },
                 "total_sell": {
-                    "description": "Calculated section is for the calculated values from invoices",
                     "type": "number"
                 },
                 "total_sell_reported": {
-                    "description": "Reported section is for the reported values from cashier",
+                    "type": "number"
+                },
+                "total_tips": {
                     "type": "number"
                 }
             }
@@ -12295,6 +12323,33 @@ const docTemplate = `{
                 },
                 "total_sell": {
                     "type": "number"
+                }
+            }
+        },
+        "cashaudit.Income": {
+            "type": "object",
+            "properties": {
+                "cash_audit_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "income": {
+                    "type": "number"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "tip",
+                        "cash",
+                        "online",
+                        "card",
+                        "other"
+                    ]
                 }
             }
         },
@@ -13330,6 +13385,9 @@ const docTemplate = `{
                 },
                 "description": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"

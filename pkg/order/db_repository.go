@@ -65,6 +65,7 @@ func (r *DBRepository) Get(orderID string) (*Order, error) {
 	return &order, nil
 }
 
+// AddProducts method for add products to an order in database
 func (c *DBRepository) AddProducts(order *Order, newItems []OrderItem) (*Order, error) {
 	if err := c.db.Model(order).
 		Association("Items").
@@ -162,6 +163,30 @@ func (r *DBRepository) GetLastDayOrders(storeID string) ([]Order, error) {
 	}
 
 	return orders, nil
+}
+
+// GetLastDayOrdersByStatus method for get day's orders from database
+func (r *DBRepository) GetLastDayOrdersByStatus(storeID string, status string) ([]Order, error) {
+	var orders []Order
+	if err := r.db.Preload(clause.Associations).
+		Preload("Invoices.Payments").
+		Where("store_id = ? AND current_status = ? AND created_at >= NOW() - INTERVAL '1' DAY", storeID, status).
+		Find(&orders).Error; err != nil {
+		shared.LogError("error getting orders", LogDBRepository, "GetLastDayOrders", err, storeID)
+		return nil, err
+	}
+
+	return orders, nil
+}
+
+// Delete method for delete an order in database
+func (r *DBRepository) Delete(orderID string) error {
+	if err := r.db.Delete(&Order{}, orderID).Error; err != nil {
+		shared.LogError("error deleting order", LogDBRepository, "Delete", err, orderID)
+		return fmt.Errorf(ErrorOrderDeleting)
+	}
+
+	return nil
 }
 
 // OrderType methods
