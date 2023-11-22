@@ -16,18 +16,19 @@ import (
 )
 
 const (
-	ErrorBadRequest             = "bad request"
+	ErrorAccountBadRequest      = "bad request"
 	ErrorAccountPinBadRequest   = "bad request pin must have 4 digits"
 	ErrorAccountCreation        = "error creating account"
 	ErrorAccountPinFinding      = "error finding pin account"
 	ErrorAccountPinCreation     = "error creating pin account"
-	ErrorAccountPinAlreadyExist = "error pin already exist"
+	ErrorAccountPinAlreadyExist = "error this mail already has a pin"
 	ErrorAccountDeleting        = "error deleting account"
 	ErrorAccountLogin           = "error login account"
-	ErrorAccountPinLogin        = "error login with pin account"
 	ErrorAccountInvalidPassword = "error invalid password"
 	ErrorAccountFinding         = "error finding account"
 	ErrorAccountUpdating        = "error updating account"
+	ErrorAccountGettingByID     = "error getting account by id"
+	ErrorAccountIDEmpty         = "account id is empty"
 
 	LogDomain = "pkg/account/domain"
 )
@@ -38,6 +39,7 @@ type Repository interface {
 	Delete(accountID string) error
 	Find(filter map[string]any) ([]Account, error)
 	GetByUUID(uuid string) (*Account, error)
+	GetByID(id string) (*Account, error)
 	Update(*Account) (*Account, error)
 }
 

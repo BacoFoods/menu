@@ -11,7 +11,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/currency"
 	"github.com/BacoFoods/menu/pkg/database"
 	"github.com/BacoFoods/menu/pkg/menu"
-	"github.com/BacoFoods/menu/pkg/overriders"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/taxes"
@@ -55,19 +54,20 @@ var _ = Describe("Availability", func() {
 			&brand.Brand{},
 			&store.Store{},
 			&channel.Channel{},
-			&overriders.Overriders{},
 			&availability.Availability{},
 		)
 
 		// Service Implementation
+		channelRepository := channel.NewDBRepository(db)
+
 		brandRepository := brand.NewDBRepository(db)
-		brandService = brand.NewService(brandRepository)
+		brandService = brand.NewService(brandRepository, channelRepository)
 
 		storeRepository := store.NewDBRepository(db)
-		channelRepository := channel.NewDBRepository(db)
+
 		storeService = store.NewService(storeRepository, channelRepository)
 
-		overridersRepository := overriders.NewDBRepository(db)
+		overridersRepository := product.NewDBRepository(db)
 		availabilityRepository := availability.NewDBRepository(db)
 		availabilityService = availability.NewService(availabilityRepository, storeRepository, channelRepository)
 

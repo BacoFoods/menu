@@ -1,8 +1,10 @@
 package client
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
+	"strings"
 )
 
 const (
@@ -61,9 +63,10 @@ func (r *DBRepository) List(filter map[string]any) ([]Client, error) {
 }
 
 func (r *DBRepository) Get(id string) (*Client, error) {
-	if id == "" {
-		shared.LogWarn("error getting client", LogRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(id) == "" {
+		err := fmt.Errorf(ErrorClientIDEmpty)
+		shared.LogWarn("error getting client", LogRepository, "Get", err)
+		return nil, err
 	}
 
 	var client Client

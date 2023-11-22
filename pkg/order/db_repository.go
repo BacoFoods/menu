@@ -2,16 +2,16 @@ package order
 
 import (
 	"fmt"
+	"strings"
+
+	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
 const (
-	LogDBRepository  string = "pkg/order/db_repository"
-	StatusActive     string = "active"
-	StatusCreate     string = "create"
-	StatusInProgress string = "in_progress"
+	LogDBRepository string = "pkg/order/db_repository"
 )
 
 type DBRepository struct {
@@ -25,9 +25,20 @@ func NewDBRepository(db *gorm.DB) *DBRepository {
 // Order methods
 
 // Create method for create a new order in database
-func (r *DBRepository) Create(order *Order) (*Order, error) {
+func (r *DBRepository) Create(order *Order, ch *channel.Channel) (*Order, error) {
+	isNew := order.ID == 0
 	if err := r.db.Save(order).Error; err != nil {
 		shared.LogError("error creating order", LogDBRepository, "Create", err, *order)
+		return nil, err
+	}
+
+	if isNew {
+		ch := strings.ToUpper(ch.ShortName)
+		order.Code = fmt.Sprintf("%s%d", ch, order.ID)
+	}
+
+	if err := r.db.Save(order).Error; err != nil {
+		shared.LogError("error updating order code", LogDBRepository, "Create", err, *order)
 		return nil, err
 	}
 
@@ -36,9 +47,10 @@ func (r *DBRepository) Create(order *Order) (*Order, error) {
 
 // Get method for get an order from database
 func (r *DBRepository) Get(orderID string) (*Order, error) {
-	if orderID == "" {
-		shared.LogWarn("error getting order", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(orderID) == "" {
+		err := fmt.Errorf(ErrorOrderIDEmpty)
+		shared.LogWarn("error getting order", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var order Order
@@ -51,6 +63,21 @@ func (r *DBRepository) Get(orderID string) (*Order, error) {
 	}
 
 	return &order, nil
+}
+
+// AddProducts method for add products to an order in database
+func (c *DBRepository) AddProducts(order *Order, newItems []OrderItem) (*Order, error) {
+	if err := c.db.Model(order).
+		Association("Items").
+		Append(newItems); err != nil {
+		return nil, err
+	}
+
+	if err := c.db.Save(order).Error; err != nil {
+		return nil, err
+	}
+
+	return order, nil
 }
 
 // Update method for update an order in database
@@ -68,12 +95,6 @@ func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 	tx := r.db.
 		Preload(clause.Associations).
 		Preload("Items.Modifiers")
-
-	if status, ok := filter["active"]; ok && status == "true" {
-		tx.Where("current_status = ? OR current_status = ?", StatusCreate, StatusInProgress)
-		shared.LogWarn("filtering by active orders", LogDBRepository, "Find", nil, filter)
-		delete(filter, "active")
-	}
 
 	if days, ok := filter["days"]; ok {
 		tx.Where(fmt.Sprintf("created_at >= NOW() - INTERVAL '%s' DAY", days))
@@ -128,6 +149,44 @@ func (r *DBRepository) FindByShift(shiftID uint) ([]Order, error) {
 	}
 
 	return orders, nil
+}
+
+// GetLastDayOrders method for get day's orders from database
+func (r *DBRepository) GetLastDayOrders(storeID string) ([]Order, error) {
+	var orders []Order
+	if err := r.db.Preload(clause.Associations).
+		Preload("Invoices.Payments").
+		Where("store_id = ? AND created_at >= NOW() - INTERVAL '1' DAY", storeID).
+		Find(&orders).Error; err != nil {
+		shared.LogError("error getting orders", LogDBRepository, "GetLastDayOrders", err, storeID)
+		return nil, err
+	}
+
+	return orders, nil
+}
+
+// GetLastDayOrdersByStatus method for get day's orders from database
+func (r *DBRepository) GetLastDayOrdersByStatus(storeID string, status string) ([]Order, error) {
+	var orders []Order
+	if err := r.db.Preload(clause.Associations).
+		Preload("Invoices.Payments").
+		Where("store_id = ? AND current_status = ? AND created_at >= NOW() - INTERVAL '1' DAY", storeID, status).
+		Find(&orders).Error; err != nil {
+		shared.LogError("error getting orders", LogDBRepository, "GetLastDayOrders", err, storeID)
+		return nil, err
+	}
+
+	return orders, nil
+}
+
+// Delete method for delete an order in database
+func (r *DBRepository) Delete(orderID string) error {
+	if err := r.db.Delete(&Order{}, orderID).Error; err != nil {
+		shared.LogError("error deleting order", LogDBRepository, "Delete", err, orderID)
+		return fmt.Errorf(ErrorOrderDeleting)
+	}
+
+	return nil
 }
 
 // OrderType methods

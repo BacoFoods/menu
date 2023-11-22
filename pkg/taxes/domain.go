@@ -7,11 +7,12 @@ import (
 )
 
 const (
-	ErrorBadRequest  string = "error bad request"
-	ErrorCreatingTax string = "error creating tax"
-	ErrorGettingTax  string = "error getting tax"
-	ErrorUpdatingTax string = "error updating tax"
-	ErrorDeletingTax string = "error deleting tax"
+	ErrorTaxBadRequest string = "error bad request"
+	ErrorTaxCreating   string = "error creating tax"
+	ErrorTaxGetting    string = "error getting tax"
+	ErrorTaxUpdating   string = "error updating tax"
+	ErrorTaxDeleting   string = "error deleting tax"
+	ErrorTaxIDEmpty    string = "error tax id empty"
 )
 
 type Tax struct {

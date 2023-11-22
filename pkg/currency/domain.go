@@ -6,11 +6,13 @@ import (
 )
 
 const (
-	ErrorBadRequest       string = "error bad request"
-	ErrorCreatingCurrency string = "error creating currency"
-	ErrorGettingCurrency  string = "error getting currency"
-	ErrorUpdatingCurrency string = "error updating currency"
-	ErrorDeletingCurrency string = "error deleting currency"
+	ErrorCurrencyBadRequest string = "error bad request"
+	ErrorCurrencyCreation   string = "error creating currency"
+	ErrorCurrencyGetting    string = "error getting currency"
+	ErrorCurrencyUpdating   string = "error updating currency"
+	ErrorCurrencyDeleting   string = "error deleting currency"
+
+	ErrorCurrencyIDEmpty string = "error currency id empty"
 )
 
 type Currency struct {

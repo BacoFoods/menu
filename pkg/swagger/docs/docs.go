@@ -1077,7 +1077,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To get cash audit",
+                "description": "Just calculate the cash audit only for closed orders",
                 "consumes": [
                     "application/json"
                 ],
@@ -1087,7 +1087,149 @@ const docTemplate = `{
                 "tags": [
                     "Cash Audit"
                 ],
-                "summary": "To get cash audit",
+                "summary": "Just calculate the cash audit only for closed orders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/cashaudit.DTOCashAuditCategories"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To create cash audit only for closed orders, if cash audit already exists, it will return the existing cash audit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cash Audit"
+                ],
+                "summary": "To create cash audit only for closed orders",
+                "parameters": [
+                    {
+                        "description": "Cash Audit",
+                        "name": "cashAudit",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cashaudit.DTOCashAudit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/cashaudit.DTOCashAuditCategories"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/cash-audit/confirm": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To confirm cash audit only for closed orders, if cash audit already exists, it will return the existing cash audit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cash Audit"
+                ],
+                "summary": "To confirm cash audit only for closed orders",
+                "parameters": [
+                    {
+                        "description": "Cash Audit Confirmation",
+                        "name": "cashAudit",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cashaudit.DTOCashAuditConfirmationRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1101,6 +1243,67 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/cashaudit.CashAudit"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/cash-audit/orders-closed": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To validate if all orders are closed",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cash Audit"
+                ],
+                "summary": "To validate if all orders are closed",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
                                         },
                                         "status": {
                                             "type": "string"
@@ -3548,6 +3751,167 @@ const docTemplate = `{
                 }
             }
         },
+        "/discount-applied": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To find discount applied",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InvoiceApplied"
+                ],
+                "summary": "To find discount applied",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "type": "object"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "invoices": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/invoice.Invoice"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/discount-applied/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To remove discount applied",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InvoiceApplied"
+                ],
+                "summary": "To remove discount applied",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "invoice id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "type": "object"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "invoices": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/invoice.DiscountApplied"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/discount/{id}": {
             "get": {
                 "security": [
@@ -4052,6 +4416,85 @@ const docTemplate = `{
                         "name": "clientID",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Invoice"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/invoice/{id}/close": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To close an invoice",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invoice"
+                ],
+                "summary": "To close an invoice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "invoice id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "invoice",
+                        "name": "invoice",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.CloseInvoiceRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -5492,19 +5935,14 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "created",
+                            "paying",
+                            "closed"
+                        ],
                         "type": "string",
                         "description": "Status",
                         "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "true",
-                            "false"
-                        ],
-                        "type": "string",
-                        "description": "Is Active",
-                        "name": "active",
                         "in": "query"
                     },
                     {
@@ -5573,6 +6011,76 @@ const docTemplate = `{
                     "Order"
                 ],
                 "summary": "To create an order",
+                "parameters": [
+                    {
+                        "description": "Order",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.OrderDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/order.Order"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "to update an order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "to update an order",
                 "parameters": [
                     {
                         "description": "Order",
@@ -6310,10 +6818,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Invoice"
+                    "Order"
                 ],
                 "summary": "To create an invoice",
                 "parameters": [
+                    {
+                        "description": "Order",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.OrderDTO"
+                        }
+                    },
                     {
                         "type": "string",
                         "description": "Order ID",
@@ -6362,7 +6879,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Invoice"
+                    "Order"
                 ],
                 "summary": "To calculate an invoice",
                 "parameters": [
@@ -6372,6 +6889,15 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "request body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.CalculateInvoiceRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -6905,67 +7431,6 @@ const docTemplate = `{
                         "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/order/{id}/update/status": {
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To update the status of an order",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Order"
-                ],
-                "summary": "To update the status of an order",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Order ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Status",
-                        "name": "status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/order.RequestUpdateOrderStatus"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/order.Order"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
                         }
                     }
                 }
@@ -7764,14 +8229,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/payment-method/{id}": {
-            "get": {
+        "/payment-method/{code}": {
+            "delete": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To get a payment method by id",
+                "description": "To delete payment method",
                 "consumes": [
                     "application/json"
                 ],
@@ -7781,12 +8246,12 @@ const docTemplate = `{
                 "tags": [
                     "PaymentMethod"
                 ],
-                "summary": "To get a payment method by id",
+                "summary": "To delete payment method",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "payment method id",
-                        "name": "id",
+                        "description": "payment method code",
+                        "name": "code",
                         "in": "path",
                         "required": true
                     }
@@ -7832,14 +8297,16 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
+            }
+        },
+        "/payment-method/{id}": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "To delete payment method",
+                "description": "To get a payment method by id",
                 "consumes": [
                     "application/json"
                 ],
@@ -7849,7 +8316,7 @@ const docTemplate = `{
                 "tags": [
                     "PaymentMethod"
                 ],
-                "summary": "To delete payment method",
+                "summary": "To get a payment method by id",
                 "parameters": [
                     {
                         "type": "string",
@@ -8903,7 +9370,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/public/menu/store/{storeId}/list": {
+        "/public/menu/place/{place}/{place-id}/list": {
             "get": {
                 "description": "To list menus by place",
                 "consumes": [
@@ -8973,6 +9440,235 @@ const docTemplate = `{
                         "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/order": {
+            "post": {
+                "description": "To create an order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To create an order",
+                "parameters": [
+                    {
+                        "description": "Order",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.OrderDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/order.Order"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/order/{id}": {
+            "get": {
+                "description": "To get an order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To get an order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/order.Order"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/order/{id}/checkout": {
+            "post": {
+                "description": "To checkout an order.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "To checkout an order.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Checkout parameters",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/order.CheckoutRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Invoice"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/public/order/{id}/invoice/calculate": {
+            "get": {
+                "description": "Public entpodint to calculate an invoice",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Public endpoint to calculate an invoice",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Invoice"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -9156,345 +9852,6 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/status": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To find status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Status"
-                ],
-                "summary": "To find status",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/status.Status"
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To create a status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Status"
-                ],
-                "summary": "To create a status",
-                "parameters": [
-                    {
-                        "description": "status request",
-                        "name": "status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/status.CreateStatus"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/status.Status"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To update status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Status"
-                ],
-                "summary": "To update status",
-                "parameters": [
-                    {
-                        "description": "status to update",
-                        "name": "status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/status.UpdateStatus"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/status.Status"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/status/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To find status by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Status"
-                ],
-                "summary": "To find status by id",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "status id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/status.Status"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/shared.Response"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "To delete a status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Status"
-                ],
-                "summary": "To delete a status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "statusID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "status request",
-                        "name": "status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/status.Status"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "type": "object"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "string"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -12169,11 +12526,25 @@ const docTemplate = `{
         "cashaudit.CashAudit": {
             "type": "object",
             "properties": {
-                "card_incomes": {
+                "brute_sell": {
                     "type": "number"
                 },
-                "cash_incomes": {
+                "card_incomes_reported": {
                     "type": "number"
+                },
+                "cash_incomes_reported": {
+                    "type": "number"
+                },
+                "cashier_account_id": {
+                    "type": "integer"
+                },
+                "confirmation": {
+                    "description": "To save the confirmation from cashier",
+                    "type": "boolean"
+                },
+                "differences": {
+                    "description": "To save the differences between calculated and reported founded by system",
+                    "type": "string"
                 },
                 "discounts": {
                     "type": "number"
@@ -12181,11 +12552,21 @@ const docTemplate = `{
                 "eaters": {
                     "type": "integer"
                 },
-                "online_incomes": {
-                    "type": "number"
+                "id": {
+                    "type": "integer"
+                },
+                "observations": {
+                    "description": "To save the observations or issues reported from cashier",
+                    "type": "string"
                 },
                 "orders": {
                     "type": "integer"
+                },
+                "orders_closed": {
+                    "type": "integer"
+                },
+                "other_incomes_reported": {
+                    "type": "number"
                 },
                 "shift_close": {
                     "type": "string"
@@ -12199,17 +12580,191 @@ const docTemplate = `{
                 "shift_start_balance": {
                     "type": "number"
                 },
+                "store_id": {
+                    "type": "integer"
+                },
                 "store_name": {
                     "type": "string"
                 },
                 "surcharges": {
                     "type": "number"
                 },
-                "tips": {
+                "tips_reported": {
+                    "description": "Reported section is for the reported values from cashier",
                     "type": "number"
+                },
+                "total_incomes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cashaudit.Income"
+                    }
                 },
                 "total_sell": {
                     "type": "number"
+                },
+                "total_sell_reported": {
+                    "type": "number"
+                },
+                "total_tips_invoices": {
+                    "type": "number"
+                },
+                "total_tips_payments": {
+                    "type": "number"
+                }
+            }
+        },
+        "cashaudit.DTOCard": {
+            "type": "object",
+            "properties": {
+                "origin": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "number"
+                }
+            }
+        },
+        "cashaudit.DTOCashAudit": {
+            "type": "object",
+            "properties": {
+                "card_incomes": {
+                    "type": "number"
+                },
+                "cash_incomes": {
+                    "type": "number"
+                },
+                "other_incomes": {
+                    "type": "number"
+                }
+            }
+        },
+        "cashaudit.DTOCashAuditCategories": {
+            "type": "object",
+            "properties": {
+                "brute_sell": {
+                    "type": "number"
+                },
+                "incomes": {
+                    "$ref": "#/definitions/cashaudit.DTOIncome"
+                },
+                "orders_length": {
+                    "type": "integer"
+                },
+                "seats": {
+                    "type": "integer"
+                },
+                "total_sell": {
+                    "type": "number"
+                },
+                "variables": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cashaudit.DTOVariable"
+                    }
+                }
+            }
+        },
+        "cashaudit.DTOCashAuditConfirmationRequest": {
+            "type": "object",
+            "properties": {
+                "cash_audit_id": {
+                    "type": "string"
+                },
+                "observations": {
+                    "type": "string"
+                }
+            }
+        },
+        "cashaudit.DTODiscounts": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "number"
+                }
+            }
+        },
+        "cashaudit.DTOIncome": {
+            "type": "object",
+            "properties": {
+                "cards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cashaudit.DTOCard"
+                    }
+                },
+                "cash": {
+                    "type": "number"
+                },
+                "others": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cashaudit.DTOOther"
+                    }
+                }
+            }
+        },
+        "cashaudit.DTOOther": {
+            "type": "object",
+            "properties": {
+                "origin": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "number"
+                }
+            }
+        },
+        "cashaudit.DTOTips": {
+            "type": "object",
+            "properties": {
+                "origin": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "number"
+                }
+            }
+        },
+        "cashaudit.DTOVariable": {
+            "type": "object",
+            "properties": {
+                "discounts": {
+                    "$ref": "#/definitions/cashaudit.DTODiscounts"
+                },
+                "tips": {
+                    "$ref": "#/definitions/cashaudit.DTOTips"
+                }
+            }
+        },
+        "cashaudit.Income": {
+            "type": "object",
+            "properties": {
+                "cash_audit_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "income": {
+                    "type": "number"
+                },
+                "origin": {
+                    "description": "For payment method",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "To know if is a tip, cash, online, card or other income",
+                    "type": "string",
+                    "enum": [
+                        "tip",
+                        "cash",
+                        "online",
+                        "card",
+                        "other"
+                    ]
                 }
             }
         },
@@ -12275,6 +12830,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "address": {
+                    "type": "string"
+                },
+                "customer_id": {
                     "type": "string"
                 },
                 "document": {
@@ -12395,20 +12953,17 @@ const docTemplate = `{
                 }
             }
         },
-        "invoice.Discount": {
+        "invoice.DiscountApplied": {
             "type": "object",
             "properties": {
                 "amount": {
                     "type": "number"
                 },
-                "brand_id": {
-                    "type": "integer"
-                },
-                "channel_id": {
-                    "type": "integer"
-                },
                 "description": {
                     "type": "string"
+                },
+                "discount_id": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"
@@ -12421,12 +12976,6 @@ const docTemplate = `{
                 },
                 "percentage": {
                     "type": "number"
-                },
-                "store_id": {
-                    "type": "integer"
-                },
-                "terms": {
-                    "type": "string"
                 },
                 "type": {
                     "type": "string"
@@ -12459,7 +13008,7 @@ const docTemplate = `{
                 "discounts": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/invoice.Discount"
+                        "$ref": "#/definitions/invoice.DiscountApplied"
                     }
                 },
                 "id": {
@@ -12542,6 +13091,9 @@ const docTemplate = `{
                 },
                 "description": {
                     "type": "string"
+                },
+                "discounted_price": {
+                    "type": "number"
                 },
                 "hash": {
                     "type": "string"
@@ -12646,6 +13198,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "percentage": {
+                    "type": "number"
                 }
             }
         },
@@ -12750,6 +13305,54 @@ const docTemplate = `{
                 },
                 "role": {
                     "type": "string"
+                }
+            }
+        },
+        "order.CalculateInvoiceRequest": {
+            "type": "object",
+            "properties": {
+                "discounts": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "tip_amount": {
+                    "type": "number"
+                },
+                "tip_percentage": {
+                    "type": "integer"
+                }
+            }
+        },
+        "order.CheckoutRequest": {
+            "type": "object",
+            "properties": {
+                "customer_id": {
+                    "type": "string"
+                },
+                "tip": {
+                    "type": "number"
+                }
+            }
+        },
+        "order.CloseInvoiceRequest": {
+            "type": "object",
+            "required": [
+                "payments"
+            ],
+            "properties": {
+                "document": {
+                    "type": "string"
+                },
+                "observations": {
+                    "type": "string"
+                },
+                "payments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/payment.Payment"
+                    }
                 }
             }
         },
@@ -12985,6 +13588,12 @@ const docTemplate = `{
                 "sku": {
                     "type": "string"
                 },
+                "tax": {
+                    "type": "string"
+                },
+                "tax_percentage": {
+                    "type": "number"
+                },
                 "unit": {
                     "type": "string"
                 }
@@ -13125,45 +13734,60 @@ const docTemplate = `{
                 }
             }
         },
-        "order.RequestUpdateOrderStatus": {
-            "type": "object",
-            "required": [
-                "status"
-            ],
-            "properties": {
-                "status": {
-                    "type": "string",
-                    "example": "ordering,cooking,delivered,invoicing,canceled,completed"
-                }
-            }
-        },
         "payment.Payment": {
             "type": "object",
             "required": [
                 "invoice_id",
                 "method",
-                "quantity"
+                "quantity",
+                "status",
+                "tip",
+                "total_value"
             ],
             "properties": {
+                "checkout_url": {
+                    "type": "string"
+                },
                 "code": {
+                    "description": "Code is the reference number of the payment",
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "invoice_id": {
+                    "description": "An invoice can have multiple payments",
                     "type": "integer"
                 },
                 "method": {
+                    "description": "Payment method used.\nThis can come from manual input in the POS such as \u003ccode\u003ecash\u003c/code\u003e, \u003ccode\u003ecard\u003c/code\u003e, \u003ccode\u003echeck\u003c/code\u003e, etc.\nor from order in table with \u003ccode\u003epaylot\u003c/code\u003e or \u003ccode\u003eyuno\u003c/code\u003e",
                     "type": "string"
                 },
                 "quantity": {
+                    "description": "Quantity is the amount of money paid",
+                    "type": "number"
+                },
+                "reference": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tip": {
+                    "description": "Tip is the amount of money paid",
+                    "type": "number"
+                },
+                "total_value": {
+                    "description": "TotalValue is the paid = quantity + tip",
                     "type": "number"
                 }
             }
         },
         "payment.PaymentMethod": {
             "type": "object",
+            "required": [
+                "code"
+            ],
             "properties": {
                 "brand_id": {
                     "type": "integer"
@@ -13174,7 +13798,7 @@ const docTemplate = `{
                 "code": {
                     "type": "string"
                 },
-                "franchise": {
+                "description": {
                     "type": "string"
                 },
                 "id": {
@@ -13320,6 +13944,9 @@ const docTemplate = `{
                 "sku": {
                     "type": "string"
                 },
+                "sku_aggregators": {
+                    "type": "string"
+                },
                 "tax_id": {
                     "type": "integer"
                 },
@@ -13372,73 +13999,6 @@ const docTemplate = `{
                 }
             }
         },
-        "status.CreateStatus": {
-            "type": "object",
-            "required": [
-                "code",
-                "name"
-            ],
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "code": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "status.Status": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "code": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "status.UpdateStatus": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
         "store.Store": {
             "type": "object",
             "properties": {
@@ -13453,6 +14013,12 @@ const docTemplate = `{
                 },
                 "code": {
                     "type": "string"
+                },
+                "country": {
+                    "$ref": "#/definitions/country.Country"
+                },
+                "country_id": {
+                    "type": "integer"
                 },
                 "email": {
                     "type": "string"

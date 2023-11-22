@@ -1,9 +1,11 @@
 package taxes
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 const LogDBRepository string = "pkg/tax/db_repository"
@@ -35,9 +37,10 @@ func (r *DBRepository) Find(query map[string]string) ([]Tax, error) {
 }
 
 func (r *DBRepository) Get(taxID string) (*Tax, error) {
-	if taxID == "" {
-		shared.LogWarn("error getting tax", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(taxID) == "" {
+		err := fmt.Errorf(ErrorTaxIDEmpty)
+		shared.LogWarn("error getting tax", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var tax Tax

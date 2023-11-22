@@ -8,11 +8,12 @@ import (
 )
 
 const (
-	ErrorBadRequest      string = "error bad request"
-	ErrorCreatingCountry string = "error creating country"
-	ErrorGettingCountry  string = "error getting country"
-	ErrorUpdatingCountry string = "error updating country"
-	ErrorDeletingCountry string = "error deleting country"
+	ErrorCountryBadRequest string = "error bad request"
+	ErrorCountryCreating   string = "error creating country"
+	ErrorCountryGetting    string = "error getting country"
+	ErrorCountryUpdating   string = "error updating country"
+	ErrorCountryDeleting   string = "error deleting country"
+	ErrorCountryIDEmpty    string = "country id is empty"
 )
 
 type CountryISO string

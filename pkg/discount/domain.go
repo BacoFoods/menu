@@ -1,17 +1,19 @@
 package discount
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 const (
-	ErrorBadRequest       string = "error bad request"
-	ErrorCreatingDiscount string = "error creating discount"
-	ErrorGettingDiscount  string = "error getting discount"
-	ErrorUpdatingDiscount string = "error updating discount"
-	ErrorDeletingDiscount string = "error deleting discount"
-	ErrorFindingDiscount  string = "error finding discount"
+	ErrorDiscountBadRequest string = "error bad request"
+	ErrorDiscountCreation   string = "error creating discount"
+	ErrorDiscountGetting    string = "error getting discount"
+	ErrorDiscountUpdating   string = "error updating discount"
+	ErrorDiscountDeleting   string = "error deleting discount"
+	ErrorDiscountFinding    string = "error finding discount"
+	ErrorDiscountIDEmpty    string = "error discount id empty"
 
 	DiscountTypePercentage DiscountType = "percentage"
 	DiscountTypeValue      DiscountType = "value"

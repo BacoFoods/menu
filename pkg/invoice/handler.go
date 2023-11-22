@@ -249,3 +249,49 @@ func (h *Handler) Print(c *gin.Context) {
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(printableInvoice))
 }
+
+// FindDiscountApplied to handle a request to find discount applied
+// @Tags InvoiceApplied
+// @Summary To find discount applied
+// @Description To find discount applied
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=object{invoices=[]Invoice}}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /discount-applied [get]
+func (h *Handler) FindDiscountApplied(c *gin.Context) {
+	invoices, err := h.service.FindDiscountApplied()
+	if err != nil {
+		shared.LogError("error finding invoices", LogHandler, "FindDiscountApplied", err, invoices)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(invoices))
+}
+
+// RemoveDiscountApplied to handle a request to remove discount applied
+// @Tags InvoiceApplied
+// @Summary To remove discount applied
+// @Description To remove discount applied
+// @Param id path string true "invoice id"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=object{invoices=[]DiscountApplied}}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /discount-applied/{id} [delete]
+func (h *Handler) RemoveDiscountApplied(c *gin.Context) {
+	invoiceAppliedID := c.Param("id")
+
+	invoiceAppliedRemoved, err := h.service.RemoveDiscountApplied(invoiceAppliedID)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(invoiceAppliedRemoved))
+}

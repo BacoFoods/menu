@@ -1,8 +1,14 @@
 package store
 
 import (
+	"fmt"
 	channelPkg "github.com/BacoFoods/menu/pkg/channel"
+	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/BacoFoods/menu/pkg/tables"
+)
+
+const (
+	LogService = "pkg/store/service"
 )
 
 // Service to handle business logic for the store service
@@ -42,6 +48,18 @@ func (s service) Get(storeID string) (*Store, error) {
 
 // Create creates a new store object.
 func (s service) Create(store *Store) (*Store, error) {
+	if store.BrandID == nil {
+		return nil, fmt.Errorf(ErrorStoreCreationBrandIDNil)
+	}
+
+	channels, err := s.channel.Find(map[string]string{"brand_id": fmt.Sprintf("%v", *store.BrandID)})
+	if err != nil {
+		shared.LogError("error getting channels by brand id", LogService, "Create", err, store.BrandID)
+		return nil, fmt.Errorf(ErrorStoreGettingChannels)
+	}
+
+	store.Channels = channels
+
 	return s.repository.Create(store)
 }
 

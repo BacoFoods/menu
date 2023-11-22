@@ -1,6 +1,7 @@
 package store
 
 import (
+	"github.com/BacoFoods/menu/pkg/country"
 	"time"
 
 	"github.com/BacoFoods/menu/pkg/channel"
@@ -9,15 +10,18 @@ import (
 )
 
 const (
-	ErrorCreatingStore         = "error creating store"
-	ErrorGettingStore          = "error getting store"
-	ErrorUpdatingStore         = "error updating store"
-	ErrorDeletingStore         = "error deleting store"
-	ErrorFindingStore          = "error finding store"
-	ErrorBadRequest            = "error bad request"
-	ErrorEnablingStore         = "error enabling store"
-	ErrorAddingChannel         = "error adding channel"
-	ErrorZonesGettingByStoreID = "error getting zones by store id"
+	ErrorStoreCreation              = "error creating store"
+	ErrorStoreGet                   = "error getting store"
+	ErrorStoreUpdate                = "error updating store"
+	ErrorStoreDelete                = "error deleting store"
+	ErrorStoreFind                  = "error finding store"
+	ErrorStoreBadRequest            = "error bad request"
+	ErrorStoreEnable                = "error enabling store"
+	ErrorStoreAddingChannel         = "error adding channel"
+	ErrorStoreZonesGettingByStoreID = "error getting zones by store id"
+	ErrorStoreGettingChannels       = "error getting channels by brand id"
+	ErrorStoreCreationBrandIDNil    = "error creating store, brand id is nil"
+	ErrorStoreIDEmpty               = "store id is empty"
 )
 
 type Store struct {
@@ -30,6 +34,8 @@ type Store struct {
 	Phone     string            `json:"phone"`
 	Image     string            `json:"image"`
 	City      string            `json:"city"`
+	CountryID *uint             `json:"country_id"`
+	Country   *country.Country  `json:"country" gorm:"foreignKey:CountryID"`
 	Channels  []channel.Channel `json:"channels,omitempty" gorm:"many2many:store_channels;" swaggerignore:"true"`
 	Latitude  float64           `json:"latitude"`
 	Longitude float64           `json:"longitude"`

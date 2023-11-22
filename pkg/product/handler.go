@@ -55,7 +55,7 @@ func (h *Handler) Find(c *gin.Context) {
 	products, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error finding products", LogHandler, "Find", err, products)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingProduct))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorProductFinding))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(products))
@@ -80,7 +80,7 @@ func (h *Handler) Get(c *gin.Context) {
 	products, err := h.service.Get(productID)
 	if err != nil {
 		shared.LogError("error getting product", LogHandler, "Get", err, products)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingProduct))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorProductGetting))
 		return
 	}
 
@@ -107,14 +107,14 @@ func (h *Handler) Create(c *gin.Context) {
 	var requestBody Product
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
 		shared.LogError("error binding request body", LogHandler, "Create", err, requestBody)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingProduct))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorProductCreating))
 		return
 	}
 
 	product, err := h.service.Create(&requestBody)
 	if err != nil {
 		shared.LogError("error creating product", LogHandler, "Create", err, product)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingProduct))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorProductCreating))
 		return
 	}
 
@@ -139,13 +139,13 @@ func (h *Handler) Update(c *gin.Context) {
 	var requestBody Product
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
 		shared.LogWarn("warning binding request body", LogHandler, "Update", err, requestBody)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorProductUpdating))
 		return
 	}
 	product, err := h.service.Update(&requestBody)
 	if err != nil {
 		shared.LogError("error updating product", LogHandler, "Update", err, product)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingProduct))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorProductUpdating))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(product))
@@ -169,7 +169,7 @@ func (h *Handler) Delete(c *gin.Context) {
 	product, err := h.service.Delete(productID)
 	if err != nil {
 		shared.LogError("error deleting product", LogHandler, "Delete", err, product)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingProduct))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorProductDeleting))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(product))
@@ -196,7 +196,7 @@ func (h *Handler) AddModifier(c *gin.Context) {
 	product, err := h.service.AddModifier(productID, modifierID)
 	if err != nil {
 		shared.LogError("error adding modifier to product", LogHandler, "AddModifier", err, product)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAddingModifier))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorProductAddingModifier))
 		return
 	}
 
@@ -224,7 +224,7 @@ func (h *Handler) RemoveModifier(c *gin.Context) {
 	product, err := h.service.RemoveModifier(productID, modifierID)
 	if err != nil {
 		shared.LogError("error removing modifier from product", LogHandler, "RemoveModifier", err, product)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorRemovingModifier))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorProductRemovingModifier))
 		return
 	}
 
@@ -291,7 +291,7 @@ func (h *Handler) UpdateAllOverriders(c *gin.Context) {
 
 	if _, ok := Entities[request.Field]; !ok {
 		shared.LogWarn("warning updating all overriders for product", LogHandler, "UpdateAllOverriders", nil, productID, request)
-		c.JSON(http.StatusOK, shared.SuccessResponse(ErrorBadRequest))
+		c.JSON(http.StatusOK, shared.SuccessResponse(ErrorProductBadRequest))
 		return
 	}
 
@@ -326,7 +326,7 @@ func (h *Handler) GetCategories(c *gin.Context) {
 	categories, err := h.service.GetCategory(productID)
 	if err != nil {
 		shared.LogError("error getting categories for product", LogHandler, "GetCategories", err, productID)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingCategory))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorProductGettingCategory))
 		return
 	}
 
@@ -389,7 +389,7 @@ func (h *Handler) ModifierCreate(c *gin.Context) {
 	var body Modifier
 	if err := c.ShouldBindJSON(&body); err != nil {
 		shared.LogError("error binding request body", LogHandler, "CreateModifier", err, body)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorModifierBadRequest))
 		return
 	}
 
@@ -476,14 +476,14 @@ func (h *Handler) ModifierUpdate(c *gin.Context) {
 	modifierID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		shared.LogError("error parsing modifier id", LogHandler, "ModifierUpdate", err, modifierID)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorModifierBadRequest))
 		return
 	}
 
 	var body ModifierDTO
 	if err := c.ShouldBindJSON(&body); err != nil {
 		shared.LogError("error binding request body", LogHandler, "ModifierUpdate", err, body)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorModifierBadRequest))
 		return
 	}
 
@@ -574,7 +574,7 @@ func (h *Handler) OverriderCreate(c *gin.Context) {
 	var request Overrider
 	if err := c.ShouldBindJSON(&request); err != nil {
 		shared.LogWarn("warning binding overrider", LogHandler, "OverriderCreate", err, request)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorOverriderBadRequest))
 		return
 	}
 
@@ -606,7 +606,7 @@ func (h *Handler) OverriderUpdate(c *gin.Context) {
 	var request Overrider
 	if err := c.ShouldBindJSON(&request); err != nil {
 		shared.LogWarn("warning binding overrider", LogHandler, "OverriderUpdate", err, request)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorOverriderBadRequest))
 		return
 	}
 

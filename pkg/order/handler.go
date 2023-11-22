@@ -1,10 +1,12 @@
 package order
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 )
@@ -21,6 +23,34 @@ func NewHandler(service Service) *Handler {
 
 // Order
 
+func (h *Handler) ctxAttendee(ctx context.Context) *Attendee {
+	username := ""
+	if ctx.Value("account_name") != nil {
+		username = ctx.Value("account_name").(string)
+	}
+
+	role := ""
+	if ctx.Value("role") != nil {
+		role = ctx.Value("role").(string)
+	}
+	accountID := ""
+	if ctx.Value("account_id") != nil {
+		accountID = ctx.Value("account_uuid").(string)
+	}
+
+	id, err := strconv.Atoi(accountID)
+	if err != nil {
+		shared.LogError("error parsing account id", LogHandler, "ctxAttendee", err, accountID)
+		return nil
+	}
+
+	return &Attendee{
+		AccountID: uint(id),
+		Name:      username,
+		Role:      role,
+	}
+}
+
 // Create to handle a request to create an order
 // @Tags Order
 // @Summary To create an order
@@ -35,6 +65,66 @@ func NewHandler(service Service) *Handler {
 // @Failure 401 {object} shared.Response
 // @Router /order [post]
 func (h *Handler) Create(c *gin.Context) {
+	var body OrderDTO
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "Create", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	order := body.ToOrder()
+	orderDB, err := h.service.Create(&order, c)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(orderDB))
+}
+
+// Update to handle a request to update an order
+// @Tags Order
+// @Summary to update an order
+// @Description to update an order
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param order body OrderDTO true "Order"
+// @Success 200 {object} object{status=string,data=Order}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /order [patch]
+func (h *Handler) Update(c *gin.Context) {
+	var body OrderDTO
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		shared.LogError("error binding request body", LogHandler, "Update", err, body)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+	}
+
+	order := body.ToOrder()
+	orderUpdated, err := h.service.Update(&order)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(orderUpdated))
+}
+
+// CreatePublic to handle a request to create an order
+// @Tags Order
+// @Summary To create an order
+// @Description To create an order
+// @Accept json
+// @Produce json
+// @Param order body OrderDTO true "Order"
+// @Success 200 {object} object{status=string,data=Order}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /public/order [post]
+func (h *Handler) CreatePublic(c *gin.Context) {
 	var body OrderDTO
 	if err := c.ShouldBindJSON(&body); err != nil {
 		shared.LogError("error binding request body", LogHandler, "Create", err, body)
@@ -115,6 +205,29 @@ func (h *Handler) Get(c *gin.Context) {
 	c.JSON(http.StatusOK, shared.SuccessResponse(order))
 }
 
+// GetPublic to handle a request to get an order
+// @Tags Order
+// @Summary To get an order
+// @Description To get an order
+// @Accept json
+// @Produce json
+// @Param id path string true "Order ID"
+// @Success 200 {object} object{status=string,data=Order}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /public/order/{id} [get]
+func (h *Handler) GetPublic(c *gin.Context) {
+	orderID := c.Param("id")
+
+	order, err := h.service.Get(orderID)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(order))
+}
+
 // Find to handle a request to find orders
 // @Tags Order
 // @Summary To find orders
@@ -124,8 +237,7 @@ func (h *Handler) Get(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param store query string false "Store ID"
 // @Param table query string false "Table ID"
-// @Param status query string false "Status"
-// @Param active query string false "Is Active" Enums(true,false)
+// @Param status query string false "Status" Enums(created, paying, closed)
 // @Param days query string false "Days before"
 // @Success 200 {object} object{status=string,data=Order}
 // @Failure 400 {object} shared.Response
@@ -145,10 +257,6 @@ func (h *Handler) Find(c *gin.Context) {
 
 	if status := c.Query("status"); status != "" {
 		filters["current_status"] = status
-	}
-
-	if active := c.Query("active"); active != "" {
-		filters["active"] = active
 	}
 
 	if days := c.Query("days"); days != "" {
@@ -316,36 +424,6 @@ func (h *Handler) UpdateProduct(c *gin.Context) {
 	}
 
 	order, err := h.service.UpdateProduct(updatedProduct)
-	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
-		return
-	}
-
-	c.JSON(http.StatusOK, shared.SuccessResponse(order))
-}
-
-// UpdateStatus to handle a request to update the status of an order
-// @Tags Order
-// @Summary To update the status of an order
-// @Description To update the status of an order
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path string true "Order ID"
-// @Param status body RequestUpdateOrderStatus true "Status"
-// @Success 200 {object} object{status=string,data=Order}
-// @Router /order/{id}/update/status [patch]
-func (h *Handler) UpdateStatus(c *gin.Context) {
-	orderID := c.Param("id")
-
-	var body RequestUpdateOrderStatus
-	if err := c.ShouldBindJSON(&body); err != nil {
-		shared.LogError("error binding request body", LogHandler, "UpdateStatus", err, body)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
-		return
-	}
-
-	order, err := h.service.UpdateStatus(orderID, body.Status)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
@@ -728,9 +806,10 @@ func (h *Handler) DeleteOrderType(c *gin.Context) {
 // Invoice
 
 // CreateInvoice to handle a request to create an invoice
-// @Tags Invoice
+// @Tags Order
 // @Summary To create an invoice
 // @Description To create an invoice
+// @Param order body OrderDTO true "Order"
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -739,8 +818,15 @@ func (h *Handler) DeleteOrderType(c *gin.Context) {
 // @Router /order/{id}/invoice [post]
 func (h *Handler) CreateInvoice(c *gin.Context) {
 	orderID := c.Param("id")
+	var req CalculateInvoiceRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		shared.LogError("error binding request body", LogHandler, "CalculateInvoice", err, req)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
 
-	invoice, err := h.service.CreateInvoice(orderID)
+	att := h.ctxAttendee(c)
+	invoice, err := h.service.CreateInvoice(orderID, att, req.GetTip(), req.GetDiscountsIDs())
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCreation))
 		return
@@ -750,21 +836,126 @@ func (h *Handler) CreateInvoice(c *gin.Context) {
 }
 
 // CalculateInvoice to handle a request to calculate an invoice
-// @Tags Invoice
+// @Tags Order
 // @Summary To calculate an invoice
 // @Description To calculate an invoice
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path string true "Order ID"
+// @Param body body CalculateInvoiceRequest true "request body"
 // @Success 200 {object} object{status=string,data=invoice.Invoice}
 // @Router /order/{id}/invoice/calculate [post]
 func (h *Handler) CalculateInvoice(c *gin.Context) {
 	orderID := c.Param("id")
+	var req CalculateInvoiceRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		shared.LogError("error binding request body", LogHandler, "CalculateInvoice", err, req)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
 
-	invoice, err := h.service.CalculateInvoice(orderID)
+	invoice, err := h.service.CalculateInvoice(orderID, req)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCalculation))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+}
+
+// PublicCalculateInvoice to handle a request to calculate an invoice
+// @Tags Order
+// @Summary Public endpoint to calculate an invoice
+// @Description Public entpodint to calculate an invoice
+// @Accept json
+// @Produce json
+// @Param id path string true "Order ID"
+// @Success 200 {object} object{status=string,data=invoice.Invoice}
+// @Router /public/order/{id}/invoice/calculate [get]
+func (h *Handler) PublicCalculateInvoice(c *gin.Context) {
+	orderID := c.Param("id")
+
+	n, o, err := h.service.CalculateInvoiceOIT(orderID)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCalculation))
+		return
+	}
+
+	res := struct {
+		OldInvoice *invoice.Invoice `json:"old_invoice"`
+		NewInvoice *invoice.Invoice `json:"new_invoice"`
+	}{o, n}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(res))
+}
+
+type CheckoutRequest struct {
+	Tip        float64 `json:"tip"`
+	CustomerID *string `json:"customer_id"`
+}
+
+// PublicCheckout to handle the checkout process of an order. Public for OIT.
+// @Tags Order
+// @Summary To checkout an order.
+// @Description To checkout an order.
+// @Accept json
+// @Produce json
+// @Param id path string true "Order ID"
+// @Param body body CheckoutRequest true "Checkout parameters"
+// @Success 200 {object} object{status=string,data=invoice.Invoice}
+// @Router /public/order/{id}/checkout [post]
+func (h *Handler) PublicCheckout(c *gin.Context) {
+	// TODO: not public, but using user bearer token from ecom
+	var checkout CheckoutRequest
+	orderID := c.Param("id")
+
+	if err := c.ShouldBindJSON(&checkout); err != nil {
+		shared.LogError("error binding request body", LogHandler, "PublicCheckout", err, checkout)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	invoice, err := h.service.Checkout(orderID, checkout)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCalculation))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+}
+
+// CloseInvoice to handle a request to close an invoice
+// @Tags Invoice
+// @Summary To close an invoice
+// @Description To close an invoice
+// @Param id path string true "invoice id"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param invoice body CloseInvoiceRequest true "invoice"
+// @Success 200 {object} object{status=string,data=invoice.Invoice}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /invoice/{id}/close [post]
+func (h *Handler) CloseInvoice(c *gin.Context) {
+	var req CloseInvoiceRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		shared.LogError("error binding request body", LogHandler, "CloseInvoice", err, req)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	req.InvoiceID = c.Param("id")
+
+	att := h.ctxAttendee(c)
+	req.attendee = att
+
+	invoice, err := h.service.CloseInvoice(req)
+	if err != nil {
+		shared.LogError("error closing invoice", LogHandler, "CloseInvoice", err, invoice)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
 

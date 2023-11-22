@@ -2,38 +2,51 @@ package order
 
 import (
 	"fmt"
+	"math"
+	"strings"
+	"time"
+
+	"github.com/BacoFoods/menu/pkg/channel"
+	"github.com/BacoFoods/menu/pkg/discount"
+	"github.com/BacoFoods/menu/pkg/payment"
+	"github.com/BacoFoods/menu/pkg/shared"
+
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/product"
-	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/tables"
 	"gorm.io/gorm"
-	"time"
 )
 
 const (
-	ErrorBadRequest              = "error bad request"
-	ErrorBadRequestOrderID       = "error bad request wrong order id"
-	ErrorBadRequestOrderItemID   = "error bad request wrong order item id"
-	ErrorBadRequestProductID     = "error bad request wrong product id"
-	ErrorBadRequestTableID       = "error bad request wrong table id"
-	ErrorBadRequestStoreID       = "error bad request wrong store id"
-	ErrorBadRequestOrderSeats    = "error bad request wrong order seats can't be less than 0"
-	ErrorOrderCreation           = "error creating order"
-	ErrorOrderGetting            = "error getting order"
-	ErrorOrderGettingStatus      = "error wrong order status"
-	ErrorOrderUpdate             = "error updating order"
-	ErrorOrderUpdateStatus       = "error updating order status"
-	ErrorOrderProductGetting     = "error getting order product"
-	ErrorOrderProductNotFound    = "error order product with id %v not found; "
-	ErrorOrderProductsNotFound   = "error order products not found"
-	ErrorOrderModifierNotFound   = "error order modifier with id %v not found; "
-	ErrorOrderUpdatingComments   = "error updating order comments"
-	ErrorOrderUpdatingClientName = "error updating order client name"
-	ErrorOrderInvoiceCreation    = "error creating order invoice"
-	ErrorOrderInvoiceCalculation = "error calculating invoice"
+	ErrorBadRequest                        = "error bad request"
+	ErrorBadRequestOrderID                 = "error bad request wrong order id"
+	ErrorBadRequestOrderItemID             = "error bad request wrong order item id"
+	ErrorBadRequestProductID               = "error bad request wrong product id"
+	ErrorBadRequestTableID                 = "error bad request wrong table id"
+	ErrorBadRequestStoreID                 = "error bad request wrong store id"
+	ErrorBadRequestOrderSeats              = "error bad request wrong order seats can't be less than 0"
+	ErrorOrderDeleting                     = "error deleting order"
+	ErrorOrderCreation                     = "error creating order"
+	ErrorOrderGetting                      = "error getting order"
+	ErrorOrderFind                         = "error finding orders"
+	ErrorOrderAddProductsForbiddenByStatus = "error adding products to order forbidden by status"
+	ErrorOrderUpdate                       = "error updating order"
+	ErrorOrderUpdateStatus                 = "error updating order status"
+	ErrorOrderUpdateInvalidStatus          = "error updating order invalid status"
+	ErrorOrderProductGetting               = "error getting order product"
+	ErrorOrderProductNotFound              = "error order product with id %v not found; "
+	ErrorOrderProductsNotFound             = "error order products not found"
+	ErrorOrderModifierNotFound             = "error order modifier with id %v not found; "
+	ErrorOrderUpdatingComments             = "error updating order comments"
+	ErrorOrderUpdatingClientName           = "error updating order client name"
+	ErrorOrderInvoiceCreation              = "error creating order invoice"
+	ErrorOrderInvoiceCreationDiscounts     = "error creating order invoice getting discounts"
+	ErrorOrderInvoiceCalculation           = "error calculating invoice"
+	ErrorOrderClosed                       = "error order is closed"
+	ErrorOrderIDEmpty                      = "order id is empty"
 
 	ErrorOrderItemUpdate       = "error updating order item"
 	ErrorOrderItemGetting      = "error getting order item"
@@ -47,10 +60,42 @@ const (
 
 	TaxPercentage = 0.08
 
-	OrderStepCreated OrderStep = "created"
+	OrderStepCreated  OrderStep = "created"
+	OrderStepClosed   OrderStep = "closed"
+	OrderStepInvoiced OrderStep = "invoiced"
 
-	OrderActionCreated OrderAction = "fue atendido por"
+	OrderActionCreated  OrderAction = "fue atendido por"
+	OrderActionClosed   OrderAction = "fue cerrada por"
+	OrderActionInvoiced OrderAction = "fue facturado por"
+
+	LogDomain = "pkg/order/domain"
+
+	OrderStatusCreated = "created"
+	OrderStatusPaying  = "paying"
+	OrderStatusClosed  = "closed"
 )
+
+func applyDiscount(value float64, discounts []invoice.DiscountApplied) (newValue float64, appliedDiscount float64) {
+	newValue = value
+
+	for _, discount := range discounts {
+		newValue = discount.Apply(newValue)
+	}
+
+	newValue = math.Round(newValue)
+	appliedDiscount = value - newValue
+
+	return newValue, appliedDiscount
+}
+
+func OrderStatusValid(status string) bool {
+	switch status {
+	case OrderStatusCreated, OrderStatusPaying, OrderStatusClosed:
+		return true
+	default:
+		return false
+	}
+}
 
 type OrderStep string
 
@@ -58,11 +103,15 @@ type OrderAction string
 
 type Repository interface {
 	// Order
-	Create(order *Order) (*Order, error)
+	Create(order *Order, ch *channel.Channel) (*Order, error)
 	Get(orderID string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
 	Update(order *Order) (*Order, error)
 	FindByShift(shiftID uint) ([]Order, error)
+	AddProducts(order *Order, newItems []OrderItem) (*Order, error)
+	GetLastDayOrders(storeID string) ([]Order, error)
+	GetLastDayOrdersByStatus(storeID string, status string) ([]Order, error)
+	Delete(orderID string) error
 
 	// OrderItem
 	UpdateOrderItem(orderItem *OrderItem) (*OrderItem, error)
@@ -81,7 +130,8 @@ type Repository interface {
 
 type Order struct {
 	ID            uint              `json:"id" gorm:"primaryKey"`
-	Statuses      []status.Status   `json:"status" gorm:"many2many:order_statuses" gorm:"foreignKey:OrderID" swaggerignore:"true"`
+	Statuses      []OrderStatus     `json:"status" gorm:"foreignKey:OrderID" swaggerignore:"true"`
+	Code          string            `json:"code" swaggerignore:"true"`
 	CurrentStatus string            `json:"current_status"`
 	OrderType     string            `json:"order_type"`
 	ClientName    string            `json:"client_name"`
@@ -102,6 +152,7 @@ type Order struct {
 	Invoices      []invoice.Invoice `json:"invoices"  gorm:"foreignKey:OrderID" swaggerignore:"true"`
 	Attendees     []Attendee        `json:"attendees" gorm:"foreignKey:OrderID"`
 	ShiftID       *uint             `json:"shift_id"`
+	ClosedAt      *time.Time        `json:"closed_at" swaggerignore:"true"`
 	CreatedAt     *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt     *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt     *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
@@ -145,8 +196,12 @@ func (o *Order) SetItems(products []product.Product, modifiers []product.Product
 			item.SKU = p.SKU
 			item.Price = p.Price
 			item.Unit = p.Unit
-			item.Tax = p.Tax.Name
-			item.TaxPercentage = p.Tax.Percentage
+			// TODO: add default tax value if Tax is nil
+			if p.Tax != nil {
+				item.Tax = p.Tax.Name
+				item.TaxPercentage = p.Tax.Percentage
+			}
+
 			item.SetHash()
 
 			modifierList := make([]OrderModifier, 0)
@@ -183,7 +238,18 @@ func (o *Order) RemoveProduct(product *product.Product) {
 	}
 }
 
-func (o *Order) ToInvoice() {
+// ToInvoice uses next definitions:
+// Product Price: is the price of the product without any discount
+// Product Discounted Price: is the price of the product after applying discounts
+// Product Base Tax: is the product price applied discount minus the tax amount
+// Product Tax: is the tax amount of the product
+// TotalTips: is the sum of all tips
+// SubTotal: is the sum of all Product Discounted Prices
+// BaseTax: is the sum of all Product Base Taxes
+// Total: is the sum of SubTotal + TotalTips
+func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
+	// Remove invoices
+	o.Invoices = nil
 	subtotal := 0.0
 	newInvoice := invoice.Invoice{
 		OrderID:   &o.ID,
@@ -193,46 +259,94 @@ func (o *Order) ToInvoice() {
 		TableID:   o.TableID,
 		ShiftID:   o.ShiftID,
 		Items:     make([]invoice.Item, 0),
+		Discounts: make([]invoice.DiscountApplied, 0),
 		Client:    client.DefaultClient(),
+		BaseTax:   0,
 	}
 
-	if len(o.Invoices) != 0 {
-		return
+	// Adding discounts to invoice
+	for _, d := range discounts {
+		if d.Type != discount.DiscountTypePercentage {
+			// TODO: we only support percentage discounts as applying a value discounts
+			// makes tax calculations more complex
+
+			continue
+		}
+
+		newInvoice.Discounts = append(newInvoice.Discounts, invoice.DiscountApplied{
+			DiscountID:  d.ID,
+			Name:        d.Name,
+			Description: d.Description,
+			Percentage:  d.Percentage,
+			Amount:      0,
+			Type:        string(d.Type),
+		})
 	}
 
 	// Adding items to invoice
 	for _, item := range o.Items {
+		tax := "ico" // Default tax
+		if item.Tax != "" {
+			tax = item.Tax
+		}
+
+		taxPerc := 0.08
+		if item.TaxPercentage != 0 {
+			taxPerc = item.TaxPercentage
+		}
+
+		productPriceWithDiscount, appliedDiscount := applyDiscount(item.Price, newInvoice.Discounts)
+		productBaseTax := math.Floor(productPriceWithDiscount / (1 + taxPerc))
+		newInvoice.BaseTax += productBaseTax
+		newInvoice.Taxes += productPriceWithDiscount - productBaseTax
+		newInvoice.TotalDiscounts += appliedDiscount
+
 		newInvoice.Items = append(newInvoice.Items, invoice.Item{
-			ProductID:     item.ProductID,
-			Name:          item.Name,
-			Description:   item.Description,
-			SKU:           item.SKU,
-			Price:         item.Price,
-			Comments:      item.Comments,
-			Hash:          item.Hash,
-			Tax:           item.Tax,
-			TaxPercentage: item.TaxPercentage,
+			ProductID:       item.ProductID,
+			Name:            item.Name,
+			Description:     item.Description,
+			SKU:             item.SKU,
+			Price:           item.Price,
+			Comments:        item.Comments,
+			Hash:            item.Hash,
+			DiscountedPrice: productPriceWithDiscount,
+			Tax:             tax,
+			TaxPercentage:   taxPerc,
 		})
 
 		// Adding item price to subtotal
-		subtotal += item.Price
+		subtotal += productPriceWithDiscount
 
 		for _, modifier := range item.Modifiers {
-			// Only modifiers with price are added to invoice
-			if modifier.Price == 0 {
-				continue
+			// Adding modifier price to subtotal
+			modifierPrice, appliedDiscount := applyDiscount(modifier.Price, newInvoice.Discounts)
+			subtotal += modifierPrice
+
+			modifierTax := "ico" // Default tax
+			if modifier.Tax != "" {
+				modifierTax = modifier.Tax
 			}
 
-			// Adding modifier price to subtotal
-			subtotal += modifier.Price
+			modifierTaxPerc := 0.08
+			if modifier.TaxPercentage != 0 {
+				modifierTaxPerc = modifier.TaxPercentage
+			}
+
+			modifierBaseTax := math.Floor(modifierPrice / (1 + modifierTaxPerc))
+			newInvoice.BaseTax += modifierBaseTax
+			newInvoice.Taxes += modifierPrice - modifierBaseTax
+			newInvoice.TotalDiscounts += appliedDiscount
 
 			newInvoice.Items = append(newInvoice.Items, invoice.Item{
-				ProductID:   modifier.ProductID,
-				Name:        modifier.Name,
-				Description: modifier.Description,
-				SKU:         modifier.SKU,
-				Price:       modifier.Price,
-				Comments:    modifier.Comments,
+				ProductID:       modifier.ProductID,
+				Name:            modifier.Name,
+				Description:     modifier.Description,
+				SKU:             modifier.SKU,
+				Price:           modifier.Price,
+				Comments:        modifier.Comments,
+				DiscountedPrice: modifierPrice,
+				Tax:             modifierTax,
+				TaxPercentage:   modifierTaxPerc,
 			})
 		}
 	}
@@ -241,24 +355,73 @@ func (o *Order) ToInvoice() {
 	newInvoice.SubTotal = subtotal
 
 	// Setting taxes
-	tax := subtotal * TaxPercentage
-	baseTax := subtotal - tax
-	newInvoice.BaseTax = baseTax
-	newInvoice.Total = subtotal + tax
 	newInvoice.CalculateTaxDetails()
 
+	if tip != nil {
+		tipType, tipValue := tip.GetValueAndType()
+		newInvoice.Tip = fmt.Sprintf("%s - %f", tipType, tipValue)
+		if tipType == "percentage" {
+			tipAmount := math.Floor(newInvoice.BaseTax * tipValue)
+			newInvoice.TipAmount = tipAmount
+		} else {
+			newInvoice.TipAmount = tipValue
+		}
+	}
+
+	newInvoice.Total = newInvoice.SubTotal + newInvoice.TipAmount
+
 	// Setting invoice
-	o.Invoices = append(o.Invoices, newInvoice)
+	o.Invoices = []invoice.Invoice{newInvoice}
 }
 
-func (o *Order) UpdateStatus(status *status.Status) error {
-	if o.CurrentStatus == status.Code {
+func (o *Order) UpdateStatus(status string) error {
+	if status == o.CurrentStatus {
+		shared.LogWarn("order already has this status", LogDomain, "UpdateStatus", nil, o.ID, o.CurrentStatus, status)
 		return nil
 	}
 
-	o.CurrentStatus = status.Code
-	o.Statuses = append(o.Statuses, *status)
-	return nil
+	if status == OrderStatusCreated && strings.TrimSpace(o.CurrentStatus) == "" {
+		o.CurrentStatus = status
+		o.Statuses = append(o.Statuses, OrderStatus{
+			Code:    OrderStatusCreated,
+			OrderID: &o.ID,
+		})
+		return nil
+	}
+
+	if status == OrderStatusPaying && o.CurrentStatus == OrderStatusCreated {
+		o.CurrentStatus = status
+		o.Statuses = append(o.Statuses, OrderStatus{
+			Code:    OrderStatusPaying,
+			OrderID: &o.ID,
+		})
+		return nil
+	}
+
+	if status == OrderStatusClosed && o.CurrentStatus == OrderStatusPaying {
+		o.CurrentStatus = status
+		o.Statuses = append(o.Statuses, OrderStatus{
+			Code:    OrderStatusClosed,
+			OrderID: &o.ID,
+		})
+		return nil
+	}
+
+	err := fmt.Errorf(ErrorOrderUpdateStatus)
+	shared.LogError(ErrorOrderUpdateStatus, LogDomain, "UpdateStatus", nil, o.ID, o.CurrentStatus, status)
+	return err
+}
+
+func (o *Order) UpdateNextStatus() {
+	currentStatus := o.Statuses[len(o.Statuses)-1]
+	o.Statuses = append(o.Statuses, currentStatus.Next())
+	o.CurrentStatus = currentStatus.Next().Code
+}
+
+func (o *Order) UpdatePrevStatus() {
+	currentStatus := o.Statuses[len(o.Statuses)-1]
+	o.Statuses = append(o.Statuses, currentStatus.Prev())
+	o.CurrentStatus = currentStatus.Prev().Code
 }
 
 type OrderItem struct {
@@ -310,21 +473,23 @@ func (oi *OrderItem) RemoveModifiers(modifiers []OrderModifier) {
 }
 
 type OrderModifier struct {
-	ID          uint            `json:"id" gorm:"primaryKey"`
-	OrderItemID *uint           `json:"order_item_id"`
-	OrderID     uint            `json:"order_id"`
-	Name        string          `json:"name"`
-	Description string          `json:"description"`
-	Image       string          `json:"image"`
-	Category    string          `json:"category"`
-	ProductID   *uint           `json:"product_id"`
-	SKU         string          `json:"sku"`
-	Price       float64         `json:"price"  gorm:"precision:18;scale:2"`
-	Unit        string          `json:"unit"`
-	Comments    string          `json:"comments"`
-	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID            uint            `json:"id" gorm:"primaryKey"`
+	OrderItemID   *uint           `json:"order_item_id"`
+	OrderID       uint            `json:"order_id"`
+	Name          string          `json:"name"`
+	Description   string          `json:"description"`
+	Image         string          `json:"image"`
+	Category      string          `json:"category"`
+	ProductID     *uint           `json:"product_id"`
+	SKU           string          `json:"sku"`
+	Price         float64         `json:"price"  gorm:"precision:18;scale:2"`
+	Unit          string          `json:"unit"`
+	Tax           string          `json:"tax"`
+	TaxPercentage float64         `json:"tax_percentage"`
+	Comments      string          `json:"comments"`
+	CreatedAt     *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt     *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt     *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type OrderType struct {
@@ -351,4 +516,88 @@ type Attendee struct {
 	CreatedAt *time.Time      `json:"created_at" swaggerignore:"true"`
 	UpdatedAt *time.Time      `json:"updated_at" swaggerignore:"true"`
 	DeletedAt *gorm.DeletedAt `json:"deleted_at" swaggerignore:"true"`
+}
+
+type OrderStatus struct {
+	ID        uint           `json:"id,omitempty" gorm:"primaryKey"`
+	Code      string         `json:"code"`
+	OrderID   *uint          `json:"order_id,omitempty"`
+	CreatedAt *time.Time     `json:"created_at,omitempty"`
+	UpdatedAt *time.Time     `json:"updated_at,omitempty"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+func (os *OrderStatus) Next() OrderStatus {
+	switch os.Code {
+	case OrderStatusCreated:
+		return OrderStatus{
+			Code: OrderStatusPaying,
+		}
+	case OrderStatusPaying:
+		return OrderStatus{
+			Code: OrderStatusClosed,
+		}
+	case OrderStatusClosed:
+		return OrderStatus{
+			Code: OrderStatusClosed,
+		}
+	default:
+		return OrderStatus{
+			Code: OrderStatusCreated,
+		}
+	}
+}
+
+func (os *OrderStatus) Prev() OrderStatus {
+	switch os.Code {
+	case OrderStatusCreated:
+		return OrderStatus{
+			Code: OrderStatusCreated,
+		}
+	case OrderStatusPaying:
+		return OrderStatus{
+			Code: OrderStatusCreated,
+		}
+	case OrderStatusClosed:
+		return OrderStatus{
+			Code: OrderStatusPaying,
+		}
+	default:
+		return OrderStatus{
+			Code: OrderStatusCreated,
+		}
+	}
+}
+
+type TipData struct {
+	Percentage *int     `json:"percentage"`
+	Amount     *float64 `json:"value"`
+}
+
+func (t TipData) GetValueAndType() (string, float64) {
+	if t.Percentage != nil && *t.Percentage > 0 {
+		return "percentage", float64(*t.Percentage) / 100
+	}
+
+	if t.Amount != nil && *t.Amount > 0 {
+		return "value", *t.Amount
+	}
+
+	return "", 0
+}
+
+type CloseInvoiceRequest struct {
+	InvoiceID    string            `json:"invoice_id" swaggerignore:"true"`
+	DocumentType string            `json:"document"`
+	Payments     []payment.Payment `json:"payments" binding:"required"`
+	Observations string            `json:"observations"`
+	attendee     *Attendee
+}
+
+func (c *CloseInvoiceRequest) GetTotalTips() float64 {
+	total := 0.0
+	for _, p := range c.Payments {
+		total += p.Tip
+	}
+	return total
 }

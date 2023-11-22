@@ -1,8 +1,11 @@
 package payment
 
 import (
+	"errors"
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
+	"strings"
 )
 
 const (
@@ -18,9 +21,9 @@ func NewDBRepository(db *gorm.DB) *DBRepository {
 }
 
 func (r *DBRepository) Get(paymentID string) (*Payment, error) {
-	if paymentID == "" {
-		err := shared.ErrorIDEmpty
-		shared.LogWarn("payment id is empty", LogRepository, "Get", err, paymentID)
+	if strings.TrimSpace(paymentID) == "" {
+		err := fmt.Errorf(ErrorPaymentIDEmpty)
+		shared.LogWarn("payment id is empty", LogRepository, "Delete", err, paymentID)
 		return nil, err
 	}
 
@@ -62,8 +65,8 @@ func (r *DBRepository) Update(payment *Payment) (*Payment, error) {
 }
 
 func (r *DBRepository) Delete(paymentID string) (*Payment, error) {
-	if paymentID == "" {
-		err := shared.ErrorIDEmpty
+	if strings.TrimSpace(paymentID) == "" {
+		err := fmt.Errorf(ErrorPaymentIDEmpty)
 		shared.LogWarn("payment id is empty", LogRepository, "Delete", err, paymentID)
 		return nil, err
 	}
@@ -92,16 +95,16 @@ func (r *DBRepository) FindPaymentMethods(filter map[string]any) ([]PaymentMetho
 	return paymentMethods, nil
 }
 
-func (r *DBRepository) GetPaymentMethod(paymentMethodID string) (*PaymentMethod, error) {
-	if paymentMethodID == "" {
-		err := shared.ErrorIDEmpty
-		shared.LogWarn("payment method id is empty", LogRepository, "GetPaymentMethod", err, paymentMethodID)
+func (r *DBRepository) GetPaymentMethod(code string) (*PaymentMethod, error) {
+	if strings.TrimSpace(code) == "" {
+		err := fmt.Errorf(ErrorPaymentMethodEmptyCode)
+		shared.LogWarn("payment method code is empty", LogRepository, "GetPaymentMethod", err, code)
 		return nil, err
 	}
 
 	var paymentMethod PaymentMethod
-	if err := r.db.Where("id = ?", paymentMethodID).First(&paymentMethod).Error; err != nil {
-		shared.LogError(ErrorPaymentMethodFinding, LogRepository, "GetPaymentMethod", err, paymentMethodID)
+	if err := r.db.Where("code = ?", code).First(&paymentMethod).Error; err != nil {
+		shared.LogError("error getting payment method by code", LogRepository, "GetPaymentMethod", err, code)
 		return nil, err
 	}
 
@@ -110,8 +113,12 @@ func (r *DBRepository) GetPaymentMethod(paymentMethodID string) (*PaymentMethod,
 
 func (r *DBRepository) CreatePaymentMethod(paymentMethod *PaymentMethod) (*PaymentMethod, error) {
 	if err := r.db.Create(paymentMethod).Error; err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			shared.LogWarn("payment method already exists", LogRepository, "CreatePaymentMethod", err, paymentMethod)
+			return nil, fmt.Errorf(ErrorPaymentMethodAlreadyExists)
+		}
 		shared.LogError(ErrorPaymentMethodFinding, LogRepository, "CreatePaymentMethod", err, paymentMethod)
-		return nil, err
+		return nil, fmt.Errorf(ErrorPaymentMethodCreation)
 	}
 
 	return paymentMethod, nil
@@ -126,23 +133,91 @@ func (r *DBRepository) UpdatePaymentMethod(paymentMethod *PaymentMethod) (*Payme
 	return paymentMethod, nil
 }
 
-func (r *DBRepository) DeletePaymentMethod(paymentMethodID string) (*PaymentMethod, error) {
-	if paymentMethodID == "" {
-		err := shared.ErrorIDEmpty
-		shared.LogWarn("payment method id is empty", LogRepository, "DeletePaymentMethod", err, paymentMethodID)
+func (r *DBRepository) DeletePaymentMethod(code string) (*PaymentMethod, error) {
+	if strings.TrimSpace(code) == "" {
+		err := fmt.Errorf(ErrorPaymentMethodEmptyCode)
+		shared.LogWarn("payment method code is empty", LogRepository, "GetPaymentMethod", err, code)
 		return nil, err
 	}
 
-	paymentMethod, err := r.GetPaymentMethod(paymentMethodID)
+	paymentMethod, err := r.GetPaymentMethod(code)
 	if err != nil {
-		shared.LogError(ErrorPaymentMethodFinding, LogRepository, "DeletePaymentMethod", err, paymentMethodID)
+		shared.LogError(ErrorPaymentMethodFinding, LogRepository, "DeletePaymentMethod", err, code)
 		return nil, err
 	}
 
 	if err := r.db.Delete(paymentMethod).Error; err != nil {
-		shared.LogError(ErrorPaymentMethodFinding, LogRepository, "DeletePaymentMethod", err, paymentMethodID)
+		shared.LogError(ErrorPaymentMethodFinding, LogRepository, "DeletePaymentMethod", err, code)
 		return nil, err
 	}
 
 	return paymentMethod, nil
+}
+
+func (r *DBRepository) CreateDefaultPaymentMethods(brandID *uint) ([]PaymentMethod, error) {
+	paymentMethods := []PaymentMethod{
+		{
+			Name:        "Efectivo",
+			BrandID:     brandID,
+			ShortName:   PaymentMethodCash,
+			Code:        PaymentMethodCash,
+			Description: PaymentMethodCash,
+		},
+		{
+			Name:        "Tarjeta Visa",
+			BrandID:     brandID,
+			ShortName:   PaymentMethodCardVisa,
+			Code:        PaymentMethodCardVisa,
+			Description: PaymentMethodCardVisa,
+		},
+		{
+			Name:        "Tarjeta Mastercard",
+			BrandID:     brandID,
+			ShortName:   PaymentMethodCardMaster,
+			Code:        PaymentMethodCardMaster,
+			Description: PaymentMethodCardMaster,
+		},
+		{
+			Name:        "Tarjeta Amex",
+			BrandID:     brandID,
+			ShortName:   PaymentMethodCardAmex,
+			Code:        PaymentMethodCardAmex,
+			Description: PaymentMethodCardAmex,
+		},
+		{
+			Name:        "Tarjeta Diners",
+			BrandID:     brandID,
+			ShortName:   PaymentMethodCardDinners,
+			Code:        PaymentMethodCardDinners,
+			Description: PaymentMethodCardDinners,
+		},
+		{
+			Name:        "Bold",
+			BrandID:     brandID,
+			ShortName:   PaymentMethodBold,
+			Code:        PaymentMethodBold,
+			Description: PaymentMethodBold,
+		},
+		{
+			Name:        "Bono",
+			BrandID:     brandID,
+			ShortName:   PaymentMethodBono,
+			Code:        PaymentMethodBono,
+			Description: PaymentMethodBono,
+		},
+		{
+			Name:        "Yuno",
+			BrandID:     brandID,
+			ShortName:   PaymentMethodYuno,
+			Code:        PaymentMethodYuno,
+			Description: PaymentMethodYuno,
+		},
+	}
+
+	if err := r.db.CreateInBatches(&paymentMethods, len(paymentMethods)).Error; err != nil {
+		shared.LogError(ErrorPaymentMethodCreation, LogRepository, "CreateDefaultPaymentMethods", err, paymentMethods)
+		return nil, err
+	}
+
+	return paymentMethods, nil
 }

@@ -64,7 +64,7 @@ func (h Handler) Find(c *gin.Context) {
 	stores, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error finding stores", LogHandler, "Find", err, stores)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingStore))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorStoreFind))
 		return
 	}
 
@@ -90,7 +90,7 @@ func (h Handler) Get(c *gin.Context) {
 	store, err := h.service.Get(storeID)
 	if err != nil {
 		shared.LogError("error getting store", LogHandler, "Get", err, storeID)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingStore))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorStoreGet))
 		return
 	}
 
@@ -114,14 +114,14 @@ func (h Handler) Create(c *gin.Context) {
 	var request Store
 	if err := c.ShouldBindJSON(&request); err != nil {
 		shared.LogError("error binding json", LogHandler, "Create", err, request)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorStoreBadRequest))
 		return
 	}
 
 	store, err := h.service.Create(&request)
 	if err != nil {
 		shared.LogError("error creating store", LogHandler, "Create", err, request)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingStore))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorStoreCreation))
 		return
 	}
 
@@ -146,14 +146,14 @@ func (h Handler) Update(c *gin.Context) {
 	var request Store
 	if err := c.ShouldBindJSON(&request); err != nil {
 		shared.LogWarn("warning binding request", LogHandler, "Update", err, request)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorStoreBadRequest))
 		return
 	}
 
 	store, err := h.service.Update(&request)
 	if err != nil {
 		shared.LogError("error updating store", LogHandler, "Update", err, request)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingStore))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorStoreUpdate))
 		return
 	}
 
@@ -178,7 +178,7 @@ func (h Handler) Delete(c *gin.Context) {
 	store, err := h.service.Delete(storeID)
 	if err != nil {
 		shared.LogError("error deleting store", LogHandler, "Delete", err, storeID)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingStore))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorStoreDelete))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(store))
@@ -205,7 +205,7 @@ func (h Handler) AddChannel(c *gin.Context) {
 	store, err := h.service.AddChannel(storeID, channelID)
 	if err != nil {
 		shared.LogError("error adding channel to store", LogHandler, "AddChannel", err, storeID, channelID)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAddingChannel))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorStoreAddingChannel))
 		return
 	}
 
@@ -231,7 +231,7 @@ func (h Handler) FindZonesByStore(c *gin.Context) {
 	zones, err := h.service.FindZonesByStore(storeID)
 	if err != nil {
 		shared.LogError("error getting zones by store", LogHandler, "GetZonesByStore", err, storeID)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorZonesGettingByStoreID))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorStoreZonesGettingByStoreID))
 		return
 	}
 
@@ -259,7 +259,7 @@ func (h Handler) GetZoneByStore(c *gin.Context) {
 	zone, err := h.service.GetZoneByStore(storeID, zoneID)
 	if err != nil {
 		shared.LogError("error getting zone by store", LogHandler, "GetZoneByStore", err, storeID, zoneID)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorZonesGettingByStoreID))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorStoreZonesGettingByStoreID))
 		return
 	}
 
@@ -285,7 +285,7 @@ func (h Handler) Enable(c *gin.Context) {
 	store, err := h.service.Enable(storeID)
 	if err != nil {
 		shared.LogError("error enabling store", LogHandler, "Enable", err, storeID)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorEnablingStore))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorStoreEnable))
 		return
 	}
 

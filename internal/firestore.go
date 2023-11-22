@@ -1,8 +1,9 @@
 package internal
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
+
+	"cloud.google.com/go/firestore"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
@@ -29,7 +30,7 @@ func NewFirestore(ifc FirestoreConfig) (*Firestore, error) {
 	}
 
 	return &Firestore{
-		Config: Config.FirestoreConfig,
+		Config: ifc,
 		Client: client,
 	}, nil
 }

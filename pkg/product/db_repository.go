@@ -5,6 +5,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 const LogDBRepository string = "pkg/product/db_repository"
@@ -42,9 +43,10 @@ func (r *DBRepository) Find(filters map[string]string) ([]Product, error) {
 
 // Get method for get a product in database
 func (r *DBRepository) Get(productID string) (*Product, error) {
-	if productID == "" {
-		shared.LogWarn("error getting product", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(productID) == "" {
+		err := fmt.Errorf(ErrorProductIDEmpty)
+		shared.LogWarn("error getting product", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var product Product
@@ -60,7 +62,7 @@ func (r *DBRepository) Get(productID string) (*Product, error) {
 // GetByIDs method for get products by ids in database
 func (r *DBRepository) GetByIDs(productIDs []string) ([]Product, error) {
 	var products []Product
-	if err := r.db.Find(&products, productIDs).Error; err != nil {
+	if err := r.db.Where("id in ?", productIDs).Preload(clause.Associations).Find(&products).Error; err != nil {
 		shared.LogError("error getting products", LogDBRepository, "GetByIDs", err, productIDs)
 		return nil, err
 	}

@@ -29,6 +29,10 @@ const (
 	ErrorInvoicePrintingHeader           = "error printing invoice header"
 	ErrorInvoicePrintingItems            = "error printing invoice items"
 	ErrorInvoiceGettingByID              = "error getting invoice by id"
+	ErrorInvoiceIDEmpty                  = "error invoice id empty"
+
+	ErrorDiscountAppliedFind   = "error finding discount applied"
+	ErrorDiscountAppliedRemove = "error removing discount applied"
 
 	TaxPercentage     = 0.08
 	TipTypePercentage = "PERCENTAGE"
@@ -44,6 +48,9 @@ type Repository interface {
 	CreateBatch(invoices []Invoice) ([]Invoice, error)
 	Delete(invoiceID string) error
 	Print(invoiceID string) (*DTOPrintable, error)
+
+	FindDiscountApplied() ([]DiscountApplied, error)
+	RemoveDiscountApplied(discountAppliedID string) (DiscountApplied, error)
 }
 
 type Invoice struct {
@@ -54,7 +61,7 @@ type Invoice struct {
 	ChannelID           *uint             `json:"channel_id" binding:"required"`
 	TableID             *uint             `json:"table_id"`
 	Items               []Item            `json:"items"  gorm:"foreignKey:InvoiceID"`
-	Discounts           []Discount        `json:"discounts"  gorm:"foreignKey:InvoiceID"`
+	Discounts           []DiscountApplied `json:"discounts"  gorm:"foreignKey:InvoiceID"`
 	Surcharges          []Surcharge       `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
 	Cashier             string            `json:"shift"`
 	Waiter              string            `json:"waiter"`
@@ -116,60 +123,67 @@ func (i *Invoice) CalculateTaxDetails() {
 	taxTypes := make(map[string]*TaxDetail)
 
 	for _, item := range i.Items {
+		base := math.Floor(item.DiscountedPrice / (1 + item.TaxPercentage))
+		amount := item.DiscountedPrice - base
+
 		if _, ok := taxTypes[item.Tax]; !ok {
 			taxTypes[item.Tax] = &TaxDetail{
-				Name:   item.Tax,
-				Amount: item.Price * item.TaxPercentage,
-				Base:   item.Price - (item.Price * item.TaxPercentage),
+				Name:       item.Tax,
+				Amount:     amount,
+				Base:       base,
+				Percentage: item.TaxPercentage,
 			}
 		} else {
 			taxDetails := taxTypes[item.Tax]
-			taxDetails.Amount += item.Price * item.TaxPercentage
-			taxDetails.Base += item.Price - (item.Price * item.TaxPercentage)
+			taxDetails.Amount += amount
+			taxDetails.Base += base
 		}
 	}
 
 	for taxType, taxDetail := range taxTypes {
 		i.TaxDetails = append(i.TaxDetails, TaxDetail{
-			Name:   taxType,
-			Amount: taxDetail.Amount,
-			Base:   taxDetail.Base,
+			Name:       taxType,
+			Amount:     taxDetail.Amount,
+			Base:       taxDetail.Base,
+			Percentage: taxDetail.Percentage,
 		})
 	}
 }
 
 type Item struct {
-	ID            uint            `json:"id"`
-	InvoiceID     *uint           `json:"invoice_id"`
-	ProductID     *uint           `json:"product_id"`
-	Name          string          `json:"name"`
-	Description   string          `json:"description"`
-	SKU           string          `json:"sku"`
-	Price         float64         `json:"price" gorm:"precision:18;scale:2"`
-	Comments      string          `json:"comments"`
-	Hash          string          `json:"hash"`
-	Tax           string          `json:"tax"`
-	TaxPercentage float64         `json:"tax_percentage"`
-	CreatedAt     *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt     *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt     *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID              uint            `json:"id"`
+	InvoiceID       *uint           `json:"invoice_id"`
+	ProductID       *uint           `json:"product_id"`
+	Name            string          `json:"name"`
+	Description     string          `json:"description"`
+	SKU             string          `json:"sku"`
+	Price           float64         `json:"price" gorm:"precision:18;scale:2"`
+	DiscountedPrice float64         `json:"discounted_price" gorm:"precision:18;scale:2"`
+	Comments        string          `json:"comments"`
+	Hash            string          `json:"hash"`
+	Tax             string          `json:"tax"`
+	TaxPercentage   float64         `json:"tax_percentage"`
+	CreatedAt       *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt       *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt       *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
-type Discount struct {
+type DiscountApplied struct {
 	ID          uint           `json:"id"`
+	DiscountID  uint           `json:"discount_id"`
 	InvoiceID   *uint          `json:"invoice_id"`
 	Name        string         `json:"name,omitempty"`
 	Type        string         `json:"type"`
 	Percentage  float64        `json:"percentage,omitempty" gorm:"precision:18;scale:2"`
 	Amount      float64        `json:"amount,omitempty" gorm:"precision:18;scale:2"`
 	Description string         `json:"description,omitempty"`
-	Terms       string         `json:"terms,omitempty"`
-	ChannelID   *uint          `json:"channel_id,omitempty"`
-	StoreID     *uint          `json:"store_id,omitempty"`
-	BrandID     *uint          `json:"brand_id,omitempty"`
 	CreatedAt   *time.Time     `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time     `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+}
+
+func (d *DiscountApplied) Apply(value float64) float64 {
+	return math.Max(value-(value*d.Percentage/100), 0)
 }
 
 type Surcharge struct {
@@ -189,7 +203,8 @@ type Surcharge struct {
 }
 
 type TaxDetail struct {
-	Name   string  `json:"name"`
-	Amount float64 `json:"amount"`
-	Base   float64 `json:"base"`
+	Name       string  `json:"name"`
+	Amount     float64 `json:"amount"`
+	Base       float64 `json:"base"`
+	Percentage float64 `json:"percentage"`
 }

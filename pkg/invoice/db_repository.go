@@ -5,6 +5,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 const LogRepository = "pkg/invoice/repository"
@@ -28,9 +29,10 @@ func (r DBRepository) CreateUpdate(invoice *Invoice) (*Invoice, error) {
 
 // Get method for get an invoice in database
 func (r *DBRepository) Get(invoiceID string) (*Invoice, error) {
-	if invoiceID == "" {
-		shared.LogWarn("error getting invoice", LogRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(invoiceID) == "" {
+		err := fmt.Errorf(ErrorInvoiceIDEmpty)
+		shared.LogWarn("error getting invoice", LogRepository, "Get", err)
+		return nil, err
 	}
 
 	var invoice Invoice
@@ -102,9 +104,10 @@ func (r *DBRepository) CreateBatch(invoices []Invoice) ([]Invoice, error) {
 
 // Delete deletes an invoice in database.
 func (r *DBRepository) Delete(invoiceID string) error {
-	if invoiceID == "" {
-		shared.LogWarn("error deleting invoice", LogRepository, "Delete", shared.ErrorIDEmpty)
-		return shared.ErrorIDEmpty
+	if strings.TrimSpace(invoiceID) == "" {
+		err := fmt.Errorf(ErrorInvoiceIDEmpty)
+		shared.LogWarn("error deleting invoice", LogRepository, "Delete", err)
+		return err
 	}
 	if err := r.db.Delete(&Invoice{}, invoiceID).Error; err != nil {
 		shared.LogError("error deleting invoice", LogRepository, "Delete", err, invoiceID)
@@ -115,9 +118,10 @@ func (r *DBRepository) Delete(invoiceID string) error {
 
 // Print to get a printable invoice from database
 func (r *DBRepository) Print(invoiceID string) (*DTOPrintable, error) {
-	if invoiceID == "" {
-		shared.LogWarn("error printing invoice", LogRepository, "Print", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(invoiceID) == "" {
+		err := fmt.Errorf(ErrorInvoiceIDEmpty)
+		shared.LogWarn("error printing invoice", LogRepository, "Print", err)
+		return nil, err
 	}
 
 	var invoice DTOPrintable
@@ -142,4 +146,28 @@ func (r *DBRepository) Print(invoiceID string) (*DTOPrintable, error) {
 	}
 
 	return &invoice, nil
+}
+
+// FindDiscountApplied to find invoices with discount applied
+func (r *DBRepository) FindDiscountApplied() ([]DiscountApplied, error) {
+	var invoices []DiscountApplied
+	if err := r.db.Find(&invoices).Error; err != nil {
+		shared.LogError("error finding invoices", LogRepository, "FindDiscountApplied", err)
+		return nil, err
+	}
+	return invoices, nil
+}
+
+// RemoveDiscountApplied to remove a discount applied
+func (r *DBRepository) RemoveDiscountApplied(discountAppliedID string) (DiscountApplied, error) {
+	var discountApplied DiscountApplied
+	if err := r.db.First(&discountApplied, discountAppliedID).Error; err != nil {
+		shared.LogError("error getting discount applied", LogRepository, "RemoveDiscountApplied", err, discountAppliedID)
+		return discountApplied, err
+	}
+	if err := r.db.Delete(&discountApplied).Error; err != nil {
+		shared.LogError("error removing discount applied", LogRepository, "RemoveDiscountApplied", err, discountAppliedID)
+		return discountApplied, err
+	}
+	return discountApplied, nil
 }

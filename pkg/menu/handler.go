@@ -62,7 +62,7 @@ func (h *Handler) Find(c *gin.Context) {
 	menus, err := h.service.Find(query)
 	if err != nil {
 		shared.LogError("error finding menus", LogHandler, "Find", err, menus)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingMenu))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorMenuFinding))
 		return
 	}
 
@@ -87,7 +87,7 @@ func (h *Handler) Get(c *gin.Context) {
 	menu, err := h.service.Get(menuID)
 	if err != nil {
 		shared.LogError("error getting menu", LogHandler, "Get", err, menu)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingMenu))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorMenuGetting))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(menu))
@@ -110,14 +110,14 @@ func (h *Handler) Create(c *gin.Context) {
 	var body RequestMenuCreate
 	if err := c.ShouldBindJSON(&body); err != nil {
 		shared.LogWarn("warning binding request body", LogHandler, "Create", err, body)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorMenuBadRequest))
 		return
 	}
 
 	menu, err := h.service.Create(body.Name, body.BrandID, body.Place, body.PlaceIDs)
 	if err != nil {
 		shared.LogError("error creating menu", LogHandler, "Create", err, body)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorCreatingMenu))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorMenuCreating))
 		return
 	}
 
@@ -142,14 +142,14 @@ func (h *Handler) Update(c *gin.Context) {
 	var requestBody Menu
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
 		shared.LogWarn("warning binding request body", LogHandler, "Update", err, requestBody)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorMenuBadRequest))
 		return
 	}
 
 	menu, err := h.service.Update(&requestBody)
 	if err != nil {
 		shared.LogError("error updating menu", LogHandler, "Update", err, requestBody)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingMenu))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorMenuUpdating))
 		return
 	}
 
@@ -174,7 +174,7 @@ func (h *Handler) Delete(c *gin.Context) {
 	menu, err := h.service.Delete(menuID)
 	if err != nil {
 		shared.LogError("error deleting menu", LogHandler, "Delete", err, menu)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorDeletingMenu))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorMenuDeleting))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(menu))
@@ -200,7 +200,7 @@ func (h *Handler) ListByPlace(c *gin.Context) {
 	menus, err := h.service.FindByPlace(place, placeID)
 	if err != nil {
 		shared.LogError("error finding menus", LogHandler, "FindByPlace", err, menus)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingByPlace))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorMenuFindingByPlace))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(menus))
@@ -218,13 +218,14 @@ func (h *Handler) ListByPlace(c *gin.Context) {
 // @Failure 400 {object} shared.Response
 // @Failure 422 {object} shared.Response
 // @Failure 401 {object} shared.Response
-// @Router /public/menu/store/{storeId}/list [get]
+// @Router /public/menu/place/{place}/{place-id}/list [get]
 func (h *Handler) PublicStoreMenu(c *gin.Context) {
-	storeID := c.Param("storeId")
-	menus, err := h.service.FindByPlace("store", storeID)
+	place := c.Param("place")
+	placeID := c.Param("place-id")
+	menus, err := h.service.FindByPlace(place, placeID)
 	if err != nil {
 		shared.LogError("error finding menus", LogHandler, "PublicStoreMenu", err, menus)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingByPlace))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorMenuFindingByPlace))
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(menus))
@@ -253,7 +254,7 @@ func (h *Handler) GetByPlace(c *gin.Context) {
 	menu, err := h.service.GetByPlace(place, placeID, menuID)
 	if err != nil {
 		shared.LogError("error getting menu by place", LogHandler, "GetByPlace", err, menu)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorGettingMenu))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorMenuGetting))
 		return
 	}
 
@@ -281,14 +282,14 @@ func (h *Handler) UpdateAvailability(c *gin.Context) {
 	place, err := availabilityPkg.GetPlace(c.Param("place"))
 	if err != nil {
 		shared.LogWarn("warning getting place", LogHandler, "UpdateAvailability", err, place)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorMenuBadRequest))
 		return
 	}
 
 	var body RequestMenuAvailability
 	if err := c.ShouldBindJSON(&body); err != nil {
 		shared.LogWarn("warning binding request body", LogHandler, "UpdateAvailability", err, body)
-		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorMenuBadRequest))
 		return
 	}
 
@@ -299,7 +300,7 @@ func (h *Handler) UpdateAvailability(c *gin.Context) {
 
 	if _, err := h.service.UpdateAvailability(menuID, string(place), placeIDs); err != nil {
 		shared.LogError("error updating availability", LogHandler, "UpdateAvailability", err, body)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorUpdatingAvailability))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorMenuUpdatingAvailability))
 		return
 	}
 
@@ -327,7 +328,7 @@ func (h *Handler) FindChannels(c *gin.Context) {
 	channels, err := h.service.FindChannels(menuID, storeID)
 	if err != nil {
 		shared.LogError("error finding channels", LogHandler, "FindChannels", err, channels)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorFindingChannels))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorMenuFindingChannels))
 		return
 	}
 
@@ -355,7 +356,7 @@ func (h *Handler) AddCategory(c *gin.Context) {
 	menu, err := h.service.AddCategory(menuID, categoryID)
 	if err != nil {
 		shared.LogError("error adding category", LogHandler, "AddCategory", err, nil)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorAddingCategory))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorMenuAddingCategory))
 		return
 	}
 
@@ -383,7 +384,7 @@ func (h *Handler) RemoveCategory(c *gin.Context) {
 	menu, err := h.service.RemoveCategory(menuID, categoryID)
 	if err != nil {
 		shared.LogError("error removing category", LogHandler, "RemoveCategory", err, nil)
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorRemovingCategory))
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorMenuRemovingCategory))
 		return
 	}
 

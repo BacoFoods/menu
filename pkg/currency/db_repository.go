@@ -1,9 +1,11 @@
 package currency
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 const LogDBRepository string = "pkg/currency/db_repository"
@@ -34,9 +36,10 @@ func (r *DBRepository) Find(query map[string]string) ([]Currency, error) {
 }
 
 func (r *DBRepository) Get(currencyID string) (*Currency, error) {
-	if currencyID == "" {
-		shared.LogWarn("error getting currency", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(currencyID) == "" {
+		err := fmt.Errorf(ErrorCurrencyIDEmpty)
+		shared.LogWarn("error getting currency", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var currency Currency

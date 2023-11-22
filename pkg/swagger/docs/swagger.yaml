@@ -140,18 +140,36 @@ definitions:
     type: object
   cashaudit.CashAudit:
     properties:
-      card_incomes:
+      brute_sell:
         type: number
-      cash_incomes:
+      card_incomes_reported:
         type: number
+      cash_incomes_reported:
+        type: number
+      cashier_account_id:
+        type: integer
+      confirmation:
+        description: To save the confirmation from cashier
+        type: boolean
+      differences:
+        description: To save the differences between calculated and reported founded
+          by system
+        type: string
       discounts:
         type: number
       eaters:
         type: integer
-      online_incomes:
-        type: number
+      id:
+        type: integer
+      observations:
+        description: To save the observations or issues reported from cashier
+        type: string
       orders:
         type: integer
+      orders_closed:
+        type: integer
+      other_incomes_reported:
+        type: number
       shift_close:
         type: string
       shift_end_balance:
@@ -160,14 +178,129 @@ definitions:
         type: string
       shift_start_balance:
         type: number
+      store_id:
+        type: integer
       store_name:
         type: string
       surcharges:
         type: number
-      tips:
+      tips_reported:
+        description: Reported section is for the reported values from cashier
         type: number
+      total_incomes:
+        items:
+          $ref: '#/definitions/cashaudit.Income'
+        type: array
       total_sell:
         type: number
+      total_sell_reported:
+        type: number
+      total_tips_invoices:
+        type: number
+      total_tips_payments:
+        type: number
+    type: object
+  cashaudit.DTOCard:
+    properties:
+      origin:
+        type: string
+      unit:
+        type: number
+    type: object
+  cashaudit.DTOCashAudit:
+    properties:
+      card_incomes:
+        type: number
+      cash_incomes:
+        type: number
+      other_incomes:
+        type: number
+    type: object
+  cashaudit.DTOCashAuditCategories:
+    properties:
+      brute_sell:
+        type: number
+      incomes:
+        $ref: '#/definitions/cashaudit.DTOIncome'
+      orders_length:
+        type: integer
+      seats:
+        type: integer
+      total_sell:
+        type: number
+      variables:
+        items:
+          $ref: '#/definitions/cashaudit.DTOVariable'
+        type: array
+    type: object
+  cashaudit.DTOCashAuditConfirmationRequest:
+    properties:
+      cash_audit_id:
+        type: string
+      observations:
+        type: string
+    type: object
+  cashaudit.DTODiscounts:
+    properties:
+      name:
+        type: string
+      unit:
+        type: number
+    type: object
+  cashaudit.DTOIncome:
+    properties:
+      cards:
+        items:
+          $ref: '#/definitions/cashaudit.DTOCard'
+        type: array
+      cash:
+        type: number
+      others:
+        items:
+          $ref: '#/definitions/cashaudit.DTOOther'
+        type: array
+    type: object
+  cashaudit.DTOOther:
+    properties:
+      origin:
+        type: string
+      unit:
+        type: number
+    type: object
+  cashaudit.DTOTips:
+    properties:
+      origin:
+        type: string
+      unit:
+        type: number
+    type: object
+  cashaudit.DTOVariable:
+    properties:
+      discounts:
+        $ref: '#/definitions/cashaudit.DTODiscounts'
+      tips:
+        $ref: '#/definitions/cashaudit.DTOTips'
+    type: object
+  cashaudit.Income:
+    properties:
+      cash_audit_id:
+        type: integer
+      id:
+        type: integer
+      income:
+        type: number
+      origin:
+        description: For payment method
+        type: string
+      type:
+        description: To know if is a tip, cash, online, card or other income
+        enum:
+        - tip
+        - cash
+        - online
+        - card
+        - other
+        type: string
     type: object
   category.Category:
     properties:
@@ -210,6 +343,8 @@ definitions:
   client.Client:
     properties:
       address:
+        type: string
+      customer_id:
         type: string
       document:
         type: string
@@ -288,16 +423,14 @@ definitions:
       value:
         type: number
     type: object
-  invoice.Discount:
+  invoice.DiscountApplied:
     properties:
       amount:
         type: number
-      brand_id:
-        type: integer
-      channel_id:
-        type: integer
       description:
         type: string
+      discount_id:
+        type: integer
       id:
         type: integer
       invoice_id:
@@ -306,10 +439,6 @@ definitions:
         type: string
       percentage:
         type: number
-      store_id:
-        type: integer
-      terms:
-        type: string
       type:
         type: string
     type: object
@@ -327,7 +456,7 @@ definitions:
         type: integer
       discounts:
         items:
-          $ref: '#/definitions/invoice.Discount'
+          $ref: '#/definitions/invoice.DiscountApplied'
         type: array
       id:
         type: integer
@@ -387,6 +516,8 @@ definitions:
         type: string
       description:
         type: string
+      discounted_price:
+        type: number
       hash:
         type: string
       id:
@@ -455,6 +586,8 @@ definitions:
         type: number
       name:
         type: string
+      percentage:
+        type: number
     type: object
   menu.Menu:
     properties:
@@ -524,6 +657,37 @@ definitions:
         type: string
       role:
         type: string
+    type: object
+  order.CalculateInvoiceRequest:
+    properties:
+      discounts:
+        items:
+          type: integer
+        type: array
+      tip_amount:
+        type: number
+      tip_percentage:
+        type: integer
+    type: object
+  order.CheckoutRequest:
+    properties:
+      customer_id:
+        type: string
+      tip:
+        type: number
+    type: object
+  order.CloseInvoiceRequest:
+    properties:
+      document:
+        type: string
+      observations:
+        type: string
+      payments:
+        items:
+          $ref: '#/definitions/payment.Payment'
+        type: array
+    required:
+    - payments
     type: object
   order.Order:
     properties:
@@ -680,6 +844,10 @@ definitions:
         type: integer
       sku:
         type: string
+      tax:
+        type: string
+      tax_percentage:
+        type: number
       unit:
         type: string
     type: object
@@ -770,30 +938,44 @@ definitions:
     required:
     - seats
     type: object
-  order.RequestUpdateOrderStatus:
-    properties:
-      status:
-        example: ordering,cooking,delivered,invoicing,canceled,completed
-        type: string
-    required:
-    - status
-    type: object
   payment.Payment:
     properties:
+      checkout_url:
+        type: string
       code:
+        description: Code is the reference number of the payment
         type: string
       id:
         type: integer
       invoice_id:
+        description: An invoice can have multiple payments
         type: integer
       method:
+        description: |-
+          Payment method used.
+          This can come from manual input in the POS such as <code>cash</code>, <code>card</code>, <code>check</code>, etc.
+          or from order in table with <code>paylot</code> or <code>yuno</code>
         type: string
       quantity:
+        description: Quantity is the amount of money paid
+        type: number
+      reference:
+        type: string
+      status:
+        type: string
+      tip:
+        description: Tip is the amount of money paid
+        type: number
+      total_value:
+        description: TotalValue is the paid = quantity + tip
         type: number
     required:
     - invoice_id
     - method
     - quantity
+    - status
+    - tip
+    - total_value
     type: object
   payment.PaymentMethod:
     properties:
@@ -803,7 +985,7 @@ definitions:
         type: integer
       code:
         type: string
-      franchise:
+      description:
         type: string
       id:
         type: integer
@@ -813,6 +995,8 @@ definitions:
         type: string
       store_id:
         type: integer
+    required:
+    - code
     type: object
   product.Modifier:
     properties:
@@ -897,6 +1081,8 @@ definitions:
         type: number
       sku:
         type: string
+      sku_aggregators:
+        type: string
       tax_id:
         type: integer
       unit:
@@ -933,50 +1119,6 @@ definitions:
     required:
     - start_balance
     type: object
-  status.CreateStatus:
-    properties:
-      active:
-        type: boolean
-      code:
-        type: string
-      color:
-        type: string
-      name:
-        type: string
-    required:
-    - code
-    - name
-    type: object
-  status.Status:
-    properties:
-      active:
-        type: boolean
-      code:
-        type: string
-      color:
-        type: string
-      created_at:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      updated_at:
-        type: string
-    type: object
-  status.UpdateStatus:
-    properties:
-      code:
-        type: string
-      color:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-    required:
-    - id
-    type: object
   store.Store:
     properties:
       address:
@@ -987,6 +1129,10 @@ definitions:
         type: string
       code:
         type: string
+      country:
+        $ref: '#/definitions/country.Country'
+      country_id:
+        type: integer
       email:
         type: string
       enabled:
@@ -1801,7 +1947,94 @@ paths:
     get:
       consumes:
       - application/json
-      description: To get cash audit
+      description: Just calculate the cash audit only for closed orders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/cashaudit.DTOCashAuditCategories'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Just calculate the cash audit only for closed orders
+      tags:
+      - Cash Audit
+    post:
+      consumes:
+      - application/json
+      description: To create cash audit only for closed orders, if cash audit already
+        exists, it will return the existing cash audit
+      parameters:
+      - description: Cash Audit
+        in: body
+        name: cashAudit
+        required: true
+        schema:
+          $ref: '#/definitions/cashaudit.DTOCashAudit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/cashaudit.DTOCashAuditCategories'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To create cash audit only for closed orders
+      tags:
+      - Cash Audit
+  /cash-audit/confirm:
+    post:
+      consumes:
+      - application/json
+      description: To confirm cash audit only for closed orders, if cash audit already
+        exists, it will return the existing cash audit
+      parameters:
+      - description: Cash Audit Confirmation
+        in: body
+        name: cashAudit
+        required: true
+        schema:
+          $ref: '#/definitions/cashaudit.DTOCashAuditConfirmationRequest'
       produces:
       - application/json
       responses:
@@ -1830,7 +2063,43 @@ paths:
             $ref: '#/definitions/shared.Response'
       security:
       - ApiKeyAuth: []
-      summary: To get cash audit
+      summary: To confirm cash audit only for closed orders
+      tags:
+      - Cash Audit
+  /cash-audit/orders-closed:
+    get:
+      consumes:
+      - application/json
+      description: To validate if all orders are closed
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  type: string
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To validate if all orders are closed
       tags:
       - Cash Audit
   /category:
@@ -3291,6 +3560,98 @@ paths:
       summary: To create a discount
       tags:
       - Discount
+  /discount-applied:
+    get:
+      consumes:
+      - application/json
+      description: To find discount applied
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  allOf:
+                  - type: object
+                  - properties:
+                      invoices:
+                        items:
+                          $ref: '#/definitions/invoice.Invoice'
+                        type: array
+                    type: object
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find discount applied
+      tags:
+      - InvoiceApplied
+  /discount-applied/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To remove discount applied
+      parameters:
+      - description: invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  allOf:
+                  - type: object
+                  - properties:
+                      invoices:
+                        items:
+                          $ref: '#/definitions/invoice.DiscountApplied'
+                        type: array
+                    type: object
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To remove discount applied
+      tags:
+      - InvoiceApplied
   /discount/{id}:
     delete:
       consumes:
@@ -3621,6 +3982,54 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To remove a client from an invoice
+      tags:
+      - Invoice
+  /invoice/{id}/close:
+    post:
+      consumes:
+      - application/json
+      description: To close an invoice
+      parameters:
+      - description: invoice id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: invoice
+        in: body
+        name: invoice
+        required: true
+        schema:
+          $ref: '#/definitions/order.CloseInvoiceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Invoice'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To close an invoice
       tags:
       - Invoice
   /invoice/{id}/print:
@@ -4466,15 +4875,12 @@ paths:
         name: table
         type: string
       - description: Status
+        enum:
+        - created
+        - paying
+        - closed
         in: query
         name: status
-        type: string
-      - description: Is Active
-        enum:
-        - "true"
-        - "false"
-        in: query
-        name: active
         type: string
       - description: Days before
         in: query
@@ -4509,6 +4915,48 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To find orders
+      tags:
+      - Order
+    patch:
+      consumes:
+      - application/json
+      description: to update an order
+      parameters:
+      - description: Order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/order.OrderDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: to update an order
       tags:
       - Order
     post:
@@ -4958,6 +5406,12 @@ paths:
       - application/json
       description: To create an invoice
       parameters:
+      - description: Order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/order.OrderDTO'
       - description: Order ID
         in: path
         name: id
@@ -4981,7 +5435,7 @@ paths:
       - ApiKeyAuth: []
       summary: To create an invoice
       tags:
-      - Invoice
+      - Order
   /order/{id}/invoice/calculate:
     post:
       consumes:
@@ -4993,6 +5447,12 @@ paths:
         name: id
         required: true
         type: string
+      - description: request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/order.CalculateInvoiceRequest'
       produces:
       - application/json
       responses:
@@ -5011,7 +5471,7 @@ paths:
       - ApiKeyAuth: []
       summary: To calculate an invoice
       tags:
-      - Invoice
+      - Order
   /order/{id}/release-table:
     post:
       consumes:
@@ -5319,42 +5779,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To update a product from an order
-      tags:
-      - Order
-  /order/{id}/update/status:
-    patch:
-      consumes:
-      - application/json
-      description: To update the status of an order
-      parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Status
-        in: body
-        name: status
-        required: true
-        schema:
-          $ref: '#/definitions/order.RequestUpdateOrderStatus'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
-      security:
-      - ApiKeyAuth: []
-      summary: To update the status of an order
       tags:
       - Order
   /overrider:
@@ -5834,15 +6258,15 @@ paths:
       summary: To create payment method
       tags:
       - PaymentMethod
-  /payment-method/{id}:
+  /payment-method/{code}:
     delete:
       consumes:
       - application/json
       description: To delete payment method
       parameters:
-      - description: payment method id
+      - description: payment method code
         in: path
-        name: id
+        name: code
         required: true
         type: string
       produces:
@@ -5876,6 +6300,7 @@ paths:
       summary: To delete payment method
       tags:
       - PaymentMethod
+  /payment-method/{id}:
     get:
       consumes:
       - application/json
@@ -6532,7 +6957,7 @@ paths:
       summary: To login
       tags:
       - Account
-  /public/menu/store/{storeId}/list:
+  /public/menu/place/{place}/{place-id}/list:
     get:
       consumes:
       - application/json
@@ -6579,6 +7004,145 @@ paths:
       summary: To list menus by place
       tags:
       - Menu
+  /public/order:
+    post:
+      consumes:
+      - application/json
+      description: To create an order
+      parameters:
+      - description: Order
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/order.OrderDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To create an order
+      tags:
+      - Order
+  /public/order/{id}:
+    get:
+      consumes:
+      - application/json
+      description: To get an order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      summary: To get an order
+      tags:
+      - Order
+  /public/order/{id}/checkout:
+    post:
+      consumes:
+      - application/json
+      description: To checkout an order.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Checkout parameters
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/order.CheckoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Invoice'
+                status:
+                  type: string
+              type: object
+      summary: To checkout an order.
+      tags:
+      - Order
+  /public/order/{id}/invoice/calculate:
+    get:
+      consumes:
+      - application/json
+      description: Public entpodint to calculate an invoice
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Invoice'
+                status:
+                  type: string
+              type: object
+      summary: Public endpoint to calculate an invoice
+      tags:
+      - Order
   /public/tables/scan/{qrId}:
     get:
       consumes:
@@ -6693,209 +7257,6 @@ paths:
       summary: Open shift
       tags:
       - Shift
-  /status:
-    get:
-      consumes:
-      - application/json
-      description: To find status
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/status.Status'
-                  type: array
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: To find status
-      tags:
-      - Status
-    patch:
-      consumes:
-      - application/json
-      description: To update status
-      parameters:
-      - description: status to update
-        in: body
-        name: status
-        required: true
-        schema:
-          $ref: '#/definitions/status.UpdateStatus'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/status.Status'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: To update status
-      tags:
-      - Status
-    post:
-      consumes:
-      - application/json
-      description: To create a status
-      parameters:
-      - description: status request
-        in: body
-        name: status
-        required: true
-        schema:
-          $ref: '#/definitions/status.CreateStatus'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/status.Status'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: To create a status
-      tags:
-      - Status
-  /status/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: To delete a status
-      parameters:
-      - description: statusID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: status request
-        in: body
-        name: status
-        required: true
-        schema:
-          $ref: '#/definitions/status.Status'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  type: string
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: To delete a status
-      tags:
-      - Status
-    get:
-      consumes:
-      - application/json
-      description: To find status by id
-      parameters:
-      - description: status id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/status.Status'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: To find status by id
-      tags:
-      - Status
   /store:
     get:
       consumes:

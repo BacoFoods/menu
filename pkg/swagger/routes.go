@@ -16,7 +16,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shift"
-	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
 	_ "github.com/BacoFoods/menu/pkg/swagger/docs" //documentation
@@ -48,6 +47,7 @@ func NewRoutes() Routes {
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @BasePath /api/menu/v1
+
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization
@@ -66,7 +66,6 @@ func (r *Routes) Register(group *gin.RouterGroup) {
 	_ = channel.Handler{}
 	_ = availability.Handler{}
 	_ = order.Handler{}
-	_ = status.Handler{}
 	_ = invoice.Handler{}
 	_ = account.Handler{}
 	_ = course.Handler{}

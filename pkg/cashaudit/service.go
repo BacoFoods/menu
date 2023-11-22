@@ -14,21 +14,27 @@ const (
 )
 
 type Service interface {
+	AllOrdersClosed(storeID string) error
 	Get(storeID string) (*CashAudit, error)
+	Create(storeID string, cashAudit *CashAudit) (*CashAudit, error)
+	Confirm(cashAuditID, observations string) (*CashAudit, error)
 }
 
 type service struct {
-	stores   store.Repository
-	orders   order.Repository
-	invoices invoice.Repository
-	shifts   shift.Repository
+	repository Repository
+	stores     store.Repository
+	orders     order.Repository
+	invoices   invoice.Repository
+	shifts     shift.Repository
 }
 
-func NewService(stores store.Repository,
+func NewService(repository Repository,
+	stores store.Repository,
 	orders order.Repository,
 	invoices invoice.Repository,
 	shifts shift.Repository) service {
 	return service{
+		repository,
 		stores,
 		orders,
 		invoices,
@@ -36,8 +42,76 @@ func NewService(stores store.Repository,
 	}
 }
 
+func (s service) AllOrdersClosed(storeID string) error {
+	return s.validateAllOrdersClosed(storeID)
+}
+
 func (s service) Get(storeID string) (*CashAudit, error) {
+	return s.calculateCashAudit(storeID, order.OrderStatusClosed)
+}
+
+func (s service) Create(storeID string, cashReported *CashAudit) (*CashAudit, error) {
+	if err := s.validateAllOrdersClosed(storeID); err != nil {
+		return nil, err
+	}
+
+	todayCashAudit, err := s.repository.GetTodayCashAudit(storeID)
+	if err != nil {
+		return nil, err
+	}
+
+	if todayCashAudit != nil {
+		return todayCashAudit, nil
+	}
+
+	// Set Store details
+	cashAudit, err := s.calculateCashAudit(storeID, order.OrderStatusClosed)
+	if err != nil {
+		return nil, err
+	}
+
+	cashAudit.TipsReported = cashReported.TipsReported
+	cashAudit.TotalSellReported = cashReported.TotalSellReported
+	cashAudit.CashIncomesReported = cashReported.CashIncomesReported
+	cashAudit.OtherIncomesReported = cashReported.OtherIncomesReported
+	cashAudit.CardIncomesReported = cashReported.CardIncomesReported
+
+	// Validate discrepancies between reported and calculated
+	cashAudit.Differences = s.validateDiscrepancy(cashAudit)
+
+	// Create cash audit
+	cashAudit, err = s.repository.Create(cashAudit)
+	if err != nil {
+		return nil, err
+	}
+
+	return cashAudit, nil
+}
+
+func (s service) Confirm(cashAuditID, observations string) (*CashAudit, error) {
+	cashAudit, err := s.repository.Get(cashAuditID)
+	if err != nil {
+		return nil, err
+	}
+
+	cashAudit.Confirmation = true
+	cashAudit.Observations = observations
+
+	cashAudit, err = s.repository.Update(cashAudit)
+	if err != nil {
+		return nil, err
+	}
+
+	return cashAudit, nil
+}
+
+func (s service) calculateCashAudit(storeID string, status string) (*CashAudit, error) {
 	cashAudit := CashAudit{}
+
+	// Validate status
+	if !order.OrderStatusValid(status) {
+		return nil, fmt.Errorf(ErrorCashAuditInvalidOrderStatus)
+	}
 
 	// Set Store details
 	auditStore, err := s.stores.Get(storeID)
@@ -45,34 +119,82 @@ func (s service) Get(storeID string) (*CashAudit, error) {
 		shared.LogError("error getting store", LogService, "Get", err, storeID)
 		return nil, fmt.Errorf(ErrorCashAuditGettingStore)
 	}
+	cashAudit.StoreID = &auditStore.ID
 	cashAudit.StoreName = auditStore.Name
 
-	// Set Shift details
-	lastShift, err := s.shifts.GetLastShift(storeID)
+	// Getting day's orders by status
+	orderList, err := s.orders.GetLastDayOrdersByStatus(storeID, status)
 	if err != nil {
-		shared.LogError("error getting last shift", LogService, "Get", err, storeID)
-		return nil, fmt.Errorf(ErrorCashAuditGettingLastShift)
-	}
-	cashAudit.ShiftOpen = lastShift.StartTime
-	cashAudit.ShiftStartBalance = lastShift.StartBalance
-	cashAudit.ShiftClose = lastShift.EndTime
-	cashAudit.ShiftEndBalance = lastShift.EndBalance
-
-	// Set Orders details
-	orderList, err := s.orders.FindByShift(lastShift.ID)
-	if err != nil {
-		shared.LogError("error getting orders by shift", LogService, "Get", err, lastShift.ID)
 		return nil, fmt.Errorf(ErrorCashAuditGettingOrders)
 	}
+
+	if len(orderList) == 0 {
+		return nil, fmt.Errorf(ErrorCashAuditNotOrdersFound)
+	}
+
+	// Getting invoices from orders
+	invoiceList := GetInvoices(orderList)
+	paymentsList := GetPayments(invoiceList)
+
 	cashAudit.Orders = uint(len(orderList))
+	cashAudit.OrdersClosed = GetOrdersClosed(orderList)
 	cashAudit.Eaters = GetTotalEaters(orderList)
 
-	// Set Invoices details
-	invoiceList := GetInvoices(orderList)
-	cashAudit.Discounts = GetTotalDiscounts(invoiceList)
-	cashAudit.Surcharges = GetTotalSourcharges(invoiceList)
-	cashAudit.Tips = GetTotalTips(invoiceList)
+	// Setting incomes
+	cashAudit.Incomes = GetIncomes(paymentsList)
+
+	// Setting tips
+	cashAudit.Incomes = append(cashAudit.Incomes, GetTipIncomes(paymentsList)...)
+
+	cashAudit.TotalTipsPayments = GetTotalTipsPayments(paymentsList)
+	cashAudit.TotalTipsInvoices = GetTotalTipsInvoices(invoiceList)
+	cashAudit.TotalDiscounts = GetTotalDiscounts(invoiceList)
 	cashAudit.TotalSell = GetTotalSell(invoiceList)
+	cashAudit.BruteSell = GetBruteSell(invoiceList)
 
 	return &cashAudit, nil
+}
+
+func (s service) validateDiscrepancy(cashAudit *CashAudit) string {
+	cashIncomesTotal := 0.0
+	for _, income := range cashAudit.Incomes {
+		if income.Type == IncomeTypeCash {
+			cashIncomesTotal += income.Income
+		}
+	}
+
+	if cashAudit.CashIncomesReported != cashIncomesTotal {
+		return IncomeDiscrepancyCash
+	}
+
+	cardIncomesTotal := 0.0
+	for _, income := range cashAudit.Incomes {
+		if income.Type == IncomeTypeCard {
+			cardIncomesTotal += income.Income
+		}
+	}
+
+	if cashAudit.CardIncomesReported != cardIncomesTotal {
+		return IncomeDiscrepancyCard
+	}
+
+	return ""
+}
+
+func (s service) validateAllOrdersClosed(storeID string) error {
+	orderClosedList, err := s.orders.GetLastDayOrdersByStatus(storeID, order.OrderStatusClosed)
+	if err != nil {
+		return fmt.Errorf(ErrorCashAuditGettingOrders)
+	}
+
+	orderList, err := s.orders.GetLastDayOrders(storeID)
+	if err != nil {
+		return fmt.Errorf(ErrorCashAuditGettingOrders)
+	}
+
+	if len(orderClosedList) != len(orderList) {
+		return fmt.Errorf(ErrorCashAuditNotAllOrdersClosed)
+	}
+
+	return nil
 }

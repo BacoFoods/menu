@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
@@ -22,10 +23,10 @@ import (
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/order"
 	"github.com/BacoFoods/menu/pkg/payment"
+	"github.com/BacoFoods/menu/pkg/payment/paymentms"
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/router"
 	"github.com/BacoFoods/menu/pkg/shift"
-	"github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
 	"github.com/BacoFoods/menu/pkg/swagger"
@@ -63,10 +64,10 @@ func main() {
 		&order.OrderItem{},
 		&order.OrderModifier{},
 		&order.OrderType{},
-		&status.Status{},
+		&order.OrderStatus{},
 		&invoice.Invoice{},
 		&invoice.Item{},
-		&invoice.Discount{},
+		&invoice.DiscountApplied{},
 		&invoice.Surcharge{},
 		&account.Account{},
 		&course.Course{},
@@ -77,7 +78,11 @@ func main() {
 		&shift.Shift{},
 		&tables.QR{},
 		&assets.Asset{},
+		&cashaudit.CashAudit{},
+		&cashaudit.Income{},
 	)
+
+	rabbitCh := internal.MustNewRabbitMQ(internal.Config.RabbitConfig.ComandasQueue, internal.Config.RabbitConfig.Host, internal.Config.RabbitConfig.Port)
 
 	// Healthcheck
 	healthcheckHandler := healthcheck.NewHandler()
@@ -159,17 +164,20 @@ func main() {
 	currencyHandler := currency.NewHandler(currencyService)
 	currencyRoutes := currency.NewRoutes(currencyHandler)
 
+	// Paylots API
+	paylotsApi := paymentms.NewPaymentsAPI(http.DefaultClient, internal.Config.PaylotsConfig.Host)
+
+	// Payment
+	paymentRepository := payment.NewDBRepository(gormDB)
+	paymentService := payment.NewService(paymentRepository, paylotsApi)
+	paymentHandler := payment.NewHandler(paymentService)
+	paymentRoutes := payment.NewRoutes(paymentHandler)
+
 	// Brand
 	brandRepository := brand.NewDBRepository(gormDB)
-	brandService := brand.NewService(brandRepository, channelRepository)
+	brandService := brand.NewService(brandRepository, channelRepository, paymentRepository)
 	brandHandler := brand.NewHandler(brandService)
 	brandRoutes := brand.NewRoutes(brandHandler)
-
-	// Status
-	statusRepository := status.NewDBRepository(gormDB)
-	statusService := status.NewService(statusRepository)
-	statusHandler := status.NewHandler(statusService)
-	statusRoutes := status.NewRoutes(statusHandler)
 
 	// Client
 	clientRepository := client.NewDBRepository(gormDB)
@@ -201,9 +209,13 @@ func main() {
 		tableRepository,
 		productRepository,
 		invoiceRepository,
-		statusRepository,
 		accountRepository,
-		shiftRepository)
+		shiftRepository,
+		rabbitCh,
+		paymentService,
+		discountRepository,
+		channelRepository,
+	)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)
 
@@ -213,19 +225,14 @@ func main() {
 	courseHandler := course.NewHandler(courseService)
 	courseRoutes := course.NewRoutes(courseHandler)
 
-	// Payment
-	paymentRepository := payment.NewDBRepository(gormDB)
-	paymentService := payment.NewService(paymentRepository)
-	paymentHandler := payment.NewHandler(paymentService)
-	paymentRoutes := payment.NewRoutes(paymentHandler)
-
 	// Temporal
 	temporalHandler := temporal.NewHandler()
 	temporalRoutes := temporal.NewRoutes(temporalHandler)
 
 	// CashAudit
-	cashAuditRepository := cashaudit.NewService(storeRepository, orderRepository, invoiceRepository, shiftRepository)
-	cashAuditHandler := cashaudit.NewHandler(cashAuditRepository)
+	cashAuditRepository := cashaudit.NewDBRepository(gormDB)
+	cashAuditService := cashaudit.NewService(cashAuditRepository, storeRepository, orderRepository, invoiceRepository, shiftRepository)
+	cashAuditHandler := cashaudit.NewHandler(cashAuditService)
 	cashAuditRoutes := cashaudit.NewRoutes(cashAuditHandler)
 
 	// Assets
@@ -252,7 +259,6 @@ func main() {
 		Channel:      channelRoutes,
 		Availability: availabilityRoutes,
 		Order:        orderRoutes,
-		Status:       statusRoutes,
 		Invoice:      invoiceRoutes,
 		Account:      accountRoutes,
 		Course:       courseRoutes,

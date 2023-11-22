@@ -2,6 +2,7 @@ package tables
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
@@ -18,9 +19,10 @@ func NewTableRepository(db *gorm.DB) *tableRepository {
 }
 
 func (r tableRepository) Get(id string) (*Table, error) {
-	if id == "" {
-		shared.LogWarn("error getting table", LogRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(id) == "" {
+		err := fmt.Errorf(ErrorTableIDEmpty)
+		shared.LogWarn("error getting table", LogRepository, "Get", err)
+		return nil, err
 	}
 
 	var table Table
@@ -109,8 +111,9 @@ func (r tableRepository) SetOrder(tableID, orderID *uint) (*Table, error) {
 
 func (r tableRepository) RemoveOrder(tableID *uint) (*Table, error) {
 	if tableID == nil {
-		shared.LogWarn("tableId is null, releasing table", LogRepository, "RemoveOrder", nil, nil)
-		return nil, nil
+		err := fmt.Errorf(ErrorTableIDEmpty)
+		shared.LogError("tableId is null, releasing table", LogRepository, "RemoveOrder", err, nil)
+		return nil, err
 	}
 
 	var table Table

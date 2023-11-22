@@ -1,8 +1,10 @@
 package brand
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
+	"strings"
 )
 
 const LogDBRepository = "pkg/brand/db_repository"
@@ -39,9 +41,10 @@ func (r *DBRepository) Find(filters map[string]string) ([]Brand, error) {
 
 // Get method for get a brand in database
 func (r *DBRepository) Get(brandID string) (*Brand, error) {
-	if brandID == "" {
-		shared.LogWarn("error getting brand", LogDBRepository, "Get", shared.ErrorIDEmpty)
-		return nil, shared.ErrorIDEmpty
+	if strings.TrimSpace(brandID) == "" {
+		err := fmt.Errorf(ErrorBrandIDEmpty)
+		shared.LogWarn("error getting brand", LogDBRepository, "Get", err)
+		return nil, err
 	}
 
 	var brand Brand

@@ -2,25 +2,34 @@ package order
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
+	"github.com/BacoFoods/menu/internal"
 	accounts "github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/channel"
+	"github.com/BacoFoods/menu/pkg/client"
+	"github.com/BacoFoods/menu/pkg/discount"
+	"github.com/BacoFoods/menu/pkg/invoice"
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
+	"github.com/BacoFoods/menu/pkg/payment"
 	products "github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
 	shifts "github.com/BacoFoods/menu/pkg/shift"
-	statuses "github.com/BacoFoods/menu/pkg/status"
 	"github.com/BacoFoods/menu/pkg/tables"
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 const (
-	ErrorOrderFind string = "error finding orders"
-	LogService     string = "pkg/order/service"
+	LogService string = "pkg/order/service"
 )
 
 type Service interface {
 	Create(order *Order, ctx context.Context) (*Order, error)
+	Update(order *Order) (*Order, error)
 	UpdateTable(orderID, tableID uint64) (*Order, error)
 	Get(string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
@@ -28,7 +37,8 @@ type Service interface {
 	AddProducts(orderID string, orderItem []OrderItem) (*Order, error)
 	RemoveProduct(orderID, productID string) (*Order, error)
 	UpdateProduct(product *OrderItem) (*Order, error)
-	UpdateStatus(orderID, statusCode string) (*Order, error)
+	UpdateStatusNext(orderID string) (*Order, error)
+	UpdateStatusPrev(orderID string) (*Order, error)
 	ReleaseTable(orderID string) (*Order, error)
 	UpdateComments(orderID, comments string) (*Order, error)
 	UpdateClientName(orderID, clientName string) (*Order, error)
@@ -40,8 +50,20 @@ type Service interface {
 	GetOrderType(orderTypeID string) (*OrderType, error)
 	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
 	DeleteOrderType(orderTypeID string) error
-	CreateInvoice(orderID string) (*invoices.Invoice, error)
-	CalculateInvoice(orderID string) (*invoices.Invoice, error)
+	CreateInvoice(orderID string, att *Attendee, tip *TipData, discounts []uint) (*invoices.Invoice, error)
+	CalculateInvoice(orderID string, req CalculateInvoiceRequest) (*invoices.Invoice, error)
+	CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoices.Invoice, error)
+	Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error)
+
+	CloseInvoice(CloseInvoiceRequest) (*invoices.Invoice, error)
+}
+
+type discountsSrv interface {
+	GetMany([]uint) ([]discount.Discount, error)
+}
+
+type channelSrv interface {
+	Get(string) (*channel.Channel, error)
 }
 
 type service struct {
@@ -49,25 +71,35 @@ type service struct {
 	table      tables.Repository
 	product    products.Repository
 	invoice    invoices.Repository
-	status     statuses.Repository
 	account    accounts.Repository
 	shift      shifts.Repository
+	rt         *internal.Rabbit
+	payments   payment.Service
+	discounts  discountsSrv
+	channel    channelSrv
 }
 
 func NewService(repository Repository,
 	table tables.Repository,
 	product products.Repository,
 	invoice invoices.Repository,
-	status statuses.Repository,
 	account accounts.Repository,
-	shift shifts.Repository) service {
+	shift shifts.Repository,
+	rt *internal.Rabbit,
+	payments payment.Service,
+	discounts discountsSrv,
+	channel channelSrv,
+) service {
 	return service{repository,
 		table,
 		product,
 		invoice,
-		status,
 		account,
 		shift,
+		rt,
+		payments,
+		discounts,
+		channel,
 	}
 }
 
@@ -89,15 +121,15 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 		return nil, fmt.Errorf(ErrorOrderCreation)
 	}
 
-	if len(prods) == 0 {
+	if len(prods) == 0 && len(productIDs) > 0 {
 		return nil, fmt.Errorf(ErrorOrderProductsNotFound)
 	}
 
 	order.SetItems(prods, modifiers)
-	order.ToInvoice()
+	// order.ToInvoice(nil) // TODO: check if this is needed for oit, commented because it was causing an error duplicating invoice
 
 	// Setting order status
-	order.CurrentStatus = StatusCreate
+	order.CurrentStatus = OrderStatusCreated
 
 	// Setting order attendees
 	username := ""
@@ -117,6 +149,22 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 		channelIDInt, _ := strconv.Atoi(value.(string))
 		channelID = uint(channelIDInt)
 	}
+	if channelID == 0 && order.ChannelID != nil {
+		shared.LogWarn("invalid channel from context - using channelID from request", LogService, "Create", nil, channelID)
+		channelID = *order.ChannelID
+	}
+
+	channel, err := s.channel.Get(fmt.Sprint(channelID))
+	if err == gorm.ErrRecordNotFound {
+		shared.LogWarn("channel not found", LogService, "Create", err, channelID)
+		return nil, errors.New("channel not found")
+	}
+
+	if err != nil {
+		shared.LogWarn("error getting channel", LogService, "Create", err, channelID)
+		return nil, err
+	}
+
 	brandID := uint(0)
 	if value := ctx.Value("brand_id"); value != nil {
 		brandIDInt, _ := strconv.Atoi(value.(string))
@@ -138,7 +186,7 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 		order.ShiftID = &shift.ID
 	}
 
-	newOrder, err := s.repository.Create(order)
+	newOrder, err := s.repository.Create(order, channel)
 	if err != nil {
 		shared.LogError("error creating order", LogService, "Create", err, *order)
 		return nil, fmt.Errorf(ErrorOrderCreation)
@@ -176,10 +224,21 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 		shared.LogError("error creating attendee", LogService, "Create", err, *attendee)
 	}
 
+	// Post the comanda to firebase
+	go func() {
+		shared.LogInfo(fmt.Sprint(newOrder.Items), LogService, "Create", nil)
+		err := s.queueComanda(newOrder.ID, newOrder.TableID, newOrder.StoreID, newOrder.Items)
+		if err != nil {
+			shared.LogError("error pushing order to firebase", LogService, "Create", err)
+		}
+	}()
+
 	// Setting table
 	// TODO: Send create order and set table to repository to make a trx and rollback if error to avoid has order without table
-	if _, err := s.table.SetOrder(newOrder.TableID, &newOrder.ID); err != nil {
-		return nil, err
+	if newOrder.TableID != nil && *newOrder.TableID != 0 {
+		if _, err := s.table.SetOrder(newOrder.TableID, &newOrder.ID); err != nil {
+			return nil, err
+		}
 	}
 
 	// Getting order updated from db
@@ -190,6 +249,10 @@ func (s service) Create(order *Order, ctx context.Context) (*Order, error) {
 	}
 
 	return orderDB, nil
+}
+
+func (s service) Update(order *Order) (*Order, error) {
+	return s.repository.Update(order)
 }
 
 func (s service) UpdateTable(orderID, tableID uint64) (*Order, error) {
@@ -265,6 +328,12 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
+	if order.CurrentStatus != OrderStatusCreated {
+		err := fmt.Errorf(ErrorOrderAddProductsForbiddenByStatus)
+		shared.LogError("error adding products", LogService, "AddProduct", err, orderID)
+		return nil, err
+	}
+
 	productIDs := make([]string, len(orderItems))
 	modifierIDs := make([]string, 0)
 	for i, item := range orderItems {
@@ -288,6 +357,7 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 		return nil, fmt.Errorf(ErrorOrderProductGetting)
 	}
 
+	newOrderItems := make([]OrderItem, 0)
 	errors := ""
 	for _, item := range orderItems {
 		productID := fmt.Sprintf("%d", *item.ProductID)
@@ -319,8 +389,7 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 				Comments:    mod.Comments,
 			}
 		}
-
-		order.AddProduct(OrderItem{
+		newItem := OrderItem{
 			OrderID:     &order.ID,
 			ProductID:   item.ProductID,
 			Name:        product.Name,
@@ -332,18 +401,34 @@ func (s service) AddProducts(orderID string, orderItems []OrderItem) (*Order, er
 			Comments:    item.Comments,
 			Course:      item.Course,
 			Modifiers:   modifiers,
-		})
+		}
+
+		newOrderItems = append(newOrderItems, newItem)
 	}
 
 	if errors != "" {
 		return nil, fmt.Errorf(errors)
 	}
 
-	orderDB, err := s.repository.Update(order)
+	//	this sets the OrderItem.ID and appends the list to the orignal list of items in the order
+	orderDB, err := s.repository.AddProducts(order, newOrderItems)
 	if err != nil {
 		shared.LogError("error updating order", LogService, "AddProduct", err, *order)
 		return nil, fmt.Errorf(ErrorOrderUpdate)
 	}
+
+	if orderDB != nil && len(orderDB.Invoices) != 0 {
+		// TODO: improve this to handle multiple invoices
+		orderDB.ToInvoice(nil)
+	}
+
+	// Post the comanda to firebase
+	go func() {
+		err := s.queueComanda(order.ID, order.TableID, order.StoreID, newOrderItems)
+		if err != nil {
+			shared.LogError("error queuing comanda", LogService, "AddProduct", err)
+		}
+	}()
 
 	return orderDB, nil
 }
@@ -386,25 +471,34 @@ func (s service) UpdateProduct(product *OrderItem) (*Order, error) {
 	return order, nil
 }
 
-func (s service) UpdateStatus(orderID, statusCode string) (*Order, error) {
+func (s service) UpdateStatusNext(orderID string) (*Order, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
-		shared.LogError("error getting order", LogService, "UpdateStatus", err, orderID)
+		shared.LogError("error getting order", LogService, "UpdateStatusNext", err, orderID)
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	status, err := s.status.GetByCode(statusCode)
-	if err != nil {
-		shared.LogError("error getting status", LogService, "UpdateStatus", err, status)
-		return nil, fmt.Errorf(ErrorOrderGettingStatus)
-	}
-
-	if err := order.UpdateStatus(status); err != nil {
-		return nil, err
-	}
+	order.UpdateNextStatus()
 
 	if _, err := s.repository.Update(order); err != nil {
-		shared.LogError("error updating order", LogService, "UpdateStatus", err, *order)
+		shared.LogError("error updating order status", LogService, "UpdateStatusNext", err, *order)
+		return nil, fmt.Errorf(ErrorOrderUpdateStatus)
+	}
+
+	return order, nil
+}
+
+func (s service) UpdateStatusPrev(orderID string) (*Order, error) {
+	order, err := s.repository.Get(orderID)
+	if err != nil {
+		shared.LogError("error getting order", LogService, "UpdateStatusPrev", err, orderID)
+		return nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	order.UpdatePrevStatus()
+
+	if _, err := s.repository.Update(order); err != nil {
+		shared.LogError("error updating order status", LogService, "UpdateStatusPrev", err, *order)
 		return nil, fmt.Errorf(ErrorOrderUpdateStatus)
 	}
 
@@ -429,13 +523,11 @@ func (s service) ReleaseTable(orderID string) (*Order, error) {
 
 	order.TableID = nil
 	order.Table = nil
-	orderDB, err := s.repository.Update(order)
-	if err != nil {
-		shared.LogError("error updating order", LogService, "ReleaseTable", err, *order)
-		return nil, fmt.Errorf(ErrorOrderUpdate)
+	if err := s.repository.Delete(fmt.Sprintf("%d", order.ID)); err != nil {
+		return nil, err
 	}
 
-	return orderDB, nil
+	return order, nil
 }
 
 func (s service) AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error) {
@@ -529,35 +621,248 @@ func (s service) DeleteOrderType(orderTypeID string) error {
 
 // Invoice
 
-func (s service) CreateInvoice(orderID string) (*invoices.Invoice, error) {
+func (s service) CreateInvoice(orderID string, att *Attendee, tip *TipData, discountsIds []uint) (*invoices.Invoice, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "CreateInvoice", err, orderID)
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	order.ToInvoice()
+	discounts, err := s.discounts.GetMany(discountsIds)
+	if err != nil {
+		shared.LogError("error getting discounts", LogService, "CreateInvoice", err, discounts)
+		return nil, fmt.Errorf(ErrorOrderInvoiceCreationDiscounts)
+	}
 
-	invoice := order.Invoices[0]
+	order.ToInvoice(tip, discounts...)
+	if err := order.UpdateStatus(OrderStatusPaying); err != nil {
+		shared.LogError("error updating order status", LogService, "CreateInvoice", err, order)
+		return nil, fmt.Errorf(ErrorOrderUpdateStatus)
+	}
+	if _, err := s.repository.Update(order); err != nil {
+		shared.LogError("error updating order", LogService, "CreateInvoice", err, order)
+		return nil, fmt.Errorf(ErrorOrderUpdate)
+	}
+
+	invoice := order.Invoices[0] // TODO: work with multiple invoices
+	if att != nil {
+		invoice.Cashier = att.Name
+	}
+
+	for _, at := range order.Attendees {
+		if at.Action == OrderActionCreated {
+			invoice.Waiter = at.Name
+			break
+		}
+	}
+
 	invoiceDB, err := s.invoice.CreateUpdate(&invoice)
 	if err != nil {
 		shared.LogError("error creating invoice", LogService, "CreateInvoice", err, invoice)
 		return nil, fmt.Errorf(invoices.ErrorInvoiceCreation)
 	}
 
+	if att != nil {
+		att.OrderID = order.ID
+		att.Action = OrderActionInvoiced
+		att.OrderStep = OrderStepInvoiced
+
+		go s.repository.CreateAttendee(att)
+	}
+
 	return invoiceDB, nil
 }
 
-func (s service) CalculateInvoice(orderID string) (*invoices.Invoice, error) {
+func (s service) CalculateInvoice(orderID string, req CalculateInvoiceRequest) (*invoices.Invoice, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
-		shared.LogError("error getting order", LogService, "CreateInvoice", err, orderID)
+		shared.LogError("error getting order", LogService, "CalculateInvoice", err, orderID)
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	order.ToInvoice()
+	discounts, err := s.discounts.GetMany(req.Discounts)
+	if err != nil {
+		shared.LogError("error getting discounts", LogService, "CalculateInvoice", err, req.Discounts)
+	}
+
+	order.ToInvoice(&TipData{
+		Percentage: req.TipPercentage,
+		Amount:     req.TipAmount,
+	}, discounts...)
 	invoice := order.Invoices[0]
-	invoice.CalculateTaxDetails()
 
 	return &invoice, nil
 }
+
+func (s service) CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoices.Invoice, error) {
+	order, err := s.repository.Get(orderID)
+	if err != nil {
+		shared.LogError("error getting order", LogService, "CreateInvoice", err, orderID)
+		return nil, nil, fmt.Errorf(ErrorOrderGetting)
+	}
+
+	dbInvoices, err := s.invoice.Find(map[string]any{"order_id": orderID})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var oldInvoice *invoices.Invoice
+	if len(dbInvoices) > 0 {
+		oldInvoice = &dbInvoices[0]
+		payments := []payment.Payment{}
+		for _, payment := range oldInvoice.Payments {
+			if payment.Status != "canceled" {
+				payments = append(payments, payment)
+			}
+		}
+		oldInvoice.Payments = payments
+	}
+
+	order.ToInvoice(nil)
+	newInvoice := order.Invoices[0]
+	newInvoice.CalculateTaxDetails()
+
+	return &newInvoice, oldInvoice, nil
+}
+
+func (s service) Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error) {
+	invoice, err := s.CalculateInvoice(orderID, CalculateInvoiceRequest{
+		TipAmount: &data.Tip,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// invoice.Tip = "percentage"
+	// invoice.TipAmount = data.Tip
+
+	// TODO: load client data from ecom
+	if data.CustomerID != nil && *data.CustomerID != "" {
+		invoice.Client = &client.Client{
+			CustomerID: data.CustomerID,
+		}
+	}
+
+	invoices, err := s.invoice.Find(map[string]any{"order_id": orderID})
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: asumiendo que solo hay un invoice, con split the bill cambia
+	if len(invoices) > 0 {
+		oldInvoice := invoices[0]
+		invoice.ID = oldInvoice.ID
+	}
+
+	// TODO: Se estan creando multiples invoices
+	invDB, err := s.invoice.CreateUpdate(invoice)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: @Anderson aca se debe pasar el estado de la orden a pagando
+
+	// Paylot immutable
+	payment, err := s.payments.CreatePaymentWithPaylot(invDB.ID, invDB.Total, invDB.TipAmount, data.CustomerID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &InvoiceCheckout{
+		Payment: payment,
+		Invoice: invDB,
+	}, nil
+}
+
+func (s *service) queueComanda(orderId uint, tableId *uint, storeId *uint, items []OrderItem) error {
+	if len(items) == 0 {
+		logrus.Info("comanda for order ", orderId, " is empty")
+		return nil
+	}
+
+	// Timestamp in millis
+	logrus.Info("comanda for order ", orderId, " sent")
+	ts := time.Now().Unix() * 1000
+	data := struct {
+		OrderId   uint        `json:"order_id"`
+		TableId   *uint       `json:"table_id"`
+		Items     []OrderItem `json:"items"`
+		Timestamp int64       `json:"timestamp"`
+	}{orderId, tableId, items, ts}
+
+	err := s.rt.PutContent(data)
+
+	if err != nil {
+		shared.LogError("error queuing comanda", LogService, "queueComanda", err)
+	}
+
+	return err
+}
+
+// CloseInvoice closes an invoice.
+func (s service) CloseInvoice(req CloseInvoiceRequest) (*invoice.Invoice, error) {
+	invoice, err := s.invoice.Get(req.InvoiceID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validating order status
+	order, err := s.repository.Get(fmt.Sprint(*invoice.OrderID))
+	if err != nil {
+		return nil, err
+	}
+
+	if order.CurrentStatus == OrderStatusClosed {
+		return nil, fmt.Errorf(ErrorOrderClosed)
+	}
+
+	// Setting payment
+	nPayments := make([]payment.Payment, 0)
+	for _, p := range req.Payments {
+		nPayments = append(nPayments, payment.Payment{
+			InvoiceID:  &invoice.ID,
+			Method:     p.Method,
+			Quantity:   p.Quantity,
+			Tip:        p.Tip,
+			TotalValue: p.Quantity + p.Tip,
+			Status:     payment.PaymentStatusPaid,
+			Code:       p.Code,
+		})
+	}
+	invoice.Payments = append(invoice.Payments, nPayments...)
+	invoice.PaymentsObservation = req.Observations
+
+	// Saving invoice changes
+	invDB, err := s.invoice.CreateUpdate(invoice)
+	if err != nil {
+		return nil, err
+	}
+
+	// Updating order status
+	order.CurrentStatus = OrderStatusClosed
+	order.Statuses = append(order.Statuses, OrderStatus{
+		Code:    OrderStatusClosed,
+		OrderID: &order.ID,
+	})
+	now := time.Now()
+	order.ClosedAt = &now
+
+	if _, err := s.repository.Update(order); err != nil {
+		return nil, err
+	}
+
+	// Setting attendee
+	att := req.attendee
+	if att == nil {
+		newAtt := &Attendee{
+			OrderID:   order.ID,
+			Action:    OrderActionClosed,
+			OrderStep: OrderStepClosed,
+		}
+		go s.repository.CreateAttendee(newAtt)
+	}
+
+	return invDB, nil
+}
+
+var _ Service = &service{}
