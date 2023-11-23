@@ -109,7 +109,7 @@ func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 		Preload(clause.Associations).
 		Preload("Items.Modifiers").
 		Where(filter).
-		Order("id DESC").
+		Order("created_at DESC").
 		Find(&orders).Error; err != nil {
 		shared.LogError("error finding orders", LogDBRepository, "Find", err, filter)
 		return nil, err
