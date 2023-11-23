@@ -8,6 +8,7 @@ import (
 	gormpostgres "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"strings"
+	"time"
 )
 
 type Many2ManyEntity interface {
@@ -25,7 +26,12 @@ func MustNewGormFramework(customDSN string) *GormFramework {
 	}
 
 	logrus.Debugf("Connecting to database: %s", escapeDSN(customDSN))
-	db, err := gorm.Open(gormpostgres.Open(dsn()), &gorm.Config{TranslateError: true})
+	db, err := gorm.Open(gormpostgres.Open(dsn()), &gorm.Config{
+		TranslateError: true,
+		NowFunc: func() time.Time {
+			return time.Now().UTC().Add(-5 * time.Hour)
+		},
+	})
 	if err != nil {
 		logrus.Fatalf("error connecting to database: %s", escapeDSN(customDSN))
 		return nil

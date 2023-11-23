@@ -96,16 +96,20 @@ func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 	tx := r.db.
 		Preload(clause.Associations).
 		Preload("Items.Modifiers")
-
 	if days, ok := filter["days"]; ok {
-		tx.Where(fmt.Sprintf("created_at >= NOW() - INTERVAL '%s' DAY", days))
+		tx.Preload(clause.Associations).
+			Preload("Items.Modifiers").
+			Where(fmt.Sprintf("created_at >= NOW() - INTERVAL '%s' DAY", days))
 		shared.LogWarn("filtering by days", LogDBRepository, "Find", nil, filter)
 		delete(filter, "days")
 	}
 
 	var orders []Order
 	if err := tx.
+		Preload(clause.Associations).
+		Preload("Items.Modifiers").
 		Where(filter).
+		Order("created_at DESC").
 		Find(&orders).Error; err != nil {
 		shared.LogError("error finding orders", LogDBRepository, "Find", err, filter)
 		return nil, err
