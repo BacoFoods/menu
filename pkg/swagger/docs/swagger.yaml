@@ -714,7 +714,7 @@ definitions:
         type: number
       tip_percentage:
         description: Optional value between 0 and 100
-        type: integer
+        type: number
     type: object
   order.CheckoutRequest:
     properties:
@@ -752,7 +752,7 @@ definitions:
         type: number
       tip_percentage:
         description: Optional value between 0 and 100
-        type: integer
+        type: number
     type: object
   order.Order:
     properties:
@@ -5471,12 +5471,6 @@ paths:
       - application/json
       description: To create an invoice
       parameters:
-      - description: Order
-        in: body
-        name: order
-        required: true
-        schema:
-          $ref: '#/definitions/order.OrderDTO'
       - description: Order ID
         in: path
         name: id

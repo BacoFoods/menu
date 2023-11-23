@@ -827,7 +827,6 @@ type CreateInvoiceRequest struct {
 // @Tags Order
 // @Summary To create an invoice
 // @Description To create an invoice
-// @Param order body OrderDTO true "Order"
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth

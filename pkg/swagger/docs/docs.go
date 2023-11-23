@@ -6823,15 +6823,6 @@ const docTemplate = `{
                 "summary": "To create an invoice",
                 "parameters": [
                     {
-                        "description": "Order",
-                        "name": "order",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/order.OrderDTO"
-                        }
-                    },
-                    {
                         "type": "string",
                         "description": "Order ID",
                         "name": "id",
@@ -13612,7 +13603,7 @@ const docTemplate = `{
                 },
                 "tip_percentage": {
                     "description": "Optional value between 0 and 100",
-                    "type": "integer"
+                    "type": "number"
                 }
             }
         },
@@ -13668,7 +13659,7 @@ const docTemplate = `{
                 },
                 "tip_percentage": {
                     "description": "Optional value between 0 and 100",
-                    "type": "integer"
+                    "type": "number"
                 }
             }
         },
