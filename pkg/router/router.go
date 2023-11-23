@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/BacoFoods/menu/pkg/cashaudit"
+	"github.com/BacoFoods/menu/pkg/facturacion"
 
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
@@ -91,6 +92,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Temporal.RegisterRoutes(private)
 	routes.CashAudit.RegisterRoutes(private)
 	routes.Assets.RegisterRoutes(private)
+	routes.Facturacion.RegisterRoutes(private)
 
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
@@ -132,4 +134,5 @@ type RoutesGroup struct {
 	Temporal     temporal.Routes
 	CashAudit    cashaudit.Routes
 	Assets       assets.Routes
+	Facturacion  facturacion.Routes
 }

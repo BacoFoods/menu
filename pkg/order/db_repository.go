@@ -56,6 +56,7 @@ func (r *DBRepository) Get(orderID string) (*Order, error) {
 	var order Order
 	if err := r.db.
 		Preload(clause.Associations).
+		Preload("Invoices.Documents").
 		Preload("Items.Modifiers").
 		First(&order, orderID).Error; err != nil {
 		shared.LogError("error getting order", LogDBRepository, "Get", err, orderID)

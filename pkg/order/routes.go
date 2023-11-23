@@ -29,6 +29,7 @@ func (r Routes) RegisterRoutes(private, public *gin.RouterGroup) {
 	private.PATCH("/order/:id/update/product", r.handler.UpdateProduct)
 	private.PATCH("/order/:id/update/comments", r.handler.UpdateComments)
 	private.PATCH("/order/:id/update/client-name", r.handler.UpdateClientName)
+	private.PATCH("/order/:id/update/status", r.handler.UpdateStatus)
 	private.POST("/order/:id/release-table", r.handler.ReleaseTable)
 
 	// Order Item

@@ -18,6 +18,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/currency"
 	"github.com/BacoFoods/menu/pkg/database"
 	"github.com/BacoFoods/menu/pkg/discount"
+	"github.com/BacoFoods/menu/pkg/facturacion"
 	"github.com/BacoFoods/menu/pkg/healthcheck"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/menu"
@@ -80,6 +81,8 @@ func main() {
 		&assets.Asset{},
 		&cashaudit.CashAudit{},
 		&cashaudit.Income{},
+		&facturacion.FacturacionConfig{},
+		&invoice.Document{},
 	)
 
 	rabbitCh := internal.MustNewRabbitMQ(internal.Config.RabbitConfig.ComandasQueue, internal.Config.RabbitConfig.Host, internal.Config.RabbitConfig.Port)
@@ -185,6 +188,12 @@ func main() {
 	clientHandler := client.NewHandler(clientService)
 	clientRoutes := client.NewRoutes(clientHandler)
 
+	// Facturacion
+	facturacionRepository := facturacion.NewRepository(gormDB)
+	facturacionService := facturacion.NewService(*facturacionRepository)
+	facturacionHandler := facturacion.NewHandler(facturacionService)
+	facturacionRoutes := facturacion.NewRoutes(facturacionHandler)
+
 	// Invoice
 	invoiceRepository := invoice.NewDBRepository(gormDB)
 	invoiceService := invoice.NewService(invoiceRepository, clientRepository)
@@ -215,6 +224,7 @@ func main() {
 		paymentService,
 		discountRepository,
 		channelRepository,
+		facturacionService,
 	)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)
@@ -268,6 +278,7 @@ func main() {
 		Temporal:     temporalRoutes,
 		CashAudit:    cashAuditRoutes,
 		Assets:       assetsRoutes,
+		Facturacion:  facturacionRoutes,
 	}
 
 	// Run server

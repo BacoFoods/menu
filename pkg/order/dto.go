@@ -124,9 +124,14 @@ type InvoiceCheckout struct {
 }
 
 type CalculateInvoiceRequest struct {
-	TipPercentage *int     `json:"tip_percentage"`
-	TipAmount     *float64 `json:"tip_amount"`
-	Discounts     []uint   `json:"discounts"`
+	// Optional value between 0 and 100
+	TipPercentage *float64 `json:"tip_percentage"`
+
+	// Optional value grater than 0
+	TipAmount *float64 `json:"tip_amount"`
+
+	// List of discount IDs to apply to the invoice
+	Discounts []uint `json:"discounts"`
 }
 
 func (r CalculateInvoiceRequest) GetTip() *TipData {
