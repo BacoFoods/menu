@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/BacoFoods/menu/pkg/scheduler"
 	"net/http"
+
+	"github.com/BacoFoods/menu/pkg/connector"
+	"github.com/BacoFoods/menu/pkg/scheduler"
 
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
@@ -85,6 +87,7 @@ func main() {
 		&facturacion.FacturacionConfig{},
 		&invoice.Document{},
 		&scheduler.Schedule{},
+		&connector.Equivalence{},
 	)
 
 	rabbitCh := internal.MustNewRabbitMQ(internal.Config.RabbitConfig.ComandasQueue, internal.Config.RabbitConfig.Host, internal.Config.RabbitConfig.Port)
@@ -259,6 +262,12 @@ func main() {
 	scheduleHandler := scheduler.NewHandler(scheduleService)
 	scheduleRoutes := scheduler.NewRoutes(scheduleHandler)
 
+	// Equivalence
+	equivalenceRepository := connector.NewDBRepository(gormDB)
+	equivalenceService := connector.NewService(equivalenceRepository, invoiceRepository, storeRepository)
+	equivalenceHandler := connector.NewHandler(equivalenceService)
+	equivalenceRoutes := connector.NewRoutes(equivalenceHandler)
+
 	// Routes
 	routes := &router.RoutesGroup{
 		HealthCheck:  healthcheckRoutes,
@@ -288,6 +297,7 @@ func main() {
 		Assets:       assetsRoutes,
 		Facturacion:  facturacionRoutes,
 		Schedule:     scheduleRoutes,
+		Equivalence:  equivalenceRoutes,
 	}
 
 	// Run server

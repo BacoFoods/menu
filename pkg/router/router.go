@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/assets"
@@ -13,6 +14,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/client"
+	"github.com/BacoFoods/menu/pkg/connector"
 	"github.com/BacoFoods/menu/pkg/country"
 	"github.com/BacoFoods/menu/pkg/course"
 	"github.com/BacoFoods/menu/pkg/currency"
@@ -93,6 +95,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Assets.RegisterRoutes(private)
 	routes.Facturacion.RegisterRoutes(private)
 	routes.Schedule.RegisterRoutes(private)
+	routes.Equivalence.RegisterRoutes(private)
 
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
@@ -136,4 +139,5 @@ type RoutesGroup struct {
 	Assets       assets.Routes
 	Facturacion  facturacion.Routes
 	Schedule     scheduler.Routes
+	Equivalence  connector.Routes
 }

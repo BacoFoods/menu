@@ -2672,6 +2672,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/connector": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Handles a request to create an Excel file containing orders invoice.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/vnd.ms-excel"
+                ],
+                "tags": [
+                    "Connector"
+                ],
+                "summary": "Generate an Excel file with orders",
+                "parameters": [
+                    {
+                        "description": "Request body for creating Excel file",
+                        "name": "connector",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/connector.RequestExcelCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with Excel file",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request response",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity response",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error response",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/country": {
             "get": {
                 "security": [
@@ -4115,6 +4172,72 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/discount.Discount"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/equivalence": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To create an equivalence",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Connector"
+                ],
+                "summary": "To create an equivalence",
+                "parameters": [
+                    {
+                        "description": "equivalence request",
+                        "name": "equivalence",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/connector.Equivalence"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/connector.Equivalence"
                                         },
                                         "status": {
                                             "type": "string"
@@ -13849,6 +13972,37 @@ const docTemplate = `{
                 }
             }
         },
+        "connector.Equivalence": {
+            "type": "object",
+            "properties": {
+                "channel_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "siesa_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "connector.RequestExcelCreate": {
+            "type": "object",
+            "properties": {
+                "end_date": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "string"
+                }
+            }
+        },
         "country.Country": {
             "type": "object",
             "properties": {
@@ -15297,7 +15451,13 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "ops_center": {
+                    "type": "string"
+                },
                 "phone": {
+                    "type": "string"
+                },
+                "warehouse": {
                     "type": "string"
                 }
             }

@@ -1,8 +1,9 @@
 package store
 
 import (
-	"github.com/BacoFoods/menu/pkg/country"
 	"time"
+
+	"github.com/BacoFoods/menu/pkg/country"
 
 	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/tables"
@@ -25,24 +26,26 @@ const (
 )
 
 type Store struct {
-	ID        uint              `json:"id"`
-	Code      string            `json:"code"`
-	Name      string            `json:"name"`
-	BrandID   *uint             `json:"brand_id"`
-	Enabled   bool              `json:"enabled"`
-	Email     string            `json:"email"`
-	Phone     string            `json:"phone"`
-	Image     string            `json:"image"`
-	City      string            `json:"city"`
-	CountryID *uint             `json:"country_id"`
-	Country   *country.Country  `json:"country" gorm:"foreignKey:CountryID"`
-	Channels  []channel.Channel `json:"channels,omitempty" gorm:"many2many:store_channels;" swaggerignore:"true"`
-	Latitude  float64           `json:"latitude"`
-	Longitude float64           `json:"longitude"`
-	Address   string            `json:"address"`
-	CreatedAt *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID         uint              `json:"id"`
+	Code       string            `json:"code"`
+	Name       string            `json:"name"`
+	BrandID    *uint             `json:"brand_id"`
+	Wharehouse string            `json:"warehouse"`
+	OpsCenter  string            `json:"ops_center"`
+	Enabled    bool              `json:"enabled"`
+	Email      string            `json:"email"`
+	Phone      string            `json:"phone"`
+	Image      string            `json:"image"`
+	City       string            `json:"city"`
+	CountryID  *uint             `json:"country_id"`
+	Country    *country.Country  `json:"country" gorm:"foreignKey:CountryID"`
+	Channels   []channel.Channel `json:"channels,omitempty" gorm:"many2many:store_channels;" swaggerignore:"true"`
+	Latitude   float64           `json:"latitude"`
+	Longitude  float64           `json:"longitude"`
+	Address    string            `json:"address"`
+	CreatedAt  *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt  *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt  *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type Repository interface {
