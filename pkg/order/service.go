@@ -705,6 +705,13 @@ func (s service) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, err
 		return nil, fmt.Errorf(ErrorOrderUpdate)
 	}
 
+	// release table
+	if order.TableID != nil && *order.TableID != 0 {
+		if _, err := s.table.RemoveOrder(order.TableID); err != nil {
+			return nil, err
+		}
+	}
+
 	if req.attendee != nil {
 		req.attendee.OrderID = order.ID
 		req.attendee.Action = OrderActionInvoiced
