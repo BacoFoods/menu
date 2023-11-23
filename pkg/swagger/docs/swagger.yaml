@@ -108,6 +108,81 @@ definitions:
     - pin
     - store_id
     type: object
+  assets.Asset:
+    properties:
+      actual_purchase_date:
+        example: "2022-10-01"
+        type: string
+      asset_name:
+        example: Asset Name
+        type: string
+      asset_name_siesa:
+        example: Asset Siesa
+        type: string
+      barcode:
+        example: BARCODE001
+        type: string
+      category:
+        example: Category A
+        type: string
+      contract:
+        example: CON001
+        type: string
+      current_cost_center:
+        example: 1001
+        type: integer
+      current_location:
+        example: Location A
+        type: string
+      custodian:
+        example: John Doe
+        type: string
+      invoice:
+        example: INV123
+        type: string
+      invoice_initial_location:
+        example: Location A
+        type: string
+      invoice_link:
+        example: http://example.com/invoice/INV123
+        type: string
+      official_placa:
+        example: OFFPLACA123
+        type: string
+      operation_code_siesa:
+        example: OP123
+        type: string
+      operation_name_siesa:
+        example: Operation
+        type: string
+      placa:
+        example: PLACA123
+        type: string
+      price:
+        example: 1000.5
+        type: number
+      provider_name:
+        example: Provider Inc.
+        type: string
+      provider_nit:
+        example: "123456789"
+        type: string
+      purchase_date:
+        example: "2022-10-10"
+        type: string
+      purchase_invoice:
+        example: INV001
+        type: string
+      reference:
+        example: REF001
+        type: string
+      renting:
+        example: false
+        type: boolean
+      type:
+        example: SIESA
+        type: string
+    type: object
   availability.EnableRequest:
     properties:
       enable:
@@ -1541,6 +1616,64 @@ paths:
       summary: To delete an account
       tags:
       - Account
+  /assets:
+    post:
+      consumes:
+      - application/json
+      description: Create a new asset
+      parameters:
+      - description: Asset to be created
+        in: body
+        name: asset
+        required: true
+        schema:
+          $ref: '#/definitions/assets.Asset'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/assets.Asset'
+      summary: Create a new asset
+      tags:
+      - Assets
+  /assets/{code}:
+    get:
+      consumes:
+      - application/json
+      description: Find assets by code
+      parameters:
+      - description: placa of the asset
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                status:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Find assets by code
+      tags:
+      - Assets
   /availability/{entity}/{entity-id}/{place}:
     get:
       consumes:

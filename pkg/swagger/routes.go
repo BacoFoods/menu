@@ -2,6 +2,7 @@ package swagger
 
 import (
 	"github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/assets"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
 	"github.com/BacoFoods/menu/pkg/cashaudit"
@@ -76,5 +77,6 @@ func (r *Routes) Register(group *gin.RouterGroup) {
 	_ = temporal.Handler{}
 	_ = cashaudit.Handler{}
 	_ = facturacion.Handler{}
+	_ = assets.Asset{}
 	group.GET("/swagger/*any", swaggerGin.WrapHandler(swaggerFiles.Handler))
 }
