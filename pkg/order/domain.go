@@ -143,7 +143,7 @@ type Order struct {
 	Store         *store.Store      `json:"store,omitempty" swaggerignore:"true"`
 	ChannelID     *uint             `json:"channel_id" binding:"required"`
 	TableID       *uint             `json:"table_id"`
-	Table         *tables.Table     `json:"table,omitempty" swaggerignore:"true"`
+	Table         *tables.Table     `json:"table" swaggerignore:"true" gorm:"foreignKey:TableID"`
 	TypeID        *uint             `json:"type_id"`
 	Type          *OrderType        `json:"type"`
 	Comments      string            `json:"comments"`
