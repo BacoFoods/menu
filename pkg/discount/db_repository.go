@@ -2,10 +2,11 @@ package discount
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"strings"
 )
 
 const LogDBRepository string = "pkg/discount/db_repository"
@@ -28,6 +29,11 @@ func (r *DBRepository) Create(discount *Discount) (*Discount, error) {
 
 func (r *DBRepository) GetMany(ids []uint) ([]Discount, error) {
 	var discount []Discount
+
+	if len(ids) == 0 {
+		return discount, nil
+	}
+
 	if err := r.db.Where("id IN ?", ids).Find(&discount).Error; err != nil {
 		shared.LogError("error getting discounts", LogDBRepository, "GetMany", err, ids)
 		return nil, err

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
@@ -805,6 +806,23 @@ func (h *Handler) DeleteOrderType(c *gin.Context) {
 
 // Invoice
 
+type CreateInvoiceDocumentRequest struct {
+	// Possible options are: POS, FEUnidentified, FEIdentified
+	DocumentType string `json:"document_type"`
+
+	// Client data for the invoice
+	DocumentData *client.Client `json:"document_data"`
+}
+
+type CreateInvoiceRequest struct {
+	CalculateInvoiceRequest
+
+	CreateInvoiceDocumentRequest
+
+	orderId  string
+	attendee *Attendee
+}
+
 // CreateInvoice to handle a request to create an invoice
 // @Tags Order
 // @Summary To create an invoice
@@ -814,21 +832,25 @@ func (h *Handler) DeleteOrderType(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path string true "Order ID"
+// @Param body body CreateInvoiceRequest true "request body"
 // @Success 200 {object} object{status=string,data=invoice.Invoice}
 // @Router /order/{id}/invoice [post]
 func (h *Handler) CreateInvoice(c *gin.Context) {
-	orderID := c.Param("id")
-	var req CalculateInvoiceRequest
+	var req CreateInvoiceRequest
+
 	if err := c.ShouldBindJSON(&req); err != nil {
-		shared.LogError("error binding request body", LogHandler, "CalculateInvoice", err, req)
+		shared.LogError("error binding request body", LogHandler, "CreateInvoice", err, req)
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
 
-	att := h.ctxAttendee(c)
-	invoice, err := h.service.CreateInvoice(orderID, att, req.GetTip(), req.GetDiscountsIDs())
+	req.orderId = c.Param("id")
+	req.attendee = h.ctxAttendee(c)
+
+	invoice, err := h.service.CreateInvoice(req)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCreation))
+		// c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCreation
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
 
@@ -948,7 +970,6 @@ func (h *Handler) CloseInvoice(c *gin.Context) {
 	}
 
 	req.InvoiceID = c.Param("id")
-
 	att := h.ctxAttendee(c)
 	req.attendee = att
 

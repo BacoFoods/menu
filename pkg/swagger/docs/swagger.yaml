@@ -423,6 +423,31 @@ definitions:
       value:
         type: number
     type: object
+  facturacion.FacturacionConfig:
+    properties:
+      document_type:
+        type: string
+      id:
+        type: integer
+      last_number:
+        description: starts at 0
+        type: integer
+      prefix:
+        type: string
+      resolution:
+        $ref: '#/definitions/internal.JSONMap'
+        description: 'format should be  { "from": <num>, "to": <num>,  "number": "string",
+          "date_init": "DD-MM-YYYY", "date_end": "DD-MM-YYYY" }'
+      seller:
+        $ref: '#/definitions/internal.JSONMap'
+        description: 'format should be  { "name": "string", "nit": "string", "address":
+          "string", "city": "string", "regimen": "string", "phone": "string" }'
+      store_id:
+        type: integer
+    type: object
+  internal.JSONMap:
+    additionalProperties: true
+    type: object
   invoice.DiscountApplied:
     properties:
       amount:
@@ -442,6 +467,21 @@ definitions:
       type:
         type: string
     type: object
+  invoice.Document:
+    properties:
+      client:
+        $ref: '#/definitions/internal.JSONMap'
+      code:
+        type: string
+      document_type:
+        type: string
+      invoice_id:
+        type: integer
+      resolution:
+        $ref: '#/definitions/internal.JSONMap'
+      seller:
+        $ref: '#/definitions/internal.JSONMap'
+    type: object
   invoice.Invoice:
     properties:
       base_tax:
@@ -457,6 +497,10 @@ definitions:
       discounts:
         items:
           $ref: '#/definitions/invoice.DiscountApplied'
+        type: array
+      documents:
+        items:
+          $ref: '#/definitions/invoice.Document'
         type: array
       id:
         type: integer
@@ -661,12 +705,15 @@ definitions:
   order.CalculateInvoiceRequest:
     properties:
       discounts:
+        description: List of discount IDs to apply to the invoice
         items:
           type: integer
         type: array
       tip_amount:
+        description: Optional value grater than 0
         type: number
       tip_percentage:
+        description: Optional value between 0 and 100
         type: integer
     type: object
   order.CheckoutRequest:
@@ -686,8 +733,26 @@ definitions:
         items:
           $ref: '#/definitions/payment.Payment'
         type: array
-    required:
-    - payments
+    type: object
+  order.CreateInvoiceRequest:
+    properties:
+      discounts:
+        description: List of discount IDs to apply to the invoice
+        items:
+          type: integer
+        type: array
+      document_data:
+        $ref: '#/definitions/client.Client'
+        description: Client data for the invoice
+      document_type:
+        description: 'Possible options are: POS, FEUnidentified, FEIdentified'
+        type: string
+      tip_amount:
+        description: Optional value grater than 0
+        type: number
+      tip_percentage:
+        description: Optional value between 0 and 100
+        type: integer
     type: object
   order.Order:
     properties:
@@ -5417,6 +5482,12 @@ paths:
         name: id
         required: true
         type: string
+      - description: request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/order.CreateInvoiceRequest'
       produces:
       - application/json
       responses:
@@ -7569,6 +7640,44 @@ paths:
       summary: To enable/disable a store
       tags:
       - Store
+  /store/{id}/facturacion/config:
+    get:
+      consumes:
+      - application/json
+      description: To find a facturacion config
+      parameters:
+      - description: store id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/facturacion.FacturacionConfig'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find a facturacion config
+      tags:
+      - Facturacion
   /store/{id}/zones:
     get:
       consumes:
@@ -7660,6 +7769,99 @@ paths:
       summary: To get tables by store
       tags:
       - Store
+  /store/{storeId}/facturacion/config:
+    post:
+      consumes:
+      - application/json
+      description: To create a facturacion config
+      parameters:
+      - description: store id
+        in: path
+        name: storeId
+        required: true
+        type: string
+      - description: facturacion config request
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/facturacion.FacturacionConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/facturacion.FacturacionConfig'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To create a facturacion config
+      tags:
+      - Facturacion
+  /store/{storeId}/facturacion/config/{id}:
+    put:
+      consumes:
+      - application/json
+      description: To update a facturacion config
+      parameters:
+      - description: store id
+        in: path
+        name: storeId
+        required: true
+        type: string
+      - description: config id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: facturacion config request
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/facturacion.FacturacionConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/facturacion.FacturacionConfig'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To update a facturacion config
+      tags:
+      - Facturacion
   /surcharge:
     get:
       consumes:
