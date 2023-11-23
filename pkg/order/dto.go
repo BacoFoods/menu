@@ -125,7 +125,7 @@ type InvoiceCheckout struct {
 
 type CalculateInvoiceRequest struct {
 	// Optional value between 0 and 100
-	TipPercentage *int `json:"tip_percentage"`
+	TipPercentage *float64 `json:"tip_percentage"`
 
 	// Optional value grater than 0
 	TipAmount *float64 `json:"tip_amount"`
