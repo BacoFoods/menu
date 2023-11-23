@@ -39,7 +39,6 @@ func (r *DBRepository) Get(invoiceID string) (*Invoice, error) {
 	var invoice Invoice
 
 	if err := r.db.Preload(clause.Associations).
-		Preload("Invoices.Documents").
 		First(&invoice, invoiceID).Error; err != nil {
 		shared.LogError("error getting invoice", LogRepository, "Get", err, invoiceID)
 		return nil, err
