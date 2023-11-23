@@ -302,6 +302,101 @@
                 }
             }
         },
+        "/assets": {
+            "post": {
+                "description": "Create a new asset",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Assets"
+                ],
+                "summary": "Create a new asset",
+                "parameters": [
+                    {
+                        "description": "Asset to be created",
+                        "name": "asset",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/assets.Asset"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/assets.Asset"
+                        }
+                    }
+                }
+            }
+        },
+        "/assets/{code}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Find assets by code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Assets"
+                ],
+                "summary": "Find assets by code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "placa of the asset",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/availability/entities": {
             "get": {
                 "security": [
@@ -12744,6 +12839,107 @@
                 },
                 "store_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "assets.Asset": {
+            "type": "object",
+            "properties": {
+                "actual_purchase_date": {
+                    "type": "string",
+                    "example": "2022-10-01"
+                },
+                "asset_name": {
+                    "type": "string",
+                    "example": "Asset Name"
+                },
+                "asset_name_siesa": {
+                    "type": "string",
+                    "example": "Asset Siesa"
+                },
+                "barcode": {
+                    "type": "string",
+                    "example": "BARCODE001"
+                },
+                "category": {
+                    "type": "string",
+                    "example": "Category A"
+                },
+                "contract": {
+                    "type": "string",
+                    "example": "CON001"
+                },
+                "current_cost_center": {
+                    "type": "integer",
+                    "example": 1001
+                },
+                "current_location": {
+                    "type": "string",
+                    "example": "Location A"
+                },
+                "custodian": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "invoice": {
+                    "type": "string",
+                    "example": "INV123"
+                },
+                "invoice_initial_location": {
+                    "type": "string",
+                    "example": "Location A"
+                },
+                "invoice_link": {
+                    "type": "string",
+                    "example": "http://example.com/invoice/INV123"
+                },
+                "official_placa": {
+                    "type": "string",
+                    "example": "OFFPLACA123"
+                },
+                "operation_code_siesa": {
+                    "type": "string",
+                    "example": "OP123"
+                },
+                "operation_name_siesa": {
+                    "type": "string",
+                    "example": "Operation"
+                },
+                "placa": {
+                    "type": "string",
+                    "example": "PLACA123"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 1000.5
+                },
+                "provider_name": {
+                    "type": "string",
+                    "example": "Provider Inc."
+                },
+                "provider_nit": {
+                    "type": "string",
+                    "example": "123456789"
+                },
+                "purchase_date": {
+                    "type": "string",
+                    "example": "2022-10-10"
+                },
+                "purchase_invoice": {
+                    "type": "string",
+                    "example": "INV001"
+                },
+                "reference": {
+                    "type": "string",
+                    "example": "REF001"
+                },
+                "renting": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "type": {
+                    "type": "string",
+                    "example": "SIESA"
                 }
             }
         },
