@@ -1,6 +1,9 @@
 package facturacion
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
 
 type Repository struct {
 	db *gorm.DB
@@ -35,6 +38,30 @@ func (r *Repository) FindByStoreAndType(storeID uint, docType string) (*Facturac
 	}
 
 	return &config, nil
+}
+
+func (r *Repository) FindByStoreAndTypeAndIncrement(storeID uint, docType string) (*FacturacionConfig, error) {
+	var config *FacturacionConfig
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("store_id = ? AND document_type = ?", storeID, docType).
+			First(&config).Error
+
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return nil
+			}
+
+			return err
+		}
+
+		config.LastNumber = config.LastNumber + 1
+
+		return tx.Save(config).Error
+	})
+
+	return config, err
 }
 
 func (r *Repository) FindByStore(storeID uint) ([]FacturacionConfig, error) {

@@ -3,10 +3,11 @@ package invoice
 import (
 	"fmt"
 
+	"strings"
+
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"strings"
 )
 
 const LogRepository = "pkg/invoice/repository"

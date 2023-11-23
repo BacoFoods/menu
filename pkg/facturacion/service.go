@@ -72,7 +72,7 @@ func (s *FacturacionService) generatePOS(inv *invoice.Invoice, data any) (*invoi
 		return nil, errors.New("invoice store id is required")
 	}
 
-	config, err := s.repository.FindByStoreAndType(*inv.StoreID, DocumentTypePOS)
+	config, err := s.repository.FindByStoreAndTypeAndIncrement(*inv.StoreID, DocumentTypePOS)
 	if err != nil {
 		return nil, err
 	}
@@ -82,15 +82,14 @@ func (s *FacturacionService) generatePOS(inv *invoice.Invoice, data any) (*invoi
 	}
 
 	// TODO: validate data
-	curNumber := config.LastNumber + 1
-
+	curNumber := config.LastNumber
 	resolution := config.Resolution
 	resolution["prefix"] = config.Prefix
 
 	return &invoice.Document{
 		DocumentType: DocumentTypePOS,
 		Code:         fmt.Sprintf("%s-%d", config.Prefix, curNumber),
-		// Client:       data, // TODO:
+		// Client:       data, // TODO: insert client data if exists
 		Resolution: resolution,
 		Seller:     config.Seller,
 	}, nil

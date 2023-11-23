@@ -650,6 +650,13 @@ func (s service) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, err
 		Percentage: req.CalculateInvoiceRequest.TipPercentage,
 		Amount:     req.CalculateInvoiceRequest.TipAmount,
 	}
+
+	// TODO: we asume only one invoice per order
+	var oldInvoice *invoices.Invoice
+	if len(order.Invoices) > 0 {
+		oldInvoice = &order.Invoices[0]
+	}
+
 	order.ToInvoice(&tip, discounts...)
 
 	invoice := order.Invoices[0]
@@ -678,11 +685,20 @@ func (s service) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, err
 	if doc != nil {
 		invoice.Documents = append(invoice.Documents, *doc)
 	}
+
+	// if the order already had an invoice, update it instead of creating a new one
+	if oldInvoice != nil {
+		invoice.ID = oldInvoice.ID
+	}
+
 	invoiceDB, err := s.invoice.CreateUpdate(&invoice)
 	if err != nil {
 		shared.LogError("error creating invoice", LogService, "CreateInvoice", err, invoice)
 		return nil, fmt.Errorf(invoices.ErrorInvoiceCreation)
 	}
+
+	// force the created invoice to be the only one in the order
+	order.Invoices = []invoices.Invoice{*invoiceDB}
 
 	if _, err := s.repository.Update(order); err != nil {
 		shared.LogError("error updating order", LogService, "CreateInvoice", err, order)
