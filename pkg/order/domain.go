@@ -589,13 +589,13 @@ func (os *OrderStatus) Prev() OrderStatus {
 }
 
 type TipData struct {
-	Percentage *int     `json:"percentage"`
+	Percentage *float64 `json:"percentage"`
 	Amount     *float64 `json:"value"`
 }
 
 func (t TipData) GetValueAndType() (string, float64) {
 	if t.Percentage != nil && *t.Percentage > 0 {
-		return "percentage", float64(*t.Percentage) / 100
+		return "percentage", *t.Percentage / 100
 	}
 
 	if t.Amount != nil && *t.Amount > 0 {
