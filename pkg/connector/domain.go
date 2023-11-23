@@ -8,7 +8,7 @@ import (
 const (
 	ErrorEquivalenceBadRequest string = "error bad request"
 	ErrorEquivalenceCreating   string = "error creating equivalence"
-	ErrorEquivalenceGetting    string = "error getting equivalence"
+	ErrorEquivalenceFinding    string = "error finding equivalence"
 	ErrorEquivalenceUpdating   string = "error updating equivalence"
 	ErrorEquivalenceDeleting   string = "error deleting equivalence"
 	ErrorEquivalenceIDEmpty    string = "equivalence id is empty"
@@ -28,5 +28,8 @@ type Equivalence struct {
 
 type Repository interface {
 	Create(*Equivalence) (*Equivalence, error)
+	Find(map[string]string) ([]Equivalence, error)
+	Update(Equivalence) (*Equivalence, error)
+	Delete(string) (*Equivalence, error)
 	FindReference(filter map[string]string) (*Equivalence, error)
 }

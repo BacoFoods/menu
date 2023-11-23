@@ -30,6 +30,18 @@ func (s service) Create(equivalence *Equivalence) (*Equivalence, error) {
 	return s.repository.Create(equivalence)
 }
 
+func (s service) Find(filter map[string]string) ([]Equivalence, error) {
+	return s.repository.Find(filter)
+}
+
+func (s service) Update(equivalence Equivalence) (*Equivalence, error) {
+	return s.repository.Update(equivalence)
+}
+
+func (s service) Delete(equivalenceID string) (*Equivalence, error) {
+	return s.repository.Delete(equivalenceID)
+}
+
 func (s service) GetInvoices(startDate, endDate, storeID string) ([]invoicePkg.Invoice, error) {
 	filter := map[string]interface{}{
 		"start_date": startDate,
@@ -279,6 +291,9 @@ func GenerateExcelFile(doc map[string]interface{}) (*excelize.File, error) {
 
 type Service interface {
 	Create(*Equivalence) (*Equivalence, error)
+	Find(filter map[string]string) ([]Equivalence, error)
+	Update(Equivalence) (*Equivalence, error)
+	Delete(string) (*Equivalence, error)
 	CreateFile(invoices []invoicePkg.Invoice) ([]byte, error)
 	GetInvoices(startDate, endDate, storeID string) ([]invoicePkg.Invoice, error)
 }

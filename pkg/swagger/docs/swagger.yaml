@@ -4108,6 +4108,94 @@ paths:
       tags:
       - Discount
   /equivalence:
+    get:
+      consumes:
+      - application/json
+      description: To find equivalence
+      parameters:
+      - description: channel_id
+        in: query
+        name: channel_id
+        type: string
+      - description: product_id
+        in: query
+        name: product_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/connector.Equivalence'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find equivalence
+      tags:
+      - Connector
+    patch:
+      consumes:
+      - application/json
+      description: To update equivalence
+      parameters:
+      - description: equivalence to update
+        in: body
+        name: equivalence
+        required: true
+        schema:
+          $ref: '#/definitions/connector.Equivalence'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/connector.Equivalence'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To update equivalence
+      tags:
+      - Connector
     post:
       consumes:
       - application/json
@@ -4144,6 +4232,44 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To create an equivalence
+      tags:
+      - Connector
+  /equivalence/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete an equivalence
+      parameters:
+      - description: equivalenceID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/connector.Equivalence'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To delete an equivalence
       tags:
       - Connector
   /invoice:

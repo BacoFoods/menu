@@ -45,10 +45,95 @@ func (h *Handler) Create(ctx *gin.Context) {
 
 	equivalence, err := h.service.Create(&requestBody)
 	if err != nil {
-		shared.LogError("error creating country", LogHandler, "Create", err, equivalence)
+		shared.LogError("error creating equivalence", LogHandler, "Create", err, equivalence)
 		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorEquivalenceCreating))
 		return
 	}
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(equivalence))
+}
+
+// Find to handle a request to find all equivalence
+// @Tags Connector
+// @Summary To find equivalence
+// @Description To find equivalence
+// @Param channel_id query string false "channel_id"
+// @Param product_id query string false "product_id"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=[]Equivalence}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /equivalence [get]
+func (h Handler) Find(c *gin.Context) {
+	filters := make(map[string]string)
+	if channelID := c.Query("channel_id"); channelID != "" {
+		filters["channel_id"] = channelID
+	}
+	if productID := c.Query("product_id"); productID != "" {
+		filters["product_id"] = productID
+	}
+
+	equivalences, err := h.service.Find(filters)
+	if err != nil {
+		shared.LogError("error finding equivalence", LogHandler, "Find", err, equivalences)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorEquivalenceFinding))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(equivalences))
+}
+
+// Delete to handle a request to delete an equivalence
+// @Tags Connector
+// @Summary To delete an equivalence
+// @Description To delete an equivalence
+// @Param id path string true "equivalenceID"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=Equivalence}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /equivalence/{id} [delete]
+func (h *Handler) Delete(ctx *gin.Context) {
+	equivalenceID := ctx.Param("id")
+	equivalence, err := h.service.Delete(equivalenceID)
+	if err != nil {
+		shared.LogError("error deleting equivalence", LogHandler, "Delete", err, equivalenceID)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorEquivalenceDeleting))
+		return
+	}
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(equivalence))
+}
+
+// Update to handle a request to update an equivalence
+// @Tags Connector
+// @Summary To update equivalence
+// @Description To update equivalence
+// @Param equivalence body Equivalence true "equivalence to update"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=Equivalence}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /equivalence [patch]
+func (h *Handler) Update(ctx *gin.Context) {
+	var requestBody Equivalence
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		shared.LogError("error getting equivalence request body", LogHandler, "Update", err)
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorEquivalenceBadRequest))
+		return
+	}
+	equivalence, err := h.service.Update(requestBody)
+	if err != nil {
+		shared.LogError("error updating equivalence", LogHandler, "Update", err, equivalence)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorEquivalenceUpdating))
+		return
+	}
+
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(equivalence))
 }
 
