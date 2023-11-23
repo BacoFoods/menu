@@ -43,6 +43,7 @@ const (
 	ErrorOrderModifierNotFound             = "error order modifier with id %v not found; "
 	ErrorOrderUpdatingComments             = "error updating order comments"
 	ErrorOrderUpdatingClientName           = "error updating order client name"
+	ErrorOrderUpdatingStatus               = "error updating order status"
 	ErrorOrderInvoiceCreation              = "error creating order invoice"
 	ErrorOrderInvoiceCreationDiscounts     = "error creating order invoice getting discounts"
 	ErrorOrderInvoiceCalculation           = "error calculating invoice"

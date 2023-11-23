@@ -1003,6 +1003,14 @@ definitions:
     required:
     - seats
     type: object
+  order.RequestUpdateOrderStatus:
+    properties:
+      status:
+        example: ordering,cooking,delivered,invoicing,canceled,completed
+        type: string
+    required:
+    - status
+    type: object
   payment.Payment:
     properties:
       checkout_url:
@@ -5844,6 +5852,42 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To update a product from an order
+      tags:
+      - Order
+  /order/{id}/update/status:
+    patch:
+      consumes:
+      - application/json
+      description: To update an order's status
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Status
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/order.RequestUpdateOrderStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/order.Order'
+                status:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: To update an order's status
       tags:
       - Order
   /overrider:
