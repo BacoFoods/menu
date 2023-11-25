@@ -1,6 +1,9 @@
 package order
 
 import (
+	"time"
+
+	"github.com/BacoFoods/menu/internal/telemetry"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,13 +15,27 @@ func NewRoutes(handler *Handler) Routes {
 	return Routes{handler}
 }
 
+func telemetryMiddleware(c *gin.Context) {
+	var dt *telemetry.TelemetryPoint
+	start := time.Now()
+	if c.Request != nil && c.Request.URL != nil {
+		dt = telemetry.StartResponse(c.Request.Method, c.Request.URL.Path, time.Now())
+	}
+
+	c.Next()
+
+	if c.Writer != nil && dt != nil {
+		go func() { dt.Done(c.Writer.Status(), time.Now().Sub(start).Microseconds()) }()
+	}
+}
+
 func (r Routes) RegisterRoutes(private, public *gin.RouterGroup) {
 	// Order
-	private.GET("/order", r.handler.Find)
-	private.POST("/order", r.handler.Create)
-	public.POST("/order", r.handler.CreatePublic)
-	private.GET("/order/:id", r.handler.Get)
-	public.GET("/order/:id", r.handler.GetPublic)
+	private.GET("/order", r.handler.Find, telemetryMiddleware)
+	private.POST("/order", r.handler.Create, telemetryMiddleware)
+	public.POST("/order", r.handler.CreatePublic, telemetryMiddleware)
+	private.GET("/order/:id", r.handler.Get, telemetryMiddleware)
+	public.GET("/order/:id", r.handler.GetPublic, telemetryMiddleware)
 
 	private.PATCH("/order", r.handler.Update)
 	private.PATCH("/order/:id/table/:table", r.handler.UpdateTable)
