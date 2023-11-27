@@ -70,8 +70,6 @@ func report(point *TelemetryPoint) {
 
 	payload := fmt.Sprintf("%s value=%f %d", strings.Join(data, ","), point.Measurement, ts)
 
-	print(payload)
-
 	post(payload)
 }
 
