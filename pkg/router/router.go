@@ -5,13 +5,13 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"github.com/BacoFoods/menu/pkg/app"
-	"github.com/BacoFoods/menu/pkg/siesa"
 	"google.golang.org/api/idtoken"
 	"google.golang.org/api/option"
 
 	"github.com/BacoFoods/menu/internal"
+	"github.com/BacoFoods/menu/internal/telemetry"
 	"github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/app"
 	"github.com/BacoFoods/menu/pkg/assets"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
@@ -34,6 +34,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/scheduler"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/BacoFoods/menu/pkg/shift"
+	"github.com/BacoFoods/menu/pkg/siesa"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
 	"github.com/BacoFoods/menu/pkg/swagger"
@@ -109,6 +110,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Menu.RegisterRoutes(private, public)
 	routes.Account.RegisterRoutes(private, public)
 	routes.Order.RegisterRoutes(private, public)
+	routes.Telemetry.RegisterRoutes(public)
 
 	routes.Swagger.Register(public)
 
@@ -147,4 +149,5 @@ type RoutesGroup struct {
 	Equivalence  connector.Routes
 	Siesa        siesa.Routes
 	App          app.Routes
+	Telemetry    telemetry.Routes
 }
