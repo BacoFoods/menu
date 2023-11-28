@@ -1,6 +1,6 @@
 package temporal
 
-import "github.com/gin-gonic/gin"
+import "github.com/BacoFoods/menu/pkg/shared"
 
 type Routes struct {
 	handler *Handler
@@ -12,7 +12,7 @@ func NewRoutes(handler *Handler) Routes {
 	}
 }
 
-func (r *Routes) RegisterRoutes(routes *gin.RouterGroup) {
+func (r *Routes) RegisterRoutes(routes *shared.CustomRoutes) {
 	routes.GET("/temporal/locales", r.handler.GetLocales)
 	routes.GET("/temporal/arqueo", r.handler.GetArqueo)
 }
