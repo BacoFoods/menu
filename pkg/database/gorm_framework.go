@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BacoFoods/menu/internal"
-	"github.com/BacoFoods/menu/pkg/order"
 	"github.com/sirupsen/logrus"
 	gormpostgres "gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -37,9 +36,6 @@ func MustNewGormFramework(customDSN string) *GormFramework {
 		logrus.Fatalf("error connecting to database: %s", escapeDSN(customDSN))
 		return nil
 	}
-
-	db.Migrator().DropColumn(&order.OrderStatus{}, "status_id")
-	db.Migrator().DropConstraint(&order.OrderStatus{}, "status_id")
 
 	return &GormFramework{
 		dbConfig: internal.Config.DBConfig,

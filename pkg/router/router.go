@@ -4,15 +4,12 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-
-	"github.com/BacoFoods/menu/pkg/cashaudit"
-	"github.com/BacoFoods/menu/pkg/facturacion"
-
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/assets"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
+	"github.com/BacoFoods/menu/pkg/cashaudit"
 	"github.com/BacoFoods/menu/pkg/category"
 	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/client"
@@ -20,12 +17,14 @@ import (
 	"github.com/BacoFoods/menu/pkg/course"
 	"github.com/BacoFoods/menu/pkg/currency"
 	"github.com/BacoFoods/menu/pkg/discount"
+	"github.com/BacoFoods/menu/pkg/facturacion"
 	"github.com/BacoFoods/menu/pkg/healthcheck"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/menu"
 	"github.com/BacoFoods/menu/pkg/order"
 	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/product"
+	"github.com/BacoFoods/menu/pkg/scheduler"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/BacoFoods/menu/pkg/shift"
 	"github.com/BacoFoods/menu/pkg/store"
@@ -93,6 +92,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.CashAudit.RegisterRoutes(private)
 	routes.Assets.RegisterRoutes(private)
 	routes.Facturacion.RegisterRoutes(private)
+	routes.Schedule.RegisterRoutes(private)
 
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
@@ -135,4 +135,5 @@ type RoutesGroup struct {
 	CashAudit    cashaudit.Routes
 	Assets       assets.Routes
 	Facturacion  facturacion.Routes
+	Schedule     scheduler.Routes
 }

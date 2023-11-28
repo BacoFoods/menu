@@ -17,6 +17,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/order"
 	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/product"
+	"github.com/BacoFoods/menu/pkg/scheduler"
 	"github.com/BacoFoods/menu/pkg/shift"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
@@ -77,6 +78,7 @@ func (r *Routes) Register(group *gin.RouterGroup) {
 	_ = temporal.Handler{}
 	_ = cashaudit.Handler{}
 	_ = facturacion.Handler{}
-	_ = assets.Asset{}
+	_ = assets.Handler{}
+	_ = scheduler.Handler{}
 	group.GET("/swagger/*any", swaggerGin.WrapHandler(swaggerFiles.Handler))
 }

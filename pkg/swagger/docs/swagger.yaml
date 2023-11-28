@@ -1247,6 +1247,116 @@ definitions:
         example: "10000"
         type: string
     type: object
+  scheduler.RequestEnableStore:
+    properties:
+      enable:
+        type: boolean
+    required:
+    - enable
+    type: object
+  scheduler.RequestSchedule:
+    properties:
+      brand_id:
+        type: integer
+      closing:
+        type: string
+      day:
+        enum:
+        - monday
+        - tuesday
+        - wednesday
+        - thursday
+        - friday
+        - saturday
+        - sunday
+        - holiday
+        type: string
+      enable:
+        type: boolean
+      id:
+        type: integer
+      opening:
+        type: string
+      store_id:
+        type: integer
+    required:
+    - brand_id
+    - closing
+    - day
+    - opening
+    - store_id
+    type: object
+  scheduler.ResponseBrand:
+    properties:
+      stores:
+        items:
+          $ref: '#/definitions/scheduler.ResponseStore'
+        type: array
+    type: object
+  scheduler.ResponseSchedules:
+    properties:
+      brand_id:
+        type: integer
+      closing:
+        type: string
+      day:
+        type: string
+      enable:
+        type: boolean
+      id:
+        type: integer
+      opening:
+        type: string
+      store_id:
+        type: integer
+    type: object
+  scheduler.ResponseStore:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      open:
+        type: boolean
+      schedules:
+        items:
+          $ref: '#/definitions/scheduler.ResponseSchedules'
+        type: array
+    type: object
+  scheduler.Schedule:
+    properties:
+      brand_id:
+        type: integer
+      close:
+        type: string
+      day:
+        enum:
+        - monday
+        - tuesday
+        - wednesday
+        - thursday
+        - friday
+        - saturday
+        - sunday
+        - holiday
+        type: string
+      enable:
+        type: boolean
+      id:
+        type: integer
+      open:
+        type: string
+      store:
+        $ref: '#/definitions/store.Store'
+      store_id:
+        type: integer
+    required:
+    - brand_id
+    - close
+    - day
+    - open
+    - store_id
+    type: object
   shared.Response:
     properties:
       data: {}
@@ -7425,6 +7535,324 @@ paths:
       summary: Scan QR
       tags:
       - Tables
+  /schedules:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a schedule
+      parameters:
+      - description: schedule
+        in: body
+        name: schedule
+        required: true
+        schema:
+          $ref: '#/definitions/scheduler.Schedule'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/scheduler.Schedule'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To delete a schedule
+      tags:
+      - Schedule
+    get:
+      consumes:
+      - application/json
+      description: To find schedules
+      parameters:
+      - description: store id
+        in: query
+        name: store_id
+        type: string
+      - description: brand id
+        in: query
+        name: brand_id
+        type: string
+      - description: day
+        enum:
+        - monday
+        - tuesday
+        - wednesday
+        - thursday
+        - friday
+        - saturday
+        - sunday
+        - holiday
+        in: query
+        name: day
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/scheduler.ResponseBrand'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find schedules
+      tags:
+      - Schedule
+    patch:
+      consumes:
+      - application/json
+      description: To update a schedule
+      parameters:
+      - description: schedule
+        in: body
+        name: schedule
+        required: true
+        schema:
+          $ref: '#/definitions/scheduler.RequestSchedule'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/scheduler.Schedule'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To update a schedule
+      tags:
+      - Schedule
+    post:
+      consumes:
+      - application/json
+      description: To create a schedule
+      parameters:
+      - description: schedule
+        in: body
+        name: schedule
+        required: true
+        schema:
+          $ref: '#/definitions/scheduler.RequestSchedule'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/scheduler.Schedule'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To create a schedule
+      tags:
+      - Schedule
+  /schedules/brand/{id}/today:
+    get:
+      consumes:
+      - application/json
+      description: To find today's store's schedules of a brand
+      parameters:
+      - description: brand id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/scheduler.Schedule'
+                  type: array
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find today's store's schedules of a brand
+      tags:
+      - Schedule
+  /schedules/store/{id}/enable:
+    post:
+      consumes:
+      - application/json
+      description: To enable a store's schedule
+      parameters:
+      - description: store id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: schedule
+        in: body
+        name: schedule
+        required: true
+        schema:
+          $ref: '#/definitions/scheduler.RequestEnableStore'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/scheduler.Schedule'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Turns enable a store's schedule
+      tags:
+      - Schedule
+  /schedules/store/{id}/today:
+    get:
+      consumes:
+      - application/json
+      description: To find today's schedule of a store
+      parameters:
+      - description: store id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/scheduler.Schedule'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find today's schedule of a store
+      tags:
+      - Schedule
   /shift/close:
     post:
       consumes:
