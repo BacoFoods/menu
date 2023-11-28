@@ -1,6 +1,8 @@
 package scheduler
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/BacoFoods/menu/pkg/shared"
+)
 
 type Routes struct {
 	handler *Handler
@@ -10,7 +12,7 @@ func NewRoutes(handler *Handler) Routes {
 	return Routes{handler}
 }
 
-func (r Routes) RegisterRoutes(private *gin.RouterGroup) {
+func (r Routes) RegisterRoutes(private *shared.CustomRoutes) {
 	private.GET("/schedules", r.handler.Find)
 	private.POST("/schedules", r.handler.Create)
 	private.PATCH("/schedules", r.handler.Update)
