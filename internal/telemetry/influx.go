@@ -66,6 +66,7 @@ func report(metric string, point *TelemetryPoint) {
 		data = append(data, fmt.Sprintf("%s=%s", k, v))
 	}
 
+	data = append(data, fmt.Sprintf("env=%s", internal.Config.AppEnv))
 	ts := point.End.UnixNano()
 
 	payload := fmt.Sprintf("%s value=%f %d", strings.Join(data, ","), point.Measurement, ts)
