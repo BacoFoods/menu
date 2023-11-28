@@ -104,7 +104,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Schedule.RegisterRoutes(private)
 	routes.Equivalence.RegisterRoutes(private)
 	routes.Siesa.RegisterRoutes(private)
-	routes.App.RegisterRoutes(private)
+	routes.App.RegisterRoutes(privateGroup)
 
 	// Register public routes
 	publicPath := fmt.Sprintf("%s/public", path)

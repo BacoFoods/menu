@@ -1,14 +1,14 @@
 package siesa
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/BacoFoods/menu/pkg/shared"
 )
 
 type Routes struct {
 	handler *Handler
 }
 
-func (r Routes) RegisterRoutes(private *gin.RouterGroup) {
+func (r Routes) RegisterRoutes(private *shared.CustomRoutes) {
 	private.POST("/siesa", r.handler.Create)
 	private.GET("/siesa/reference", r.handler.FindReferences)
 	private.POST("/siesa/reference", r.handler.CreateReference)
