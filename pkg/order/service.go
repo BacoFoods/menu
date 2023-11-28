@@ -19,6 +19,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/shared"
 	shifts "github.com/BacoFoods/menu/pkg/shift"
 	"github.com/BacoFoods/menu/pkg/tables"
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -83,6 +84,8 @@ type service struct {
 	discounts   discountsSrv
 	channel     channelSrv
 	facturacion facturacionSrv
+
+	redis *redis.Client
 }
 
 func NewService(repository Repository,
@@ -96,6 +99,7 @@ func NewService(repository Repository,
 	discounts discountsSrv,
 	channel channelSrv,
 	facturacion facturacionSrv,
+	redis *redis.Client,
 ) service {
 	return service{repository,
 		table,
@@ -108,6 +112,7 @@ func NewService(repository Repository,
 		discounts,
 		channel,
 		facturacion,
+		redis,
 	}
 }
 
@@ -693,38 +698,52 @@ func (s service) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, err
 		}
 	}
 
-	// Generate invoice document
-	doc, err := s.facturacion.Generate(
-		&invoice,
-		req.CreateInvoiceDocumentRequest.DocumentType,
-		req.CreateInvoiceDocumentRequest.DocumentData,
-	)
-	if err != nil {
-		shared.LogError("error generating invoice document", LogService, "CreateInvoice", err, invoice)
-		return nil, err
-	}
+	// TODO: anular documentos viejos si se regenera el invoice
 
-	if doc != nil {
-		invoice.Documents = append(invoice.Documents, *doc)
-	}
+	// ATTENTION!!
+	// This is a critical zone. The following is protected by a distributed mutex using redis
+	// so each call is executed in order and has to wait for the previous one to finish.
+	var invoiceDB *invoices.Invoice
+	mu := internal.DistMutex(s.redis, fmt.Sprintf("menu:invoice:create:%d", order.ID))
+	{
+		_ = mu.Lock()
+		defer mu.Unlock()
+		// Generate invoice document
+		doc, err := s.facturacion.Generate(
+			&invoice,
+			req.CreateInvoiceDocumentRequest.DocumentType,
+			req.CreateInvoiceDocumentRequest.DocumentData,
+		)
+		if err != nil {
+			shared.LogError("error generating invoice document", LogService, "CreateInvoice", err, invoice)
+			return nil, err
+		}
 
-	// if the order already had an invoice, update it instead of creating a new one
-	if oldInvoice != nil {
-		invoice.ID = oldInvoice.ID
-	}
+		if doc != nil {
+			invoice.Documents = append(invoice.Documents, *doc)
+		}
 
-	invoiceDB, err := s.invoice.CreateUpdate(&invoice)
-	if err != nil {
-		shared.LogError("error creating invoice", LogService, "CreateInvoice", err, invoice)
-		return nil, fmt.Errorf(invoices.ErrorInvoiceCreation)
-	}
+		// if the order already had an invoice, update it instead of creating a new one
+		if oldInvoice != nil {
+			invoice.ID = oldInvoice.ID
+		}
 
-	// force the created invoice to be the only one in the order
-	order.Invoices = []invoices.Invoice{*invoiceDB}
+		invoiceDB, err = s.invoice.CreateUpdate(&invoice)
+		if err != nil {
+			shared.LogError("error creating invoice", LogService, "CreateInvoice", err, invoice)
+			return nil, fmt.Errorf(invoices.ErrorInvoiceCreation)
+		}
 
-	if _, err := s.repository.Update(order); err != nil {
-		shared.LogError("error updating order", LogService, "CreateInvoice", err, order)
-		return nil, fmt.Errorf(ErrorOrderUpdate)
+		// force the created invoice to be the only one in the order
+		order.Invoices = []invoices.Invoice{*invoiceDB}
+		if _, err := s.repository.Update(order); err != nil {
+			shared.LogError("error updating order", LogService, "CreateInvoice", err, order)
+			return nil, fmt.Errorf(ErrorOrderUpdate)
+		}
+
+		// ATTENTION!!
+		// End of critical zone
+		mu.Unlock()
 	}
 
 	// release table

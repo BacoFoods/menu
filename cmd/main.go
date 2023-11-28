@@ -95,6 +95,7 @@ func main() {
 	)
 
 	rabbitCh := internal.MustNewRabbitMQ(internal.Config.RabbitConfig.ComandasQueue, internal.Config.RabbitConfig.Host, internal.Config.RabbitConfig.Port)
+	redisConn := internal.MustNewRedis(internal.Config.RedisConfig.Host, internal.Config.RedisConfig.Port)
 
 	// Healthcheck
 	healthcheckHandler := healthcheck.NewHandler()
@@ -234,6 +235,7 @@ func main() {
 		discountRepository,
 		channelRepository,
 		facturacionService,
+		redisConn,
 	)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)

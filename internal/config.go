@@ -18,6 +18,7 @@ type config struct {
 	CerebroConfig
 	RabbitConfig
 	PaylotsConfig
+	RedisConfig
 }
 
 // Config is the global variable that holds the configuration for parse the environment variables
@@ -52,6 +53,12 @@ type AppConfig struct {
 	// Github
 	GitToken      string `env:"GIT_TOKEN"`
 	GitRepository string `env:"GIT_REPOSITORY"`
+}
+
+// RedisConfig is the struct that holds the configuration for the redis
+type RedisConfig struct {
+	Host string `env:"REDIS_HOST"`
+	Port string `env:"REDIS_PORT" envDefault:"6379"`
 }
 
 // PopappConfig is the struct that holds the configuration for the firestore
