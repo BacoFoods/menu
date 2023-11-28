@@ -1,6 +1,6 @@
 package product
 
-import "github.com/gin-gonic/gin"
+import "github.com/BacoFoods/menu/pkg/shared"
 
 type Routes struct {
 	handler *Handler
@@ -10,7 +10,7 @@ func NewRoutes(handler *Handler) Routes {
 	return Routes{handler}
 }
 
-func (r Routes) RegisterRoutes(private *gin.RouterGroup) {
+func (r Routes) RegisterRoutes(private *shared.CustomRoutes) {
 	// Products
 	private.GET("/product", r.handler.Find)
 	private.GET("/product/:id", r.handler.Get)

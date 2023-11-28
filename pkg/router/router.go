@@ -75,8 +75,11 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.HealthCheck.Register(healthCheck)
 
 	// Register private routes
-	private := router.Group(path)
-	private.Use(AuthMiddleware(validator))
+	privateGroup := router.Group(path)
+	privateGroup.Use(shared.NamedRoute(path))
+	privateGroup.Use(AuthMiddleware(validator))
+
+	private := (*shared.CustomRoutes)(privateGroup)
 
 	routes.Availability.RegisterRoutes(private)
 	routes.Brand.RegisterRoutes(private)
@@ -104,15 +107,18 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.App.RegisterRoutes(private)
 
 	// Register public routes
-	public := router.Group(fmt.Sprintf("%s/public", path))
+	publicPath := fmt.Sprintf("%s/public", path)
+	publicGroup := router.Group(publicPath)
+	publicGroup.Use(shared.NamedRoute(path))
+	public := (*shared.CustomRoutes)(publicGroup)
 
 	routes.Table.RegisterRoutes(private, public)
 	routes.Menu.RegisterRoutes(private, public)
 	routes.Account.RegisterRoutes(private, public)
 	routes.Order.RegisterRoutes(private, public)
-	routes.Telemetry.RegisterRoutes(public)
+	routes.Telemetry.RegisterRoutes(publicGroup)
 
-	routes.Swagger.Register(public)
+	routes.Swagger.Register(publicGroup)
 
 	return router
 }

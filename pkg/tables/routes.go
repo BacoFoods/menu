@@ -1,6 +1,6 @@
 package tables
 
-import "github.com/gin-gonic/gin"
+import "github.com/BacoFoods/menu/pkg/shared"
 
 type Routes struct {
 	handler *Handler
@@ -10,7 +10,7 @@ func NewRoutes(handler *Handler) Routes {
 	return Routes{handler}
 }
 
-func (r Routes) RegisterRoutes(private *gin.RouterGroup, public *gin.RouterGroup) {
+func (r Routes) RegisterRoutes(private, public *shared.CustomRoutes) {
 	private.GET("/tables", r.handler.Find)
 	private.GET("/tables/:id", r.handler.Get)
 	private.POST("/tables/:id/generate", r.handler.GenerateQR)
