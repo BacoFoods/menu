@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
+
 	invoicePkg "github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/shared"
 	storePkg "github.com/BacoFoods/menu/pkg/store"
 	"github.com/xuri/excelize/v2"
-	"strconv"
-	"time"
 )
 
 const (
@@ -57,59 +58,52 @@ func (s service) GetInvoices(startDate, endDate, storeID string) ([]invoicePkg.I
 	return invoices, nil
 }
 
-func (s service) CreateFile(invoices []invoicePkg.Invoice) ([]byte, error) {
-	doc := s.BuildDocument(invoices)
-	fmt.Println(doc)
+func (s service) CreateFile(storeID uint, invoices []invoicePkg.Invoice) ([]byte, error) {
+	doc, err := s.BuildDocument(storeID, invoices)
+	if err != nil {
+		return nil, err
+	}
 
 	file, err := GenerateExcelFile(doc)
 	if err != nil {
-		fmt.Println("Error:", err)
 		return nil, err
 	}
 	defer file.Close()
 
 	buffer := &bytes.Buffer{}
 	if err := file.Write(buffer); err != nil {
-		fmt.Println("Error writing Excel file to buffer:", err)
 		return nil, err
 	}
 
 	return buffer.Bytes(), nil
 }
 
-func getF350IDCO(storeID string, storeRepo storePkg.Repository) string {
-	store, err := storeRepo.Get(storeID)
-	if err != nil {
-		shared.LogError(fmt.Sprintf("Error getting store: %v", err), LogService, "getF350IDCO", nil, storeID)
-		// You might want to return a default or meaningful value here based on your requirements
+func getF350IDCO(s *storePkg.Store) string {
+	if s == nil {
 		return ""
 	}
-	return store.OpsCenter
+
+	return s.OpsCenter
 }
 
-func getF461IDCO(storeID string, storeRepo storePkg.Repository) string {
-	store, err := storeRepo.Get(storeID)
-	if err != nil {
-		shared.LogError(fmt.Sprintf("Error getting store: %v", err), LogService, "getF350IDCO", nil, storeID)
-		// You might want to return a default or meaningful value here based on your requirements
+func getF461IDCO(s *storePkg.Store) string {
+	if s == nil {
 		return ""
 	}
-	return store.Wharehouse
+
+	return s.Wharehouse
 }
 
-func formatDate(createdAt *time.Time) string {
-	if createdAt == nil {
-		return "error en fecha"
-	}
-	return createdAt.Format("20060102")
+func formatDate(t time.Time) string {
+	return t.Format("20060102")
 }
 
-func calculateGrossValue(cantidad float64, precioUnitario float64) string {
+func calculateGrossValue(cantidad int, precioUnitario float64) string {
 	if precioUnitario == 0 {
 		precioUnitario = 1
 	}
-	precio := precioUnitario
-	return strconv.FormatFloat(precio*cantidad, 'f', 0, 64)
+
+	return strconv.FormatFloat(precioUnitario*float64(cantidad), 'f', 0, 64)
 }
 
 func (s service) GetReferences(channelID, productID string) string {
@@ -131,44 +125,52 @@ func (s service) GetReferences(channelID, productID string) string {
 	return ""
 }
 
-func (s service) BuildDocument(invoices []invoicePkg.Invoice) map[string]interface{} {
+func (s service) BuildDocument(storeID uint, invoices []invoicePkg.Invoice) (map[string]interface{}, error) {
 	doc := make(map[string]interface{})
+	store, err := s.store.Get(fmt.Sprint(storeID))
+	if err != nil {
+		shared.LogError("error getting store", LogService, "BuildDocument", err, storeID)
+		return nil, err
+	}
 
-	doctoVentasComercial := []map[string]string{
+	f350IDCO := getF350IDCO(store)
+	f461IDCO := getF461IDCO(store)
+	now := time.Now()
+
+	doc["Docto. ventas comercial"] = []map[string]string{
 		{
-			"F350_ID_CO":                    getF350IDCO(strconv.Itoa(int(*invoices[0].StoreID)), s.store),
-			"F350_ID_TIPO_DOCTO":            "FVR",
+			"F350_ID_CO":         f350IDCO,
+			"F350_ID_TIPO_DOCTO": "FVR",
+			// TODO: Revisar si se puede cambiar el consecutivo del documento
 			"F350_CONSEC_DOCTO":             "1",
-			"F350_FECHA":                    formatDate(invoices[0].CreatedAt),
-			"f461_id_co_fact":               getF350IDCO(strconv.Itoa(int(*invoices[0].StoreID)), s.store),
-			"f461_notas":                    formatDate(invoices[0].CreatedAt) + " - del pdv " + strconv.Itoa(int(*invoices[0].StoreID)),
-			"F461_ID_BODEGA_COMPON_PROCESO": getF461IDCO(strconv.Itoa(int(*invoices[0].StoreID)), s.store),
+			"F350_FECHA":                    formatDate(now),
+			"f461_id_co_fact":               f350IDCO,
+			"f461_notas":                    fmt.Sprintf("%s  - del pdv %d", formatDate(now), storeID),
+			"F461_ID_BODEGA_COMPON_PROCESO": f461IDCO,
 		},
 	}
-	doc["Docto. ventas comercial"] = doctoVentasComercial
 
 	// Construir la sección "Descuentos" del documento
 	descuentos := []map[string]string{}
-	registroDescuento := 1 // Número de registro para el descuento
+	registroDescuento := 0 // Número de registro para el descuento
 
 	for _, invoice := range invoices {
 		for _, item := range invoice.Items {
-
 			descuentoRegistro := item.Price - item.DiscountedPrice
-			descuentoTotalRegistro := item.Price - item.DiscountedPrice
 
-			if descuentoRegistro != 0 || descuentoTotalRegistro != 0 {
-				descuentoMap := map[string]string{
-					"f471_id_co":         getF350IDCO(strconv.Itoa(int(*invoices[0].StoreID)), s.store),
-					"f471_id_tipo_docto": "FVR",
-					"f471_consec_docto":  "1",
-					"f471_nro_registro":  strconv.Itoa(registroDescuento),
-					"f471_vlr_uni":       strconv.FormatFloat(descuentoRegistro, 'f', 0, 64),
-					"f471_vlr_tot":       strconv.FormatFloat(descuentoTotalRegistro, 'f', 0, 64),
-				}
-				descuentos = append(descuentos, descuentoMap)
+			if descuentoRegistro == 0 {
+				continue
 			}
+
 			registroDescuento++
+			descuentos = append(descuentos, map[string]string{
+				"f471_id_co":         f350IDCO,
+				"f471_id_tipo_docto": "FVR",
+				"f471_consec_docto":  "1",
+				"f471_nro_registro":  strconv.Itoa(registroDescuento),
+				"f471_vlr_uni":       strconv.FormatFloat(descuentoRegistro, 'f', 0, 64),
+				"f471_vlr_tot":       strconv.FormatFloat(descuentoRegistro, 'f', 0, 64),
+			})
 		}
 	}
 
@@ -180,14 +182,13 @@ func (s service) BuildDocument(invoices []invoicePkg.Invoice) map[string]interfa
 
 	for _, invoice := range invoices {
 		for _, item := range invoice.Items {
-
 			itemMovimiento := map[string]string{
-				"f470_id_co":           getF350IDCO(strconv.Itoa(int(*invoices[0].StoreID)), s.store),
+				"f470_id_co":           f350IDCO,
 				"f470_consec_docto":    "1",
 				"f470_nro_registro":    strconv.Itoa(registro),
-				"f470_id_bodega":       getF461IDCO(strconv.Itoa(int(*invoices[0].StoreID)), s.store),
-				"f470_id_co_movto":     getF350IDCO(strconv.Itoa(int(*invoices[0].StoreID)), s.store),
-				"f470_vlr_bruto":       calculateGrossValue(1.0, item.Price),
+				"f470_id_bodega":       f461IDCO,
+				"f470_id_co_movto":     f350IDCO,
+				"f470_vlr_bruto":       calculateGrossValue(1, item.Price),
 				"f470_referencia_item": s.GetReferences(strconv.Itoa(int(*invoice.ChannelID)), strconv.Itoa(int(*item.ProductID))),
 			}
 			movimientos = append(movimientos, itemMovimiento)
@@ -201,14 +202,14 @@ func (s service) BuildDocument(invoices []invoicePkg.Invoice) map[string]interfa
 	cuotasCxC := []map[string]string{}
 
 	itemcuotasCxC := map[string]string{
-		"F350_ID_CO":        getF350IDCO(strconv.Itoa(int(*invoices[0].StoreID)), s.store),
+		"F350_ID_CO":        f350IDCO,
 		"F350_CONSEC_DOCTO": "1",
-		"F353_FECHA_VCTO":   formatDate(invoices[0].CreatedAt),
+		"F353_FECHA_VCTO":   formatDate(now),
 	}
 	cuotasCxC = append(cuotasCxC, itemcuotasCxC)
 	doc["Cuotas CxC"] = cuotasCxC
 
-	return doc
+	return doc, err
 }
 
 func ExcelColumnID(colIdx int) string {
@@ -254,6 +255,7 @@ func GenerateExcelFile(doc map[string]interface{}) (*excelize.File, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		file.SetActiveSheet(index)
 
 		// Add headers to the sheet
@@ -278,6 +280,7 @@ func GenerateExcelFile(doc map[string]interface{}) (*excelize.File, error) {
 			}
 		}
 	}
+
 	// Delete the default "Sheet1"
 	file.DeleteSheet("Sheet1")
 
