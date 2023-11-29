@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/xuri/excelize/v2"
 )
@@ -110,6 +111,7 @@ func formatDate(dateStr string) string {
 		// Manejar el error si ocurre
 		return "error en fecha" // Valor por defecto en caso de error
 	}
+
 	return t.Format("20060102")
 }
 
@@ -118,20 +120,21 @@ func calculateGrossValue(cantidad int, precioUnitario int) string {
 	if precioUnitario == 0 {
 		precioUnitario = 1
 	}
-	precio := precioUnitario
-	return strconv.Itoa(precio * cantidad)
+
+	return strconv.Itoa(precioUnitario * cantidad)
 }
 
 // buildDocument construye el documento que se enviará al endpoint de Siesa.
 func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 	doc := make(map[string]interface{})
+	now := time.Now()
 
 	doctoVentasComercial := []map[string]string{
 		{
 			"F350_ID_CO":                    getF350IDCO(orders[0].KeyLocal),                                                                                         // Asigna el valor correspondiente al centro de operación de la primera orden
 			"F350_ID_TIPO_DOCTO":            "FVR",                                                                                                                   // Siempre es FVR
 			"F350_CONSEC_DOCTO":             "1",                                                                                                                     // "1" para ser autoincremental para integración
-			"F350_FECHA":                    formatDate(orders[0].FechaCreacion),                                                                                     // Asigna el valor correspondiente a la fecha de la primera orden
+			"F350_FECHA":                    now.Format("20060102"),                                                                                                  // Asigna el valor correspondiente a la fecha de la primera orden
 			"f461_id_co_fact":               getF350IDCO(orders[0].KeyLocal),                                                                                         // Asigna el valor correspondiente al centro de operación de la primera orden
 			"f461_notas":                    "Orden " + orders[0].DisplayID + " - el " + formatDate(orders[0].FechaCreacion) + " - del pdv " + orders[0].NombreStore, // Nota correspondiente a la primera orden procesada
 			"F461_ID_BODEGA_COMPON_PROCESO": getF350IDCO(orders[0].KeyLocal),                                                                                         // Asigna el valor correspondiente a la bodega de la primera orden
@@ -345,21 +348,23 @@ func GetOrders(startDate string, endDate string, locationIDs []string) (string, 
 	// Construir la URL
 	var allOrders []PopappOrder
 	for _, locationID := range locationIDs {
-		url := fmt.Sprintf("https://serverless.popapp.io/apipopapp/orders/?start_date=%s&end_date=%s&location_id=%s&order=desc", startDate, endDate, locationID)
+		url := fmt.Sprintf("%s/apipopapp/orders/?start_date=%s&end_date=%s&location_id=%s&order=desc", internal.Config.PopappHost, startDate, endDate, locationID)
+
 		// Crear la solicitud HTTP
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			return "", fmt.Errorf("error al crear la solicitud: %v", err)
 		}
-		req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJiU0ZDUHlqb3NZZkdJQXR1aDYyVUdQcGZvbnUyIiwiY291bnRUb2tlbiI6MSwiaWF0IjoxNjY2NjI2MDcyfQ.EXN9ElWrgtXVRbxLrnBGfPoke_JxMVfgjT7sb6ywdxA")
+
+		req.Header.Set("Authorization", "Bearer "+internal.Config.PopappAuthToken)
 
 		// Crear el cliente HTTP
 		client := &http.Client{}
-
 		resp, err := client.Do(req)
 		if err != nil {
 			return "", fmt.Errorf("error al realizar la solicitud: %v", err)
 		}
+
 		defer resp.Body.Close()
 
 		// Leer el cuerpo de la respuesta
@@ -367,6 +372,7 @@ func GetOrders(startDate string, endDate string, locationIDs []string) (string, 
 		if err != nil {
 			return "", fmt.Errorf("error al leer el cuerpo de la respuesta: %v", err)
 		}
+
 		// Decodificar la respuesta JSON en la estructura definida
 		var orderResponse OrderResponse
 		err = json.Unmarshal(body, &orderResponse)
@@ -382,6 +388,7 @@ func GetOrders(startDate string, endDate string, locationIDs []string) (string, 
 	if err != nil {
 		return "", fmt.Errorf("error al codificar la lista de órdenes en formato JSON: %v", err)
 	}
+
 	return string(ordersJSON), nil
 }
 

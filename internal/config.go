@@ -44,6 +44,10 @@ type AppConfig struct {
 	InfluxPort  string `env:"INFLUX_PORT" envDefault:"8086"`
 	InfluxDB    string `env:"INFLUX_DB" envDefault:"telemetry"`
 	InfluxToken string `env:"INFLUX_TOKEN"`
+
+	// Popapp
+	PopappHost      string `env:"POPAPP_HOST"`
+	PopappAuthToken string `env:"POPAPP_AUTH_TOKEN"`
 }
 
 // PopappConfig is the struct that holds the configuration for the firestore

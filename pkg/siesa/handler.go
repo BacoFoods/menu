@@ -2,7 +2,6 @@ package siesa
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/BacoFoods/menu/pkg/shared"
@@ -45,17 +44,17 @@ func (h *Handler) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
+
 	response, err := GetOrders(requestBody.StartDate, requestBody.EndDate, requestBody.LocationIDs)
-	//fmt.Println(response)
 	if err != nil {
-		fmt.Println("Error al obtener las ordenes:", err)
+		shared.LogError("error getting orders", LogHandler, "Create", err, response)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
 		return
 	}
 
 	var orders []PopappOrder
 	if err := json.Unmarshal([]byte(response), &orders); err != nil {
-		fmt.Println("Error al decodificar la respuesta JSON:", err)
+		shared.LogError("error unmarshalling orders", LogHandler, "Create", err, response)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
 		return
 	}
@@ -63,7 +62,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 	// Call the HandleSIESAIntegration function to get the Excel file as a byte slice
 	excelFile, err := h.service.HandleSIESAIntegration(orders)
 	if err != nil {
-		fmt.Println("Error en la integración con SIESA:", err)
+		shared.LogError("error handling SIESA integration", LogHandler, "Create", err, orders)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
 		return
 	}
