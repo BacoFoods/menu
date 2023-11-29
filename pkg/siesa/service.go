@@ -24,11 +24,6 @@ func NewService(repository Repository) Service {
 }
 
 func (s Service) HandleSIESAIntegration(orders []PopappOrder) ([]byte, error) {
-	// Construir el cuerpo del request para enviar la información de la orden
-	err := s.insertData()
-	if err != nil {
-		return nil, err
-	}
 	doc := s.buildDocument(orders)
 
 	// Generate the Excel file as a byte slice

@@ -154,13 +154,13 @@ func (h *Handler) Update(ctx *gin.Context) {
 func (h *Handler) CreateFile(ctx *gin.Context) {
 	var requestBody RequestExcelCreate
 	if err := ctx.BindJSON(&requestBody); err != nil {
-		shared.LogWarn("warning binding request fail", LogHandler, "Create", err)
+		shared.LogWarn("warning binding request fail", LogHandler, "CreateFile", err)
 		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
 	invoices, err := h.service.GetInvoices(requestBody.StartDate, requestBody.EndDate, fmt.Sprint(requestBody.StoreID))
 	if err != nil {
-		fmt.Println("Error getting invoices:", err)
+		shared.LogError("error getting invoices", LogHandler, "CreateFile", err, invoices)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
 		return
 	}
@@ -168,7 +168,7 @@ func (h *Handler) CreateFile(ctx *gin.Context) {
 	// Call the HandleSIESAIntegration function to get the Excel file as a byte slice
 	excelFile, err := h.service.CreateFile(requestBody.StoreID, invoices)
 	if err != nil {
-		fmt.Println("Error en la integración con SIESA:", err)
+		shared.LogError("error handling SIESA integration", LogHandler, "CreateFile", err, invoices)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
 		return
 	}

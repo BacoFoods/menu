@@ -10,6 +10,7 @@ import (
 	invoicePkg "github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/shared"
 	storePkg "github.com/BacoFoods/menu/pkg/store"
+	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -61,11 +62,13 @@ func (s service) GetInvoices(startDate, endDate, storeID string) ([]invoicePkg.I
 func (s service) CreateFile(storeID uint, invoices []invoicePkg.Invoice) ([]byte, error) {
 	doc, err := s.BuildDocument(storeID, invoices)
 	if err != nil {
+		shared.LogError("error generating building document", LogService, "CreateFile-BuildDocument", err)
 		return nil, err
 	}
 
 	file, err := GenerateExcelFile(doc)
 	if err != nil {
+		shared.LogError("error generating Excel file", LogService, "CreateFile-GenerateExcelFile", err)
 		return nil, err
 	}
 	defer file.Close()
@@ -226,6 +229,11 @@ func ExcelColumnID(colIdx int) string {
 	return result
 }
 
+type sheetCol struct {
+	Header    string
+	FieldName string
+}
+
 func GenerateExcelFile(doc map[string]interface{}) (*excelize.File, error) {
 	file := excelize.NewFile()
 
@@ -233,48 +241,152 @@ func GenerateExcelFile(doc map[string]interface{}) (*excelize.File, error) {
 	file.DeleteSheet("Sheet1")
 
 	// Define sheet names and corresponding headers
-	sheetNames := []string{"Docto. ventas comercial", "Descuentos", "Cuotas CxC", "Movimientos"}
-	headersColumns := [][]string{
-		{"F350_ID_CO", "F350_ID_TIPO_DOCTO", "F350_CONSEC_DOCTO", "F350_FECHA", "f461_id_co_fact", "f461_notas", "F461_ID_BODEGA_COMPON_PROCESO"},
-		{"f471_id_co", "f471_id_tipo_docto", "f471_consec_docto", "f471_nro_registro", "f471_vlr_uni", "f471_vlr_tot"},
-		{"F350_ID_CO", "F350_CONSEC_DOCTO"},
-		{"f470_id_co", "f470_consec_docto", "f470_nro_registro", "f470_id_bodega", "f470_id_co_movto", "f470_cant_base", "f470_vlr_bruto", "f470_referencia_item"},
+	sheets := map[string][]sheetCol{
+		"Docto. ventas comercial": {
+			{
+				Header:    "Centro Operacion",
+				FieldName: "F350_ID_CO",
+			},
+			{
+				Header:    "Tipo Documento",
+				FieldName: "F350_ID_TIPO_DOCTO",
+			},
+			{
+				Header:    "Numero Docto",
+				FieldName: "F350_CONSEC_DOCTO",
+			},
+			{
+				Header:    "Fecha Docto",
+				FieldName: "F350_FECHA",
+			},
+			{
+				Header:    "Centro operación factura",
+				FieldName: "f461_id_co_fact",
+			},
+			{
+				Header:    "Observaciones",
+				FieldName: "f461_notas",
+			},
+			{
+				Header:    "Bodega componentes Kit",
+				FieldName: "F461_ID_BODEGA_COMPON_PROCESO",
+			},
+		},
+		"Descuentos": {
+			{
+				Header:    "Centro Operacion",
+				FieldName: "f471_id_co",
+			},
+			{
+				Header:    "Tipo Documento",
+				FieldName: "f471_id_tipo_docto",
+			},
+			{
+				Header:    "Consecutivo Documento",
+				FieldName: "f471_consec_docto",
+			},
+			{
+				Header:    "Numero Registro",
+				FieldName: "f471_nro_registro",
+			},
+			{
+				Header:    "Valor Descuento Unitario",
+				FieldName: "f471_vlr_uni",
+			},
+			{
+				Header:    "Valor Descuento Total",
+				FieldName: "f471_vlr_tot",
+			},
+		},
+		"Cuotas CxC": {
+			{
+				Header:    "Centro Operacion",
+				FieldName: "F350_ID_CO",
+			},
+			{
+				Header:    "Número Documento",
+				FieldName: "F350_CONSEC_DOCTO",
+			},
+		},
+		"Movimientos": {
+			{
+				Header:    "Centro Operacion",
+				FieldName: "f470_id_co",
+			},
+			{
+				Header:    "Consecutivo Documento",
+				FieldName: "f470_consec_docto",
+			},
+			{
+				Header:    "Numero Registro",
+				FieldName: "f470_nro_registro",
+			},
+			{
+				Header:    "Bodega",
+				FieldName: "f470_id_bodega",
+			},
+			{
+				Header:    "Centro Operacion Mvmnto",
+				FieldName: "f470_id_co_movto",
+			},
+			{
+				Header:    "Cantidad",
+				FieldName: "f470_cant_base",
+			},
+			{
+				Header:    "Valor Neto",
+				FieldName: "f470_vlr_bruto",
+			},
+			{
+				Header:    "Referencia",
+				FieldName: "f470_referencia_item",
+			},
+		},
 	}
+	// sheetNames := []string{"Docto. ventas comercial", "Descuentos", "Cuotas CxC", "Movimientos"}
+	// headersColumns := [][]string{
+	// 	{"F350_ID_CO", "F350_ID_TIPO_DOCTO", "F350_CONSEC_DOCTO", "F350_FECHA", "f461_id_co_fact", "f461_notas", "F461_ID_BODEGA_COMPON_PROCESO"},
+	// 	{"f471_id_co", "f471_id_tipo_docto", "f471_consec_docto", "f471_nro_registro", "f471_vlr_uni", "f471_vlr_tot"},
+	// 	{"F350_ID_CO", "F350_CONSEC_DOCTO"},
+	// 	{"f470_id_co", "f470_consec_docto", "f470_nro_registro", "f470_id_bodega", "f470_id_co_movto", "f470_cant_base", "f470_vlr_bruto", "f470_referencia_item"},
+	// }
 
-	// Define headers for each sheet
-	headers := [][]string{
-		{"Centro Operacion", "Tipo Documento", "Numero Docto", "Fecha Docto", "Centro operación factura", "Observaciones", "Bodega componentes Kit"},
-		{"Centro Operacion", "Tipo Documento", "Consecutivo Documento", "Numero Registro", "Valor Descuento Unitario", "Valor Descuento Total"},
-		{"Centro Operacion", "Número Documento"},
-		{"Centro Operacion", "Consecutivo Documento", "Numero Registro", "Bodega", "Centro Operacion Mvmnto", "Cantidad", "Valor Neto", "Referencia"},
-	}
+	// // Define headers for each sheet
+	// headers := [][]string{
+	// 	{"Centro Operacion", "Tipo Documento", "Numero Docto", "Fecha Docto", "Centro operación factura", "Observaciones", "Bodega componentes Kit"},
+	// 	{"Centro Operacion", "Tipo Documento", "Consecutivo Documento", "Numero Registro", "Valor Descuento Unitario", "Valor Descuento Total"},
+	// 	{"Centro Operacion", "Número Documento"},
+	// 	{"Centro Operacion", "Consecutivo Documento", "Numero Registro", "Bodega", "Centro Operacion Mvmnto", "Cantidad", "Valor Neto", "Referencia"},
+	// }
 
 	// Create sheets and add headers
-	for i, sheetName := range sheetNames {
-		index, err := file.NewSheet(sheetName)
+	for name, cols := range sheets {
+		currentSheedIx, err := file.NewSheet(name)
 		if err != nil {
 			return nil, err
 		}
 
-		file.SetActiveSheet(index)
+		file.SetActiveSheet(currentSheedIx)
 
 		// Add headers to the sheet
-		for col, header := range headers[i] {
-			cell := ExcelColumnID(col+1) + "1"
-			file.SetCellValue(sheetName, cell, header)
+		for colIdx, col := range cols {
+			cell := ExcelColumnID(colIdx+1) + "1"
+			file.SetCellValue(name, cell, col.Header)
 		}
 
 		// Extract data from the document and add to the sheet
-		if data, ok := doc[sheetName]; ok {
+		if data, ok := doc[name]; ok {
 			if records, ok := data.([]map[string]string); ok {
 				for rowIdx, record := range records {
-					for colIdx, header := range headersColumns[i] {
-						value, ok := record[header]
+					for colIdx, header := range cols {
+						value, ok := record[header.FieldName]
 						if !ok {
-							return nil, fmt.Errorf("missing value for header %s in sheet %s", headersColumns, sheetName)
+							logrus.Warnf("missing value for header %s in sheet %s", header.FieldName, name)
+							value = ""
 						}
+
 						cell := ExcelColumnID(colIdx+1) + fmt.Sprint(rowIdx+2) // Start from row 2 for data
-						file.SetCellValue(sheetName, cell, value)
+						_ = file.SetCellValue(name, cell, value)
 					}
 				}
 			}
@@ -282,7 +394,7 @@ func GenerateExcelFile(doc map[string]interface{}) (*excelize.File, error) {
 	}
 
 	// Delete the default "Sheet1"
-	file.DeleteSheet("Sheet1")
+	_ = file.DeleteSheet("Sheet1")
 
 	// Check if the file is empty
 	if file.SheetCount == 0 {
