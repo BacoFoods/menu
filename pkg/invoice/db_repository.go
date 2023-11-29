@@ -82,6 +82,54 @@ func (r *DBRepository) Find(filter map[string]interface{}) ([]Invoice, error) {
 	return invoices, nil
 }
 
+// FindInvoices method for finding the most recent invoice for each order in the database with additional filters including date range
+func (r *DBRepository) FindInvoices(filter map[string]interface{}) ([]Invoice, error) {
+	tx := r.db.
+		Preload(clause.Associations).
+		Select("DISTINCT ON (order_id) *").
+		Order("order_id, created_at DESC")
+
+	// Handle filter for StoreID
+	if storeID, ok := filter["store_id"]; ok {
+		tx = tx.Where("store_id = ?", storeID)
+		delete(filter, "store_id")
+	}
+
+	// Handle specific filters for "paid" and "closed"
+	if _, ok := filter["paid"]; ok {
+		// TODO: Handle rules for "paid" filter
+		delete(filter, "paid")
+	}
+
+	if closed, ok := filter["closed"]; ok {
+		// Define if the invoice has a payment
+		if closed == "true" {
+			tx = tx.Joins("JOIN payments ON payments.invoice_id = invoices.id").
+				Where("payments.deleted_at IS NULL")
+		}
+		delete(filter, "closed")
+	}
+
+	// Handle date range filter
+	if startDate, ok := filter["start_date"]; ok {
+		tx = tx.Where("created_at >= ?", startDate)
+		delete(filter, "start_date")
+	}
+
+	if endDate, ok := filter["end_date"]; ok {
+		tx = tx.Where("created_at <= ?", endDate)
+		delete(filter, "end_date")
+	}
+
+	var invoices []Invoice
+	if err := tx.Find(&invoices, filter).Error; err != nil {
+		shared.LogError("error finding invoices", LogRepository, "FindInvoices", err, filter)
+		return nil, err
+	}
+
+	return invoices, nil
+}
+
 // UpdateTip update the field 'tips' of an Invoice in database.
 func (r *DBRepository) UpdateTip(invoice *Invoice) (*Invoice, error) {
 	var invoiceDB Invoice

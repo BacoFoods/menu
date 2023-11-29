@@ -45,6 +45,7 @@ type Repository interface {
 	CreateUpdate(invoice *Invoice) (*Invoice, error)
 	Get(invoiceID string) (*Invoice, error)
 	Find(filter map[string]any) ([]Invoice, error)
+	FindInvoices(filter map[string]any) ([]Invoice, error)
 	UpdateTip(invoice *Invoice) (*Invoice, error)
 	CreateBatch(invoices []Invoice) ([]Invoice, error)
 	Delete(invoiceID string) error
