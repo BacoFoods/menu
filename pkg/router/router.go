@@ -5,6 +5,10 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"github.com/BacoFoods/menu/pkg/siesa"
+	"google.golang.org/api/idtoken"
+	"google.golang.org/api/option"
+
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
 	"github.com/BacoFoods/menu/pkg/assets"
@@ -36,8 +40,6 @@ import (
 	"github.com/BacoFoods/menu/pkg/taxes"
 	"github.com/BacoFoods/menu/pkg/temporal"
 	"github.com/gin-gonic/gin"
-	"google.golang.org/api/idtoken"
-	"google.golang.org/api/option"
 )
 
 // Router interface for router implementation
@@ -96,6 +98,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Facturacion.RegisterRoutes(private)
 	routes.Schedule.RegisterRoutes(private)
 	routes.Equivalence.RegisterRoutes(private)
+	routes.Siesa.RegisterRoutes(private)
 
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
@@ -140,4 +143,5 @@ type RoutesGroup struct {
 	Facturacion  facturacion.Routes
 	Schedule     scheduler.Routes
 	Equivalence  connector.Routes
+	Siesa        siesa.Routes
 }

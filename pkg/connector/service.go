@@ -297,6 +297,6 @@ type Service interface {
 	Find(filter map[string]string) ([]Equivalence, error)
 	Update(Equivalence) (*Equivalence, error)
 	Delete(string) (*Equivalence, error)
-	CreateFile(invoices []invoicePkg.Invoice) ([]byte, error)
+	CreateFile(storeID uint, invoices []invoicePkg.Invoice) ([]byte, error)
 	GetInvoices(startDate, endDate, storeID string) ([]invoicePkg.Invoice, error)
 }

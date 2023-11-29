@@ -10869,6 +10869,307 @@
                 }
             }
         },
+        "/siesa": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Handles a request to create an Excel file containing orders based on the specified parameters.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/vnd.ms-excel"
+                ],
+                "tags": [
+                    "SIESA"
+                ],
+                "summary": "Generate an Excel file with orders",
+                "parameters": [
+                    {
+                        "description": "Request body for creating Excel file",
+                        "name": "siesa",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/siesa.RequestExcelCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with Excel file",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request response",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity response",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error response",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/siesa/reference": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Find references based on filters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SIESA"
+                ],
+                "summary": "Find references",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "PDV Reference",
+                        "name": "referencia_pdv",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Delivery Inline Reference",
+                        "name": "referencia_delivery_inline",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a reference",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SIESA"
+                ],
+                "summary": "Create a reference",
+                "parameters": [
+                    {
+                        "description": "Reference request",
+                        "name": "reference",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/siesa.Reference"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/siesa/reference/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To delete a reference",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SIESA"
+                ],
+                "summary": "To delete a reference",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "reference id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/siesa.Reference"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To update a reference",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SIESA"
+                ],
+                "summary": "To update a reference",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "reference id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "reference request",
+                        "name": "reference",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/siesa.Reference"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/siesa.Reference"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/store": {
             "get": {
                 "security": [
@@ -14201,7 +14502,7 @@
                     "type": "string"
                 },
                 "store_id": {
-                    "type": "string"
+                    "type": "integer"
                 }
             }
         },
@@ -15608,6 +15909,58 @@
             "properties": {
                 "start_balance": {
                     "type": "number"
+                }
+            }
+        },
+        "siesa.Reference": {
+            "type": "object",
+            "properties": {
+                "bacu_marketplace": {
+                    "type": "string"
+                },
+                "categoria": {
+                    "type": "string"
+                },
+                "didi_bacu": {
+                    "type": "string"
+                },
+                "didi_stu": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "popapp": {
+                    "type": "string"
+                },
+                "rappi_bacu": {
+                    "type": "string"
+                },
+                "rappi_pick_up": {
+                    "type": "string"
+                },
+                "referencia_delivery_inline": {
+                    "type": "string"
+                },
+                "referencia_pdv": {
+                    "type": "string"
+                }
+            }
+        },
+        "siesa.RequestExcelCreate": {
+            "type": "object",
+            "properties": {
+                "end_date": {
+                    "type": "string"
+                },
+                "location_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "start_date": {
+                    "type": "string"
                 }
             }
         },

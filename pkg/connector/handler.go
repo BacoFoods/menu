@@ -2,9 +2,10 @@ package connector
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 const LogHandler string = "pkg/connector/handler"
@@ -16,7 +17,7 @@ type Handler struct {
 type RequestExcelCreate struct {
 	StartDate string `json:"start_date"`
 	EndDate   string `json:"end_date"`
-	StoreID   string `json:"store_id"`
+	StoreID   uint   `json:"store_id"`
 }
 
 func NewHandler(service Service) *Handler {
@@ -157,7 +158,7 @@ func (h *Handler) CreateFile(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
-	invoices, err := h.service.GetInvoices(requestBody.StartDate, requestBody.EndDate, requestBody.StoreID)
+	invoices, err := h.service.GetInvoices(requestBody.StartDate, requestBody.EndDate, fmt.Sprint(requestBody.StoreID))
 	if err != nil {
 		fmt.Println("Error getting invoices:", err)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
@@ -165,7 +166,7 @@ func (h *Handler) CreateFile(ctx *gin.Context) {
 	}
 
 	// Call the HandleSIESAIntegration function to get the Excel file as a byte slice
-	excelFile, err := h.service.CreateFile(invoices)
+	excelFile, err := h.service.CreateFile(requestBody.StoreID, invoices)
 	if err != nil {
 		fmt.Println("Error en la integración con SIESA:", err)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))

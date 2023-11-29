@@ -450,7 +450,7 @@ definitions:
       start_date:
         type: string
       store_id:
-        type: string
+        type: integer
     type: object
   country.Country:
     properties:
@@ -1396,6 +1396,40 @@ definitions:
         type: number
     required:
     - start_balance
+    type: object
+  siesa.Reference:
+    properties:
+      bacu_marketplace:
+        type: string
+      categoria:
+        type: string
+      didi_bacu:
+        type: string
+      didi_stu:
+        type: string
+      id:
+        type: integer
+      popapp:
+        type: string
+      rappi_bacu:
+        type: string
+      rappi_pick_up:
+        type: string
+      referencia_delivery_inline:
+        type: string
+      referencia_pdv:
+        type: string
+    type: object
+  siesa.RequestExcelCreate:
+    properties:
+      end_date:
+        type: string
+      location_ids:
+        items:
+          type: string
+        type: array
+      start_date:
+        type: string
     type: object
   store.Store:
     properties:
@@ -8152,6 +8186,193 @@ paths:
       summary: Open shift
       tags:
       - Shift
+  /siesa:
+    post:
+      consumes:
+      - application/json
+      description: Handles a request to create an Excel file containing orders based
+        on the specified parameters.
+      parameters:
+      - description: Request body for creating Excel file
+        in: body
+        name: siesa
+        required: true
+        schema:
+          $ref: '#/definitions/siesa.RequestExcelCreate'
+      produces:
+      - application/vnd.ms-excel
+      responses:
+        "200":
+          description: Successful response with Excel file
+          schema:
+            type: file
+        "400":
+          description: Bad Request response
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity response
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "500":
+          description: Internal Server Error response
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Generate an Excel file with orders
+      tags:
+      - SIESA
+  /siesa/reference:
+    get:
+      consumes:
+      - application/json
+      description: Find references based on filters
+      parameters:
+      - description: PDV Reference
+        in: query
+        name: referencia_pdv
+        type: string
+      - description: Delivery Inline Reference
+        in: query
+        name: referencia_delivery_inline
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Find references
+      tags:
+      - SIESA
+    post:
+      consumes:
+      - application/json
+      description: Create a reference
+      parameters:
+      - description: Reference request
+        in: body
+        name: reference
+        required: true
+        schema:
+          $ref: '#/definitions/siesa.Reference'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a reference
+      tags:
+      - SIESA
+  /siesa/reference/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a reference
+      parameters:
+      - description: reference id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/siesa.Reference'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To delete a reference
+      tags:
+      - SIESA
+    patch:
+      consumes:
+      - application/json
+      description: To update a reference
+      parameters:
+      - description: reference id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: reference request
+        in: body
+        name: reference
+        required: true
+        schema:
+          $ref: '#/definitions/siesa.Reference'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/siesa.Reference'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To update a reference
+      tags:
+      - SIESA
   /store:
     get:
       consumes:

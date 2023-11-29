@@ -20,6 +20,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/scheduler"
 	"github.com/BacoFoods/menu/pkg/shift"
+	"github.com/BacoFoods/menu/pkg/siesa"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
 	_ "github.com/BacoFoods/menu/pkg/swagger/docs" //documentation
@@ -82,5 +83,6 @@ func (r *Routes) Register(group *gin.RouterGroup) {
 	_ = assets.Handler{}
 	_ = scheduler.Handler{}
 	_ = connector.Handler{}
+	_ = siesa.Handler{}
 	group.GET("/swagger/*any", swaggerGin.WrapHandler(swaggerFiles.Handler))
 }
