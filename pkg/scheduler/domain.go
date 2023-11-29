@@ -27,8 +27,8 @@ type Schedule struct {
 	Store     *store.Store    `json:"store" gorm:"foreignKey:StoreID"`
 	BrandID   *uint           `json:"brand_id" binding:"required"`
 	Day       string          `json:"day" binding:"required" enums:"monday,tuesday,wednesday,thursday,friday,saturday,sunday,holiday"`
-	Opening   string          `json:"open" binding:"required"`
-	Closing   string          `json:"close" binding:"required"`
+	Opening   string          `json:"open" binding:"required" example:"23:59"`
+	Closing   string          `json:"close" binding:"required" example:"23:59"`
 	Enable    bool            `json:"enable"`
 	CreatedAt *time.Time      `json:"created_at" swaggerignore:"true"`
 	UpdatedAt *time.Time      `json:"updated_at" swaggerignore:"true"`

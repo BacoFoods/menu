@@ -16006,9 +16006,6 @@
                 "brand_id": {
                     "type": "integer"
                 },
-                "country": {
-                    "$ref": "#/definitions/country.Country"
-                },
                 "country_id": {
                     "type": "integer"
                 },
@@ -16075,7 +16072,8 @@
                     "type": "integer"
                 },
                 "closing": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "23:59"
                 },
                 "day": {
                     "type": "string",
@@ -16097,7 +16095,8 @@
                     "type": "integer"
                 },
                 "opening": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "23:59"
                 },
                 "store_id": {
                     "type": "integer"
@@ -16175,7 +16174,8 @@
                     "type": "integer"
                 },
                 "close": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "23:59"
                 },
                 "day": {
                     "type": "string",
@@ -16197,7 +16197,8 @@
                     "type": "integer"
                 },
                 "open": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "23:59"
                 },
                 "store": {
                     "$ref": "#/definitions/store.Store"

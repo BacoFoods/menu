@@ -16014,9 +16014,6 @@ const docTemplate = `{
                 "brand_id": {
                     "type": "integer"
                 },
-                "country": {
-                    "$ref": "#/definitions/country.Country"
-                },
                 "country_id": {
                     "type": "integer"
                 },
@@ -16083,7 +16080,8 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "closing": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "23:59"
                 },
                 "day": {
                     "type": "string",
@@ -16105,7 +16103,8 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "opening": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "23:59"
                 },
                 "store_id": {
                     "type": "integer"
@@ -16183,7 +16182,8 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "close": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "23:59"
                 },
                 "day": {
                     "type": "string",
@@ -16205,7 +16205,8 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "open": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "23:59"
                 },
                 "store": {
                     "$ref": "#/definitions/store.Store"

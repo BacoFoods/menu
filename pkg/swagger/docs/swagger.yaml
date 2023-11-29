@@ -1271,8 +1271,6 @@ definitions:
     properties:
       brand_id:
         type: integer
-      country:
-        $ref: '#/definitions/country.Country'
       country_id:
         type: integer
       day:
@@ -1317,6 +1315,7 @@ definitions:
       brand_id:
         type: integer
       closing:
+        example: "23:59"
         type: string
       day:
         enum:
@@ -1334,6 +1333,7 @@ definitions:
       id:
         type: integer
       opening:
+        example: "23:59"
         type: string
       store_id:
         type: integer
@@ -1386,6 +1386,7 @@ definitions:
       brand_id:
         type: integer
       close:
+        example: "23:59"
         type: string
       day:
         enum:
@@ -1403,6 +1404,7 @@ definitions:
       id:
         type: integer
       open:
+        example: "23:59"
         type: string
       store:
         $ref: '#/definitions/store.Store'

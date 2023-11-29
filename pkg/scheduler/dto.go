@@ -14,8 +14,8 @@ type RequestSchedule struct {
 	StoreID *uint  `json:"store_id" validate:"required"`
 	BrandID *uint  `json:"brand_id" validate:"required"`
 	Day     string `json:"day" validate:"required,oneof=monday tuesday wednesday thursday friday saturday sunday holiday" enums:"monday,tuesday,wednesday,thursday,friday,saturday,sunday,holiday"`
-	Opening string `json:"opening" validate:"required,availablehour"`
-	Closing string `json:"closing" validate:"required,availablehour"`
+	Opening string `json:"opening" validate:"required,availablehour" example:"23:59"`
+	Closing string `json:"closing" validate:"required,availablehour" example:"23:59"`
 	Enable  bool   `json:"enable"`
 }
 
