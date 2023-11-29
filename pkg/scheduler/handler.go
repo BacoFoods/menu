@@ -56,8 +56,7 @@ func (h *Handler) Find(c *gin.Context) {
 
 	isTodayHoliday, err := h.service.GetTodayHoliday()
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
-		return
+		shared.LogError("error getting today's holiday", LogRepository, "Find", err, nil)
 	}
 
 	responseBrand := ResponseBrand{}
