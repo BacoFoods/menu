@@ -1267,12 +1267,50 @@ definitions:
         example: "10000"
         type: string
     type: object
+  scheduler.Holiday:
+    properties:
+      brand_id:
+        type: integer
+      country:
+        $ref: '#/definitions/country.Country'
+      country_id:
+        type: integer
+      day:
+        type: string
+      enable:
+        type: boolean
+      id:
+        type: integer
+    required:
+    - brand_id
+    - country_id
+    - day
+    type: object
   scheduler.RequestEnableStore:
     properties:
       enable:
         type: boolean
     required:
     - enable
+    type: object
+  scheduler.RequestHoliday:
+    properties:
+      brand_id:
+        type: integer
+      country_id:
+        type: integer
+      day:
+        example: "2021-01-01"
+        format: "2006-01-02"
+        type: string
+      enable:
+        type: boolean
+      id:
+        type: integer
+    required:
+    - brand_id
+    - country_id
+    - day
     type: object
   scheduler.RequestSchedule:
     properties:
@@ -8020,6 +8058,168 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To find today's store's schedules of a brand
+      tags:
+      - Schedule
+  /schedules/holiday:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a holiday
+      parameters:
+      - description: schedule
+        in: body
+        name: schedule
+        required: true
+        schema:
+          $ref: '#/definitions/scheduler.Holiday'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/scheduler.Schedule'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To delete a holiday
+      tags:
+      - Schedule
+    get:
+      consumes:
+      - application/json
+      description: To find holidays
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/scheduler.ResponseBrand'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find holidays
+      tags:
+      - Schedule
+    patch:
+      consumes:
+      - application/json
+      description: To update a holiday
+      parameters:
+      - description: schedule
+        in: body
+        name: schedule
+        required: true
+        schema:
+          $ref: '#/definitions/scheduler.RequestHoliday'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/scheduler.Schedule'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To update a holiday
+      tags:
+      - Schedule
+    post:
+      consumes:
+      - application/json
+      description: To create a holiday
+      parameters:
+      - description: schedule
+        in: body
+        name: schedule
+        required: true
+        schema:
+          $ref: '#/definitions/scheduler.RequestHoliday'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/scheduler.Schedule'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To create a holiday
       tags:
       - Schedule
   /schedules/store/{id}/enable:

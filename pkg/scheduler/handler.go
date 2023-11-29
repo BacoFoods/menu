@@ -54,6 +54,12 @@ func (h *Handler) Find(c *gin.Context) {
 		return
 	}
 
+	isTodayHoliday, err := h.service.GetTodayHoliday()
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
 	responseBrand := ResponseBrand{}
 	stores := make(map[uint]*ResponseStore)
 	for _, schedule := range schedules {
@@ -87,7 +93,7 @@ func (h *Handler) Find(c *gin.Context) {
 		}
 
 		if strings.ToLower(time.Now().Weekday().String()) == schedule.Day {
-			isOpen := schedule.IsOpen()
+			isOpen := schedule.IsOpen(isTodayHoliday)
 			stores[schedule.Store.ID].Open = isOpen
 		}
 	}
@@ -265,4 +271,129 @@ func (h *Handler) EnableStore(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, shared.SuccessResponse(schedules))
+}
+
+// Holiday to handle a request to create a holiday
+// @Tags Schedule
+// @Summary To create a holiday
+// @Description To create a holiday
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param schedule body RequestHoliday true "schedule"
+// @Success 200 {object} object{status=string,data=Schedule}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /schedules/holiday [post]
+func (h *Handler) Holiday(c *gin.Context) {
+	var request RequestHoliday
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	holiday, err := request.ToHoliday()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	holidayDB, err := h.service.CreateHoliday(holiday)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(holidayDB))
+}
+
+// UpdateHoliday to handle a request to update a holiday
+// @Tags Schedule
+// @Summary To update a holiday
+// @Description To update a holiday
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param schedule body RequestHoliday true "schedule"
+// @Success 200 {object} object{status=string,data=Schedule}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /schedules/holiday [patch]
+func (h *Handler) UpdateHoliday(c *gin.Context) {
+	var request RequestHoliday
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	holiday, err := request.ToHoliday()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	holidayDB, err := h.service.UpdateHoliday(holiday)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(holidayDB))
+}
+
+// DeleteHoliday to handle a request to delete a holiday
+// @Tags Schedule
+// @Summary To delete a holiday
+// @Description To delete a holiday
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param schedule body Holiday true "schedule"
+// @Success 200 {object} object{status=string,data=Schedule}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /schedules/holiday [delete]
+func (h *Handler) DeleteHoliday(c *gin.Context) {
+	var holiday RequestHoliday
+	if err := c.ShouldBindJSON(&holiday); err != nil {
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	holidayDB, err := holiday.ToHoliday()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(err.Error()))
+		return
+	}
+	if err := h.service.DeleteHoliday(holidayDB); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusNoContent, nil)
+}
+
+// FindHoliday to handle a request to find holidays
+// @Tags Schedule
+// @Summary To find holidays
+// @Description To find holidays
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=ResponseBrand}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /schedules/holiday [get]
+func (h *Handler) FindHoliday(c *gin.Context) {
+	holidays, err := h.service.FindHoliday()
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(holidays))
 }

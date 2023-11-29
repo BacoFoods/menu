@@ -91,3 +91,25 @@ type ResponseSchedules struct {
 	Closing string `json:"closing"`
 	Enable  bool   `json:"enable"`
 }
+
+type RequestHoliday struct {
+	ID        uint   `json:"id,omitempty"`
+	BrandID   *uint  `json:"brand_id" binding:"required"`
+	Day       string `json:"day" binding:"required" example:"2021-01-01" format:"2006-01-02"`
+	Enable    bool   `json:"enable"`
+	CountryID *uint  `json:"country_id" binding:"required"`
+}
+
+func (r *RequestHoliday) ToHoliday() (*Holiday, error) {
+	day, err := time.Parse("2006-01-02", r.Day)
+	if err != nil {
+		return nil, err
+	}
+	return &Holiday{
+		ID:        r.ID,
+		BrandID:   r.BrandID,
+		Day:       day,
+		Enable:    r.Enable,
+		CountryID: r.CountryID,
+	}, err
+}

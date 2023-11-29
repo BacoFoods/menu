@@ -8,6 +8,11 @@ type Service interface {
 	Today(storeID string) (*Schedule, error)
 	TodayStores(brandID string) ([]Schedule, error)
 	EnableStore(storeID string, enable bool) ([]Schedule, error)
+	CreateHoliday(holiday *Holiday) (*Holiday, error)
+	UpdateHoliday(holiday *Holiday) (*Holiday, error)
+	DeleteHoliday(holiday *Holiday) error
+	FindHoliday() ([]Holiday, error)
+	GetTodayHoliday() (*Holiday, error)
 }
 
 type service struct {
@@ -44,4 +49,24 @@ func (s service) TodayStores(brandID string) ([]Schedule, error) {
 
 func (s service) EnableStore(storeID string, enable bool) ([]Schedule, error) {
 	return s.repository.EnableStore(storeID, enable)
+}
+
+func (s service) CreateHoliday(holiday *Holiday) (*Holiday, error) {
+	return s.repository.CreateHoliday(holiday)
+}
+
+func (s service) UpdateHoliday(holiday *Holiday) (*Holiday, error) {
+	return s.repository.UpdateHoliday(holiday)
+}
+
+func (s service) DeleteHoliday(holiday *Holiday) error {
+	return s.repository.DeleteHoliday(holiday)
+}
+
+func (s service) FindHoliday() ([]Holiday, error) {
+	return s.repository.FindHoliday()
+}
+
+func (s service) GetTodayHoliday() (*Holiday, error) {
+	return s.repository.GetTodayHoliday()
 }

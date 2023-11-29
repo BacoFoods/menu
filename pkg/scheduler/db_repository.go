@@ -107,3 +107,56 @@ func (r DBRepository) EnableStore(storeID string, enable bool) ([]Schedule, erro
 
 	return schedules, nil
 }
+
+func (r DBRepository) CreateHoliday(holiday *Holiday) (*Holiday, error) {
+	if err := r.db.Create(holiday).Error; err != nil {
+		shared.LogError("error creating holiday", LogRepository, "CreateHoliday", err, *holiday)
+		return nil, fmt.Errorf(ErrorHolidayCreating)
+	}
+	return holiday, nil
+}
+
+func (r DBRepository) UpdateHoliday(holiday *Holiday) (*Holiday, error) {
+	var holidayMap = map[string]any{
+		"id":         holiday.ID,
+		"brand_id":   holiday.BrandID,
+		"day":        holiday.Day,
+		"enable":     holiday.Enable,
+		"country_id": holiday.CountryID,
+	}
+	if err := r.db.Model(Holiday{}).Where("id", holiday.ID).Updates(holidayMap).Error; err != nil {
+		shared.LogError("error updating holiday", LogRepository, "UpdateHoliday", err, *holiday)
+		return nil, fmt.Errorf(ErrorHolidayUpdating)
+	}
+	return holiday, nil
+}
+
+func (r DBRepository) DeleteHoliday(holiday *Holiday) error {
+	if err := r.db.Delete(holiday).Error; err != nil {
+		shared.LogError("error deleting holiday", LogRepository, "DeleteHoliday", err, *holiday)
+		return fmt.Errorf(ErrorHolidayDeleting)
+	}
+	return nil
+}
+
+func (r DBRepository) FindHoliday() ([]Holiday, error) {
+	var holidays []Holiday
+	if err := r.db.Find(&holidays).Error; err != nil {
+		shared.LogError("error finding holidays", LogRepository, "FindHoliday", err, nil)
+		return nil, fmt.Errorf(ErrorHolidayFinding)
+	}
+	return holidays, nil
+}
+
+func (r DBRepository) GetTodayHoliday() (*Holiday, error) {
+	var holiday Holiday
+	day := time.Now().UTC().Add(-5 * time.Hour)
+	if err := r.db.Where("day = ?", day.Format("2006-01-02")).First(&holiday).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		shared.LogError("error finding holiday", LogRepository, "GetTodayHoliday", err, day)
+		return &holiday, fmt.Errorf(ErrorHolidayFinding)
+	}
+	return &holiday, nil
+}
