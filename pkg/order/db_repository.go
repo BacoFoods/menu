@@ -57,6 +57,7 @@ func (r *DBRepository) Get(orderID string) (*Order, error) {
 		Preload(clause.Associations).
 		Preload("Invoices.Documents").
 		Preload("Items.Modifiers").
+		Preload("Table.Zone").
 		First(&order, orderID).Error; err != nil {
 		shared.LogError("error getting order", LogDBRepository, "Get", err, orderID)
 		return nil, err
@@ -94,7 +95,8 @@ func (r *DBRepository) Update(order *Order) (*Order, error) {
 func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 	tx := r.db.
 		Preload(clause.Associations).
-		Preload("Items.Modifiers")
+		Preload("Items.Modifiers").
+		Preload("Table.Zone")
 	if days, ok := filter["days"]; ok {
 		tx.Preload(clause.Associations).
 			Preload("Items.Modifiers").
