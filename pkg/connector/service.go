@@ -191,6 +191,7 @@ func (s service) BuildDocument(storeID uint, invoices []invoicePkg.Invoice) (map
 				"f470_nro_registro":    strconv.Itoa(registro),
 				"f470_id_bodega":       f461IDCO,
 				"f470_id_co_movto":     f350IDCO,
+				"f470_cant_base":       "1",
 				"f470_vlr_bruto":       calculateGrossValue(1, item.Price),
 				"f470_referencia_item": s.GetReferences(strconv.Itoa(int(*invoice.ChannelID)), strconv.Itoa(int(*item.ProductID))),
 			}
@@ -211,7 +212,6 @@ func (s service) BuildDocument(storeID uint, invoices []invoicePkg.Invoice) (map
 	}
 	cuotasCxC = append(cuotasCxC, itemcuotasCxC)
 	doc["Cuotas CxC"] = cuotasCxC
-
 	return doc, err
 }
 

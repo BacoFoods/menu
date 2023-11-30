@@ -2,6 +2,7 @@ package invoice
 
 import (
 	"fmt"
+	"time"
 
 	"strings"
 
@@ -84,6 +85,7 @@ func (r *DBRepository) Find(filter map[string]interface{}) ([]Invoice, error) {
 
 // FindInvoices method for finding the most recent invoice for each order in the database with additional filters including date range
 func (r *DBRepository) FindInvoices(filter map[string]interface{}) ([]Invoice, error) {
+
 	tx := r.db.
 		Preload(clause.Associations).
 		Select("DISTINCT ON (order_id) *").
@@ -95,32 +97,13 @@ func (r *DBRepository) FindInvoices(filter map[string]interface{}) ([]Invoice, e
 		delete(filter, "store_id")
 	}
 
-	// Handle specific filters for "paid" and "closed"
-	if _, ok := filter["paid"]; ok {
-		// TODO: Handle rules for "paid" filter
-		delete(filter, "paid")
-	}
+	// Handle date range filter for start_date
+	handleDateRangeFilter(tx, filter, "start_date", "created_at >= ?")
 
-	if closed, ok := filter["closed"]; ok {
-		// Define if the invoice has a payment
-		if closed == "true" {
-			tx = tx.Joins("JOIN payments ON payments.invoice_id = invoices.id").
-				Where("payments.deleted_at IS NULL")
-		}
-		delete(filter, "closed")
-	}
+	// Handle date range filter for end_date
+	handleDateRangeFilter(tx, filter, "end_date", "created_at < ?") // Use < to include the entire specified end date
 
-	// Handle date range filter
-	if startDate, ok := filter["start_date"]; ok {
-		tx = tx.Where("created_at >= ?", startDate)
-		delete(filter, "start_date")
-	}
-
-	if endDate, ok := filter["end_date"]; ok {
-		tx = tx.Where("created_at <= ?", endDate)
-		delete(filter, "end_date")
-	}
-
+	// Execute the query and handle errors
 	var invoices []Invoice
 	if err := tx.Find(&invoices, filter).Error; err != nil {
 		shared.LogError("error finding invoices", LogRepository, "FindInvoices", err, filter)
@@ -128,6 +111,29 @@ func (r *DBRepository) FindInvoices(filter map[string]interface{}) ([]Invoice, e
 	}
 
 	return invoices, nil
+}
+
+func handleDateRangeFilter(tx *gorm.DB, filter map[string]interface{}, key, condition string) {
+	if value, ok := filter[key]; ok {
+		switch key {
+		case "start_date", "end_date":
+			timestamp, err := time.Parse("2006-01-02", value.(string))
+			if err != nil {
+				fmt.Println("Error parsing timestamp:", err)
+				return
+			}
+
+			if key == "end_date" {
+				timestamp = timestamp.Add(24*time.Hour - time.Second)
+			}
+
+			tx = tx.Where(condition, timestamp)
+		default:
+			fmt.Println("Unsupported filter:", key)
+		}
+
+		delete(filter, key)
+	}
 }
 
 // UpdateTip update the field 'tips' of an Invoice in database.
