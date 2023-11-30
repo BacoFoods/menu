@@ -258,7 +258,17 @@ func (r *DBRepository) ModifierUpdate(modifier *Modifier) (*Modifier, error) {
 		return nil, err
 	}
 
-	if err := r.db.Model(&modifierDB).Updates(modifier).Error; err != nil {
+	// To avoid zero values update trouble
+	modifierMap := make(map[string]any)
+	modifierMap["id"] = modifier.ID
+	modifierMap["name"] = modifier.Name
+	modifierMap["description"] = modifier.Description
+	modifierMap["image"] = modifier.Image
+	modifierMap["apply_price"] = modifier.ApplyPrice
+	modifierMap["category"] = modifier.Category
+	modifierMap["brand_id"] = modifier.BrandID
+
+	if err := r.db.Model(&modifierDB).Updates(modifierMap).Error; err != nil {
 		shared.LogError("error updating modifier", LogDBRepository, "UpdateModifier", err, *modifier)
 		return nil, err
 	}
