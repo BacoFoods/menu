@@ -4,14 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"strconv"
-	"time"
-
 	invoicePkg "github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/shared"
 	storePkg "github.com/BacoFoods/menu/pkg/store"
 	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
+	"strconv"
+	"time"
 )
 
 const (
@@ -110,13 +109,7 @@ func calculateGrossValue(cantidad int, precioUnitario float64) string {
 }
 
 func (s service) GetReferences() ([]Equivalence, error) {
-	equivalences, err := s.repository.FindReference()
-	if err != nil {
-		shared.LogError("error getting equivalences", LogService, "GetReferences", err, nil)
-		return nil, err
-	}
-
-	return equivalences, nil
+	return s.repository.FindReference()
 }
 
 func (s service) BuildDocument(storeID uint, invoices []invoicePkg.Invoice) (map[string]interface{}, error) {
@@ -191,7 +184,7 @@ func (s service) BuildDocument(storeID uint, invoices []invoicePkg.Invoice) (map
 			key := fmt.Sprintf("%s_%s", fmt.Sprint(*invoice.ChannelID), fmt.Sprint(*item.ProductID))
 			siesaID, exists := equivalencesMap[key]
 			if !exists {
-				fmt.Printf("No se encontró equivalencia para ChannelID: %s, ProductID: %s\n", fmt.Sprint(*invoice.ChannelID), fmt.Sprint(*item.ProductID))
+				shared.LogError("No se encontró equivalencia", LogService, "BuildDocument", nil, "ChannelID", fmt.Sprint(*invoice.ChannelID), "ProductID", fmt.Sprint(*item.ProductID))
 				continue
 			}
 
