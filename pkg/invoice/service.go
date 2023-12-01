@@ -24,6 +24,12 @@ type Service interface {
 
 	FindDiscountApplied() ([]DiscountApplied, error)
 	RemoveDiscountApplied(discountAppliedID string) (DiscountApplied, error)
+
+	// DIAN Resolutions
+	FindResolution(filter map[string]any) ([]Resolution, error)
+	CreateResolution(resolution *Resolution) (*Resolution, error)
+	UpdateResolution(resolution *Resolution) (*Resolution, error)
+	DeleteResolution(resolutionID string) error
 }
 
 type service struct {
@@ -228,6 +234,28 @@ func (s service) RemoveDiscountApplied(discountAppliedID string) (DiscountApplie
 	}
 
 	return discountApplied, nil
+}
+
+// DIAN Resolutions
+
+// FindResolution returns a list of Resolution objects.
+func (s service) FindResolution(filter map[string]any) ([]Resolution, error) {
+	return s.repository.FindResolution(filter)
+}
+
+// CreateResolution creates a Resolution object.
+func (s service) CreateResolution(resolution *Resolution) (*Resolution, error) {
+	return s.repository.CreateResolution(resolution)
+}
+
+// UpdateResolution updates a Resolution object.
+func (s service) UpdateResolution(resolution *Resolution) (*Resolution, error) {
+	return s.repository.UpdateResolution(resolution)
+}
+
+// DeleteResolution deletes a Resolution object.
+func (s service) DeleteResolution(resolutionID string) error {
+	return s.repository.DeleteResolution(resolutionID)
 }
 
 var _ Service = (*service)(nil)

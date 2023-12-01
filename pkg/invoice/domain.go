@@ -35,6 +35,12 @@ const (
 	ErrorDiscountAppliedFind   = "error finding discount applied"
 	ErrorDiscountAppliedRemove = "error removing discount applied"
 
+	ErrorResolutionFind     = "error finding resolution"
+	ErrorResolutionCreate   = "error creating resolution"
+	ErrorResolutionUpdate   = "error updating resolution"
+	ErrorResolutionDelete   = "error deleting resolution"
+	ErrorResolutionNotFound = "error resolution not found"
+
 	TaxPercentage     = 0.08
 	TipTypePercentage = "PERCENTAGE"
 	TipTypeAmount     = "AMOUNT"
@@ -53,6 +59,12 @@ type Repository interface {
 
 	FindDiscountApplied() ([]DiscountApplied, error)
 	RemoveDiscountApplied(discountAppliedID string) (DiscountApplied, error)
+
+	// DIAN Resolutions
+	FindResolution(filter map[string]any) ([]Resolution, error)
+	CreateResolution(resolution *Resolution) (*Resolution, error)
+	UpdateResolution(resolution *Resolution) (*Resolution, error)
+	DeleteResolution(resolutionID string) error
 }
 
 type Invoice struct {
@@ -234,4 +246,23 @@ func (b *Document) BeforeCreate(tx *gorm.DB) (err error) {
 		DoNothing: true,
 	})
 	return nil
+}
+
+type Resolution struct {
+	ID             uint            `json:"id"`
+	BrandID        *uint           `json:"brand_id"`
+	StoreID        *uint           `json:"store_id"`
+	DateFrom       *time.Time      `json:"date_from"`
+	DateTo         *time.Time      `json:"date_to"`
+	Prefix         string          `json:"prefix"`
+	From           *int            `json:"from"`
+	To             *int            `json:"to"`
+	Current        *int            `json:"current"`
+	Resolution     string          `json:"resolution"`
+	ResolutionDate *time.Time      `json:"resolution_date"`
+	TypeResolution string          `json:"type_resolution"`
+	TypeDocument   string          `json:"type_document"`
+	CreatedAt      *time.Time      `json:"created_at" swaggerignore:"true"`
+	UpdatedAt      *time.Time      `json:"updated_at" swaggerignore:"true"`
+	DeletedAt      *gorm.DeletedAt `json:"deleted_at" swaggerignore:"true"`
 }

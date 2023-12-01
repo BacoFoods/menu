@@ -91,6 +91,7 @@ func main() {
 		&connector.Equivalence{},
 		&siesa.Reference{},
 		&scheduler.Holiday{},
+		&invoice.Resolution{},
 	)
 
 	rabbitCh := internal.MustNewRabbitMQ(internal.Config.RabbitConfig.ComandasQueue, internal.Config.RabbitConfig.Host, internal.Config.RabbitConfig.Port)

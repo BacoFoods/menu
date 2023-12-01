@@ -10228,6 +10228,282 @@ const docTemplate = `{
                 }
             }
         },
+        "/resolution": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To find resolutions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resolution"
+                ],
+                "summary": "To find resolutions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "store id",
+                        "name": "storeID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "resolution",
+                        "name": "resolution",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "type": "object"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "resolutions": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/invoice.Resolution"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To create a resolution",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resolution"
+                ],
+                "summary": "To create a resolution",
+                "parameters": [
+                    {
+                        "description": "resolution",
+                        "name": "resolution",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/invoice.DTOResolution"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Resolution"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/resolution/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To delete a resolution",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resolution"
+                ],
+                "summary": "To delete a resolution",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resolution id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Resolution"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To update a resolution",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resolution"
+                ],
+                "summary": "To update a resolution",
+                "parameters": [
+                    {
+                        "description": "resolution",
+                        "name": "resolution",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/invoice.Resolution"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Resolution"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/schedules": {
             "get": {
                 "security": [
@@ -14919,6 +15195,63 @@ const docTemplate = `{
             "type": "object",
             "additionalProperties": true
         },
+        "invoice.DTOResolution": {
+            "type": "object",
+            "required": [
+                "from",
+                "resolution",
+                "store_id",
+                "to",
+                "type_document",
+                "type_resolution"
+            ],
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "current": {
+                    "type": "integer"
+                },
+                "date_from": {
+                    "type": "string",
+                    "format": "2006-01-02",
+                    "example": "2021-01-01"
+                },
+                "date_to": {
+                    "type": "string",
+                    "format": "2006-01-02",
+                    "example": "2021-01-01"
+                },
+                "from": {
+                    "type": "integer"
+                },
+                "prefix": {
+                    "type": "string"
+                },
+                "resolution": {
+                    "type": "string"
+                },
+                "resolution_date": {
+                    "type": "string",
+                    "format": "2006-01-02",
+                    "example": "2021-01-01"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "to": {
+                    "type": "integer"
+                },
+                "type_document": {
+                    "type": "string",
+                    "example": "factura"
+                },
+                "type_resolution": {
+                    "type": "string",
+                    "example": "electrónica"
+                }
+            }
+        },
         "invoice.DiscountApplied": {
             "type": "object",
             "properties": {
@@ -15144,6 +15477,50 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "number"
+                }
+            }
+        },
+        "invoice.Resolution": {
+            "type": "object",
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "current": {
+                    "type": "integer"
+                },
+                "date_from": {
+                    "type": "string"
+                },
+                "date_to": {
+                    "type": "string"
+                },
+                "from": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "prefix": {
+                    "type": "string"
+                },
+                "resolution": {
+                    "type": "string"
+                },
+                "resolution_date": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "to": {
+                    "type": "integer"
+                },
+                "type_document": {
+                    "type": "string"
+                },
+                "type_resolution": {
+                    "type": "string"
                 }
             }
         },

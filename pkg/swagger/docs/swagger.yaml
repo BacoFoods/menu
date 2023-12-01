@@ -543,6 +543,48 @@ definitions:
   internal.JSONMap:
     additionalProperties: true
     type: object
+  invoice.DTOResolution:
+    properties:
+      brand_id:
+        type: integer
+      current:
+        type: integer
+      date_from:
+        example: "2021-01-01"
+        format: "2006-01-02"
+        type: string
+      date_to:
+        example: "2021-01-01"
+        format: "2006-01-02"
+        type: string
+      from:
+        type: integer
+      prefix:
+        type: string
+      resolution:
+        type: string
+      resolution_date:
+        example: "2021-01-01"
+        format: "2006-01-02"
+        type: string
+      store_id:
+        type: integer
+      to:
+        type: integer
+      type_document:
+        example: factura
+        type: string
+      type_resolution:
+        example: electrónica
+        type: string
+    required:
+    - from
+    - resolution
+    - store_id
+    - to
+    - type_document
+    - type_resolution
+    type: object
   invoice.DiscountApplied:
     properties:
       amount:
@@ -693,6 +735,35 @@ definitions:
         type: string
       value:
         type: number
+    type: object
+  invoice.Resolution:
+    properties:
+      brand_id:
+        type: integer
+      current:
+        type: integer
+      date_from:
+        type: string
+      date_to:
+        type: string
+      from:
+        type: integer
+      id:
+        type: integer
+      prefix:
+        type: string
+      resolution:
+        type: string
+      resolution_date:
+        type: string
+      store_id:
+        type: integer
+      to:
+        type: integer
+      type_document:
+        type: string
+      type_resolution:
+        type: string
     type: object
   invoice.Surcharge:
     properties:
@@ -7834,6 +7905,168 @@ paths:
       summary: Scan QR
       tags:
       - Tables
+  /resolution:
+    get:
+      consumes:
+      - application/json
+      description: To find resolutions
+      parameters:
+      - description: store id
+        in: query
+        name: storeID
+        type: string
+      - description: resolution
+        in: query
+        name: resolution
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  allOf:
+                  - type: object
+                  - properties:
+                      resolutions:
+                        items:
+                          $ref: '#/definitions/invoice.Resolution'
+                        type: array
+                    type: object
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find resolutions
+      tags:
+      - Resolution
+    post:
+      consumes:
+      - application/json
+      description: To create a resolution
+      parameters:
+      - description: resolution
+        in: body
+        name: resolution
+        required: true
+        schema:
+          $ref: '#/definitions/invoice.DTOResolution'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Resolution'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To create a resolution
+      tags:
+      - Resolution
+  /resolution/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a resolution
+      parameters:
+      - description: resolution id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Resolution'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To delete a resolution
+      tags:
+      - Resolution
+    patch:
+      consumes:
+      - application/json
+      description: To update a resolution
+      parameters:
+      - description: resolution
+        in: body
+        name: resolution
+        required: true
+        schema:
+          $ref: '#/definitions/invoice.Resolution'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Resolution'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To update a resolution
+      tags:
+      - Resolution
   /schedules:
     delete:
       consumes:

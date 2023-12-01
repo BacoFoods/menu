@@ -228,3 +228,55 @@ func (r *DBRepository) RemoveDiscountApplied(discountAppliedID string) (Discount
 	}
 	return discountApplied, nil
 }
+
+// DIAN Resolutions
+
+// FindResolution to find resolutions
+func (r *DBRepository) FindResolution(filter map[string]any) ([]Resolution, error) {
+	var resolutions []Resolution
+	if err := r.db.Where(filter).Find(&resolutions).Error; err != nil {
+		shared.LogError("error finding resolutions", LogRepository, "FindResolution", err)
+		return nil, fmt.Errorf(ErrorResolutionFind)
+	}
+	return resolutions, nil
+}
+
+// CreateResolution to create a resolution
+func (r *DBRepository) CreateResolution(resolution *Resolution) (*Resolution, error) {
+	if err := r.db.Create(&resolution).Error; err != nil {
+		shared.LogError("error creating resolution", LogRepository, "CreateResolution", err, resolution)
+		return nil, fmt.Errorf(ErrorResolutionCreate)
+	}
+	return resolution, nil
+}
+
+// UpdateResolution to update a resolution
+func (r *DBRepository) UpdateResolution(resolution *Resolution) (*Resolution, error) {
+	var resolutionDB Resolution
+	if err := r.db.First(&resolutionDB, resolution.ID).Error; err != nil {
+		shared.LogError("error getting resolution", LogRepository, "UpdateResolution", err, *resolution)
+		return nil, fmt.Errorf(ErrorResolutionNotFound)
+	}
+
+	if err := r.db.Model(&resolutionDB).Where("id = ?", resolution.ID).Updates(resolution).Error; err != nil {
+		shared.LogError("error updating resolution", LogRepository, "UpdateResolution", err, resolution.ID, resolution)
+		return nil, fmt.Errorf(ErrorResolutionUpdate)
+	}
+
+	return resolution, nil
+}
+
+// DeleteResolution to delete a resolution
+func (r *DBRepository) DeleteResolution(resolutionID string) error {
+	var resolution Resolution
+	if err := r.db.First(&resolution, resolutionID).Error; err != nil {
+		shared.LogError("error getting resolution", LogRepository, "DeleteResolution", err, resolutionID)
+		return fmt.Errorf(ErrorResolutionNotFound)
+	}
+
+	if err := r.db.Delete(&resolution).Error; err != nil {
+		shared.LogError("error deleting resolution", LogRepository, "DeleteResolution", err, resolution)
+		return fmt.Errorf(ErrorResolutionDelete)
+	}
+	return nil
+}

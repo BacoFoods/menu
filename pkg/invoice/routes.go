@@ -21,4 +21,10 @@ func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
 
 	router.GET("/discount-applied", r.handler.FindDiscountApplied)
 	router.DELETE("/discount-applied/:id", r.handler.RemoveDiscountApplied)
+
+	// DIAN Resolutions
+	router.GET("/resolution", r.handler.FindResolution)
+	router.POST("/resolution", r.handler.CreateResolution)
+	router.PATCH("/resolution/:id", r.handler.UpdateResolution)
+	router.DELETE("/resolution/:id", r.handler.DeleteResolution)
 }
