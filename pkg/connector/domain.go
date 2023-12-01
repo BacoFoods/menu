@@ -31,5 +31,5 @@ type Repository interface {
 	Find(map[string]string) ([]Equivalence, error)
 	Update(Equivalence) (*Equivalence, error)
 	Delete(string) (*Equivalence, error)
-	FindReference(filter map[string]string) (*Equivalence, error)
+	FindReference() ([]Equivalence, error)
 }

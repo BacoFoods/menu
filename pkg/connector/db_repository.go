@@ -27,7 +27,7 @@ func (r *DBRepository) Create(equivalence *Equivalence) (*Equivalence, error) {
 
 func (r *DBRepository) Find(filter map[string]string) ([]Equivalence, error) {
 	var equivalence []Equivalence
-	if err := r.db.Preload(clause.Associations).Find(&equivalence, filter).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).Find(equivalence, filter).Error; err != nil {
 		shared.LogError("error finding country", LogDBRepository, "Find", err)
 		return nil, err
 	}
@@ -63,26 +63,15 @@ func (r *DBRepository) Delete(equivalenceID string) (*Equivalence, error) {
 	return &equivalenceDB, nil
 }
 
-func (r *DBRepository) FindReference(filter map[string]string) (*Equivalence, error) {
+func (r *DBRepository) FindReference() ([]Equivalence, error) {
 	tx := r.db.
 		Preload(clause.Associations)
 
-	// Handle specific filters for ChannelID and ProductID
-	if channelID, ok := filter["channel_id"]; ok {
-		tx = tx.Where("channel_id = ?", channelID)
-		delete(filter, "channel_id")
-	}
-
-	if productID, ok := filter["product_id"]; ok {
-		tx = tx.Where("product_id = ?", productID)
-		delete(filter, "product_id")
-	}
-
-	var equivalence Equivalence
-	if err := tx.Limit(1).Find(&equivalence, filter).Error; err != nil {
-		shared.LogError("error finding equivalences", LogDBRepository, "FindReference", err, filter)
+	var equivalences []Equivalence
+	if err := tx.Find(&equivalences).Error; err != nil {
+		shared.LogError("error finding equivalences", LogDBRepository, "FindReference", err, nil)
 		return nil, err
 	}
 
-	return &equivalence, nil
+	return equivalences, nil
 }
