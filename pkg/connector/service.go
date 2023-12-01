@@ -109,23 +109,14 @@ func calculateGrossValue(cantidad int, precioUnitario float64) string {
 	return strconv.FormatFloat(precioUnitario*float64(cantidad), 'f', 0, 64)
 }
 
-func (s service) GetReferences(channelID, productID string) string {
-	filter := map[string]string{
-		"channel_id": channelID,
-		"product_id": productID,
-	}
-	equivalence, err := s.repository.FindReference(filter)
-
+func (s service) GetReferences() ([]Equivalence, error) {
+	equivalences, err := s.repository.FindReference()
 	if err != nil {
-		shared.LogError("error getting SiesaID", LogService, "GetReferences", err, channelID, productID)
-		return ""
+		shared.LogError("error getting equivalences", LogService, "GetReferences", err, nil)
+		return nil, err
 	}
 
-	if equivalence != nil {
-		return equivalence.SiesaID
-	}
-
-	return ""
+	return equivalences, nil
 }
 
 func (s service) BuildDocument(storeID uint, invoices []invoicePkg.Invoice) (map[string]interface{}, error) {
@@ -138,6 +129,18 @@ func (s service) BuildDocument(storeID uint, invoices []invoicePkg.Invoice) (map
 
 	f350IDCO := getF350IDCO(store)
 	f461IDCO := getF461IDCO(store)
+	equivalences, err := s.GetReferences()
+	if err != nil {
+		fmt.Println("Error al obtener equivalencias:", err)
+		return nil, err
+	}
+
+	equivalencesMap := make(map[string]string)
+	for _, equivalence := range equivalences {
+		key := fmt.Sprintf("%s_%s", equivalence.ChannelID, equivalence.ProductID)
+		equivalencesMap[key] = equivalence.SiesaID
+	}
+
 	now := time.Now()
 
 	doc["Docto. ventas comercial"] = []map[string]string{
@@ -185,6 +188,13 @@ func (s service) BuildDocument(storeID uint, invoices []invoicePkg.Invoice) (map
 
 	for _, invoice := range invoices {
 		for _, item := range invoice.Items {
+			key := fmt.Sprintf("%s_%s", fmt.Sprint(*invoice.ChannelID), fmt.Sprint(*item.ProductID))
+			siesaID, exists := equivalencesMap[key]
+			if !exists {
+				fmt.Printf("No se encontró equivalencia para ChannelID: %s, ProductID: %s\n", fmt.Sprint(*invoice.ChannelID), fmt.Sprint(*item.ProductID))
+				continue
+			}
+
 			itemMovimiento := map[string]string{
 				"f470_id_co":           f350IDCO,
 				"f470_consec_docto":    "1",
@@ -193,7 +203,7 @@ func (s service) BuildDocument(storeID uint, invoices []invoicePkg.Invoice) (map
 				"f470_id_co_movto":     f350IDCO,
 				"f470_cant_base":       "1",
 				"f470_vlr_bruto":       calculateGrossValue(1, item.Price),
-				"f470_referencia_item": s.GetReferences(strconv.Itoa(int(*invoice.ChannelID)), strconv.Itoa(int(*item.ProductID))),
+				"f470_referencia_item": siesaID,
 			}
 			movimientos = append(movimientos, itemMovimiento)
 			registro++
