@@ -49,6 +49,7 @@ func (s service) GetInvoices(startDate, endDate, storeID string) ([]invoicePkg.I
 		"start_date": startDate,
 		"end_date":   endDate,
 		"store_id":   storeID,
+		"status":     "paid", // TODO: use const
 	}
 
 	invoices, err := s.invoice.FindInvoices(filter)
