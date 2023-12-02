@@ -6,6 +6,7 @@ import (
 
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 const LogHandler string = "pkg/connector/handler"
@@ -158,12 +159,23 @@ func (h *Handler) CreateFile(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
+
+	logrus.Infof("creating connector file for store %d [%s, %s]", requestBody.StoreID, requestBody.StartDate, requestBody.EndDate)
+
 	invoices, err := h.service.GetInvoices(requestBody.StartDate, requestBody.EndDate, fmt.Sprint(requestBody.StoreID))
 	if err != nil {
 		shared.LogError("error getting invoices", LogHandler, "CreateFile", err, invoices)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
 		return
 	}
+
+	if len(invoices) == 0 {
+		shared.LogWarn("no invoices found", LogHandler, "CreateFile", nil, invoices)
+		ctx.JSON(http.StatusNotFound, shared.ErrorResponse("no invoices for parameters"))
+		return
+	}
+
+	logrus.Infof("found %d invoices for connector file", len(invoices))
 
 	// Call the HandleSIESAIntegration function to get the Excel file as a byte slice
 	excelFile, err := h.service.CreateFile(requestBody.StoreID, invoices)

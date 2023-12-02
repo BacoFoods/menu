@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
+
 	invoicePkg "github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/shared"
 	storePkg "github.com/BacoFoods/menu/pkg/store"
 	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
-	"strconv"
-	"time"
 )
 
 const (
@@ -215,7 +216,8 @@ func (s service) BuildDocument(storeID uint, invoices []invoicePkg.Invoice) (map
 	}
 	cuotasCxC = append(cuotasCxC, itemcuotasCxC)
 	doc["Cuotas CxC"] = cuotasCxC
-	return doc, err
+
+	return doc, nil
 }
 
 func ExcelColumnID(colIdx int) string {
