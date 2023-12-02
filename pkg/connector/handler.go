@@ -18,7 +18,7 @@ type Handler struct {
 type RequestExcelCreate struct {
 	StartDate string `json:"start_date"`
 	EndDate   string `json:"end_date"`
-	StoreID   uint   `json:"store_id"`
+	Stores    []uint `json:"stores"`
 }
 
 func NewHandler(service Service) *Handler {
@@ -160,9 +160,13 @@ func (h *Handler) CreateFile(ctx *gin.Context) {
 		return
 	}
 
-	logrus.Infof("creating connector file for store %d [%s, %s]", requestBody.StoreID, requestBody.StartDate, requestBody.EndDate)
+	logrus.Infof("creating connector file for store %v [%s, %s]", requestBody.Stores, requestBody.StartDate, requestBody.EndDate)
+	stores := []string{}
+	for _, s := range requestBody.Stores {
+		stores = append(stores, fmt.Sprintf("%d", s))
+	}
 
-	invoices, err := h.service.GetInvoices(requestBody.StartDate, requestBody.EndDate, fmt.Sprint(requestBody.StoreID))
+	invoices, err := h.service.GetInvoices(requestBody.StartDate, requestBody.EndDate, stores)
 	if err != nil {
 		shared.LogError("error getting invoices", LogHandler, "CreateFile", err, invoices)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
@@ -178,7 +182,7 @@ func (h *Handler) CreateFile(ctx *gin.Context) {
 	logrus.Infof("found %d invoices for connector file", len(invoices))
 
 	// Call the HandleSIESAIntegration function to get the Excel file as a byte slice
-	excelFile, err := h.service.CreateFile(requestBody.StoreID, invoices)
+	excelFile, err := h.service.CreateFile(requestBody.Stores, invoices)
 	if err != nil {
 		shared.LogError("error handling SIESA integration", LogHandler, "CreateFile", err, invoices)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))

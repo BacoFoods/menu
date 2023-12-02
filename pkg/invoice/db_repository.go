@@ -97,6 +97,12 @@ func (r *DBRepository) FindInvoices(filter map[string]interface{}) ([]Invoice, e
 		delete(filter, "store_id")
 	}
 
+	// Handle filter for multiple stores
+	if storeIDs, ok := filter["stores"]; ok {
+		tx = tx.Where("store_id IN ?", storeIDs)
+		delete(filter, "stores")
+	}
+
 	// Handle date range filter for start_date
 	handleDateRangeFilter(tx, filter, "start_date", "created_at >= ?")
 

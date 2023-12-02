@@ -44,11 +44,11 @@ func (s service) Delete(equivalenceID string) (*Equivalence, error) {
 	return s.repository.Delete(equivalenceID)
 }
 
-func (s service) GetInvoices(startDate, endDate, storeID string) ([]invoicePkg.Invoice, error) {
+func (s service) GetInvoices(startDate, endDate string, storeID []string) ([]invoicePkg.Invoice, error) {
 	filter := map[string]interface{}{
 		"start_date": startDate,
 		"end_date":   endDate,
-		"store_id":   storeID,
+		"stores":     storeID,
 		"status":     "paid", // TODO: use const
 	}
 
@@ -60,8 +60,8 @@ func (s service) GetInvoices(startDate, endDate, storeID string) ([]invoicePkg.I
 	return invoices, nil
 }
 
-func (s service) CreateFile(storeID uint, invoices []invoicePkg.Invoice) ([]byte, error) {
-	doc, err := s.BuildDocument(storeID, invoices)
+func (s service) CreateFile(stores []uint, invoices []invoicePkg.Invoice) ([]byte, error) {
+	doc, err := s.BuildDocument(stores, invoices)
 	if err != nil {
 		shared.LogError("error generating building document", LogService, "CreateFile-BuildDocument", err)
 		return nil, err
@@ -114,12 +114,32 @@ func (s service) GetReferences() ([]Equivalence, error) {
 	return s.repository.FindReference()
 }
 
-func (s service) BuildDocument(storeID uint, invoices []invoicePkg.Invoice) (map[string]interface{}, error) {
+func (s service) BuildDocument(stores []uint, invoices []invoicePkg.Invoice) (map[string]interface{}, error) {
 	doc := make(map[string]interface{})
-	store, err := s.store.Get(fmt.Sprint(storeID))
-	if err != nil {
-		shared.LogError("error getting store", LogService, "BuildDocument", err, storeID)
-		return nil, err
+	storesDb := make([]*storePkg.Store, 0)
+	for _, storeID := range stores {
+		store, err := s.store.Get(fmt.Sprint(storeID))
+		if err != nil {
+			shared.LogError("error getting store", LogService, "BuildDocument", err, storeID)
+			return nil, err
+		}
+
+		storesDb = append(storesDb, store)
+	}
+
+	if len(storesDb) == 0 {
+		return nil, errors.New("no stores found")
+	}
+
+	store := storesDb[0]
+	// Check all stores share the same OpsCenter and Wharehouse
+	for _, s := range storesDb {
+		if s.OpsCenter != store.OpsCenter {
+			return nil, errors.New("stores don't share the same OpsCenter - " + s.OpsCenter + " - " + store.OpsCenter + " -")
+		}
+		if s.Wharehouse != store.Wharehouse {
+			return nil, errors.New("stores don't share the same Wharehouse - " + s.Wharehouse + " - " + store.Wharehouse + " -")
+		}
 	}
 
 	f350IDCO := getF350IDCO(store)
@@ -146,7 +166,7 @@ func (s service) BuildDocument(storeID uint, invoices []invoicePkg.Invoice) (map
 			"F350_CONSEC_DOCTO":             "1",
 			"F350_FECHA":                    formatDate(now),
 			"f461_id_co_fact":               f350IDCO,
-			"f461_notas":                    fmt.Sprintf("%s  - del pdv %d", formatDate(now), storeID),
+			"f461_notas":                    fmt.Sprintf("%s  - del pdv %v", formatDate(now), stores),
 			"F461_ID_BODEGA_COMPON_PROCESO": f461IDCO,
 		},
 	}
@@ -349,21 +369,6 @@ func GenerateExcelFile(doc map[string]interface{}) (*excelize.File, error) {
 			},
 		},
 	}
-	// sheetNames := []string{"Docto. ventas comercial", "Descuentos", "Cuotas CxC", "Movimientos"}
-	// headersColumns := [][]string{
-	// 	{"F350_ID_CO", "F350_ID_TIPO_DOCTO", "F350_CONSEC_DOCTO", "F350_FECHA", "f461_id_co_fact", "f461_notas", "F461_ID_BODEGA_COMPON_PROCESO"},
-	// 	{"f471_id_co", "f471_id_tipo_docto", "f471_consec_docto", "f471_nro_registro", "f471_vlr_uni", "f471_vlr_tot"},
-	// 	{"F350_ID_CO", "F350_CONSEC_DOCTO"},
-	// 	{"f470_id_co", "f470_consec_docto", "f470_nro_registro", "f470_id_bodega", "f470_id_co_movto", "f470_cant_base", "f470_vlr_bruto", "f470_referencia_item"},
-	// }
-
-	// // Define headers for each sheet
-	// headers := [][]string{
-	// 	{"Centro Operacion", "Tipo Documento", "Numero Docto", "Fecha Docto", "Centro operación factura", "Observaciones", "Bodega componentes Kit"},
-	// 	{"Centro Operacion", "Tipo Documento", "Consecutivo Documento", "Numero Registro", "Valor Descuento Unitario", "Valor Descuento Total"},
-	// 	{"Centro Operacion", "Número Documento"},
-	// 	{"Centro Operacion", "Consecutivo Documento", "Numero Registro", "Bodega", "Centro Operacion Mvmnto", "Cantidad", "Valor Neto", "Referencia"},
-	// }
 
 	// Create sheets and add headers
 	for name, cols := range sheets {
@@ -415,6 +420,6 @@ type Service interface {
 	Find(filter map[string]string) ([]Equivalence, error)
 	Update(Equivalence) (*Equivalence, error)
 	Delete(string) (*Equivalence, error)
-	CreateFile(storeID uint, invoices []invoicePkg.Invoice) ([]byte, error)
-	GetInvoices(startDate, endDate, storeID string) ([]invoicePkg.Invoice, error)
+	CreateFile(stores []uint, invoices []invoicePkg.Invoice) ([]byte, error)
+	GetInvoices(startDate, endDate string, storeIDs []string) ([]invoicePkg.Invoice, error)
 }
