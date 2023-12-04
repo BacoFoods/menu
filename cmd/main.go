@@ -10,6 +10,7 @@ import (
 
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/app"
 	"github.com/BacoFoods/menu/pkg/assets"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
@@ -277,6 +278,11 @@ func main() {
 	equivalenceHandler := connector.NewHandler(equivalenceService)
 	equivalenceRoutes := connector.NewRoutes(equivalenceHandler)
 
+	// Application
+	appService := app.NewService(internal.Config.GitToken, internal.Config.GitRepository)
+	appHandler := app.NewHandler(appService)
+	appRoutes := app.NewRoutes(appHandler)
+
 	// Routes
 	routes := &router.RoutesGroup{
 		HealthCheck:  healthcheckRoutes,
@@ -308,6 +314,7 @@ func main() {
 		Schedule:     scheduleRoutes,
 		Equivalence:  equivalenceRoutes,
 		Siesa:        siesaRoutes,
+		App:          appRoutes,
 	}
 
 	// Run server

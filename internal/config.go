@@ -48,6 +48,10 @@ type AppConfig struct {
 	// Popapp
 	PopappHost      string `env:"POPAPP_HOST"`
 	PopappAuthToken string `env:"POPAPP_AUTH_TOKEN"`
+
+	// Github
+	GitToken      string `env:"GIT_TOKEN"`
+	GitRepository string `env:"GIT_REPOSITORY"`
 }
 
 // PopappConfig is the struct that holds the configuration for the firestore
