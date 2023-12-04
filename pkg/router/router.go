@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"github.com/BacoFoods/menu/pkg/app"
 	"github.com/BacoFoods/menu/pkg/siesa"
 	"google.golang.org/api/idtoken"
 	"google.golang.org/api/option"
@@ -99,6 +100,7 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Schedule.RegisterRoutes(private)
 	routes.Equivalence.RegisterRoutes(private)
 	routes.Siesa.RegisterRoutes(private)
+	routes.App.RegisterRoutes(private)
 
 	// Register public routes
 	public := router.Group(fmt.Sprintf("%s/public", path))
@@ -144,4 +146,5 @@ type RoutesGroup struct {
 	Schedule     scheduler.Routes
 	Equivalence  connector.Routes
 	Siesa        siesa.Routes
+	App          app.Routes
 }
