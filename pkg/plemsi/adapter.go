@@ -1,10 +1,24 @@
 package plemsi
 
-type Plemsi interface {
+import "net/http"
+
+type Adapter interface {
 	TestConnection() error
-	EmitFinalConsumerInvoice(T) (T, error)
-	EmitConsumerInvoice(T) (T, error)
+	EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) error
+	EmitConsumerInvoice(consumerInvoice *Invoice) error
 }
 
-type PlemsiInvoice struct {
+type adapter struct {
+	httpclient *http.Client
+}
+
+func NewPlemsi(httpclient *http.Client) *adapter {
+	return &adapter{
+		httpclient: httpclient,
+	}
+}
+
+func (a *adapter) TestConnection() error {
+	// TODO: implement
+	return nil
 }
