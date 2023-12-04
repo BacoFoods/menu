@@ -1,6 +1,8 @@
 package category
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/BacoFoods/menu/pkg/shared"
+)
 
 type Routes struct {
 	handler *Handler
@@ -10,7 +12,7 @@ func NewRoutes(handler *Handler) Routes {
 	return Routes{handler: handler}
 }
 
-func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
+func (r Routes) RegisterRoutes(router *shared.CustomRoutes) {
 	router.GET("/category", r.handler.Find)
 	router.GET("/category/:id", r.handler.Get)
 	router.GET("/category/:id/menu", r.handler.GetMenus)

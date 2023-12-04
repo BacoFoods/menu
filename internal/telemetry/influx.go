@@ -56,16 +56,17 @@ func post(payload string) {
 	}
 }
 
-func report(point *TelemetryPoint) {
+func report(metric string, point *TelemetryPoint) {
 	if point == nil {
 		return
 	}
 
-	data := []string{TelemetryMeasurementName}
+	data := []string{metric}
 	for k, v := range point.Tags {
 		data = append(data, fmt.Sprintf("%s=%s", k, v))
 	}
 
+	data = append(data, fmt.Sprintf("env=%s", internal.Config.AppEnv))
 	ts := point.End.UnixNano()
 
 	payload := fmt.Sprintf("%s value=%f %d", strings.Join(data, ","), point.Measurement, ts)
@@ -94,7 +95,7 @@ func (t *TelemetryPoint) Done(status int, m int64) {
 	t.End = time.Now()
 	t.Measurement = float64(m)
 
-	report(t)
+	report(TelemetryMeasurementName, t)
 }
 
 func StartResponse(method, url string, now time.Time) *TelemetryPoint {
