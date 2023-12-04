@@ -40,12 +40,13 @@ func (h *Handler) DownloadWindows(c *gin.Context) {
 	}
 
 	c.DataFromReader(http.StatusOK, size, zipContentType, data, map[string]string{
-		"Content-Disposition":       fmt.Sprintf("attachment; filename=%s", filename),
-		"Content-Description":       "File Transfer",
-		"Content-Type":              zipContentType,
-		"Content-Transfer-Encoding": "binary",
-		"Cache-Control":             "must-revalidate",
-		"Pragma":                    "public",
+		"Content-Disposition":           fmt.Sprintf("attachment; filename=%s", filename),
+		"Content-Description":           "File Transfer",
+		"Content-Type":                  zipContentType,
+		"Content-Transfer-Encoding":     "binary",
+		"Cache-Control":                 "must-revalidate",
+		"Pragma":                        "public",
+		"Access-Control-Expose-Headers": "Content-Disposition",
 	})
 }
 
@@ -60,11 +61,12 @@ func (h *Handler) DownloadAPK(c *gin.Context) {
 	}
 
 	c.DataFromReader(http.StatusOK, size, apkContentType, data, map[string]string{
-		"Content-Disposition":       fmt.Sprintf("attachment; filename=%s", filename),
-		"Content-Description":       "File Transfer",
-		"Content-Type":              apkContentType,
-		"Content-Transfer-Encoding": "binary",
-		"Cache-Control":             "must-revalidate",
-		"Pragma":                    "public",
+		"Content-Disposition":           fmt.Sprintf("attachment; filename=%s", filename),
+		"Content-Description":           "File Transfer",
+		"Content-Type":                  apkContentType,
+		"Content-Transfer-Encoding":     "binary",
+		"Cache-Control":                 "must-revalidate",
+		"Pragma":                        "public",
+		"Access-Control-Expose-Headers": "Content-Disposition",
 	})
 }
