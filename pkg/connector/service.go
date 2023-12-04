@@ -156,7 +156,15 @@ func (s service) BuildDocument(stores []uint, invoices []invoicePkg.Invoice) (ma
 		equivalencesMap[key] = equivalence.SiesaID
 	}
 
-	now := time.Now()
+	now := invoices[0].CreatedAt
+	if now == nil {
+		now = invoices[0].UpdatedAt
+	}
+
+	if now == nil {
+		d := time.Now()
+		now = &d
+	}
 
 	doc["Docto. ventas comercial"] = []map[string]string{
 		{
@@ -164,9 +172,9 @@ func (s service) BuildDocument(stores []uint, invoices []invoicePkg.Invoice) (ma
 			"F350_ID_TIPO_DOCTO": "FVR",
 			// TODO: Revisar si se puede cambiar el consecutivo del documento
 			"F350_CONSEC_DOCTO":             "1",
-			"F350_FECHA":                    formatDate(now),
+			"F350_FECHA":                    formatDate(*now),
 			"f461_id_co_fact":               f350IDCO,
-			"f461_notas":                    fmt.Sprintf("%s  - del pdv %v", formatDate(now), stores),
+			"f461_notas":                    fmt.Sprintf("%s  - del pdv %v", formatDate(*now), stores),
 			"F461_ID_BODEGA_COMPON_PROCESO": f461IDCO,
 		},
 	}
@@ -233,7 +241,7 @@ func (s service) BuildDocument(stores []uint, invoices []invoicePkg.Invoice) (ma
 	itemcuotasCxC := map[string]string{
 		"F350_ID_CO":        f350IDCO,
 		"F350_CONSEC_DOCTO": "1",
-		"F353_FECHA_VCTO":   formatDate(now),
+		"F353_FECHA_VCTO":   formatDate(*now),
 	}
 	cuotasCxC = append(cuotasCxC, itemcuotasCxC)
 	doc["Cuotas CxC"] = cuotasCxC
