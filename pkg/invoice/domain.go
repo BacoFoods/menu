@@ -45,6 +45,8 @@ const (
 	TipTypePercentage = "PERCENTAGE"
 	TipTypeAmount     = "AMOUNT"
 	TipPercentageMax  = 0.1
+
+	ErrorPlemsiAdapterInvoiceWithoutPayment = "error plemsi adapter invoice with out payment"
 )
 
 type Repository interface {
@@ -94,6 +96,7 @@ type Invoice struct {
 	ClientID            *uint             `json:"client_id"`
 	Client              *client.Client    `json:"client,omitempty"`
 	ShiftID             *uint             `json:"shift_id"`
+	ResolutionID        *uint             `json:"resolution_id"`
 	CreatedAt           *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt           *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt           *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`

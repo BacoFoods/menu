@@ -48,6 +48,10 @@ type AppConfig struct {
 	// Popapp
 	PopappHost      string `env:"POPAPP_HOST"`
 	PopappAuthToken string `env:"POPAPP_AUTH_TOKEN"`
+
+	// Plemsi
+	PlemsiHost  string `env:"PLEMSI_HOST"`
+	PlemsiToken string `env:"PLEMSI_TOKEN"`
 }
 
 // PopappConfig is the struct that holds the configuration for the firestore

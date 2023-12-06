@@ -2,6 +2,7 @@ package invoice
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/plemsi"
 
 	"github.com/BacoFoods/menu/pkg/shared"
 
@@ -35,10 +36,14 @@ type Service interface {
 type service struct {
 	repository       Repository
 	clientRepository clientPKG.Repository
+	plemsi           plemsi.Adapter
 }
 
-func NewService(repository Repository, clientRepository clientPKG.Repository) service {
-	return service{repository, clientRepository}
+func NewService(
+	repository Repository,
+	clientRepository clientPKG.Repository,
+	plemsi plemsi.Adapter) service {
+	return service{repository, clientRepository, plemsi}
 }
 
 // Get returns a single Invoice object by ID.
@@ -54,6 +59,13 @@ func (s service) Get(invoiceID string) (*Invoice, error) {
 
 // Find returns a list of Invoice objects.
 func (s service) Find(filter map[string]any) ([]Invoice, error) {
+	shared.LogInfo("testing plemsi", LogService, "Find", nil)
+	err := s.plemsi.TestConnection()
+	if err != nil {
+		shared.LogError("error testing plemsi", LogService, "Find", err, nil)
+		return nil, err
+	}
+
 	invoices, err := s.repository.Find(filter)
 	if err != nil {
 		return nil, fmt.Errorf(ErrorInvoiceFind)

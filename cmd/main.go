@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/plemsi"
+	"github.com/BacoFoods/menu/pkg/shared"
+	"github.com/go-resty/resty/v2"
 	"net/http"
 
 	"github.com/BacoFoods/menu/pkg/connector"
@@ -95,6 +98,8 @@ func main() {
 	)
 
 	rabbitCh := internal.MustNewRabbitMQ(internal.Config.RabbitConfig.ComandasQueue, internal.Config.RabbitConfig.Host, internal.Config.RabbitConfig.Port)
+
+	httpClient := shared.NewRestClient(resty.New())
 
 	// Healthcheck
 	healthcheckHandler := healthcheck.NewHandler()
@@ -204,8 +209,9 @@ func main() {
 	facturacionRoutes := facturacion.NewRoutes(facturacionHandler)
 
 	// Invoice
+	plemsiAdapter := plemsi.NewPlemsi(httpClient)
 	invoiceRepository := invoice.NewDBRepository(gormDB)
-	invoiceService := invoice.NewService(invoiceRepository, clientRepository)
+	invoiceService := invoice.NewService(invoiceRepository, clientRepository, plemsiAdapter)
 	invoiceHandler := invoice.NewHandler(invoiceService)
 	invoiceRoutes := invoice.NewRoutes(invoiceHandler)
 

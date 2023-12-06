@@ -13,7 +13,7 @@ type Builder struct {
 	Errors []error
 }
 
-func NewEndConsumerInvoiceBuilder() *Builder {
+func NewBuilderEndConsumerInvoice() *Builder {
 	return new(Builder)
 }
 
@@ -219,7 +219,7 @@ func (ib *Builder) SetFinalTotalToPay(finalTotalToPay int) *Builder {
 
 // BuilderOrderReference for build a OrderReference
 type BuilderOrderReference struct {
-	OrderReference
+	*OrderReference
 	Errors []error
 }
 
@@ -233,6 +233,14 @@ func (ib *BuilderOrderReference) SetIdOrder(idOrder string) *BuilderOrderReferen
 	}
 	ib.IdOrder = idOrder
 	return ib
+}
+
+func (ib *BuilderOrderReference) Build() (*OrderReference, error) {
+	if len(ib.Errors) != 0 {
+		return nil, ib.Errors[0]
+	}
+
+	return ib.OrderReference, nil
 }
 
 // Customer
@@ -275,7 +283,7 @@ func (ib *BuilderCustomer) SetTypeDocumentIdentificationId(typeDocumentIdentific
 
 // BuilderPayment for build a Payment
 type BuilderPayment struct {
-	Payment
+	*Payment
 	Errors []error
 }
 
@@ -315,11 +323,19 @@ func (ib *BuilderPayment) SetDurationMeasure(durationMeasure string) *BuilderPay
 	return ib
 }
 
+func (ib *BuilderPayment) Build() (*Payment, error) {
+	if len(ib.Errors) != 0 {
+		return nil, ib.Errors[0]
+	}
+
+	return ib.Payment, nil
+}
+
 // Discounts
 
 // BuilderDiscounts for build a Discounts
 type BuilderDiscounts struct {
-	Discounts
+	*Discounts
 	Errors []error
 }
 
@@ -335,7 +351,7 @@ func (ib *BuilderDiscounts) SetAllowanceChargeReason(allowanceChargeReason strin
 	return ib
 }
 
-func (ib *BuilderDiscounts) SetAllowancePercent(allowancePercent int) *BuilderDiscounts {
+func (ib *BuilderDiscounts) SetAllowancePercent(allowancePercent float64) *BuilderDiscounts {
 	if allowancePercent == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiDiscountsAllowancePercentEmpty))
 	}
@@ -343,7 +359,7 @@ func (ib *BuilderDiscounts) SetAllowancePercent(allowancePercent int) *BuilderDi
 	return ib
 }
 
-func (ib *BuilderDiscounts) SetAmount(amount int) *BuilderDiscounts {
+func (ib *BuilderDiscounts) SetAmount(amount float64) *BuilderDiscounts {
 	if amount == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiDiscountsAmountEmpty))
 	}
@@ -351,12 +367,20 @@ func (ib *BuilderDiscounts) SetAmount(amount int) *BuilderDiscounts {
 	return ib
 }
 
-func (ib *BuilderDiscounts) SetBaseAmount(baseAmount int) *BuilderDiscounts {
+func (ib *BuilderDiscounts) SetBaseAmount(baseAmount float64) *BuilderDiscounts {
 	if baseAmount == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiDiscountsBaseAmountEmpty))
 	}
 	ib.BaseAmount = baseAmount
 	return ib
+}
+
+func (ib *BuilderDiscounts) Build() (*Discounts, error) {
+	if len(ib.Errors) != 0 {
+		return nil, ib.Errors[0]
+	}
+
+	return ib.Discounts, nil
 }
 
 // Item
@@ -446,7 +470,7 @@ func (ib *BuilderItem) SetTypeItemIdentificationId(typeItemIdentificationId int)
 	return ib
 }
 
-func (ib *BuilderItem) SetPriceAmount(priceAmount int) *BuilderItem {
+func (ib *BuilderItem) SetPriceAmount(priceAmount float64) *BuilderItem {
 	if priceAmount == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemPriceAmountEmpty))
 	}
@@ -468,6 +492,13 @@ func (ib *BuilderItem) SetInvoicedQuantity(invoicedQuantity int) *BuilderItem {
 	}
 	ib.InvoicedQuantity = invoicedQuantity
 	return ib
+}
+
+func (ib *BuilderItem) Build() (*Item, error) {
+	if len(ib.Errors) > 0 {
+		return nil, ib.Errors[0]
+	}
+	return &ib.Item, nil
 }
 
 // ItemDiscount

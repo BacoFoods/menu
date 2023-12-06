@@ -66,6 +66,10 @@ const (
 
 	ErrorPlemsiTipConceptEmpty = "error plemsi adapter tip concept is empty"
 	ErrorPlemsiTipAmountEmpty  = "error plemsi adapter tip amount is empty"
+
+	ErrorPlemsiEndConsumerInvoice = "error plemsi adapter end consumer invoice integration"
+	ErrorPlemsiTestConnection     = "error plemsi adapter test connection"
+	ErrorPlemsiEmptyInvoice       = "error plemsi empty invoice"
 )
 
 type Invoice struct {
@@ -113,10 +117,10 @@ type Payment struct {
 }
 
 type Discounts struct {
-	AllowanceChargeReason string `json:"allowance_charge_reason"`
-	AllowancePercent      int    `json:"allowance_percent"`
-	Amount                int    `json:"amount"`
-	BaseAmount            int    `json:"base_amount"`
+	AllowanceChargeReason string  `json:"allowance_charge_reason"`
+	AllowancePercent      float64 `json:"allowance_percent"`
+	Amount                float64 `json:"amount"`
+	BaseAmount            float64 `json:"base_amount"`
 }
 
 type Item struct {
@@ -129,7 +133,7 @@ type Item struct {
 	Notes                    string         `json:"notes"`
 	Code                     string         `json:"code"`
 	TypeItemIdentificationId int            `json:"type_item_identification_id"`
-	PriceAmount              int            `json:"price_amount"`
+	PriceAmount              float64        `json:"price_amount"`
 	BaseQuantity             int            `json:"base_quantity"`
 	InvoicedQuantity         int            `json:"invoiced_quantity"`
 }
