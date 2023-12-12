@@ -14772,8 +14772,11 @@
                 "start_date": {
                     "type": "string"
                 },
-                "store_id": {
-                    "type": "integer"
+                "stores": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },
@@ -15024,6 +15027,10 @@
                 },
                 "shift_id": {
                     "type": "integer"
+                },
+                "status": {
+                    "description": "TODO: populate",
+                    "type": "string"
                 },
                 "store_id": {
                     "type": "integer"

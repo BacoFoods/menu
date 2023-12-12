@@ -14780,8 +14780,11 @@ const docTemplate = `{
                 "start_date": {
                     "type": "string"
                 },
-                "store_id": {
-                    "type": "integer"
+                "stores": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },
@@ -15032,6 +15035,10 @@ const docTemplate = `{
                 },
                 "shift_id": {
                     "type": "integer"
+                },
+                "status": {
+                    "description": "TODO: populate",
+                    "type": "string"
                 },
                 "store_id": {
                     "type": "integer"
