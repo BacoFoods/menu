@@ -22,12 +22,25 @@ func NewDBRepository(db *gorm.DB) *DBRepository {
 }
 
 func (r DBRepository) CreateUpdate(invoice *Invoice) (*Invoice, error) {
-	if err := r.db.Save(invoice).Error; err != nil {
-		shared.LogError("Error creating invoice", LogRepository, "Create", err, *invoice)
+	if invoice.ID == 0 {
+		if err := r.db.Create(invoice).Error; err != nil {
+			shared.LogError("error creating invoice", LogRepository, "CreateUpdate", err, *invoice)
+			return nil, err
+		}
+	}
+
+	var invoiceDB Invoice
+	if err := r.db.First(&invoiceDB, invoice.ID).Error; err != nil {
+		shared.LogError("error getting invoice", LogRepository, "CreateUpdate", err, invoice.ID, *invoice)
 		return nil, err
 	}
 
-	return invoice, nil
+	if err := r.db.Model(&invoiceDB).Where("id = ?", invoice.ID).Updates(invoice).Error; err != nil {
+		shared.LogError("error updating invoice", LogRepository, "CreateUpdate", err, invoice.ID, invoice)
+		return nil, err
+
+	}
+	return &invoiceDB, nil
 }
 
 // Get method for get an invoice in database

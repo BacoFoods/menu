@@ -449,8 +449,10 @@ definitions:
         type: string
       start_date:
         type: string
-      store_id:
-        type: integer
+      stores:
+        items:
+          type: integer
+        type: array
     type: object
   country.Country:
     properties:
@@ -615,6 +617,9 @@ definitions:
         type: string
       shift_id:
         type: integer
+      status:
+        description: 'TODO: populate'
+        type: string
       store_id:
         type: integer
       sub_total:
