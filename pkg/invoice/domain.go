@@ -79,7 +79,7 @@ type Invoice struct {
 	Items               []Item            `json:"items"  gorm:"foreignKey:InvoiceID"`
 	Discounts           []DiscountApplied `json:"discounts"  gorm:"foreignKey:InvoiceID"`
 	Surcharges          []Surcharge       `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
-	Documents           []Document        `json:"documents" gorm:"foreignKey:InvoiceID"`
+	Documents           []Document        `json:"documents" gorm:"foreignKey:InvoiceID" faker:"-"`
 	Cashier             string            `json:"shift"`
 	Waiter              string            `json:"waiter"`
 	SubTotal            float64           `json:"sub_total"`
@@ -94,9 +94,10 @@ type Invoice struct {
 	PaymentsObservation string            `json:"payments_observation"`
 	Payments            []payment.Payment `json:"payments" gorm:"foreignKey:InvoiceID"`
 	ClientID            *uint             `json:"client_id"`
-	Client              *client.Client    `json:"client,omitempty"`
+	Client              *client.Client    `json:"client,omitempty" faker:"-"`
 	ShiftID             *uint             `json:"shift_id"`
 	ResolutionID        *uint             `json:"resolution_id"`
+	Resolution          *Resolution       `json:"resolution,omitempty" gorm:"foreignKey:ResolutionID"`
 	CreatedAt           *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt           *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt           *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`

@@ -52,9 +52,12 @@ var _ = Describe("Adapter", func() {
 
 		Context("With zero invoice", func() {
 			It("should return an error", func() {
-				var fakeInvoice invoice.Invoice
-				faker.FakeData(&fakeInvoice)
-				plemsiInvoice, err := invoice.ToPlemsiInvoice(&fakeInvoice, fmt.Sprint(faker.SetRandomNumberBoundaries(1000000000, 9999999999)))
+				fakeInvoice := &invoice.Invoice{}
+				if err := faker.FakeData(fakeInvoice); err != nil {
+					Expect(err).To(BeNil())
+				}
+
+				plemsiInvoice, err := invoice.ToPlemsiInvoice(fakeInvoice, fmt.Sprint(faker.SetRandomNumberBoundaries(1000000000, 9999999999)))
 				Expect(err).To(BeNil())
 
 				if err := adapter.EmitFinalConsumerInvoice(plemsiInvoice); err != nil {

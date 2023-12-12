@@ -64,6 +64,7 @@ func (a *adapter) EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) error 
 			"Authorization": fmt.Sprintf("Bearer %s", internal.Config.PlemsiToken),
 		},
 		Response: &res,
+		Body:     finalConsumerInvoice,
 	}
 
 	resp, err := a.httpclient.Get(req)

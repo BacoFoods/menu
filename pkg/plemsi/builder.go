@@ -227,7 +227,7 @@ func (ib *Builder) Build() (*Invoice, error) {
 
 // BuilderOrderReference for build a OrderReference
 type BuilderOrderReference struct {
-	*OrderReference
+	OrderReference
 	Errors []error
 }
 
@@ -248,7 +248,7 @@ func (ib *BuilderOrderReference) Build() (*OrderReference, error) {
 		return nil, ib.Errors[0]
 	}
 
-	return ib.OrderReference, nil
+	return &ib.OrderReference, nil
 }
 
 // Customer
@@ -291,7 +291,7 @@ func (ib *BuilderCustomer) SetTypeDocumentIdentificationId(typeDocumentIdentific
 
 // BuilderPayment for build a Payment
 type BuilderPayment struct {
-	*Payment
+	Payment
 	Errors []error
 }
 
@@ -336,14 +336,14 @@ func (ib *BuilderPayment) Build() (*Payment, error) {
 		return nil, ib.Errors[0]
 	}
 
-	return ib.Payment, nil
+	return &ib.Payment, nil
 }
 
 // Discounts
 
 // BuilderDiscounts for build a Discounts
 type BuilderDiscounts struct {
-	*Discounts
+	Discounts
 	Errors []error
 }
 
@@ -388,7 +388,7 @@ func (ib *BuilderDiscounts) Build() (*Discounts, error) {
 		return nil, ib.Errors[0]
 	}
 
-	return ib.Discounts, nil
+	return &ib.Discounts, nil
 }
 
 // Item
