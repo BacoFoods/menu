@@ -10,33 +10,14 @@ const (
 	LogPlemsiInvoice = "pkg/invoice/plemsi_invoice"
 )
 
-func ToPlemsiInvoice(invoice *Invoice) (*plemsi.Invoice, error) {
+func ToPlemsiInvoice(invoice *Invoice, resolution string) (*plemsi.Invoice, error) {
 
-	plemsiItems := make([]plemsi.Item, 0)
-
-	// Setting items
-	for _, item := range invoice.Items {
-		plemsiItem, err := plemsi.NewBuilderItem().
-			SetDescription(item.Description).
-			SetNotes(item.Comments).
-			SetCode(item.SKU).
-			SetPriceAmount(item.Price).
-			SetBaseQuantity(1).
-			SetInvoicedQuantity(1).
-			Build()
-
-		if err != nil {
-			shared.LogError("error building plemsi invoice item", LogPlemsiInvoice, "ToPlemsiInvoice", err, item)
-			return nil, err
-		}
-
-		plemsiItems = append(plemsiItems, *plemsiItem)
-	}
-
-	plemsiInvoice := plemsi.NewBuilderEndConsumerInvoice().SetItems(plemsiItems)
+	plemsiInvoice := plemsi.NewBuilderEndConsumerInvoice()
 
 	// Setting date
 	plemsiInvoice.SetDate(invoice.CreatedAt) // TODO: change to string
+
+	// Setting time
 	plemsiInvoice.SetTime(invoice.CreatedAt) // TODO: change to string
 
 	// Setting prefix
@@ -104,4 +85,62 @@ func ToPlemsiInvoice(invoice *Invoice) (*plemsi.Invoice, error) {
 
 	plemsiInvoice.SetGeneralAllowances(plemsiInvoiceDiscounts)
 
+	// Setting items
+	plemsiItems := make([]plemsi.Item, 0)
+
+	for _, item := range invoice.Items {
+		plemsiItem, err := plemsi.NewBuilderItem().
+			SetDescription(item.Description).
+			SetNotes(item.Comments).
+			SetCode(item.SKU).
+			SetPriceAmount(item.Price).
+			SetBaseQuantity(1).
+			SetInvoicedQuantity(1).
+			Build()
+
+		if err != nil {
+			shared.LogError("error building plemsi invoice item", LogPlemsiInvoice, "ToPlemsiInvoice", err, item)
+			return nil, err
+		}
+
+		plemsiItems = append(plemsiItems, *plemsiItem)
+	}
+
+	plemsiInvoice.SetItems(plemsiItems)
+
+	// Setting resolution
+	plemsiInvoice.SetResolution(resolution)
+
+	// Setting allowance total
+	plemsiInvoice.SetAllowanceTotal(int(invoice.TotalDiscounts))
+
+	// Setting invoice base total
+	plemsiInvoice.SetInvoiceBaseTotal(int(invoice.SubTotal))
+
+	// Setting invoice tax exclusive total
+	plemsiInvoice.SetInvoiceTaxExclusiveTotal(int(invoice.SubTotal))
+
+	// Setting invoice tax inclusive total
+	plemsiInvoice.SetInvoiceTaxInclusiveTotal(int(invoice.BaseTax + invoice.Taxes))
+
+	// Setting total to pay
+	plemsiInvoice.SetTotalToPay(int(invoice.Total))
+
+	// Setting Custom Subtotals
+	tips, err := plemsi.NewBuilderTip().
+		SetAmount(int(invoice.TipAmount)).
+		SetConcept("Propina").
+		Build()
+
+	if err != nil {
+		shared.LogError("error building plemsi invoice tip", LogPlemsiInvoice, "ToPlemsiInvoice", err, invoice)
+		return nil, err
+	}
+
+	plemsiInvoice.SetCustomSubtotals([]plemsi.Tip{*tips})
+
+	// Setting final total to pay
+	plemsiInvoice.SetFinalTotalToPay(int(invoice.Total))
+
+	return plemsiInvoice.Build()
 }

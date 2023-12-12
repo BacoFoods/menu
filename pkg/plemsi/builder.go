@@ -215,6 +215,14 @@ func (ib *Builder) SetFinalTotalToPay(finalTotalToPay int) *Builder {
 	return ib
 }
 
+func (ib *Builder) Build() (*Invoice, error) {
+	if len(ib.Errors) != 0 {
+		return nil, ib.Errors[0]
+	}
+
+	return &ib.Invoice, nil
+}
+
 // Order Reference
 
 // BuilderOrderReference for build a OrderReference
@@ -664,4 +672,12 @@ func (ib *BuilderTip) SetAmount(amount int) *BuilderTip {
 	}
 	ib.Amount = amount
 	return ib
+}
+
+func (ib *BuilderTip) Build() (*Tip, error) {
+	if len(ib.Errors) != 0 {
+		return nil, ib.Errors[0]
+	}
+
+	return &ib.Tip, nil
 }

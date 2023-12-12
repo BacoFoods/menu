@@ -1,6 +1,7 @@
 package plemsi_test
 
 import (
+	"fmt"
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/invoice"
 	"github.com/BacoFoods/menu/pkg/plemsi"
@@ -51,10 +52,13 @@ var _ = Describe("Adapter", func() {
 
 		Context("With zero invoice", func() {
 			It("should return an error", func() {
-				plemsiInvoice := invoice.ToPlemsiInvoice()
-				err := adapter.EmitFinalConsumerInvoice(plemsiInvoice)
-				if err != nil {
+				var fakeInvoice invoice.Invoice
+				faker.FakeData(&fakeInvoice)
+				plemsiInvoice, err := invoice.ToPlemsiInvoice(&fakeInvoice, fmt.Sprint(faker.SetRandomNumberBoundaries(1000000000, 9999999999)))
+				Expect(err).To(BeNil())
 
+				if err := adapter.EmitFinalConsumerInvoice(plemsiInvoice); err != nil {
+					Expect(err.Error()).To(Equal(plemsi.ErrorPlemsiTestConnection))
 				}
 			})
 		})
