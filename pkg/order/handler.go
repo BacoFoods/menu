@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/invoice"
@@ -257,7 +258,7 @@ func (h *Handler) Find(c *gin.Context) {
 	}
 
 	if status := c.Query("status"); status != "" {
-		filters["current_status"] = status
+		filters["current_status"] = strings.Split(status, ",")
 	}
 
 	if days := c.Query("days"); days != "" {
