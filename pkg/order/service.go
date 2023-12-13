@@ -281,7 +281,7 @@ func (s service) UpdateTable(orderID, tableID uint64) (*Order, error) {
 		return order, nil
 	}
 
-	_, err = s.table.SwapTable(&newTableID, oldTableID, &order.ID)
+	_, err = s.table.SwapTable(order.ID, newTableID, oldTableID)
 	if err != nil {
 		shared.LogError("error swapping tables", LogService, "UpdateTable", err, oldTableID, newTableID, order.ID)
 		return nil, err
