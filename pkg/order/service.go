@@ -534,7 +534,7 @@ func (s service) ReleaseTable(orderID string) (*Order, error) {
 
 	order.TableID = nil
 	order.Table = nil
-	if err := s.repository.Delete(fmt.Sprintf("%d", order.ID)); err != nil {
+	if _, err := s.repository.Update(order); err != nil {
 		return nil, err
 	}
 

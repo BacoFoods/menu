@@ -120,7 +120,7 @@ func (r tableRepository) SwapTable(newTableID, oldTableID, orderID *uint) (*Tabl
 		}
 
 		// set old table order to nil
-		if err := r.db.Model(&oldlTable).Update("order_id", nil).Error; err != nil {
+		if err := r.db.Model(&oldlTable).Update("order_id", gorm.Expr("NULL")).Error; err != nil {
 			shared.LogError(ErrorTableUpdating, LogRepository, "SwapTable", err, *oldTableID, *orderID)
 			return err
 		}
@@ -173,7 +173,7 @@ func (r tableRepository) RemoveOrder(tableID *uint) (*Table, error) {
 	}
 
 	table.OrderID = nil
-	if err := r.db.Model(&table).Update("order_id", nil).Error; err != nil {
+	if err := r.db.Model(&table).Update("order_id", gorm.Expr("NULL")).Error; err != nil {
 		shared.LogError(ErrorTableUpdating, LogRepository, "RemoveOrder", err, *tableID)
 		return nil, err
 	}
