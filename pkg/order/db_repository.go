@@ -93,7 +93,7 @@ func (r *DBRepository) Update(order *Order) (*Order, error) {
 }
 
 func (r *DBRepository) UpdateTable(order *Order, newTableID uint) (*Order, error) {
-	return order, r.db.Model(order).Update("table_id", newTableID).Error
+	return order, r.db.Model(order).Where("id = ?", order.ID).Update("table_id", newTableID).Error
 }
 
 // Find method for find orders in database

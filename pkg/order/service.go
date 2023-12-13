@@ -294,6 +294,8 @@ func (s service) UpdateTable(orderID, tableID uint64) (*Order, error) {
 		return nil, fmt.Errorf(ErrorOrderUpdate)
 	}
 
+	// TODO: loggear en los eventos de la orden, que se cambio de mesa y quien lo hizo
+
 	return orderDB, nil
 }
 
