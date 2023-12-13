@@ -85,6 +85,52 @@ func (r tableRepository) Delete(id string) error {
 	return nil
 }
 
+func (r tableRepository) SwapTable(newTableID, oldTableID, orderID *uint) (*Table, error) {
+	var newTable, oldlTable Table
+	if err := r.db.First(&oldlTable, oldTableID).Error; err != nil {
+		shared.LogError(ErrorTableUpdating, LogRepository, "SwapTable", err, *oldTableID, *orderID)
+		return nil, err
+	}
+
+	if err := r.db.First(&newTable, newTableID).Error; err != nil {
+		shared.LogError(ErrorTableUpdating, LogRepository, "SwapTable", err, *newTableID, *orderID)
+		return nil, err
+	}
+
+	if oldTableID == newTableID {
+		return &newTable, nil
+	}
+
+	// if new table has an order, return error
+	if newTable.OrderID != nil {
+		return nil, fmt.Errorf(ErrorTableHasOrder)
+	}
+
+	// if old table order is not the same as the orderID, return error
+	if oldlTable.OrderID != nil && oldlTable.OrderID != orderID {
+		return nil, fmt.Errorf("error swapping table, order is not the same")
+	}
+
+	// start tx
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		// set new table order to old table order
+		if err := r.db.Model(&newTable).Update("order_id", orderID).Error; err != nil {
+			shared.LogError(ErrorTableUpdating, LogRepository, "SwapTable", err, *newTableID, *orderID)
+			return err
+		}
+
+		// set old table order to nil
+		if err := r.db.Model(&oldlTable).Update("order_id", nil).Error; err != nil {
+			shared.LogError(ErrorTableUpdating, LogRepository, "SwapTable", err, *oldTableID, *orderID)
+			return err
+		}
+
+		return nil
+	})
+
+	return &newTable, err
+}
+
 func (r tableRepository) SetOrder(tableID, orderID *uint) (*Table, error) {
 	var table Table
 	if err := r.db.First(&table, tableID).Error; err != nil {
