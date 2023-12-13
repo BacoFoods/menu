@@ -40,7 +40,6 @@ type Service interface {
 	UpdateProduct(product *OrderItem) (*Order, error)
 	UpdateStatusNext(orderID string) (*Order, error)
 	UpdateStatusPrev(orderID string) (*Order, error)
-	ReleaseTable(orderID string) (*Order, error)
 	UpdateComments(orderID, comments string) (*Order, error)
 	UpdateClientName(orderID, clientName string) (*Order, error)
 	UpdateStatus(orderID, status string) (*Order, error)
@@ -275,14 +274,14 @@ func (s service) UpdateTable(orderID, tableID uint64) (*Order, error) {
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	oldTableID := *order.TableID
+	oldTableID := order.TableID
 	newTableID := uint(tableID)
 
-	if oldTableID == newTableID {
+	if oldTableID != nil && *oldTableID == newTableID {
 		return order, nil
 	}
 
-	_, err = s.table.SwapTable(&newTableID, &oldTableID, &order.ID)
+	_, err = s.table.SwapTable(&newTableID, oldTableID, &order.ID)
 	if err != nil {
 		shared.LogError("error swapping tables", LogService, "UpdateTable", err, oldTableID, newTableID, order.ID)
 		return nil, err
@@ -511,31 +510,6 @@ func (s service) UpdateStatusPrev(orderID string) (*Order, error) {
 	if _, err := s.repository.Update(order); err != nil {
 		shared.LogError("error updating order status", LogService, "UpdateStatusPrev", err, *order)
 		return nil, fmt.Errorf(ErrorOrderUpdateStatus)
-	}
-
-	return order, nil
-}
-
-func (s service) ReleaseTable(orderID string) (*Order, error) {
-	order, err := s.repository.Get(orderID)
-	if err != nil {
-		shared.LogError("error getting order", LogService, "ReleaseTable", err, orderID)
-		return nil, fmt.Errorf(ErrorOrderGetting)
-	}
-
-	tableID := order.TableID
-	if order.Table != nil {
-		tableID = &order.Table.ID
-	}
-
-	if _, err := s.table.RemoveOrder(tableID); err != nil {
-		return nil, err
-	}
-
-	order.TableID = nil
-	order.Table = nil
-	if _, err := s.repository.Update(order); err != nil {
-		return nil, err
 	}
 
 	return order, nil

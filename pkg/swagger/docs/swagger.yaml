@@ -6092,48 +6092,6 @@ paths:
       summary: To calculate an invoice
       tags:
       - Order
-  /order/{id}/release-table:
-    post:
-      consumes:
-      - application/json
-      description: To release an order's table
-      parameters:
-      - description: Order ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - type: object
-            - properties:
-                data:
-                  $ref: '#/definitions/order.Order'
-                status:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/shared.Response'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/shared.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: To release an order's table
-      tags:
-      - Order
   /order/{id}/remove/product:
     patch:
       consumes:
@@ -9583,6 +9541,48 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Generate QR
+      tags:
+      - Tables
+  /tables/{id}/release:
+    post:
+      consumes:
+      - application/json
+      description: Release tables
+      parameters:
+      - description: table id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/tables.Table'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Release tables
       tags:
       - Tables
   /tax:

@@ -30,6 +30,7 @@ type Service interface {
 	AddTables(zoneID string, tables []uint) error
 	RemoveTables(zoneID string, tables []uint) error
 	EnableZone(zoneID string) (*Zone, error)
+	ReleaseTable(tableID uint) (*Table, error)
 }
 
 type service struct {
@@ -52,6 +53,10 @@ func (s service) Find(query map[string]any) ([]Table, error) {
 
 func (s service) Create(table *Table) (*Table, error) {
 	return s.repository.Create(table)
+}
+
+func (s service) ReleaseTable(tableID uint) (*Table, error) {
+	return s.repository.RemoveOrder(&tableID)
 }
 
 func (s service) Update(id string, table *Table) (*Table, error) {

@@ -17,6 +17,7 @@ func (r Routes) RegisterRoutes(private, public *shared.CustomRoutes) {
 	private.POST("/tables", r.handler.Create)
 	private.PATCH("/tables/:id", r.handler.Update)
 	private.DELETE("/tables/:id", r.handler.Delete)
+	private.POST("/tables/:id/release", r.handler.Release)
 
 	private.GET("/zone", r.handler.FindZones)
 	private.GET("/zone/:id", r.handler.GetZone)
