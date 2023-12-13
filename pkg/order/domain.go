@@ -118,6 +118,7 @@ type Repository interface {
 	// OrderItem
 	UpdateOrderItem(orderItem *OrderItem) (*OrderItem, error)
 	GetOrderItem(orderItemID string) (*OrderItem, error)
+	UpdateTable(order *Order, newTableID uint) (*Order, error)
 
 	// OrderType
 	CreateOrderType(*OrderType) (*OrderType, error)

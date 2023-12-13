@@ -92,6 +92,10 @@ func (r *DBRepository) Update(order *Order) (*Order, error) {
 	return order, nil
 }
 
+func (r *DBRepository) UpdateTable(order *Order, newTableID uint) (*Order, error) {
+	return order, r.db.Model(order).Update("table_id", newTableID).Error
+}
+
 // Find method for find orders in database
 func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 	tx := r.db.

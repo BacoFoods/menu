@@ -288,7 +288,7 @@ func (s service) UpdateTable(orderID, tableID uint64) (*Order, error) {
 	}
 
 	order.TableID = &newTableID
-	orderDB, err := s.repository.Update(order)
+	orderDB, err := s.repository.UpdateTable(order, newTableID)
 	if err != nil {
 		shared.LogError("error updating order", LogService, "UpdateTable", err, *order)
 		return nil, fmt.Errorf(ErrorOrderUpdate)
