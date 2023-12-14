@@ -27,7 +27,7 @@ func (r *DBRepository) Create(equivalence *Equivalence) (*Equivalence, error) {
 
 func (r *DBRepository) Find(filter map[string]string) ([]Equivalence, error) {
 	var equivalence []Equivalence
-	if err := r.db.Preload(clause.Associations).Find(&equivalence, filter).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).Find(equivalence, filter).Error; err != nil {
 		shared.LogError("error finding country", LogDBRepository, "Find", err)
 		return nil, err
 	}

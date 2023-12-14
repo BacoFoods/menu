@@ -2,11 +2,12 @@ package order
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"strings"
 )
 
 const (
@@ -91,27 +92,39 @@ func (r *DBRepository) Update(order *Order) (*Order, error) {
 	return order, nil
 }
 
+func (r *DBRepository) UpdateTable(order *Order, newTableID uint) (*Order, error) {
+	return order, r.db.Model(order).Where("id = ?", order.ID).Update("table_id", newTableID).Error
+}
+
 // Find method for find orders in database
 func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 	tx := r.db.
 		Preload(clause.Associations).
 		Preload("Items.Modifiers").
 		Preload("Table.Zone")
+
 	if days, ok := filter["days"]; ok {
 		tx.Preload(clause.Associations).
 			Preload("Items.Modifiers").
 			Where(fmt.Sprintf("created_at >= NOW() - INTERVAL '%s' DAY", days))
+
 		shared.LogWarn("filtering by days", LogDBRepository, "Find", nil, filter)
 		delete(filter, "days")
 	}
 
+	if statuses, ok := filter["current_status"]; ok {
+		tx.Where("current_status IN ?", statuses)
+		delete(filter, "current_status")
+	}
+
 	var orders []Order
-	if err := tx.
+	err := tx.
 		Preload(clause.Associations).
 		Preload("Items.Modifiers").
 		Where(filter).
 		Order("created_at DESC").
-		Find(&orders).Error; err != nil {
+		Find(&orders).Error
+	if err != nil {
 		shared.LogError("error finding orders", LogDBRepository, "Find", err, filter)
 		return nil, err
 	}

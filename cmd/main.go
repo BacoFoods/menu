@@ -13,6 +13,7 @@ import (
 
 	"github.com/BacoFoods/menu/internal"
 	"github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/app"
 	"github.com/BacoFoods/menu/pkg/assets"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
@@ -98,6 +99,7 @@ func main() {
 	)
 
 	rabbitCh := internal.MustNewRabbitMQ(internal.Config.RabbitConfig.ComandasQueue, internal.Config.RabbitConfig.Host, internal.Config.RabbitConfig.Port)
+	redisConn := internal.MustNewRedis(internal.Config.RedisConfig.Host, internal.Config.RedisConfig.Port)
 
 	httpClient := shared.NewRestClient(resty.New())
 
@@ -227,9 +229,6 @@ func main() {
 	shiftHandler := shift.NewHandler(shiftService)
 	shiftRoutes := shift.NewRoutes(shiftHandler)
 
-	// Plemsi
-	plemsiAdapter = plemsi.NewPlemsi(httpClient)
-
 	// Order
 	orderRepository := order.NewDBRepository(gormDB)
 	orderService := order.NewService(orderRepository,
@@ -243,6 +242,7 @@ func main() {
 		discountRepository,
 		channelRepository,
 		facturacionService,
+		redisConn,
 		plemsiAdapter,
 	)
 	orderHandler := order.NewHandler(orderService)
@@ -288,6 +288,11 @@ func main() {
 	equivalenceHandler := connector.NewHandler(equivalenceService)
 	equivalenceRoutes := connector.NewRoutes(equivalenceHandler)
 
+	// Application TDP compilation apk and exe
+	appService := app.NewService(internal.Config.GitToken, internal.Config.GitRepository)
+	appHandler := app.NewHandler(appService)
+	appRoutes := app.NewRoutes(appHandler)
+
 	// Routes
 	routes := &router.RoutesGroup{
 		HealthCheck:  healthcheckRoutes,
@@ -319,6 +324,7 @@ func main() {
 		Schedule:     scheduleRoutes,
 		Equivalence:  equivalenceRoutes,
 		Siesa:        siesaRoutes,
+		App:          appRoutes,
 	}
 
 	// Run server

@@ -1,6 +1,6 @@
 package surcharge
 
-import "github.com/gin-gonic/gin"
+import "github.com/BacoFoods/menu/pkg/shared"
 
 type Routes struct {
 	handler *Handler
@@ -10,7 +10,7 @@ func NewRoutes(handler *Handler) Routes {
 	return Routes{handler: handler}
 }
 
-func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
+func (r Routes) RegisterRoutes(router *shared.CustomRoutes) {
 	router.GET("/surcharge", r.handler.Find)
 	router.GET("/surcharge/:id", r.handler.Get)
 	router.POST("/surcharge", r.handler.Create)

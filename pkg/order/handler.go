@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/invoice"
@@ -257,7 +258,7 @@ func (h *Handler) Find(c *gin.Context) {
 	}
 
 	if status := c.Query("status"); status != "" {
-		filters["current_status"] = status
+		filters["current_status"] = strings.Split(status, ",")
 	}
 
 	if days := c.Query("days"); days != "" {
@@ -425,31 +426,6 @@ func (h *Handler) UpdateProduct(c *gin.Context) {
 	}
 
 	order, err := h.service.UpdateProduct(updatedProduct)
-	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
-		return
-	}
-
-	c.JSON(http.StatusOK, shared.SuccessResponse(order))
-}
-
-// ReleaseTable to handle a request to release an order's table
-// @Tags Order
-// @Summary To release an order's table
-// @Description To release an order's table
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param id path string true "Order ID"
-// @Success 200 {object} object{status=string,data=Order}
-// @Failure 400 {object} shared.Response
-// @Failure 401 {object} shared.Response
-// @Failure 422 {object} shared.Response
-// @Router /order/{id}/release-table [post]
-func (h *Handler) ReleaseTable(c *gin.Context) {
-	orderID := c.Param("id")
-
-	order, err := h.service.ReleaseTable(orderID)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return

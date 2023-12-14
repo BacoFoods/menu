@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/BacoFoods/menu/internal/telemetry"
+	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,7 +30,7 @@ func telemetryMiddleware(c *gin.Context) {
 	}
 }
 
-func (r Routes) RegisterRoutes(private, public *gin.RouterGroup) {
+func (r Routes) RegisterRoutes(private, public *shared.CustomRoutes) {
 	// Order
 	private.GET("/order", r.handler.Find, telemetryMiddleware)
 	private.POST("/order", r.handler.Create, telemetryMiddleware)
@@ -47,7 +48,6 @@ func (r Routes) RegisterRoutes(private, public *gin.RouterGroup) {
 	private.PATCH("/order/:id/update/comments", r.handler.UpdateComments)
 	private.PATCH("/order/:id/update/client-name", r.handler.UpdateClientName)
 	private.PATCH("/order/:id/update/status", r.handler.UpdateStatus)
-	private.POST("/order/:id/release-table", r.handler.ReleaseTable)
 
 	// Order Item
 	private.PATCH("/order-item/:id/add/modifiers", r.handler.AddModifiers)

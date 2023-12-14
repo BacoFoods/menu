@@ -5,12 +5,13 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"github.com/BacoFoods/menu/pkg/siesa"
 	"google.golang.org/api/idtoken"
 	"google.golang.org/api/option"
 
 	"github.com/BacoFoods/menu/internal"
+	"github.com/BacoFoods/menu/internal/telemetry"
 	"github.com/BacoFoods/menu/pkg/account"
+	"github.com/BacoFoods/menu/pkg/app"
 	"github.com/BacoFoods/menu/pkg/assets"
 	"github.com/BacoFoods/menu/pkg/availability"
 	"github.com/BacoFoods/menu/pkg/brand"
@@ -33,6 +34,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/scheduler"
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/BacoFoods/menu/pkg/shift"
+	"github.com/BacoFoods/menu/pkg/siesa"
 	"github.com/BacoFoods/menu/pkg/store"
 	"github.com/BacoFoods/menu/pkg/surcharge"
 	"github.com/BacoFoods/menu/pkg/swagger"
@@ -73,8 +75,11 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.HealthCheck.Register(healthCheck)
 
 	// Register private routes
-	private := router.Group(path)
-	private.Use(AuthMiddleware(validator))
+	privateGroup := router.Group(path)
+	privateGroup.Use(shared.NamedRoute(path))
+	privateGroup.Use(AuthMiddleware(validator))
+
+	private := (*shared.CustomRoutes)(privateGroup)
 
 	routes.Availability.RegisterRoutes(private)
 	routes.Brand.RegisterRoutes(private)
@@ -99,16 +104,21 @@ func NewRouter(routes *RoutesGroup) Router {
 	routes.Schedule.RegisterRoutes(private)
 	routes.Equivalence.RegisterRoutes(private)
 	routes.Siesa.RegisterRoutes(private)
+	routes.App.RegisterRoutes(privateGroup)
 
 	// Register public routes
-	public := router.Group(fmt.Sprintf("%s/public", path))
+	publicPath := fmt.Sprintf("%s/public", path)
+	publicGroup := router.Group(publicPath)
+	publicGroup.Use(shared.NamedRoute(path))
+	public := (*shared.CustomRoutes)(publicGroup)
 
 	routes.Table.RegisterRoutes(private, public)
 	routes.Menu.RegisterRoutes(private, public)
 	routes.Account.RegisterRoutes(private, public)
 	routes.Order.RegisterRoutes(private, public)
+	routes.Telemetry.RegisterRoutes(publicGroup)
 
-	routes.Swagger.Register(public)
+	routes.Swagger.Register(publicGroup)
 
 	return router
 }
@@ -144,4 +154,6 @@ type RoutesGroup struct {
 	Schedule     scheduler.Routes
 	Equivalence  connector.Routes
 	Siesa        siesa.Routes
+	App          app.Routes
+	Telemetry    telemetry.Routes
 }

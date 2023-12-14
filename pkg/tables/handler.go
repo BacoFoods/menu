@@ -2,6 +2,7 @@ package tables
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
@@ -60,6 +61,38 @@ func (h Handler) Get(ctx *gin.Context) {
 	if err != nil {
 		shared.LogError("error getting table", LogHandler, "Get", err, table)
 		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorTableGetting))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(table))
+}
+
+// Release table
+// @Tags Tables
+// @Summary Release tables
+// @Description Release tables
+// @Param id path string true "table id"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=Table}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Failure 401 {object} shared.Response
+// @Router /tables/{id}/release [post]
+func (h Handler) Release(ctx *gin.Context) {
+	pid := ctx.Param("id")
+	id, err := strconv.ParseUint(pid, 10, 64)
+	if err != nil {
+		shared.LogError("error parsing table id", LogHandler, "Release", err, pid)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorTableGetting))
+		return
+	}
+
+	table, err := h.service.ReleaseTable(uint(id))
+	if err != nil {
+		shared.LogError("error releasing table", LogHandler, "Release", err, id)
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorTableUpdating))
 		return
 	}
 

@@ -9,10 +9,6 @@ import (
 
 const LogHandler = "pkg/invoice/handler"
 
-type CreateInvoiceRequest struct {
-	OrderID string `json:"order_id" binding:"required"`
-}
-
 type RequestUpdateTip struct {
 	Type  string  `json:"type"`
 	Value float64 `json:"value"`

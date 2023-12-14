@@ -6,6 +6,7 @@ import (
 
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 const LogHandler string = "pkg/connector/handler"
@@ -17,7 +18,7 @@ type Handler struct {
 type RequestExcelCreate struct {
 	StartDate string `json:"start_date"`
 	EndDate   string `json:"end_date"`
-	StoreID   uint   `json:"store_id"`
+	Stores    []uint `json:"stores"`
 }
 
 func NewHandler(service Service) *Handler {
@@ -158,15 +159,30 @@ func (h *Handler) CreateFile(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
-	invoices, err := h.service.GetInvoices(requestBody.StartDate, requestBody.EndDate, fmt.Sprint(requestBody.StoreID))
+
+	logrus.Infof("creating connector file for store %v [%s, %s]", requestBody.Stores, requestBody.StartDate, requestBody.EndDate)
+	stores := []string{}
+	for _, s := range requestBody.Stores {
+		stores = append(stores, fmt.Sprintf("%d", s))
+	}
+
+	invoices, err := h.service.GetInvoices(requestBody.StartDate, requestBody.EndDate, stores)
 	if err != nil {
 		shared.LogError("error getting invoices", LogHandler, "CreateFile", err, invoices)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
 		return
 	}
 
+	if len(invoices) == 0 {
+		shared.LogWarn("no invoices found", LogHandler, "CreateFile", nil, invoices)
+		ctx.JSON(http.StatusNotFound, shared.ErrorResponse("no invoices for parameters"))
+		return
+	}
+
+	logrus.Infof("found %d invoices for connector file", len(invoices))
+
 	// Call the HandleSIESAIntegration function to get the Excel file as a byte slice
-	excelFile, err := h.service.CreateFile(requestBody.StoreID, invoices)
+	excelFile, err := h.service.CreateFile(requestBody.Stores, invoices)
 	if err != nil {
 		shared.LogError("error handling SIESA integration", LogHandler, "CreateFile", err, invoices)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))

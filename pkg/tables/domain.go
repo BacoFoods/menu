@@ -103,6 +103,7 @@ type Repository interface {
 	Update(id string, table *Table) (*Table, error)
 	Delete(id string) error
 	SetOrder(tableID, orderID *uint) (*Table, error)
+	SwapTable(orderID, newTableID uint, oldTableID *uint) (*Table, error)
 	RemoveOrder(tableID *uint) (*Table, error)
 	ScanQR(qrID string) (*Table, error)
 	CreateQR(qr QR) (*QR, error)

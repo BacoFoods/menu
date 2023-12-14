@@ -20,6 +20,7 @@ import (
 	"github.com/BacoFoods/menu/pkg/shared"
 	shifts "github.com/BacoFoods/menu/pkg/shift"
 	"github.com/BacoFoods/menu/pkg/tables"
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -40,7 +41,6 @@ type Service interface {
 	UpdateProduct(product *OrderItem) (*Order, error)
 	UpdateStatusNext(orderID string) (*Order, error)
 	UpdateStatusPrev(orderID string) (*Order, error)
-	ReleaseTable(orderID string) (*Order, error)
 	UpdateComments(orderID, comments string) (*Order, error)
 	UpdateClientName(orderID, clientName string) (*Order, error)
 	UpdateStatus(orderID, status string) (*Order, error)
@@ -84,6 +84,7 @@ type service struct {
 	discounts   discountsSrv
 	channel     channelSrv
 	facturacion facturacionSrv
+	redis       *redis.Client
 	plemsi      plemsi.Adapter
 }
 
@@ -98,6 +99,7 @@ func NewService(repository Repository,
 	discounts discountsSrv,
 	channel channelSrv,
 	facturacion facturacionSrv,
+	redis *redis.Client,
 	plemsi plemsi.Adapter,
 ) service {
 	return service{repository,
@@ -111,6 +113,7 @@ func NewService(repository Repository,
 		discounts,
 		channel,
 		facturacion,
+		redis,
 		plemsi,
 	}
 }
@@ -274,27 +277,27 @@ func (s service) UpdateTable(orderID, tableID uint64) (*Order, error) {
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	oldTableID := *order.TableID
+	oldTableID := order.TableID
 	newTableID := uint(tableID)
 
-	if oldTableID == newTableID {
+	if oldTableID != nil && *oldTableID == newTableID {
 		return order, nil
 	}
 
-	if _, err := s.table.SetOrder(&newTableID, &order.ID); err != nil {
-		return nil, err
-	}
-
-	if _, err := s.table.RemoveOrder(&oldTableID); err != nil {
+	_, err = s.table.SwapTable(order.ID, newTableID, oldTableID)
+	if err != nil {
+		shared.LogError("error swapping tables", LogService, "UpdateTable", err, oldTableID, newTableID, order.ID)
 		return nil, err
 	}
 
 	order.TableID = &newTableID
-	orderDB, err := s.repository.Update(order)
+	orderDB, err := s.repository.UpdateTable(order, newTableID)
 	if err != nil {
 		shared.LogError("error updating order", LogService, "UpdateTable", err, *order)
 		return nil, fmt.Errorf(ErrorOrderUpdate)
 	}
+
+	// TODO: loggear en los eventos de la orden, que se cambio de mesa y quien lo hizo
 
 	return orderDB, nil
 }
@@ -517,31 +520,6 @@ func (s service) UpdateStatusPrev(orderID string) (*Order, error) {
 	return order, nil
 }
 
-func (s service) ReleaseTable(orderID string) (*Order, error) {
-	order, err := s.repository.Get(orderID)
-	if err != nil {
-		shared.LogError("error getting order", LogService, "ReleaseTable", err, orderID)
-		return nil, fmt.Errorf(ErrorOrderGetting)
-	}
-
-	tableID := order.TableID
-	if order.Table != nil {
-		tableID = &order.Table.ID
-	}
-
-	if _, err := s.table.RemoveOrder(tableID); err != nil {
-		return nil, err
-	}
-
-	order.TableID = nil
-	order.Table = nil
-	if err := s.repository.Delete(fmt.Sprintf("%d", order.ID)); err != nil {
-		return nil, err
-	}
-
-	return order, nil
-}
-
 func (s service) AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error) {
 	orderItem, err := s.repository.GetOrderItem(fmt.Sprintf("%d", itemID))
 	if err != nil {
@@ -697,38 +675,52 @@ func (s service) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, err
 		}
 	}
 
-	// Generate invoice document
-	doc, err := s.facturacion.Generate(
-		&invoice,
-		req.CreateInvoiceDocumentRequest.DocumentType,
-		req.CreateInvoiceDocumentRequest.DocumentData,
-	)
-	if err != nil {
-		shared.LogError("error generating invoice document", LogService, "CreateInvoice", err, invoice)
-		return nil, err
-	}
+	// TODO: anular documentos viejos si se regenera el invoice
 
-	if doc != nil {
-		invoice.Documents = append(invoice.Documents, *doc)
-	}
+	// ATTENTION!!
+	// This is a critical zone. The following is protected by a distributed mutex using redis
+	// so each call is executed in order and has to wait for the previous one to finish.
+	var invoiceDB *invoices.Invoice
+	mu := internal.DistMutex(s.redis, fmt.Sprintf("menu:invoice:create:%d", order.ID))
+	{
+		_ = mu.Lock()
+		defer mu.Unlock()
+		// Generate invoice document
+		doc, err := s.facturacion.Generate(
+			&invoice,
+			req.CreateInvoiceDocumentRequest.DocumentType,
+			req.CreateInvoiceDocumentRequest.DocumentData,
+		)
+		if err != nil {
+			shared.LogError("error generating invoice document", LogService, "CreateInvoice", err, invoice)
+			return nil, err
+		}
 
-	// if the order already had an invoice, update it instead of creating a new one
-	if oldInvoice != nil {
-		invoice.ID = oldInvoice.ID
-	}
+		if doc != nil {
+			invoice.Documents = append(invoice.Documents, *doc)
+		}
 
-	invoiceDB, err := s.invoice.CreateUpdate(&invoice)
-	if err != nil {
-		shared.LogError("error creating invoice", LogService, "CreateInvoice", err, invoice)
-		return nil, fmt.Errorf(invoices.ErrorInvoiceCreation)
-	}
+		// if the order already had an invoice, update it instead of creating a new one
+		if oldInvoice != nil {
+			invoice.ID = oldInvoice.ID
+		}
 
-	// force the created invoice to be the only one in the order
-	order.Invoices = []invoices.Invoice{*invoiceDB}
+		invoiceDB, err = s.invoice.CreateUpdate(&invoice)
+		if err != nil {
+			shared.LogError("error creating invoice", LogService, "CreateInvoice", err, invoice)
+			return nil, fmt.Errorf(invoices.ErrorInvoiceCreation)
+		}
 
-	if _, err := s.repository.Update(order); err != nil {
-		shared.LogError("error updating order", LogService, "CreateInvoice", err, order)
-		return nil, fmt.Errorf(ErrorOrderUpdate)
+		// force the created invoice to be the only one in the order
+		order.Invoices = []invoices.Invoice{*invoiceDB}
+		if _, err := s.repository.Update(order); err != nil {
+			shared.LogError("error updating order", LogService, "CreateInvoice", err, order)
+			return nil, fmt.Errorf(ErrorOrderUpdate)
+		}
+
+		// ATTENTION!!
+		// End of critical zone
+		mu.Unlock()
 	}
 
 	// release table

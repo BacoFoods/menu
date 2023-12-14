@@ -1,6 +1,6 @@
 package invoice
 
-import "github.com/gin-gonic/gin"
+import "github.com/BacoFoods/menu/pkg/shared"
 
 type Routes struct {
 	handler *Handler
@@ -10,7 +10,7 @@ func NewRoutes(handler *Handler) Routes {
 	return Routes{handler: handler}
 }
 
-func (r Routes) RegisterRoutes(router *gin.RouterGroup) {
+func (r Routes) RegisterRoutes(router *shared.CustomRoutes) {
 	router.GET("/invoice/:id", r.handler.Get)
 	router.GET("/invoice", r.handler.Find)
 	router.GET("/invoice/:id/print", r.handler.Print)
