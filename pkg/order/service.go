@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/plemsi"
 	"strconv"
 	"time"
 
@@ -83,6 +84,7 @@ type service struct {
 	discounts   discountsSrv
 	channel     channelSrv
 	facturacion facturacionSrv
+	plemsi      plemsi.Adapter
 }
 
 func NewService(repository Repository,
@@ -96,6 +98,7 @@ func NewService(repository Repository,
 	discounts discountsSrv,
 	channel channelSrv,
 	facturacion facturacionSrv,
+	plemsi plemsi.Adapter,
 ) service {
 	return service{repository,
 		table,
@@ -108,6 +111,7 @@ func NewService(repository Repository,
 		discounts,
 		channel,
 		facturacion,
+		plemsi,
 	}
 }
 
@@ -939,6 +943,19 @@ func (s service) CloseInvoice(req CloseInvoiceRequest) (*invoice.Invoice, error)
 			Role:      att.Role,
 		}
 		go s.repository.CreateAttendee(newAtt)
+	}
+
+	// emmit electronic invoice
+	resolution := "18760000001" // TODO: get from config
+	plemsiInvoice, err := invoice.ToPlemsiInvoice(resolution)
+	if err != nil {
+		shared.LogError("error building plemsi invoice", LogService, "CreateInvoice", err, invoice)
+		return nil, fmt.Errorf(ErrorOrderInvoicePlemsiBuilding)
+	}
+
+	if err := s.plemsi.EmitFinalConsumerInvoice(plemsiInvoice); err != nil {
+		shared.LogError("error emitting invoice", LogService, "CreateInvoice", err, invoice)
+		return nil, fmt.Errorf(ErrorOrderInvoiceEmission)
 	}
 
 	return invDB, nil

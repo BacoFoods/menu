@@ -227,6 +227,9 @@ func main() {
 	shiftHandler := shift.NewHandler(shiftService)
 	shiftRoutes := shift.NewRoutes(shiftHandler)
 
+	// Plemsi
+	plemsiAdapter = plemsi.NewPlemsi(httpClient)
+
 	// Order
 	orderRepository := order.NewDBRepository(gormDB)
 	orderService := order.NewService(orderRepository,
@@ -240,6 +243,7 @@ func main() {
 		discountRepository,
 		channelRepository,
 		facturacionService,
+		plemsiAdapter,
 	)
 	orderHandler := order.NewHandler(orderService)
 	orderRoutes := order.NewRoutes(orderHandler)

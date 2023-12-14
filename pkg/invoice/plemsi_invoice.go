@@ -10,26 +10,26 @@ const (
 	LogPlemsiInvoice = "pkg/invoice/plemsi_invoice"
 )
 
-func ToPlemsiInvoice(invoice *Invoice, resolution string) (*plemsi.Invoice, error) {
+func (i *Invoice) ToPlemsiInvoice(resolution string) (*plemsi.Invoice, error) {
 
 	plemsiInvoice := plemsi.NewBuilderEndConsumerInvoice()
 
 	// Setting date
-	plemsiInvoice.SetDate(invoice.CreatedAt) // TODO: change to string
+	plemsiInvoice.SetDate(i.CreatedAt) // TODO: change to string
 
 	// Setting time
-	plemsiInvoice.SetTime(invoice.CreatedAt) // TODO: change to string
+	plemsiInvoice.SetTime(i.CreatedAt) // TODO: change to string
 
 	// Setting prefix
 	plemsiInvoice.SetPrefix("SETT") // TODO: define preffix
 
 	// Setting number
-	plemsiInvoice.SetNumber(int(invoice.ID)) //TODO: consecutive invoice ID is valid?
+	plemsiInvoice.SetNumber(int(i.ID)) //TODO: consecutive invoice ID is valid?
 
 	// Setting order reference
-	orderReference, err := plemsi.NewBuilderOrderReference().SetIdOrder(fmt.Sprintf("%v", *invoice.OrderID)).Build()
+	orderReference, err := plemsi.NewBuilderOrderReference().SetIdOrder(fmt.Sprintf("%v", *i.OrderID)).Build()
 	if err != nil {
-		shared.LogError("error building plemsi invoice order reference", LogPlemsiInvoice, "ToPlemsiInvoice", err, *invoice)
+		shared.LogError("error building plemsi invoice order reference", LogPlemsiInvoice, "ToPlemsiInvoice", err, *i)
 		return nil, err
 	}
 
@@ -42,21 +42,19 @@ func ToPlemsiInvoice(invoice *Invoice, resolution string) (*plemsi.Invoice, erro
 	plemsiInvoice.SetIsFinalCustomer(true)
 
 	// Setting payment
-	if len(invoice.Payments) == 0 {
-		shared.LogError("error invoice without payment", LogPlemsiInvoice, "ToPlemsiInvoice", err, *invoice)
+	if len(i.Payments) == 0 {
+		shared.LogError("error invoice without payment", LogPlemsiInvoice, "ToPlemsiInvoice", err, *i)
 		return nil, fmt.Errorf(ErrorPlemsiAdapterInvoiceWithoutPayment)
 	}
 
 	// TODO: improve to multiples payments
-	invoicePayment := invoice.Payments[0]
-	invoicePaymentID := int(invoicePayment.ID)
 	payment, err := plemsi.NewBuilderPayment().
-		SetPaymentFormId(invoicePaymentID).
-		SetPaymentMethodId(1). // TODO: get id methods to make invoice
-		SetPaymentDueDate(fmt.Sprint(invoicePaymentID)).
+		SetPaymentFormId(1).
+		SetPaymentMethodId(10). // TODO: get id methods to make invoice
+		SetPaymentDueDate(i.CreatedAt).
 		Build()
 	if err != nil {
-		shared.LogError("error building plemsi invoice payment", LogPlemsiInvoice, "ToPlemsiInvoice", err, *invoice)
+		shared.LogError("error building plemsi invoice payment", LogPlemsiInvoice, "ToPlemsiInvoice", err, *i)
 		return nil, err
 	}
 
@@ -65,8 +63,8 @@ func ToPlemsiInvoice(invoice *Invoice, resolution string) (*plemsi.Invoice, erro
 	// Setting discounts
 	plemsiInvoiceDiscounts := make([]plemsi.Discounts, 0)
 
-	if len(invoice.Discounts) != 0 {
-		for _, discount := range invoice.Discounts {
+	if len(i.Discounts) != 0 {
+		for _, discount := range i.Discounts {
 			plemsiDiscount, err := plemsi.NewBuilderDiscounts().
 				SetAmount(discount.Amount).
 				SetBaseAmount(discount.Percentage).
@@ -88,14 +86,18 @@ func ToPlemsiInvoice(invoice *Invoice, resolution string) (*plemsi.Invoice, erro
 	// Setting items
 	plemsiItems := make([]plemsi.Item, 0)
 
-	for _, item := range invoice.Items {
+	for _, item := range i.Items {
 		plemsiItem, err := plemsi.NewBuilderItem().
+			SetTaxTotals(nil).
 			SetDescription(item.Description).
 			SetNotes(item.Comments).
 			SetCode(item.SKU).
 			SetPriceAmount(item.Price).
 			SetBaseQuantity(1).
 			SetInvoicedQuantity(1).
+			SetAllowanceCharges(nil).
+			SetUnitMeasureId(1).                               // TODO: get id unit measure
+			SetTypeItemIdentificationId(int(*item.ProductID)). // TODO: get id type item identification
 			Build()
 
 		if err != nil {
@@ -112,35 +114,43 @@ func ToPlemsiInvoice(invoice *Invoice, resolution string) (*plemsi.Invoice, erro
 	plemsiInvoice.SetResolution(resolution)
 
 	// Setting allowance total
-	plemsiInvoice.SetAllowanceTotal(int(invoice.TotalDiscounts))
+	plemsiInvoice.SetAllowanceTotal(int(i.TotalDiscounts))
 
 	// Setting invoice base total
-	plemsiInvoice.SetInvoiceBaseTotal(int(invoice.SubTotal))
+	plemsiInvoice.SetInvoiceBaseTotal(int(i.SubTotal))
 
 	// Setting invoice tax exclusive total
-	plemsiInvoice.SetInvoiceTaxExclusiveTotal(int(invoice.SubTotal))
+	plemsiInvoice.SetInvoiceTaxExclusiveTotal(int(i.SubTotal))
 
 	// Setting invoice tax inclusive total
-	plemsiInvoice.SetInvoiceTaxInclusiveTotal(int(invoice.BaseTax + invoice.Taxes))
+	plemsiInvoice.SetInvoiceTaxInclusiveTotal(int(i.BaseTax + i.Taxes))
 
 	// Setting total to pay
-	plemsiInvoice.SetTotalToPay(int(invoice.Total))
+	plemsiInvoice.SetTotalToPay(int(i.Total))
+
+	// Setting all tax totals
+	plemsiInvoice.SetAllTaxTotals(nil)
 
 	// Setting Custom Subtotals
-	tips, err := plemsi.NewBuilderTip().
-		SetAmount(int(invoice.TipAmount)).
-		SetConcept("Propina").
-		Build()
+	if i.TipAmount != 0 {
+		tips, err := plemsi.NewBuilderTip().
+			SetAmount(int(i.TipAmount)).
+			SetConcept("Propina").
+			Build()
 
-	if err != nil {
-		shared.LogError("error building plemsi invoice tip", LogPlemsiInvoice, "ToPlemsiInvoice", err, invoice)
-		return nil, err
+		if err != nil {
+			shared.LogError("error building plemsi invoice tip", LogPlemsiInvoice, "ToPlemsiInvoice", err, *i)
+			return nil, err
+		}
+
+		plemsiInvoice.SetCustomSubtotals([]plemsi.Tip{*tips})
+
+	} else {
+		plemsiInvoice.SetCustomSubtotals([]plemsi.Tip{})
 	}
 
-	plemsiInvoice.SetCustomSubtotals([]plemsi.Tip{*tips})
-
 	// Setting final total to pay
-	plemsiInvoice.SetFinalTotalToPay(int(invoice.Total))
+	plemsiInvoice.SetFinalTotalToPay(int(i.Total))
 
 	return plemsiInvoice.Build()
 }

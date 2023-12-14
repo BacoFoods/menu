@@ -67,7 +67,7 @@ func (a *adapter) EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) error 
 		Body:     finalConsumerInvoice,
 	}
 
-	resp, err := a.httpclient.Get(req)
+	resp, err := a.httpclient.Post(req)
 	if err != nil {
 		shared.LogError("plemsi error, sending final consumer invoice", LogAdapter, "EmitFinalConsumerInvoice", err, req)
 		return fmt.Errorf(ErrorPlemsiEndConsumerInvoice)

@@ -15,7 +15,7 @@ const (
 	ErrorPlemsiHeadNoteEmpty                 = "error plemsi adapter head note is empty"
 	ErrorPlemsiFootNoteEmpty                 = "error plemsi adapter foot note is empty"
 	ErrorPlemsiNotesEmpty                    = "error plemsi adapter notes is empty"
-	ErrorPlemsiAllowanceTotalEmpty           = "error plemsi adapter allowance total is empty"
+	ErrorPlemsiAllowanceTotalNegative        = "error plemsi adapter allowance total is empty"
 	ErrorPlemsiInvoiceBaseTotalEmpty         = "error plemsi adapter invoice base total is empty"
 	ErrorPlemsiInvoiceTaxExclusiveTotalEmpty = "error plemsi adapter invoice tax exclusive total is empty"
 	ErrorPlemsiInvoiceTaxInclusiveTotalEmpty = "error plemsi adapter invoice tax inclusive total is empty"
@@ -64,8 +64,8 @@ const (
 	ErrorPlemsiTaxPercentEmpty    = "error plemsi adapter tax percent is empty"
 	ErrorPlemsiTaxableAmountEmpty = "error plemsi adapter taxable amount is empty"
 
-	ErrorPlemsiTipConceptEmpty = "error plemsi adapter tip concept is empty"
-	ErrorPlemsiTipAmountEmpty  = "error plemsi adapter tip amount is empty"
+	ErrorPlemsiTipConceptEmpty   = "error plemsi adapter tip concept is empty"
+	ErrorPlemsiTipAmountNegative = "error plemsi adapter tip amount is negative"
 
 	ErrorPlemsiEndConsumerInvoice = "error plemsi adapter end consumer invoice integration"
 	ErrorPlemsiTestConnection     = "error plemsi adapter test connection"

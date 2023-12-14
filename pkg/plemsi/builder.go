@@ -84,12 +84,6 @@ func (ib *Builder) SetPayment(payment *Payment) *Builder {
 }
 
 func (ib *Builder) SetGeneralAllowances(generalAllowances []Discounts) *Builder {
-	if generalAllowances == nil {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiGeneralAllowancesEmpty))
-	}
-	if len(generalAllowances) == 0 {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiGeneralAllowancesEmpty))
-	}
 	ib.GeneralAllowances = generalAllowances
 	return ib
 }
@@ -146,8 +140,8 @@ func (ib *Builder) SetNotes(notes string) *Builder {
 }
 
 func (ib *Builder) SetAllowanceTotal(allowanceTotal int) *Builder {
-	if allowanceTotal == 0 {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiAllowanceTotalEmpty))
+	if allowanceTotal < 0 {
+		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiAllowanceTotalNegative))
 	}
 	ib.AllowanceTotal = allowanceTotal
 	return ib
@@ -187,22 +181,16 @@ func (ib *Builder) SetTotalToPay(totalToPay int) *Builder {
 
 func (ib *Builder) SetAllTaxTotals(allTaxTotals []Tax) *Builder {
 	if allTaxTotals == nil {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiAllTaxTotalsEmpty))
-	}
-	if len(allTaxTotals) == 0 {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiAllTaxTotalsEmpty))
+		// TODO: Check if this is correct
+		// ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiAllTaxTotalsEmpty))
+		ib.AllTaxTotals = []Tax{}
+		return ib
 	}
 	ib.AllTaxTotals = allTaxTotals
 	return ib
 }
 
 func (ib *Builder) SetCustomSubtotals(customSubtotals []Tip) *Builder {
-	if customSubtotals == nil {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiCustomSubtotalsEmpty))
-	}
-	if len(customSubtotals) == 0 {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiCustomSubtotalsEmpty))
-	}
 	ib.CustomSubtotals = customSubtotals
 	return ib
 }
@@ -315,11 +303,11 @@ func (ib *BuilderPayment) SetPaymentMethodId(paymentMethodId int) *BuilderPaymen
 	return ib
 }
 
-func (ib *BuilderPayment) SetPaymentDueDate(paymentDueDate string) *BuilderPayment {
-	if paymentDueDate == "" {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiPaymentDueDateEmpty))
+func (ib *BuilderPayment) SetPaymentDueDate(paymentDueDate *time.Time) *BuilderPayment {
+	if paymentDueDate == nil {
+		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiTimeEmpty))
 	}
-	ib.PaymentDueDate = paymentDueDate
+	ib.PaymentDueDate = paymentDueDate.Format("2006-01-02")
 	return ib
 }
 
@@ -426,7 +414,10 @@ func (ib *BuilderItem) SetFreeOfChargeIndicator(freeOfChargeIndicator bool) *Bui
 
 func (ib *BuilderItem) SetAllowanceCharges(allowanceCharges []ItemDiscount) *BuilderItem {
 	if allowanceCharges == nil {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemAllowanceChargesEmpty))
+		// TODO: Check if this is correct
+		// ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemAllowanceChargesEmpty))
+		ib.AllowanceCharges = []ItemDiscount{}
+		return ib
 	}
 	if len(allowanceCharges) == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemAllowanceChargesEmpty))
@@ -437,7 +428,10 @@ func (ib *BuilderItem) SetAllowanceCharges(allowanceCharges []ItemDiscount) *Bui
 
 func (ib *BuilderItem) SetTaxTotals(taxTotals []ItemTax) *BuilderItem {
 	if taxTotals == nil {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemTaxTotalsEmpty))
+		// TODO: Check if this is correct
+		// ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemTaxTotalsEmpty))
+		ib.TaxTotals = []ItemTax{}
+		return ib
 	}
 	if len(taxTotals) == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemTaxTotalsEmpty))
@@ -455,9 +449,6 @@ func (ib *BuilderItem) SetDescription(description string) *BuilderItem {
 }
 
 func (ib *BuilderItem) SetNotes(notes string) *BuilderItem {
-	if notes == "" {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemNotesEmpty))
-	}
 	ib.Notes = notes
 	return ib
 }
@@ -667,8 +658,8 @@ func (ib *BuilderTip) SetConcept(concept string) *BuilderTip {
 }
 
 func (ib *BuilderTip) SetAmount(amount int) *BuilderTip {
-	if amount == 0 {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiTipAmountEmpty))
+	if amount < 0 {
+		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiTipAmountNegative))
 	}
 	ib.Amount = amount
 	return ib
