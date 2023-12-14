@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/google/uuid"
 )
@@ -64,17 +65,23 @@ func (s service) CreatePinUser(account *Account) (*Account, error) {
 }
 
 func (s service) Login(username, password string) (*Account, error) {
-	account, err := s.repository.Get(username)
+	accounts, err := s.repository.Find(map[string]any{"username": username})
 	if err != nil {
 		shared.LogError(ErrorAccountLogin, LogService, "Login", err, username)
 		return nil, err
 	}
 
+	if len(accounts) == 0 {
+		return nil, fmt.Errorf(ErrorAccountFinding)
+	}
+
+	account := accounts[0]
+
 	if !account.CheckPassword(password) {
 		return nil, fmt.Errorf(ErrorAccountInvalidPassword)
 	}
 
-	return account, nil
+	return &account, nil
 }
 
 func (s service) LoginPin(pin int) (*Account, error) {
