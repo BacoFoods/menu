@@ -123,15 +123,8 @@ func (r tableRepository) SwapTable(orderID, newTableID uint, oldTableID *uint) (
 
 	// start tx
 	err := r.db.Transaction(func(tx *gorm.DB) error {
-		// if newTable is provided, set new table order to old table order
-		if newTable.ID != 0 {
-			if err := tx.Model(&newTable).Update("order_id", orderID).Error; err != nil {
-				shared.LogError(ErrorTableUpdating, LogRepository, "SwapTable", err, newTableID, orderID)
-				return err
-			}
-		}
-
 		// if oldTable is provided, release by setting old table order to nil
+		// oldTable is released first to avoid unique constraint error on order_id column
 		if oldlTable.ID != 0 {
 			if err := tx.Model(&oldlTable).Update("order_id", gorm.Expr("NULL")).Error; err != nil {
 				shared.LogError(ErrorTableUpdating, LogRepository, "SwapTable", err, oldlTable.ID, orderID)
@@ -139,6 +132,14 @@ func (r tableRepository) SwapTable(orderID, newTableID uint, oldTableID *uint) (
 			}
 		} else {
 			shared.LogWarn("no oldTable provided", LogRepository, "SwapTable", nil, oldlTable.ID, oldTableID, orderID)
+		}
+
+		// if newTable is provided, set new table order to old table order
+		if newTable.ID != 0 {
+			if err := tx.Model(&newTable).Update("order_id", orderID).Error; err != nil {
+				shared.LogError(ErrorTableUpdating, LogRepository, "SwapTable", err, newTableID, orderID)
+				return err
+			}
 		}
 
 		return nil
