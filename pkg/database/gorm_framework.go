@@ -48,6 +48,10 @@ func (g *GormFramework) GetDBClient() *gorm.DB {
 }
 
 func (g *GormFramework) MustMakeMigrations(entities ...any) {
+	if err := g.db.Exec("ALTER TABLE payment_methods DROP INDEX idx_payment_method_code").Error; err != nil {
+		logrus.Fatal(fmt.Sprintf("error dropping index idx_payment_method_code error:%s", err.Error()))
+	}
+
 	for _, entity := range entities {
 		if err := g.db.AutoMigrate(entity); err != nil {
 			logrus.Fatal(fmt.Sprintf("error migrating %+v error:%s", entity, err.Error()))

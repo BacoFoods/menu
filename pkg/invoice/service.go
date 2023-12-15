@@ -59,13 +59,6 @@ func (s service) Get(invoiceID string) (*Invoice, error) {
 
 // Find returns a list of Invoice objects.
 func (s service) Find(filter map[string]any) ([]Invoice, error) {
-	shared.LogInfo("testing plemsi", LogService, "Find", nil)
-	err := s.plemsi.TestConnection()
-	if err != nil {
-		shared.LogError("error testing plemsi", LogService, "Find", err, nil)
-		return nil, err
-	}
-
 	invoices, err := s.repository.Find(filter)
 	if err != nil {
 		return nil, fmt.Errorf(ErrorInvoiceFind)

@@ -7324,7 +7324,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/order.CalculateInvoiceRequest"
+                            "$ref": "#/definitions/order.RequestCalculateInvoice"
                         }
                     }
                 ],
@@ -15687,7 +15687,7 @@ const docTemplate = `{
                 }
             }
         },
-        "order.CalculateInvoiceRequest": {
+        "order.RequestCalculateInvoice": {
             "type": "object",
             "properties": {
                 "discounts": {

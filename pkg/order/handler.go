@@ -821,9 +821,11 @@ type CreateInvoiceDocumentRequest struct {
 }
 
 type CreateInvoiceRequest struct {
-	CalculateInvoiceRequest
+	RequestCalculateInvoice
 
 	CreateInvoiceDocumentRequest
+
+	RequestInvoicePaymentMethod
 
 	orderId  string
 	attendee *Attendee
@@ -870,12 +872,12 @@ func (h *Handler) CreateInvoice(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path string true "Order ID"
-// @Param body body CalculateInvoiceRequest true "request body"
+// @Param body body RequestCalculateInvoice true "request body"
 // @Success 200 {object} object{status=string,data=invoice.Invoice}
 // @Router /order/{id}/invoice/calculate [post]
 func (h *Handler) CalculateInvoice(c *gin.Context) {
 	orderID := c.Param("id")
-	var req CalculateInvoiceRequest
+	var req RequestCalculateInvoice
 	if err := c.ShouldBindJSON(&req); err != nil {
 		shared.LogError("error binding request body", LogHandler, "CalculateInvoice", err, req)
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))

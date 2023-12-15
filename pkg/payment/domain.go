@@ -20,6 +20,7 @@ const (
 	ErrorPaymentMethodAlreadyExists = "error payment method already exists"
 	ErrorPaymentMethodCreation      = "error payment method creation"
 
+	PaymentStatusEmmited  = "emitted" // for electronic invoices emission
 	PaymentStatusPaid     = "paid"
 	PaymentStatusPending  = "pending"
 	PaymentStatusCanceled = "canceled"
@@ -59,7 +60,9 @@ type Payment struct {
 	// Payment method used.
 	// This can come from manual input in the POS such as <code>cash</code>, <code>card</code>, <code>check</code>, etc.
 	// or from order in table with <code>paylot</code> or <code>yuno</code>
-	Method string `json:"method" binding:"required"`
+	Method          string         `json:"method" binding:"required"`
+	PaymentMethodID *uint          `json:"payment_method_id" binding:"required"`
+	PaymentMethod   *PaymentMethod `json:"payment_method" gorm:"foreignKey:PaymentMethodID;references:ID"`
 
 	// Quantity is the amount of money paid
 	Quantity float64 `json:"quantity" gorm:"precision:18;scale:4" binding:"required"`
@@ -89,8 +92,9 @@ type PaymentMethod struct {
 	StoreID     *uint           `json:"store_id"`
 	ChannelID   *uint           `json:"channel_id"`
 	ShortName   string          `json:"short_name"`
-	Code        string          `json:"code" gorm:"primaryKey;autoIncrement:false;index:idx_payment_method_code,uniqueIndex" binding:"required"`
+	Code        string          `json:"code" gorm:"index:idx_payment_method_code,uniqueIndex" binding:"required"`
 	Description string          `json:"description"`
+	PlemsiCode  string          `json:"plemsi_code"`
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`

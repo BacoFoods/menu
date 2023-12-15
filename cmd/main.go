@@ -81,8 +81,8 @@ func main() {
 		&account.Account{},
 		&course.Course{},
 		&client.Client{},
-		&payment.Payment{},
 		&payment.PaymentMethod{},
+		&payment.Payment{},
 		&order.Attendee{},
 		&shift.Shift{},
 		&tables.QR{},
@@ -245,7 +245,7 @@ func main() {
 		redisConn,
 		plemsiAdapter,
 	)
-	orderHandler := order.NewHandler(orderService)
+	orderHandler := order.NewHandler(&orderService)
 	orderRoutes := order.NewRoutes(orderHandler)
 
 	// Course
