@@ -383,7 +383,17 @@ func GetOrders(startDate string, endDate string, locationIDs []string) (string, 
 			return "", fmt.Errorf("error al decodificar la respuesta JSON: %v", err)
 		}
 
-		allOrders = append(allOrders, orderResponse.Orders...)
+		for _, o := range orderResponse.Orders {
+			if o.Estado == "CANCELLED" {
+				continue
+			}
+
+			if !o.Pagado {
+				continue
+			}
+
+			allOrders = append(allOrders, o)
+		}
 	}
 
 	// Codificar la lista de órdenes en formato JSON con sangría para mayor legibilidad

@@ -38,6 +38,7 @@ func AuthMiddleware(validator *idtoken.Validator) gin.HandlerFunc {
 			ctx.Next()
 		}
 	}
+
 	return func(ctx *gin.Context) {
 		tokenString := ctx.Request.Header.Get("Authorization")
 
