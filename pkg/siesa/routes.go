@@ -9,6 +9,7 @@ type Routes struct {
 }
 
 func (r Routes) RegisterRoutes(private *shared.CustomRoutes) {
+	private.POST("/siesa/json", r.handler.CreateJSON)
 	private.POST("/siesa", r.handler.Create)
 	private.GET("/siesa/reference", r.handler.FindReferences)
 	private.POST("/siesa/reference", r.handler.CreateReference)

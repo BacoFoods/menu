@@ -3,6 +3,7 @@ package siesa
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
@@ -22,6 +23,68 @@ type RequestExcelCreate struct {
 	StartDate   string   `json:"start_date"`
 	EndDate     string   `json:"end_date"`
 	LocationIDs []string `json:"location_ids"`
+}
+
+// CreateJSON handles a request to generate an Excel file with orders.
+// @Summary Generate an JSON with orders
+// @Description Handles a request to create an JSON containing orders based on the specified parameters.
+// @Tags SIESA
+// @Accept json
+// @Produce application/json
+// @Param siesa body RequestExcelCreate true "Request body for creating JSON file"
+// @Security ApiKeyAuth
+// @Failure 400 {object} shared.Response "Bad Request response"
+// @Failure 422 {object} shared.Response "Unprocessable Entity response"
+// @Failure 500 {object} shared.Response "Internal Server Error response"
+// @Router /siesa/JSON [post]
+func (h *Handler) CreateJSON(ctx *gin.Context) {
+	var requestBody RequestExcelCreate
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		shared.LogWarn("warning binding request fail", LogHandler, "Create", err)
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	if len(requestBody.LocationIDs) == 0 {
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse("location_ids is required"))
+		return
+	}
+
+	date, err := time.Parse("2006-01-02", requestBody.StartDate)
+	if err != nil {
+		shared.LogError("error parsing date", LogHandler, "Create", err, requestBody.StartDate)
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse("invalid date format for start_date "+err.Error()))
+		return
+	}
+
+	response, err := GetOrders(requestBody.StartDate, requestBody.EndDate, requestBody.LocationIDs)
+	if err != nil {
+		shared.LogError("error getting orders", LogHandler, "Create", err, response)
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	var orders []PopappOrder
+	if err := json.Unmarshal([]byte(response), &orders); err != nil {
+		shared.LogError("error unmarshalling orders", LogHandler, "Create", err, response)
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+		return
+	}
+
+	if len(orders) == 0 {
+		ctx.JSON(http.StatusNotFound, shared.SuccessResponse([]PopappOrder{}))
+		return
+	}
+
+	// Call the HandleSIESAIntegration function to get the Excel file as a byte slice
+	resp, err := h.service.HandleSIESAIntegrationJSON(date, orders)
+	if err != nil {
+		shared.LogError("error handling SIESA integration", LogHandler, "Create", err, orders)
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(resp))
 }
 
 // Create handles a request to generate an Excel file with orders.
@@ -45,10 +108,22 @@ func (h *Handler) Create(ctx *gin.Context) {
 		return
 	}
 
+	if len(requestBody.LocationIDs) == 0 {
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse("location_ids is required"))
+		return
+	}
+
+	date, err := time.Parse("2006-01-02", requestBody.StartDate)
+	if err != nil {
+		shared.LogError("error parsing date", LogHandler, "Create", err, requestBody.StartDate)
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse("invalid date format for start_date "+err.Error()))
+		return
+	}
+
 	response, err := GetOrders(requestBody.StartDate, requestBody.EndDate, requestBody.LocationIDs)
 	if err != nil {
 		shared.LogError("error getting orders", LogHandler, "Create", err, response)
-		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(err.Error()))
 		return
 	}
 
@@ -59,8 +134,13 @@ func (h *Handler) Create(ctx *gin.Context) {
 		return
 	}
 
+	if len(orders) == 0 {
+		ctx.JSON(http.StatusNotFound, shared.SuccessResponse([]PopappOrder{}))
+		return
+	}
+
 	// Call the HandleSIESAIntegration function to get the Excel file as a byte slice
-	excelFile, err := h.service.HandleSIESAIntegration(orders)
+	excelFile, err := h.service.HandleSIESAIntegration(date, orders)
 	if err != nil {
 		shared.LogError("error handling SIESA integration", LogHandler, "Create", err, orders)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))

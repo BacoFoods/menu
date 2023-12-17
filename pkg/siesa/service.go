@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -23,8 +24,14 @@ func NewService(repository Repository) Service {
 	return Service{repository}
 }
 
-func (s Service) HandleSIESAIntegration(orders []PopappOrder) ([]byte, error) {
-	doc := s.buildDocument(orders)
+func (s Service) HandleSIESAIntegrationJSON(date time.Time, orders []PopappOrder) (map[string]any, error) {
+	doc := s.buildDocument(date, "1", orders)
+
+	return doc, nil
+}
+
+func (s Service) HandleSIESAIntegration(date time.Time, orders []PopappOrder) ([]byte, error) {
+	doc := s.buildDocument(date, "1", orders)
 
 	// Generate the Excel file as a byte slice
 	file, err := GenerateExcelFile(doc)
@@ -120,28 +127,29 @@ func calculateGrossValue(cantidad int, precioUnitario int) string {
 }
 
 // buildDocument construye el documento que se enviará al endpoint de Siesa.
-func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
+func (s Service) buildDocument(date time.Time, docNum string, orders []PopappOrder) map[string]interface{} {
 	doc := make(map[string]interface{})
-	now := time.Now()
+	keyLocal := orders[0].KeyLocal
 
 	doctoVentasComercial := []map[string]string{
 		{
-			"F350_ID_CO":                    getF350IDCO(orders[0].KeyLocal),                                                                                         // Asigna el valor correspondiente al centro de operación de la primera orden
+			"F350_ID_CO":                    getF350IDCO(keyLocal),                                                                                                   // Asigna el valor correspondiente al centro de operación de la primera orden
 			"F350_ID_TIPO_DOCTO":            "FVR",                                                                                                                   // Siempre es FVR
-			"F350_CONSEC_DOCTO":             "1",                                                                                                                     // "1" para ser autoincremental para integración
-			"F350_FECHA":                    now.Format("20060102"),                                                                                                  // Asigna el valor correspondiente a la fecha de la primera orden
-			"f461_id_co_fact":               getF350IDCO(orders[0].KeyLocal),                                                                                         // Asigna el valor correspondiente al centro de operación de la primera orden
+			"F350_CONSEC_DOCTO":             docNum,                                                                                                                  // "1" para ser autoincremental para integración
+			"F350_FECHA":                    date.Format("20060102"),                                                                                                 // Asigna el valor correspondiente a la fecha de la primera orden
+			"f461_id_co_fact":               getF350IDCO(keyLocal),                                                                                                   // Asigna el valor correspondiente al centro de operación de la primera orden
 			"f461_notas":                    "Orden " + orders[0].DisplayID + " - el " + formatDate(orders[0].FechaCreacion) + " - del pdv " + orders[0].NombreStore, // Nota correspondiente a la primera orden procesada
-			"F461_ID_BODEGA_COMPON_PROCESO": getF350IDCO(orders[0].KeyLocal),                                                                                         // Asigna el valor correspondiente a la bodega de la primera orden
+			"F461_ID_BODEGA_COMPON_PROCESO": getF461IDBodegaComponProceso(keyLocal),                                                                                  // Asigna el valor correspondiente a la bodega de la primera orden
 		},
 	}
 	doc["Docto. ventas comercial"] = doctoVentasComercial
 
 	// Construir la sección "Descuentos" del documento
 	descuentos := []map[string]string{}
-	var descuento float64
+
 	registroDescuento := 1 // Número de registro para el descuento
 	for _, order := range orders {
+		var descuento float64
 		// Obtener el total de items en la orden
 		totalItems := float64(order.Total.TotalItems)
 
@@ -150,31 +158,26 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 			costoEnvio = *order.Total.CostoEnvio
 		}
 
-		if costoEnvio != 0 {
-			descuento = (totalItems + float64(costoEnvio)) - float64(order.Total.Total)
-		} else {
-			descuento = totalItems - float64(order.Total.Total)
-		}
+		descuento = (totalItems + float64(costoEnvio)) - float64(order.Total.Total)
 
 		if descuento < 0 {
 			descuento = 0
 		}
 
 		if descuento > float64(order.Total.Total) {
-			descuento = float64(order.Total.Total)
+			descuento = float64(order.Total.Total) - 1
 		}
 
-		shareDescuento := descuento / totalItems
+		shareDescuento := descuento / math.Max(totalItems, 1)
 
 		for _, item := range order.Items {
-
 			descuentoRegistro := shareDescuento * float64(item.Producto.PrecioUnitario)
-			descuentoTotalRegistro := shareDescuento * float64(item.Cantidad) * float64(item.Producto.PrecioUnitario)
+			descuentoTotalRegistro := descuentoRegistro * float64(item.Cantidad)
 			if descuentoRegistro != 0 || descuentoTotalRegistro != 0 {
 				descuentoMap := map[string]string{
 					"f471_id_co":         getF350IDCO(order.KeyLocal),
 					"f471_id_tipo_docto": "FVR",
-					"f471_consec_docto":  "1",
+					"f471_consec_docto":  docNum,
 					"f471_nro_registro":  strconv.Itoa(registroDescuento),
 					"f471_vlr_uni":       strconv.FormatFloat(descuentoRegistro, 'f', 0, 64),      // Formato sin decimales
 					"f471_vlr_tot":       strconv.FormatFloat(descuentoTotalRegistro, 'f', 0, 64), // Formato sin decimales
@@ -194,7 +197,7 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 						descuentoMap := map[string]string{
 							"f471_id_co":         getF350IDCO(order.KeyLocal),
 							"f471_id_tipo_docto": "FVR",
-							"f471_consec_docto":  "1",
+							"f471_consec_docto":  docNum,
 							"f471_nro_registro":  strconv.Itoa(registroDescuento),
 							"f471_vlr_uni":       strconv.FormatFloat(descuentoRegistro, 'f', 0, 64),      // Formato sin decimales
 							"f471_vlr_tot":       strconv.FormatFloat(descuentoTotalRegistro, 'f', 0, 64), // Formato sin decimales
@@ -219,7 +222,7 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 			if isValidProduct(item.Producto.Nombre) {
 				itemMovimiento := map[string]string{
 					"f470_id_co":           getF350IDCO(order.KeyLocal),                                         // Asigna el valor correspondiente al centro de operación
-					"f470_consec_docto":    "1",                                                                 // Consecutivo del documento auto-incremental
+					"f470_consec_docto":    docNum,                                                              // Consecutivo del documento auto-incremental
 					"f470_nro_registro":    strconv.Itoa(registro),                                              // Asigna el valor correspondiente número de registro cada línea es un producto de la orden
 					"f470_id_bodega":       getF461IDBodegaComponProceso(order.KeyLocal),                        // Asigna el valor correspondiente de la bodega
 					"f470_id_co_movto":     getF350IDCO(order.KeyLocal),                                         // Asigna el valor correspondiente al centro de operación
@@ -237,14 +240,14 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 				for _, modifier := range itemGroup.Modifiers {
 					if isValidProduct(modifier.Producto.Nombre) {
 						modifierMovimiento := map[string]string{
-							"f470_id_co":           getF350IDCO(order.KeyLocal),                                              // Asigna el valor correspondiente al centro de operación
-							"f470_consec_docto":    "1",                                                                      // Consecutivo del documento auto-incremental
-							"f470_nro_registro":    strconv.Itoa(registro),                                                   // Asigna el valor correspondiente número de registro cada línea es un producto de la orden
-							"f470_id_bodega":       getF461IDBodegaComponProceso(order.KeyLocal),                             // Asigna el valor correspondiente de la bodega
-							"f470_id_co_movto":     getF350IDCO(order.KeyLocal),                                              // Asigna el valor correspondiente al centro de operación
-							"f470_cant_base":       strconv.Itoa(modifier.Cantidad),                                          // Asigna la cantidad del modifier
-							"f470_vlr_bruto":       calculateGrossValue(modifier.Cantidad, modifier.Producto.PrecioUnitario), // Asigna el valor correspondiente del modifier
-							"f470_referencia_item": s.GetReferences(order.Tipo, order.Plataforma, modifier.Producto.Nombre),  // TODO: Falta por validar como se hará el cruce de referencias
+							"f470_id_co":           getF350IDCO(order.KeyLocal),                                                            // Asigna el valor correspondiente al centro de operación
+							"f470_consec_docto":    docNum,                                                                                 // Consecutivo del documento auto-incremental
+							"f470_nro_registro":    strconv.Itoa(registro),                                                                 // Asigna el valor correspondiente número de registro cada línea es un producto de la orden
+							"f470_id_bodega":       getF461IDBodegaComponProceso(order.KeyLocal),                                           // Asigna el valor correspondiente de la bodega
+							"f470_id_co_movto":     getF350IDCO(order.KeyLocal),                                                            // Asigna el valor correspondiente al centro de operación
+							"f470_cant_base":       strconv.Itoa(modifier.Cantidad),                                                        // Asigna la cantidad del modifier
+							"f470_vlr_bruto":       calculateGrossValue(item.Cantidad*modifier.Cantidad, modifier.Producto.PrecioUnitario), // Asigna el valor correspondiente del modifier
+							"f470_referencia_item": s.GetReferences(order.Tipo, order.Plataforma, modifier.Producto.Nombre),                // TODO: Falta por validar como se hará el cruce de referencias
 						}
 						movimientos = append(movimientos, modifierMovimiento)
 						registro++ // Incrementar el número de registro
@@ -260,8 +263,8 @@ func (s Service) buildDocument(orders []PopappOrder) map[string]interface{} {
 	cuotasCxC := []map[string]string{}
 
 	itemcuotasCxC := map[string]string{
-		"F350_ID_CO":        getF350IDCO(orders[0].KeyLocal),     // Asigna el valor correspondiente al centro de operación
-		"F350_CONSEC_DOCTO": "1",                                 //Consecutivo del documento auto-incremental
+		"F350_ID_CO":        getF350IDCO(keyLocal),               // Asigna el valor correspondiente al centro de operación
+		"F350_CONSEC_DOCTO": docNum,                              //Consecutivo del documento auto-incremental
 		"F353_FECHA_VCTO":   formatDate(orders[0].FechaCreacion), // Asigna el valor correspondiente de fecha
 	}
 	cuotasCxC = append(cuotasCxC, itemcuotasCxC)
@@ -364,6 +367,11 @@ func GetOrders(startDate string, endDate string, locationIDs []string) (string, 
 
 		// Leer el cuerpo de la respuesta
 		body, err := ioutil.ReadAll(resp.Body)
+
+		if resp.StatusCode != http.StatusOK {
+			return "", fmt.Errorf("error al realizar la solicitud: %v", resp.StatusCode)
+		}
+
 		if err != nil {
 			return "", fmt.Errorf("error al leer el cuerpo de la respuesta: %v", err)
 		}
