@@ -105,8 +105,15 @@ func (h *Handler) CreateJSON(ctx *gin.Context) {
 		return
 	}
 
+	doc, err := h.service.GetDocument(requestBody.LocationIDs, requestBody.StartDate, requestBody.EndDate, len(orders))
+	if err != nil {
+		shared.LogError("error creating document", LogHandler, "Create", err, doc)
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+		return
+	}
+
 	// Call the HandleSIESAIntegration function to get the Excel file as a byte slice
-	resp, err := h.service.HandleSIESAIntegrationJSON(date, orders)
+	resp, err := h.service.HandleSIESAIntegrationJSON(doc, date, orders)
 	if err != nil {
 		shared.LogError("error handling SIESA integration", LogHandler, "Create", err, orders)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
@@ -168,8 +175,15 @@ func (h *Handler) Create(ctx *gin.Context) {
 		return
 	}
 
+	doc, err := h.service.GetDocument(requestBody.LocationIDs, requestBody.StartDate, requestBody.EndDate, len(orders))
+	if err != nil {
+		shared.LogError("error creating document", LogHandler, "Create", err, doc)
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+		return
+	}
+
 	// Call the HandleSIESAIntegration function to get the Excel file as a byte slice
-	excelFile, err := h.service.HandleSIESAIntegration(date, orders)
+	excelFile, err := h.service.HandleSIESAIntegration(doc, date, orders)
 	if err != nil {
 		shared.LogError("error handling SIESA integration", LogHandler, "Create", err, orders)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))

@@ -9,6 +9,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/BacoFoods/menu/internal"
@@ -24,14 +25,35 @@ func NewService(repository Repository) Service {
 	return Service{repository}
 }
 
-func (s Service) HandleSIESAIntegrationJSON(date time.Time, orders []PopappOrder) (map[string]any, error) {
-	doc := s.buildDocument(date, "1", orders)
+func (s Service) GetDocument(stores []string, startDate, endDate string, orderCount int) (*SiesaDocument, error) {
+	doc := &SiesaDocument{
+		Stores:      strings.Join(stores, ","),
+		StartDate:   startDate,
+		EndDate:     endDate,
+		TotalOrders: orderCount,
+	}
+	return doc, s.repository.CreateDocument(doc)
+}
+
+func (s Service) HandleSIESAIntegrationJSON(sdoc *SiesaDocument, date time.Time, orders []PopappOrder) (map[string]any, error) {
+	if sdoc == nil {
+		return nil, errors.New("doc is nil")
+	}
+
+	docNum := fmt.Sprintf("%d", sdoc.ID)
+	doc := s.buildDocument(date, docNum, orders)
 
 	return doc, nil
 }
 
-func (s Service) HandleSIESAIntegration(date time.Time, orders []PopappOrder) ([]byte, error) {
-	doc := s.buildDocument(date, "1", orders)
+func (s Service) HandleSIESAIntegration(sdoc *SiesaDocument, date time.Time, orders []PopappOrder) ([]byte, error) {
+	if sdoc == nil {
+		return nil, errors.New("doc is nil")
+	}
+
+	docNum := fmt.Sprintf("%d", sdoc.ID)
+
+	doc := s.buildDocument(date, docNum, orders)
 
 	// Generate the Excel file as a byte slice
 	file, err := GenerateExcelFile(doc)

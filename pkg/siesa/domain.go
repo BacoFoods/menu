@@ -15,6 +15,15 @@ const (
 	ErrorUpdatingReference = "error updating reference"
 )
 
+type SiesaDocument struct {
+	ID          uint       `json:"id" gorm:"primaryKey"`
+	Stores      string     `json:"stores"`
+	StartDate   string     `json:"start_date"`
+	EndDate     string     `json:"end_date"`
+	TotalOrders int        `json:"total_orders"`
+	CreatedAt   *time.Time `json:"created_at,omitempty" swaggerignore:"true"`
+}
+
 type Reference struct {
 	ID                       uint            `json:"id" gorm:"primaryKey"`
 	Category                 string          `json:"categoria"`
@@ -32,6 +41,7 @@ type Reference struct {
 }
 
 type Repository interface {
+	CreateDocument(*SiesaDocument) error
 	Create(*Reference) error
 	TruncateRecords() error
 	Find(map[string]string) (*Reference, error)

@@ -24,6 +24,15 @@ func (r *DBRepository) Create(reference *Reference) error {
 	return nil
 }
 
+func (r *DBRepository) CreateDocument(doc *SiesaDocument) error {
+	if err := r.db.Save(doc).Error; err != nil {
+		shared.LogError("error creating reference", LogDBRepository, "CreateDocument", err, doc)
+		return err
+	}
+
+	return nil
+}
+
 // TruncateRecords truncates all records
 // TruncateRecords truncates all records in the YourModel table
 func (r *DBRepository) TruncateRecords() error {
