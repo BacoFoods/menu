@@ -8422,6 +8422,36 @@ paths:
       summary: Generate an JSON with orders
       tags:
       - SIESA
+  /siesa/locales:
+    get:
+      consumes:
+      - application/json
+      description: Get the locales for SIESA
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                status:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get the locales for SIESA
+      tags:
+      - SIESA
   /siesa/reference:
     get:
       consumes:

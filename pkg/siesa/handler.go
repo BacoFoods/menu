@@ -13,6 +13,18 @@ import (
 
 const LogHandler = "pkg/siesa/handler"
 
+var mapLocalesNombres = map[string][]string{
+	"ZonaG":      {"bacuzonagc14", "bacuzonag"},
+	"Flormorado": {"bacuflormoradopc2", "bacuflormorado"},
+	"CL109":      {"bacucalle109", "bacu109"},
+	"CL90":       {"feriadelmillon2", "bacucalle90delivery"},
+	"Connecta":   {"connectasalon110665", "bacuconnecta", "connectasalon210666"},
+	"CityU":      {"cityusalon1", "cityusalon2", "bacucityu"},
+	"Colina":     {"bacucolinapc110881"},
+	"Titan":      {"bacutitansalon10883"},
+	"Nogal":      {"bacunogalespc110884"},
+}
+
 type Handler struct {
 	service Service
 }
@@ -25,6 +37,21 @@ type RequestExcelCreate struct {
 	StartDate   string   `json:"start_date"`
 	EndDate     string   `json:"end_date"`
 	LocationIDs []string `json:"location_ids"`
+}
+
+// GetLocales to handle the request to get the locales for SIESA
+// @Summary Get the locales for SIESA
+// @Description Get the locales for SIESA
+// @Tags SIESA
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string}
+// @Failure 401 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /siesa/locales [get]
+func (h *Handler) GetLocales(c *gin.Context) {
+	c.JSON(http.StatusOK, shared.SuccessResponse(mapLocalesNombres))
 }
 
 // CreateJSON handles a request to generate an Excel file with orders.
