@@ -154,6 +154,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 	ctx.Header("Expires", "0")
 	ctx.Header("Cache-Control", "must-revalidate")
 	ctx.Header("Pragma", "public")
+	ctx.Header("Access-Control-Expose-Headers", "Content-Disposition")
 
 	// Send the Excel file as the response
 	ctx.Data(http.StatusOK, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFile)
