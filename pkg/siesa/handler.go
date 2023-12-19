@@ -2,7 +2,9 @@ package siesa
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/BacoFoods/menu/pkg/shared"
@@ -147,8 +149,10 @@ func (h *Handler) Create(ctx *gin.Context) {
 		return
 	}
 
+	filename := fmt.Sprintf("SIESA-%s-%s", strings.Join(requestBody.LocationIDs, "-"), date.Format("2006-01-02"))
+
 	ctx.Header("Content-Description", "File Transfer")
-	ctx.Header("Content-Disposition", "attachment; filename=output.xlsx")
+	ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s.xlsx", filename))
 	ctx.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	ctx.Header("Content-Transfer-Encoding", "binary")
 	ctx.Header("Expires", "0")
