@@ -732,6 +732,8 @@ func (s *ServiceImpl) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice
 	}
 
 	// Electronic Invoice
+	// TODO: working with only one payment
+
 	resolution := "18760000001" // TODO: get from config
 	plemsiInvoice, err := invoiceDB.ToPlemsiInvoice(resolution)
 	if err != nil {

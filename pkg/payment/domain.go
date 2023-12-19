@@ -53,7 +53,6 @@ type Repository interface {
 
 type Payment struct {
 	ID uint `json:"id"`
-
 	// An invoice can have multiple payments
 	InvoiceID *uint `json:"invoice_id" binding:"required"`
 
@@ -62,7 +61,7 @@ type Payment struct {
 	// or from order in table with <code>paylot</code> or <code>yuno</code>
 	Method          string         `json:"method" binding:"required"`
 	PaymentMethodID *uint          `json:"payment_method_id" binding:"required"`
-	PaymentMethod   *PaymentMethod `json:"payment_method" gorm:"foreignKey:PaymentMethodID;references:ID"`
+	PaymentMethod   *PaymentMethod `json:"payment_method,omitempty" gorm:"foreignKey:PaymentMethodID"`
 
 	// Quantity is the amount of money paid
 	Quantity float64 `json:"quantity" gorm:"precision:18;scale:4" binding:"required"`
@@ -74,15 +73,13 @@ type Payment struct {
 	TotalValue float64 `json:"total_value" gorm:"precision:18;scale:4" binding:"required"`
 
 	// Code is the reference number of the payment
-	Code string `json:"code"`
-
-	Status      string  `json:"status" binding:"required"`
-	Reference   string  `json:"reference"`
-	CheckoutURL *string `json:"checkout_url"`
-
-	CreatedAt *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	Code        string          `json:"code"`
+	Status      string          `json:"status" binding:"required"`
+	Reference   string          `json:"reference"`
+	CheckoutURL *string         `json:"checkout_url"`
+	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type PaymentMethod struct {
@@ -92,7 +89,7 @@ type PaymentMethod struct {
 	StoreID     *uint           `json:"store_id"`
 	ChannelID   *uint           `json:"channel_id"`
 	ShortName   string          `json:"short_name"`
-	Code        string          `json:"code" gorm:"index:idx_payment_method_code,uniqueIndex" binding:"required"`
+	Code        string          `json:"code" binding:"required"`
 	Description string          `json:"description"`
 	PlemsiCode  string          `json:"plemsi_code"`
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`

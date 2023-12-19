@@ -70,17 +70,16 @@ type Repository interface {
 }
 
 type Invoice struct {
-	ID         uint              `json:"id"`
-	OrderID    *uint             `json:"order_id"`
-	BrandID    *uint             `json:"brand_id" binding:"required"`
-	StoreID    *uint             `json:"store_id" binding:"required"`
-	ChannelID  *uint             `json:"channel_id" binding:"required"`
-	TableID    *uint             `json:"table_id"`
-	Items      []Item            `json:"items"  gorm:"foreignKey:InvoiceID"`
-	Discounts  []DiscountApplied `json:"discounts"  gorm:"foreignKey:InvoiceID"`
-	Surcharges []Surcharge       `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
-	Documents  []Document        `json:"documents" gorm:"foreignKey:InvoiceID" faker:"-"`
-	// TODO: populate
+	ID                  uint              `json:"id"`
+	OrderID             *uint             `json:"order_id"`
+	BrandID             *uint             `json:"brand_id" binding:"required"`
+	StoreID             *uint             `json:"store_id" binding:"required"`
+	ChannelID           *uint             `json:"channel_id" binding:"required"`
+	TableID             *uint             `json:"table_id"`
+	Items               []Item            `json:"items"  gorm:"foreignKey:InvoiceID"`
+	Discounts           []DiscountApplied `json:"discounts"  gorm:"foreignKey:InvoiceID"`
+	Surcharges          []Surcharge       `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
+	Documents           []Document        `json:"documents" gorm:"foreignKey:InvoiceID" faker:"-"`
 	Status              string            `json:"status"`
 	Cashier             string            `json:"shift"`
 	Waiter              string            `json:"waiter"`
