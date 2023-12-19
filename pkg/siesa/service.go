@@ -164,6 +164,8 @@ func (s Service) buildDocument(date time.Time, docNum string, orders []PopappOrd
 			"F461_ID_BODEGA_COMPON_PROCESO": getF461IDBodegaComponProceso(keyLocal),                                                                                  // Asigna el valor correspondiente a la bodega de la primera orden
 		},
 	}
+	invalidItems := []map[string]string{}
+
 	doc["Docto. ventas comercial"] = doctoVentasComercial
 
 	// Construir la sección "Descuentos" del documento
@@ -241,39 +243,83 @@ func (s Service) buildDocument(date time.Time, docNum string, orders []PopappOrd
 	for _, order := range orders {
 
 		for _, item := range order.Items {
-			if isValidProduct(item.Producto.Nombre) {
-				itemMovimiento := map[string]string{
-					"f470_id_co":           getF350IDCO(order.KeyLocal),                                         // Asigna el valor correspondiente al centro de operación
-					"f470_consec_docto":    docNum,                                                              // Consecutivo del documento auto-incremental
-					"f470_nro_registro":    strconv.Itoa(registro),                                              // Asigna el valor correspondiente número de registro cada línea es un producto de la orden
-					"f470_id_bodega":       getF461IDBodegaComponProceso(order.KeyLocal),                        // Asigna el valor correspondiente de la bodega
-					"f470_id_co_movto":     getF350IDCO(order.KeyLocal),                                         // Asigna el valor correspondiente al centro de operación
-					"f470_cant_base":       strconv.Itoa(item.Cantidad),                                         // Asigna la cantidad del item
-					"f470_vlr_bruto":       calculateGrossValue(item.Cantidad, item.Producto.PrecioUnitario),    // Valor bruto del item
-					"f470_referencia_item": s.GetReferences(order.Tipo, order.Plataforma, item.Producto.Nombre), // Cruce de referencias por tabla de equivalencias
-				}
-				movimientos = append(movimientos, itemMovimiento)
-				registro++ // Incrementar el número de registro
+			if !isValidProduct(item.Producto.Nombre) {
+				invalidItems = append(invalidItems, map[string]string{
+					"f470_id_co":        getF350IDCO(order.KeyLocal),                  // Asigna el valor correspondiente al centro de operación
+					"f470_consec_docto": docNum,                                       // Consecutivo del documento auto-incremental
+					"f470_nro_registro": strconv.Itoa(len(invalidItems) + 1),          // Asigna el valor correspondiente número de registro cada línea es un producto de la orden
+					"f470_id_bodega":    getF461IDBodegaComponProceso(order.KeyLocal), // Asigna el valor correspondiente de la bodega
+					"f470_id_co_movto":  getF350IDCO(order.KeyLocal),                  // Asigna el valor correspondiente al centro de operación
+					"f470_cant_base":    strconv.Itoa(item.Cantidad),                  // Asigna la cantidad del modifier
+					"f470_vlr_bruto":    calculateGrossValue(item.Cantidad, item.Producto.PrecioUnitario),
+					"razon":             "modificador sin referencia: " + item.Producto.Nombre,
+				})
+				continue
 			}
+
+			itemMovimiento := map[string]string{
+				"f470_id_co":           getF350IDCO(order.KeyLocal),                                         // Asigna el valor correspondiente al centro de operación
+				"f470_consec_docto":    docNum,                                                              // Consecutivo del documento auto-incremental
+				"f470_nro_registro":    strconv.Itoa(registro),                                              // Asigna el valor correspondiente número de registro cada línea es un producto de la orden
+				"f470_id_bodega":       getF461IDBodegaComponProceso(order.KeyLocal),                        // Asigna el valor correspondiente de la bodega
+				"f470_id_co_movto":     getF350IDCO(order.KeyLocal),                                         // Asigna el valor correspondiente al centro de operación
+				"f470_cant_base":       strconv.Itoa(item.Cantidad),                                         // Asigna la cantidad del item
+				"f470_vlr_bruto":       calculateGrossValue(item.Cantidad, item.Producto.PrecioUnitario),    // Valor bruto del item
+				"f470_referencia_item": s.GetReferences(order.Tipo, order.Plataforma, item.Producto.Nombre), // Cruce de referencias por tabla de equivalencias
+			}
+			movimientos = append(movimientos, itemMovimiento)
+			registro++ // Incrementar el número de registro
+
 			// Movement for the item
 
 			// Movements for modifiers
 			for _, itemGroup := range item.ItemGroups {
 				for _, modifier := range itemGroup.Modifiers {
-					if isValidProduct(modifier.Producto.Nombre) {
-						modifierMovimiento := map[string]string{
-							"f470_id_co":           getF350IDCO(order.KeyLocal),                                                            // Asigna el valor correspondiente al centro de operación
-							"f470_consec_docto":    docNum,                                                                                 // Consecutivo del documento auto-incremental
-							"f470_nro_registro":    strconv.Itoa(registro),                                                                 // Asigna el valor correspondiente número de registro cada línea es un producto de la orden
-							"f470_id_bodega":       getF461IDBodegaComponProceso(order.KeyLocal),                                           // Asigna el valor correspondiente de la bodega
-							"f470_id_co_movto":     getF350IDCO(order.KeyLocal),                                                            // Asigna el valor correspondiente al centro de operación
-							"f470_cant_base":       strconv.Itoa(modifier.Cantidad),                                                        // Asigna la cantidad del modifier
-							"f470_vlr_bruto":       calculateGrossValue(item.Cantidad*modifier.Cantidad, modifier.Producto.PrecioUnitario), // Asigna el valor correspondiente del modifier
-							"f470_referencia_item": s.GetReferences(order.Tipo, order.Plataforma, modifier.Producto.Nombre),                // TODO: Falta por validar como se hará el cruce de referencias
-						}
-						movimientos = append(movimientos, modifierMovimiento)
-						registro++ // Incrementar el número de registro
+					if !isValidProduct(modifier.Producto.Nombre) {
+						invalidItems = append(invalidItems, map[string]string{
+							"f470_id_co":        getF350IDCO(order.KeyLocal),                                                            // Asigna el valor correspondiente al centro de operación
+							"f470_consec_docto": docNum,                                                                                 // Consecutivo del documento auto-incremental
+							"f470_nro_registro": strconv.Itoa(len(invalidItems) + 1),                                                    // Asigna el valor correspondiente número de registro cada línea es un producto de la orden
+							"f470_id_bodega":    getF461IDBodegaComponProceso(order.KeyLocal),                                           // Asigna el valor correspondiente de la bodega
+							"f470_id_co_movto":  getF350IDCO(order.KeyLocal),                                                            // Asigna el valor correspondiente al centro de operación
+							"f470_cant_base":    strconv.Itoa(item.Cantidad * modifier.Cantidad),                                        // Asigna la cantidad del modifier
+							"f470_vlr_bruto":    calculateGrossValue(item.Cantidad*modifier.Cantidad, modifier.Producto.PrecioUnitario), // Asigna el valor correspondiente del modifier
+							"razon":             "modificador invalido: " + modifier.Producto.Nombre,
+						})
+						continue
 					}
+
+					reference := s.GetReferences(order.Tipo, order.Plataforma, modifier.Producto.Nombre)
+
+					// ignore modifiers with no reference
+					// items with no reference are still included
+					if reference == "" {
+						invalidItems = append(invalidItems, map[string]string{
+							"f470_id_co":        getF350IDCO(order.KeyLocal),                                                            // Asigna el valor correspondiente al centro de operación
+							"f470_consec_docto": docNum,                                                                                 // Consecutivo del documento auto-incremental
+							"f470_nro_registro": strconv.Itoa(len(invalidItems) + 1),                                                    // Asigna el valor correspondiente número de registro cada línea es un producto de la orden
+							"f470_id_bodega":    getF461IDBodegaComponProceso(order.KeyLocal),                                           // Asigna el valor correspondiente de la bodega
+							"f470_id_co_movto":  getF350IDCO(order.KeyLocal),                                                            // Asigna el valor correspondiente al centro de operación
+							"f470_cant_base":    strconv.Itoa(modifier.Cantidad),                                                        // Asigna la cantidad del modifier
+							"f470_vlr_bruto":    calculateGrossValue(item.Cantidad*modifier.Cantidad, modifier.Producto.PrecioUnitario), // Asigna el valor correspondiente del modifier
+							"razon":             "modificador sin referencia: " + modifier.Producto.Nombre,
+						})
+						continue
+					}
+
+					modifierMovimiento := map[string]string{
+						"f470_id_co":           getF350IDCO(order.KeyLocal),                                                            // Asigna el valor correspondiente al centro de operación
+						"f470_consec_docto":    docNum,                                                                                 // Consecutivo del documento auto-incremental
+						"f470_nro_registro":    strconv.Itoa(registro),                                                                 // Asigna el valor correspondiente número de registro cada línea es un producto de la orden
+						"f470_id_bodega":       getF461IDBodegaComponProceso(order.KeyLocal),                                           // Asigna el valor correspondiente de la bodega
+						"f470_id_co_movto":     getF350IDCO(order.KeyLocal),                                                            // Asigna el valor correspondiente al centro de operación
+						"f470_cant_base":       strconv.Itoa(modifier.Cantidad),                                                        // Asigna la cantidad del modifier
+						"f470_vlr_bruto":       calculateGrossValue(item.Cantidad*modifier.Cantidad, modifier.Producto.PrecioUnitario), // Asigna el valor correspondiente del modifier
+						"f470_referencia_item": reference,                                                                              // TODO: Falta por validar como se hará el cruce de referencias
+					}
+					movimientos = append(movimientos, modifierMovimiento)
+					registro++ // Incrementar el número de registro
+
 				}
 			}
 		}
@@ -291,6 +337,7 @@ func (s Service) buildDocument(date time.Time, docNum string, orders []PopappOrd
 	}
 	cuotasCxC = append(cuotasCxC, itemcuotasCxC)
 	doc["Cuotas CxC"] = cuotasCxC
+	doc["Items Invalidos"] = invalidItems
 
 	return doc
 }
@@ -449,12 +496,13 @@ func GenerateExcelFile(doc map[string]interface{}) (*excelize.File, error) {
 	file.DeleteSheet("Sheet1")
 
 	// Define sheet names and corresponding headers
-	sheetNames := []string{"Docto. ventas comercial", "Descuentos", "Cuotas CxC", "Movimientos"}
+	sheetNames := []string{"Docto. ventas comercial", "Descuentos", "Cuotas CxC", "Movimientos", "Items Invalidos"}
 	headersColumns := [][]string{
 		{"F350_ID_CO", "F350_ID_TIPO_DOCTO", "F350_CONSEC_DOCTO", "F350_FECHA", "f461_id_co_fact", "f461_notas", "F461_ID_BODEGA_COMPON_PROCESO"},
 		{"f471_id_co", "f471_id_tipo_docto", "f471_consec_docto", "f471_nro_registro", "f471_vlr_uni", "f471_vlr_tot"},
 		{"F350_ID_CO", "F350_CONSEC_DOCTO"},
 		{"f470_id_co", "f470_consec_docto", "f470_nro_registro", "f470_id_bodega", "f470_id_co_movto", "f470_cant_base", "f470_vlr_bruto", "f470_referencia_item"},
+		{"f470_id_co", "f470_consec_docto", "f470_nro_registro", "f470_id_bodega", "f470_id_co_movto", "f470_cant_base", "f470_vlr_bruto", "razon"},
 	}
 
 	// Define headers for each sheet
@@ -463,6 +511,7 @@ func GenerateExcelFile(doc map[string]interface{}) (*excelize.File, error) {
 		{"Centro Operacion", "Tipo Documento", "Consecutivo Documento", "Numero Registro", "Valor Descuento Unitario", "Valor Descuento Total"},
 		{"Centro Operacion", "Número Documento"},
 		{"Centro Operacion", "Consecutivo Documento", "Numero Registro", "Bodega", "Centro Operacion Mvmnto", "Cantidad", "Valor Neto", "Referencia"},
+		{"Centro Operacion", "Consecutivo Documento", "Numero Registro", "Bodega", "Centro Operacion Mvmnto", "Cantidad", "Valor Neto", "Razon"},
 	}
 
 	// Create sheets and add headers
