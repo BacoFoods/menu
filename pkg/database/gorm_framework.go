@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BacoFoods/menu/internal"
-	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/sirupsen/logrus"
 	gormpostgres "gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -49,10 +48,6 @@ func (g *GormFramework) GetDBClient() *gorm.DB {
 }
 
 func (g *GormFramework) MustMakeMigrations(entities ...any) {
-	if err := g.db.Migrator().DropTable(&payment.PaymentMethod{}); err != nil {
-		logrus.Fatal(fmt.Sprintf("error dropping table %+v error:%s", &payment.PaymentMethod{}, err.Error()))
-	}
-
 	for _, entity := range entities {
 		if err := g.db.AutoMigrate(entity); err != nil {
 			logrus.Fatal(fmt.Sprintf("error migrating %+v error:%s", entity, err.Error()))

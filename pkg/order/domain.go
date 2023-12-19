@@ -54,13 +54,14 @@ const (
 	ErrorOrderItemGetting      = "error getting order item"
 	ErrorOrderItemUpdateCourse = "error updating order item course"
 
-	ErrorOrderTypeCreation          = "error creating order type"
-	ErrorOrderTypeFinding           = "error finding order type"
-	ErrorOrderTypeGetting           = "error getting order type"
-	ErrorOrderTypeUpdating          = "error updating order type"
-	ErrorOrderTypeDeleting          = "error deleting order type"
-	ErrorOrderInvoicePlemsiBuilding = "error building plemsi invoice"
-	ErrorOrderInvoiceEmission       = "error emitting order invoice"
+	ErrorOrderTypeCreation             = "error creating order type"
+	ErrorOrderTypeFinding              = "error finding order type"
+	ErrorOrderTypeGetting              = "error getting order type"
+	ErrorOrderTypeUpdating             = "error updating order type"
+	ErrorOrderTypeDeleting             = "error deleting order type"
+	ErrorOrderInvoicePlemsiBuilding    = "error building plemsi invoice"
+	ErrorOrderInvoiceFacturacionConfig = "error getting facturacion config"
+	ErrorOrderInvoiceEmission          = "error emitting order invoice"
 
 	TaxPercentage = 0.08
 

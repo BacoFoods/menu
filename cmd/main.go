@@ -242,6 +242,7 @@ func main() {
 		discountRepository,
 		channelRepository,
 		facturacionService,
+		facturacionRepository,
 		redisConn,
 		plemsiAdapter,
 	)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/facturacion"
 	"github.com/BacoFoods/menu/pkg/plemsi"
 	"strconv"
 	"time"
@@ -72,19 +73,20 @@ type facturacionSrv interface {
 }
 
 type ServiceImpl struct {
-	repository  Repository
-	tables      tables.Repository
-	product     products.Repository
-	invoice     invoices.Repository
-	account     accounts.Repository
-	shift       shifts.Repository
-	rt          *internal.Rabbit
-	payments    payments.Service
-	discounts   discountsSrv
-	channel     channelSrv
-	facturacion facturacionSrv
-	redis       *redis.Client
-	plemsi      plemsi.Adapter
+	repository      Repository
+	tables          tables.Repository
+	product         products.Repository
+	invoice         invoices.Repository
+	account         accounts.Repository
+	shift           shifts.Repository
+	rt              *internal.Rabbit
+	payments        payments.Service
+	discounts       discountsSrv
+	channel         channelSrv
+	facturacion     facturacionSrv
+	facturacionRepo facturacion.FacturacionConfigRepository
+	redis           *redis.Client
+	plemsi          plemsi.Adapter
 }
 
 func NewService(repository Repository,
@@ -98,6 +100,7 @@ func NewService(repository Repository,
 	discounts discountsSrv,
 	channel channelSrv,
 	facturacion facturacionSrv,
+	facturacionRepo facturacion.FacturacionConfigRepository,
 	redis *redis.Client,
 	plemsi plemsi.Adapter,
 ) ServiceImpl {
@@ -112,6 +115,7 @@ func NewService(repository Repository,
 		discounts,
 		channel,
 		facturacion,
+		facturacionRepo,
 		redis,
 		plemsi,
 	}
@@ -684,7 +688,6 @@ func (s *ServiceImpl) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice
 	}
 
 	// TODO: anular documentos viejos si se regenera el invoice
-
 	// ATTENTION!!
 	// This is a critical zone. The following is protected by a distributed mutex using redis
 	// so each call is executed in order and has to wait for the previous one to finish.
@@ -733,9 +736,15 @@ func (s *ServiceImpl) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice
 
 	// Electronic Invoice
 	// TODO: working with only one payment
+	invoiceConfig, err := s.facturacionRepo.FindByStoreAndType(*order.StoreID, facturacion.DocumentTypePOS) // TODO: get from config
+	if err != nil {
+		shared.LogError("error getting facturacion config", LogService, "CreateInvoice", err, order)
+		return nil, fmt.Errorf(ErrorOrderInvoiceFacturacionConfig)
+	}
 
-	resolution := "18760000001" // TODO: get from config
-	plemsiInvoice, err := invoiceDB.ToPlemsiInvoice(resolution)
+	var resolutionNumber string
+	resolutionNumber = invoiceConfig.Resolution["Number"].(string)
+	plemsiInvoice, err := invoiceDB.ToPlemsiInvoice(resolutionNumber)
 	if err != nil {
 		shared.LogError("error building plemsi invoice", LogService, "CreateInvoice", err, invoice)
 		return nil, fmt.Errorf(ErrorOrderInvoicePlemsiBuilding)

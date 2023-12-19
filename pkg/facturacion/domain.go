@@ -1,6 +1,8 @@
 package facturacion
 
-import "github.com/BacoFoods/menu/internal"
+import (
+	"github.com/BacoFoods/menu/internal"
+)
 
 type FacturacionConfig struct {
 	ID           uint   `json:"id" gorm:"primaryKey"`
@@ -16,4 +18,12 @@ type FacturacionConfig struct {
 
 	// starts at 0
 	LastNumber uint `json:"last_number"`
+}
+
+type FacturacionConfigRepository interface {
+	Update(config *FacturacionConfig) (*FacturacionConfig, error)
+	Create(config *FacturacionConfig) error
+	FindByStoreAndType(storeID uint, docType string) (*FacturacionConfig, error)
+	FindByStoreAndTypeAndIncrement(storeID uint, docType string) (*FacturacionConfig, error)
+	FindByStore(storeID uint) ([]FacturacionConfig, error)
 }
