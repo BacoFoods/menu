@@ -10,7 +10,7 @@ const (
 	LogPlemsiInvoice = "pkg/invoice/plemsi_invoice"
 )
 
-func (i *Invoice) ToPlemsiInvoice(resolution string) (*plemsi.Invoice, error) {
+func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 
 	plemsiInvoice := plemsi.NewBuilderEndConsumerInvoice()
 
@@ -83,44 +83,69 @@ func (i *Invoice) ToPlemsiInvoice(resolution string) (*plemsi.Invoice, error) {
 
 	plemsiInvoice.SetGeneralAllowances(plemsiInvoiceDiscounts)
 
-	// Setting items
+	// Setting items and taxes
 	plemsiItems := make([]plemsi.Item, 0)
+	plemsiTaxes := make([]plemsi.Tax, 0)
 
 	for _, item := range i.Items {
+		plemsiItemTaxes := make([]plemsi.ItemTax, 0)
+
+		plemsiItemTax, err := plemsi.NewBuilderItemTax().
+			SetTaxId(item.Tax).                   // TODO: get id tax
+			SetPercent(item.TaxPercentage * 100). // Plemsi tax percent is 8, not 0.08 for ico
+			SetTaxAmount(item.TaxAmount).
+			SetTaxableAmount(item.TaxBase).
+			Build()
+
+		plemsiItemTaxes = append(plemsiItemTaxes, *plemsiItemTax)
+
 		plemsiItem, err := plemsi.NewBuilderItem().
-			SetTaxTotals(nil).
+			SetLineExtensionAmount(item.TaxBase).
+			SetTaxTotals(plemsiItemTaxes).
 			SetDescription(item.Description).
 			SetNotes(item.Comments).
 			SetCode(item.SKU).
-			SetPriceAmount(item.Price).
+			SetPriceAmount(item.TaxBase).
 			SetBaseQuantity(1).
 			SetInvoicedQuantity(1).
 			SetAllowanceCharges(nil).
-			SetUnitMeasureId(1).                               // TODO: get id unit measure
-			SetTypeItemIdentificationId(int(*item.ProductID)). // TODO: get id type item identification
+			SetUnitMeasureId(70).           // 70 is ID for unidad, see plemsi docs
+			SetTypeItemIdentificationId(1). // 1 is ID for UNSPC, see plemsi docs
 			Build()
-
 		if err != nil {
 			shared.LogError("error building plemsi invoice item", LogPlemsiInvoice, "ToPlemsiInvoice", err, item)
 			return nil, err
 		}
 
+		plemsiTax, err := plemsi.NewBuilderTax().
+			SetTaxId(item.Tax).                   // TODO: get id tax
+			SetPercent(item.TaxPercentage * 100). // Plemsi tax percent is 8, not 0.08 for ico
+			SetTaxAmount(item.TaxAmount).
+			SetTaxableAmount(item.TaxBase).
+			Build()
+
+		if err != nil {
+			shared.LogError("error building plemsi invoice taxes", LogPlemsiInvoice, "ToPlemsiInvoice", err, item)
+			return nil, err
+		}
+
 		plemsiItems = append(plemsiItems, *plemsiItem)
+		plemsiTaxes = append(plemsiTaxes, *plemsiTax)
 	}
 
 	plemsiInvoice.SetItems(plemsiItems)
 
 	// Setting resolution
-	plemsiInvoice.SetResolution(resolution)
+	plemsiInvoice.SetResolution(i.ResolutionNumber)
 
 	// Setting allowance total
 	plemsiInvoice.SetAllowanceTotal(int(i.TotalDiscounts))
 
 	// Setting invoice base total
-	plemsiInvoice.SetInvoiceBaseTotal(int(i.SubTotal))
+	plemsiInvoice.SetInvoiceBaseTotal(int(i.BaseTax))
 
 	// Setting invoice tax exclusive total
-	plemsiInvoice.SetInvoiceTaxExclusiveTotal(int(i.SubTotal))
+	plemsiInvoice.SetInvoiceTaxExclusiveTotal(int(i.BaseTax))
 
 	// Setting invoice tax inclusive total
 	plemsiInvoice.SetInvoiceTaxInclusiveTotal(int(i.BaseTax + i.Taxes))
@@ -129,7 +154,7 @@ func (i *Invoice) ToPlemsiInvoice(resolution string) (*plemsi.Invoice, error) {
 	plemsiInvoice.SetTotalToPay(int(i.Total))
 
 	// Setting all tax totals
-	plemsiInvoice.SetAllTaxTotals(nil)
+	plemsiInvoice.SetAllTaxTotals(plemsiTaxes)
 
 	// Setting Custom Subtotals
 	if i.TipAmount != 0 {

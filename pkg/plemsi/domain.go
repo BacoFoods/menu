@@ -53,7 +53,7 @@ type Discounts struct {
 
 type Item struct {
 	UnitMeasureId            int            `json:"unit_measure_id"`
-	LineExtensionAmount      int            `json:"line_extension_amount"`
+	LineExtensionAmount      float64        `json:"line_extension_amount"`
 	FreeOfChargeIndicator    bool           `json:"free_of_charge_indicator"`
 	AllowanceCharges         []ItemDiscount `json:"allowance_charges"`
 	TaxTotals                []ItemTax      `json:"tax_totals"`
@@ -75,17 +75,17 @@ type ItemDiscount struct {
 }
 
 type ItemTax struct {
-	TaxId         int `json:"tax_id"`
-	Percent       int `json:"percent"`
-	TaxAmount     int `json:"tax_amount"`
-	TaxableAmount int `json:"taxable_amount"`
+	TaxId         float64 `json:"tax_id"`
+	Percent       float64 `json:"percent"`
+	TaxAmount     float64 `json:"tax_amount"`
+	TaxableAmount float64 `json:"taxable_amount"`
 }
 
 type Tax struct {
-	TaxId         int `json:"tax_id"`
-	TaxAmount     int `json:"tax_amount"`
-	Percent       int `json:"percent"`
-	TaxableAmount int `json:"taxable_amount"`
+	TaxId         int     `json:"tax_id"`
+	TaxAmount     float64 `json:"tax_amount"`
+	Percent       float64 `json:"percent"`
+	TaxableAmount float64 `json:"taxable_amount"`
 }
 
 type Tip struct {

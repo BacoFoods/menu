@@ -148,5 +148,5 @@ func (r RequestCalculateInvoice) GetDiscountsIDs() []uint {
 }
 
 type RequestInvoicePaymentMethod struct {
-	PaymentMethodID uint `json:"payment_method_id" binding:"required"`
+	PaymentMethodID uint `json:"payment_method_id"`
 }

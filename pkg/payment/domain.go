@@ -59,8 +59,9 @@ type Payment struct {
 	// Payment method used.
 	// This can come from manual input in the POS such as <code>cash</code>, <code>card</code>, <code>check</code>, etc.
 	// or from order in table with <code>paylot</code> or <code>yuno</code>
-	Method          string `json:"method" binding:"required"`
-	PaymentMethodID *uint  `json:"payment_method_id" binding:"required"`
+	Method          string         `json:"method" binding:"required"`
+	PaymentMethodID *uint          `json:"payment_method_id" binding:"required"`
+	PaymentMethod   *PaymentMethod `json:"payment_method,omitempty" gorm:"foreignKey:PaymentMethodID"`
 
 	// Quantity is the amount of money paid
 	Quantity float64 `json:"quantity" gorm:"precision:18;scale:4" binding:"required"`

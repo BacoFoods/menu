@@ -181,10 +181,7 @@ func (ib *Builder) SetTotalToPay(totalToPay int) *Builder {
 
 func (ib *Builder) SetAllTaxTotals(allTaxTotals []Tax) *Builder {
 	if allTaxTotals == nil {
-		// TODO: Check if this is correct
-		// ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiAllTaxTotalsEmpty))
-		ib.AllTaxTotals = []Tax{}
-		return ib
+		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiAllTaxTotalsEmpty))
 	}
 	ib.AllTaxTotals = allTaxTotals
 	return ib
@@ -399,8 +396,8 @@ func (ib *BuilderItem) SetUnitMeasureId(unitMeasureId int) *BuilderItem {
 	return ib
 }
 
-func (ib *BuilderItem) SetLineExtensionAmount(lineExtensionAmount int) *BuilderItem {
-	if lineExtensionAmount == 0 {
+func (ib *BuilderItem) SetLineExtensionAmount(lineExtensionAmount float64) *BuilderItem {
+	if lineExtensionAmount == 0.0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemLineExtensionAmountEmpty))
 	}
 	ib.LineExtensionAmount = lineExtensionAmount
@@ -561,15 +558,20 @@ func NewBuilderItemTax() *BuilderItemTax {
 	return new(BuilderItemTax)
 }
 
-func (ib *BuilderItemTax) SetTaxId(taxId int) *BuilderItemTax {
-	if taxId == 0 {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemTaxTaxIdEmpty))
+func (ib *BuilderItemTax) SetTaxId(itemTax string) *BuilderItemTax {
+	// See plemsi docs codes for taxes
+	switch itemTax {
+	case "iva":
+		ib.TaxId = 1
+	case "ico":
+		ib.TaxId = 4
+	default:
+		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiTaxIdEmpty))
 	}
-	ib.TaxId = taxId
 	return ib
 }
 
-func (ib *BuilderItemTax) SetPercent(percent int) *BuilderItemTax {
+func (ib *BuilderItemTax) SetPercent(percent float64) *BuilderItemTax {
 	if percent == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemTaxPercentEmpty))
 	}
@@ -577,7 +579,7 @@ func (ib *BuilderItemTax) SetPercent(percent int) *BuilderItemTax {
 	return ib
 }
 
-func (ib *BuilderItemTax) SetTaxAmount(taxAmount int) *BuilderItemTax {
+func (ib *BuilderItemTax) SetTaxAmount(taxAmount float64) *BuilderItemTax {
 	if taxAmount == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemTaxTaxAmountEmpty))
 	}
@@ -585,12 +587,20 @@ func (ib *BuilderItemTax) SetTaxAmount(taxAmount int) *BuilderItemTax {
 	return ib
 }
 
-func (ib *BuilderItemTax) SetTaxableAmount(taxableAmount int) *BuilderItemTax {
+func (ib *BuilderItemTax) SetTaxableAmount(taxableAmount float64) *BuilderItemTax {
 	if taxableAmount == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemTaxTaxableAmountEmpty))
 	}
 	ib.TaxableAmount = taxableAmount
 	return ib
+}
+
+func (ib *BuilderItemTax) Build() (*ItemTax, error) {
+	if len(ib.Errors) != 0 {
+		return nil, ib.Errors[0]
+	}
+
+	return &ib.ItemTax, nil
 }
 
 // Tax
@@ -605,36 +615,49 @@ func NewBuilderTax() *BuilderTax {
 	return new(BuilderTax)
 }
 
-func (ib *BuilderTax) SetTaxId(taxId int) *BuilderTax {
-	if taxId == 0 {
+func (ib *BuilderTax) SetTaxId(itemTax string) *BuilderTax {
+	// See plemsi docs codes for taxes
+	switch itemTax {
+	case "iva":
+		ib.TaxId = 1
+	case "ico":
+		ib.TaxId = 4
+	default:
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiTaxIdEmpty))
 	}
-	ib.TaxId = taxId
 	return ib
 }
 
-func (ib *BuilderTax) SetTaxAmount(taxAmount int) *BuilderTax {
-	if taxAmount == 0 {
+func (ib *BuilderTax) SetTaxAmount(taxAmount float64) *BuilderTax {
+	if taxAmount == 0.0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiTaxAmountEmpty))
 	}
 	ib.TaxAmount = taxAmount
 	return ib
 }
 
-func (ib *BuilderTax) SetPercent(percent int) *BuilderTax {
-	if percent == 0 {
+func (ib *BuilderTax) SetPercent(percent float64) *BuilderTax {
+	if percent == 0.0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiTaxPercentEmpty))
 	}
 	ib.Percent = percent
 	return ib
 }
 
-func (ib *BuilderTax) SetTaxableAmount(taxableAmount int) *BuilderTax {
-	if taxableAmount == 0 {
+func (ib *BuilderTax) SetTaxableAmount(taxableAmount float64) *BuilderTax {
+	if taxableAmount == 0.0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiTaxableAmountEmpty))
 	}
 	ib.TaxableAmount = taxableAmount
 	return ib
+}
+
+func (ib *BuilderTax) Build() (*Tax, error) {
+	if len(ib.Errors) != 0 {
+		return nil, ib.Errors[0]
+	}
+
+	return &ib.Tax, nil
 }
 
 // Tip

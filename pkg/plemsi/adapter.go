@@ -9,9 +9,18 @@ import (
 
 const LogAdapter = "pkg/plemsi/adapter"
 
+type InvoiceEmissionResponse struct {
+	Code    int    `json:"code"`
+	Success bool   `json:"success"`
+	Info    string `json:"info"`
+	Data    struct {
+		Cude string `json:"cude"`
+		QR   string `json:"QRCode"`
+	}
+}
 type Adapter interface {
 	TestConnection() error
-	EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) error
+	EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) (*string, *string, error)
 	EmitConsumerInvoice(consumerInvoice *Invoice) error
 }
 
@@ -49,13 +58,13 @@ func (a *adapter) TestConnection() error {
 	return nil
 }
 
-func (a *adapter) EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) error {
+func (a *adapter) EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) (*string, *string, error) {
 	if finalConsumerInvoice == nil {
 		shared.LogWarn("warning invoice nil", LogAdapter, "EmitFinalConsumerInvoice", nil, nil)
-		return fmt.Errorf(ErrorPlemsiEmptyInvoice)
+		return nil, nil, fmt.Errorf(ErrorPlemsiEmptyInvoice)
 	}
 
-	res := make(map[string]any)
+	var res InvoiceEmissionResponse
 	req := shared.Request{
 		Endpoint: fmt.Sprintf("%s/billing/invoice", internal.Config.PlemsiHost),
 		Headers: map[string]string{
@@ -70,15 +79,15 @@ func (a *adapter) EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) error 
 	resp, err := a.httpclient.Post(req)
 	if err != nil {
 		shared.LogError("plemsi error, sending final consumer invoice", LogAdapter, "EmitFinalConsumerInvoice", err, req)
-		return fmt.Errorf(ErrorPlemsiEndConsumerInvoice)
+		return nil, nil, fmt.Errorf(ErrorPlemsiEndConsumerInvoice)
 	}
 
-	if resp.StatusCode() != http.StatusOK {
+	if resp.StatusCode() != http.StatusCreated {
 		shared.LogError("plemsi error, bad status code consumer invoice", LogAdapter, "EmitFinalConsumerInvoice", err, req, resp)
-		return fmt.Errorf(ErrorPlemsiEndConsumerInvoice)
+		return nil, nil, fmt.Errorf(ErrorPlemsiEndConsumerInvoice)
 	}
 
-	return nil
+	return &res.Data.Cude, &res.Data.QR, nil
 }
 
 func (a *adapter) EmitConsumerInvoice(consumerInvoice *Invoice) error {

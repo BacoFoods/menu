@@ -854,6 +854,9 @@ func (h *Handler) CreateInvoice(c *gin.Context) {
 	req.orderId = c.Param("id")
 	req.attendee = h.ctxAttendee(c)
 
+	// TODO: improve payment method
+	req.PaymentMethodID = 1
+
 	invoice, err := h.service.CreateInvoice(req)
 	if err != nil {
 		// c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCreation

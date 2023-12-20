@@ -59,7 +59,7 @@ const (
 	ErrorPlemsiItemTaxTaxAmountEmpty                    = "error plemsi adapter item tax tax amount is empty"
 	ErrorPlemsiItemTaxTaxableAmountEmpty                = "error plemsi adapter item tax taxable amount is empty"
 
-	ErrorPlemsiTaxIdEmpty         = "error plemsi adapter tax tax id is empty"
+	ErrorPlemsiTaxIdEmpty         = "error plemsi adapter tax tax id is empty or invalid"
 	ErrorPlemsiTaxAmountEmpty     = "error plemsi adapter tax tax amount is empty"
 	ErrorPlemsiTaxPercentEmpty    = "error plemsi adapter tax percent is empty"
 	ErrorPlemsiTaxableAmountEmpty = "error plemsi adapter taxable amount is empty"

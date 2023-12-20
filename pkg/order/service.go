@@ -741,18 +741,27 @@ func (s *ServiceImpl) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice
 		shared.LogError("error getting facturacion config", LogService, "CreateInvoice", err, order)
 		return nil, fmt.Errorf(ErrorOrderInvoiceFacturacionConfig)
 	}
+	invoiceDB.ResolutionNumber = invoiceConfig.Resolution["Number"].(string)
 
-	var resolutionNumber string
-	resolutionNumber = invoiceConfig.Resolution["Number"].(string)
-	plemsiInvoice, err := invoiceDB.ToPlemsiInvoice(resolutionNumber)
+	plemsiInvoice, err := invoiceDB.ToPlemsiInvoice()
 	if err != nil {
 		shared.LogError("error building plemsi invoice", LogService, "CreateInvoice", err, invoice)
 		return nil, fmt.Errorf(ErrorOrderInvoicePlemsiBuilding)
 	}
 
-	if err := s.plemsi.EmitFinalConsumerInvoice(plemsiInvoice); err != nil {
+	cude, qr, err := s.plemsi.EmitFinalConsumerInvoice(plemsiInvoice)
+	if err != nil {
 		shared.LogError("error emitting invoice", LogService, "CreateInvoice", err, invoice)
 		return nil, fmt.Errorf(ErrorOrderInvoiceEmission)
+	}
+
+	invoiceDB.Cude = *cude
+	invoiceDB.QRCode = *qr
+
+	// Updating invoiceDB
+	if _, err := s.invoice.CreateUpdate(invoiceDB); err != nil {
+		shared.LogError("error updating invoice", LogService, "CreateInvoice", err, invoice)
+		return nil, fmt.Errorf(ErrorOrderInvoiceUpdate)
 	}
 
 	// release table

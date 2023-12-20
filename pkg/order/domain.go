@@ -45,6 +45,7 @@ const (
 	ErrorOrderUpdatingClientName           = "error updating order client name"
 	ErrorOrderUpdatingStatus               = "error updating order status"
 	ErrorOrderInvoiceCreation              = "error creating order invoice"
+	ErrorOrderInvoiceUpdate                = "error updating order invoice"
 	ErrorOrderInvoiceCreationDiscounts     = "error creating order invoice getting discounts"
 	ErrorOrderInvoiceCalculation           = "error calculating invoice"
 	ErrorOrderClosed                       = "error order is closed"
@@ -307,6 +308,8 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 		newInvoice.Taxes += productPriceWithDiscount - productBaseTax
 		newInvoice.TotalDiscounts += appliedDiscount
 
+		itemTaxAmount := productPriceWithDiscount - productBaseTax
+
 		newInvoice.Items = append(newInvoice.Items, invoice.Item{
 			ProductID:       item.ProductID,
 			Name:            item.Name,
@@ -318,6 +321,8 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 			DiscountedPrice: productPriceWithDiscount,
 			Tax:             tax,
 			TaxPercentage:   taxPerc,
+			TaxAmount:       itemTaxAmount,
+			TaxBase:         productBaseTax,
 		})
 
 		// Adding item price to subtotal
