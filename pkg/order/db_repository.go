@@ -101,7 +101,8 @@ func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 	tx := r.db.
 		Preload(clause.Associations).
 		Preload("Items.Modifiers").
-		Preload("Table.Zone")
+		Preload("Table.Zone").
+		Preload("Invoices.Payments")
 
 	if days, ok := filter["days"]; ok {
 		tx.Preload(clause.Associations).
