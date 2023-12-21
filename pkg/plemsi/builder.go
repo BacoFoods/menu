@@ -451,9 +451,12 @@ func (ib *BuilderItem) SetNotes(notes string) *BuilderItem {
 }
 
 func (ib *BuilderItem) SetCode(code string) *BuilderItem {
-	if code == "" {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemCodeEmpty))
-	}
+	// TODO: Check if this is correct because this send SKU to plemsigit st
+	/*
+		if code == "" {
+			ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemCodeEmpty))
+		}
+	*/
 	ib.Code = code
 	return ib
 }
