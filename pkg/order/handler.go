@@ -857,14 +857,13 @@ func (h *Handler) CreateInvoice(c *gin.Context) {
 	// TODO: improve payment method
 	req.PaymentMethodID = 1
 
-	invoice, err := h.service.CreateInvoice(req)
+	invoiceDB, err := h.service.CreateInvoice(req)
 	if err != nil {
-		// c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCreation
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+	c.JSON(http.StatusOK, shared.SuccessResponse(invoiceDB))
 }
 
 // CalculateInvoice to handle a request to calculate an invoice
