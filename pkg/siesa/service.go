@@ -123,6 +123,12 @@ func getF461IDBodegaComponProceso(idStore string) string {
 		return "202"
 	case "bacuferia":
 		return "31E"
+	case "bacucolinapc110881":
+		return "405"
+	case "bacutitansalon10883":
+		return "403"
+	case "bacunogalespc110884":
+		return "303"
 	default:
 		return "" // Valor predeterminado o manejo de error si es necesario
 	}
