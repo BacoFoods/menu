@@ -151,7 +151,7 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 	plemsiInvoice.SetInvoiceTaxInclusiveTotal(i.BaseTax + i.Taxes)
 
 	// Setting total to pay
-	plemsiInvoice.SetTotalToPay(i.Total)
+	plemsiInvoice.SetTotalToPay(i.SubTotal)
 
 	// Setting all tax totals
 	plemsiInvoice.SetAllTaxTotals(plemsiTaxes)
@@ -169,7 +169,6 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 		}
 
 		plemsiInvoice.SetCustomSubtotals([]plemsi.Tip{*tips})
-
 	} else {
 		plemsiInvoice.SetCustomSubtotals([]plemsi.Tip{})
 	}
