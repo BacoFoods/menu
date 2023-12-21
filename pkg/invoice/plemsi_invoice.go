@@ -139,19 +139,19 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 	plemsiInvoice.SetResolution(i.ResolutionNumber)
 
 	// Setting allowance total
-	plemsiInvoice.SetAllowanceTotal(int(i.TotalDiscounts))
+	plemsiInvoice.SetAllowanceTotal(i.TotalDiscounts)
 
 	// Setting invoice base total
-	plemsiInvoice.SetInvoiceBaseTotal(int(i.BaseTax))
+	plemsiInvoice.SetInvoiceBaseTotal(i.BaseTax)
 
 	// Setting invoice tax exclusive total
-	plemsiInvoice.SetInvoiceTaxExclusiveTotal(int(i.BaseTax))
+	plemsiInvoice.SetInvoiceTaxExclusiveTotal(i.BaseTax)
 
 	// Setting invoice tax inclusive total
-	plemsiInvoice.SetInvoiceTaxInclusiveTotal(int(i.BaseTax + i.Taxes))
+	plemsiInvoice.SetInvoiceTaxInclusiveTotal(i.BaseTax + i.Taxes)
 
 	// Setting total to pay
-	plemsiInvoice.SetTotalToPay(int(i.Total))
+	plemsiInvoice.SetTotalToPay(i.Total)
 
 	// Setting all tax totals
 	plemsiInvoice.SetAllTaxTotals(plemsiTaxes)
@@ -159,7 +159,7 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 	// Setting Custom Subtotals
 	if i.TipAmount != 0 {
 		tips, err := plemsi.NewBuilderTip().
-			SetAmount(int(i.TipAmount)).
+			SetAmount(i.TipAmount).
 			SetConcept("Propina").
 			Build()
 
@@ -175,7 +175,7 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 	}
 
 	// Setting final total to pay
-	plemsiInvoice.SetFinalTotalToPay(int(i.Total))
+	plemsiInvoice.SetFinalTotalToPay(i.Total)
 
 	return plemsiInvoice.Build()
 }

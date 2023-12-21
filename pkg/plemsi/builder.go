@@ -139,7 +139,7 @@ func (ib *Builder) SetNotes(notes string) *Builder {
 	return ib
 }
 
-func (ib *Builder) SetAllowanceTotal(allowanceTotal int) *Builder {
+func (ib *Builder) SetAllowanceTotal(allowanceTotal float64) *Builder {
 	if allowanceTotal < 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiAllowanceTotalNegative))
 	}
@@ -147,7 +147,7 @@ func (ib *Builder) SetAllowanceTotal(allowanceTotal int) *Builder {
 	return ib
 }
 
-func (ib *Builder) SetInvoiceBaseTotal(invoiceBaseTotal int) *Builder {
+func (ib *Builder) SetInvoiceBaseTotal(invoiceBaseTotal float64) *Builder {
 	if invoiceBaseTotal == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiInvoiceBaseTotalEmpty))
 	}
@@ -155,7 +155,7 @@ func (ib *Builder) SetInvoiceBaseTotal(invoiceBaseTotal int) *Builder {
 	return ib
 }
 
-func (ib *Builder) SetInvoiceTaxExclusiveTotal(invoiceTaxExclusiveTotal int) *Builder {
+func (ib *Builder) SetInvoiceTaxExclusiveTotal(invoiceTaxExclusiveTotal float64) *Builder {
 	if invoiceTaxExclusiveTotal == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiInvoiceTaxExclusiveTotalEmpty))
 	}
@@ -163,7 +163,7 @@ func (ib *Builder) SetInvoiceTaxExclusiveTotal(invoiceTaxExclusiveTotal int) *Bu
 	return ib
 }
 
-func (ib *Builder) SetInvoiceTaxInclusiveTotal(invoiceTaxInclusiveTotal int) *Builder {
+func (ib *Builder) SetInvoiceTaxInclusiveTotal(invoiceTaxInclusiveTotal float64) *Builder {
 	if invoiceTaxInclusiveTotal == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiInvoiceTaxInclusiveTotalEmpty))
 	}
@@ -171,7 +171,7 @@ func (ib *Builder) SetInvoiceTaxInclusiveTotal(invoiceTaxInclusiveTotal int) *Bu
 	return ib
 }
 
-func (ib *Builder) SetTotalToPay(totalToPay int) *Builder {
+func (ib *Builder) SetTotalToPay(totalToPay float64) *Builder {
 	if totalToPay == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiTotalToPayEmpty))
 	}
@@ -192,7 +192,7 @@ func (ib *Builder) SetCustomSubtotals(customSubtotals []Tip) *Builder {
 	return ib
 }
 
-func (ib *Builder) SetFinalTotalToPay(finalTotalToPay int) *Builder {
+func (ib *Builder) SetFinalTotalToPay(finalTotalToPay float64) *Builder {
 	if finalTotalToPay == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiFinalTotalToPayEmpty))
 	}
@@ -530,7 +530,7 @@ func (ib *BuilderItemDiscount) SetMultiplierFactorNumeric(multiplierFactorNumeri
 	return ib
 }
 
-func (ib *BuilderItemDiscount) SetAmount(amount int) *BuilderItemDiscount {
+func (ib *BuilderItemDiscount) SetAmount(amount float64) *BuilderItemDiscount {
 	if amount == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemDiscountPlemsiAmountEmpty))
 	}
@@ -538,7 +538,7 @@ func (ib *BuilderItemDiscount) SetAmount(amount int) *BuilderItemDiscount {
 	return ib
 }
 
-func (ib *BuilderItemDiscount) SetBaseAmount(baseAmount int) *BuilderItemDiscount {
+func (ib *BuilderItemDiscount) SetBaseAmount(baseAmount float64) *BuilderItemDiscount {
 	if baseAmount == 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemDiscountPlemsiBaseAmountEmpty))
 	}
@@ -680,7 +680,7 @@ func (ib *BuilderTip) SetConcept(concept string) *BuilderTip {
 	return ib
 }
 
-func (ib *BuilderTip) SetAmount(amount int) *BuilderTip {
+func (ib *BuilderTip) SetAmount(amount float64) *BuilderTip {
 	if amount < 0 {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiTipAmountNegative))
 	}

@@ -17,14 +17,14 @@ type Invoice struct {
 	HeadNote                 string         `json:"head_note"`
 	FootNote                 string         `json:"foot_note"`
 	Notes                    string         `json:"notes"`
-	AllowanceTotal           int            `json:"allowanceTotal"`
-	InvoiceBaseTotal         int            `json:"invoiceBaseTotal"`
-	InvoiceTaxExclusiveTotal int            `json:"invoiceTaxExclusiveTotal"`
-	InvoiceTaxInclusiveTotal int            `json:"invoiceTaxInclusiveTotal"`
-	TotalToPay               int            `json:"totalToPay"`
+	AllowanceTotal           float64        `json:"allowanceTotal"`
+	InvoiceBaseTotal         float64        `json:"invoiceBaseTotal"`
+	InvoiceTaxExclusiveTotal float64        `json:"invoiceTaxExclusiveTotal"`
+	InvoiceTaxInclusiveTotal float64        `json:"invoiceTaxInclusiveTotal"`
+	TotalToPay               float64        `json:"totalToPay"`
 	AllTaxTotals             []Tax          `json:"allTaxTotals"`
 	CustomSubtotals          []Tip          `json:"customSubtotals"`
-	FinalTotalToPay          int            `json:"finalTotalToPay"`
+	FinalTotalToPay          float64        `json:"finalTotalToPay"`
 }
 
 type Customer struct {
@@ -67,11 +67,11 @@ type Item struct {
 }
 
 type ItemDiscount struct {
-	ChargeIndicator         bool   `json:"charge_indicator"`
-	AllowanceChargeReason   string `json:"allowance_charge_reason"`
-	MultiplierFactorNumeric int    `json:"multiplier_factor_numeric"`
-	Amount                  int    `json:"amount"`
-	BaseAmount              int    `json:"base_amount"`
+	ChargeIndicator         bool    `json:"charge_indicator"`
+	AllowanceChargeReason   string  `json:"allowance_charge_reason"`
+	MultiplierFactorNumeric int     `json:"multiplier_factor_numeric"`
+	Amount                  float64 `json:"amount"`
+	BaseAmount              float64 `json:"base_amount"`
 }
 
 type ItemTax struct {
@@ -89,6 +89,6 @@ type Tax struct {
 }
 
 type Tip struct {
-	Concept string `json:"concept"`
-	Amount  int    `json:"amount"`
+	Concept string  `json:"concept"`
+	Amount  float64 `json:"amount"`
 }
