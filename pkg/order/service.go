@@ -741,19 +741,26 @@ func (s *ServiceImpl) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice
 		shared.LogError("error getting facturacion config", LogService, "CreateInvoice", err, order)
 		return nil, fmt.Errorf(ErrorOrderInvoiceFacturacionConfig)
 	}
-	invoiceDB.ResolutionNumber = invoiceConfig.Resolution["Number"].(string)
+	shared.LogInfo("facturacion config", LogService, "CreateInvoice", nil, invoiceConfig)
+	if resolutionNumber, ok := invoiceConfig.Resolution["number"]; !ok {
+		shared.LogError("error getting facturacion config resolution number", LogService, "CreateInvoice", err, invoiceConfig)
+	} else {
+		invoiceDB.ResolutionNumber = resolutionNumber.(string)
+	}
 
 	plemsiInvoice, err := invoiceDB.ToPlemsiInvoice()
 	if err != nil {
 		shared.LogError("error building plemsi invoice", LogService, "CreateInvoice", err, invoice)
 		return nil, fmt.Errorf(ErrorOrderInvoicePlemsiBuilding)
 	}
+	shared.LogInfo("plemsi invoice", LogService, "CreateInvoice", nil, plemsiInvoice)
 
 	cude, qr, err := s.plemsi.EmitFinalConsumerInvoice(plemsiInvoice)
 	if err != nil {
 		shared.LogError("error emitting invoice", LogService, "CreateInvoice", err, invoice)
 		return nil, fmt.Errorf(ErrorOrderInvoiceEmission)
 	}
+	shared.LogInfo("invoice emission", LogService, "CreateInvoice", nil, cude, qr)
 
 	invoiceDB.Cude = *cude
 	invoiceDB.QRCode = *qr
