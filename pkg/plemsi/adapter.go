@@ -14,8 +14,8 @@ type InvoiceEmissionResponse struct {
 	Success bool   `json:"success"`
 	Info    string `json:"info"`
 	Data    struct {
-		Cude string           `json:"cude"`
-		QR   internal.JSONMap `json:"QRCode"`
+		Cude string `json:"cude"`
+		QR   string `json:"QRCode"`
 	}
 }
 type Adapter interface {
@@ -87,12 +87,7 @@ func (a *adapter) EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) (*stri
 		return nil, nil, fmt.Errorf(ErrorPlemsiEndConsumerInvoice)
 	}
 
-	cude := res.Data.Cude
-	qr := res.Data.QR
-
-	fmt.Println(qr)
-
-	return &cude, &cude, nil
+	return &res.Data.Cude, &res.Data.QR, nil
 }
 
 func (a *adapter) EmitConsumerInvoice(consumerInvoice *Invoice) error {

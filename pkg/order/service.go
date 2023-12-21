@@ -749,14 +749,14 @@ func (s *ServiceImpl) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice
 		return nil, fmt.Errorf(ErrorOrderInvoicePlemsiBuilding)
 	}
 
-	cude, _, err := s.plemsi.EmitFinalConsumerInvoice(plemsiInvoice)
+	cude, qr, err := s.plemsi.EmitFinalConsumerInvoice(plemsiInvoice)
 	if err != nil {
 		shared.LogError("error emitting invoice", LogService, "CreateInvoice", err, invoice)
 		return nil, fmt.Errorf(ErrorOrderInvoiceEmission)
 	}
 
 	invoiceDB.Cude = *cude
-	// invoiceDB.QRCode = *qr
+	invoiceDB.QRCode = *qr
 
 	// Updating invoiceDB
 	if _, err := s.invoice.CreateUpdate(invoiceDB); err != nil {
