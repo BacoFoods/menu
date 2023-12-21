@@ -2,13 +2,28 @@ package siesa
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/gin-gonic/gin"
 )
 
 const LogHandler = "pkg/siesa/handler"
+
+var mapLocalesNombres = map[string][]string{
+	"ZonaG":      {"bacuzonagc14", "bacuzonag"},
+	"Flormorado": {"bacuflormoradopc2", "bacuflormorado"},
+	"CL109":      {"bacucalle109", "bacu109"},
+	"CL90":       {"feriadelmillon2", "bacucalle90delivery"},
+	"Connecta":   {"connectasalon110665", "bacuconnecta", "connectasalon210666"},
+	"CityU":      {"cityusalon1", "cityusalon2", "bacucityu"},
+	"Colina":     {"bacucolinapc110881"},
+	"Titan":      {"bacutitansalon10883"},
+	"Nogal":      {"bacunogalespc110884"},
+}
 
 type Handler struct {
 	service Service
@@ -22,6 +37,90 @@ type RequestExcelCreate struct {
 	StartDate   string   `json:"start_date"`
 	EndDate     string   `json:"end_date"`
 	LocationIDs []string `json:"location_ids"`
+}
+
+// GetLocales to handle the request to get the locales for SIESA
+// @Summary Get the locales for SIESA
+// @Description Get the locales for SIESA
+// @Tags SIESA
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string}
+// @Failure 401 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /siesa/locales [get]
+func (h *Handler) GetLocales(c *gin.Context) {
+	c.JSON(http.StatusOK, shared.SuccessResponse(mapLocalesNombres))
+}
+
+// CreateJSON handles a request to generate an Excel file with orders.
+// @Summary Generate an JSON with orders
+// @Description Handles a request to create an JSON containing orders based on the specified parameters.
+// @Tags SIESA
+// @Accept json
+// @Produce application/json
+// @Param siesa body RequestExcelCreate true "Request body for creating JSON file"
+// @Security ApiKeyAuth
+// @Failure 400 {object} shared.Response "Bad Request response"
+// @Failure 422 {object} shared.Response "Unprocessable Entity response"
+// @Failure 500 {object} shared.Response "Internal Server Error response"
+// @Router /siesa/JSON [post]
+func (h *Handler) CreateJSON(ctx *gin.Context) {
+	var requestBody RequestExcelCreate
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		shared.LogWarn("warning binding request fail", LogHandler, "Create", err)
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	if len(requestBody.LocationIDs) == 0 {
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse("location_ids is required"))
+		return
+	}
+
+	date, err := time.Parse("2006-01-02", requestBody.StartDate)
+	if err != nil {
+		shared.LogError("error parsing date", LogHandler, "Create", err, requestBody.StartDate)
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse("invalid date format for start_date "+err.Error()))
+		return
+	}
+
+	response, err := GetOrders(requestBody.StartDate, requestBody.EndDate, requestBody.LocationIDs)
+	if err != nil {
+		shared.LogError("error getting orders", LogHandler, "Create", err, response)
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	var orders []PopappOrder
+	if err := json.Unmarshal([]byte(response), &orders); err != nil {
+		shared.LogError("error unmarshalling orders", LogHandler, "Create", err, response)
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+		return
+	}
+
+	if len(orders) == 0 {
+		ctx.JSON(http.StatusNotFound, shared.SuccessResponse([]PopappOrder{}))
+		return
+	}
+
+	doc, err := h.service.GetDocument(requestBody.LocationIDs, requestBody.StartDate, requestBody.EndDate, len(orders))
+	if err != nil {
+		shared.LogError("error creating document", LogHandler, "Create", err, doc)
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+		return
+	}
+
+	// Call the HandleSIESAIntegration function to get the Excel file as a byte slice
+	resp, err := h.service.HandleSIESAIntegrationJSON(doc, date, orders)
+	if err != nil {
+		shared.LogError("error handling SIESA integration", LogHandler, "Create", err, orders)
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(resp))
 }
 
 // Create handles a request to generate an Excel file with orders.
@@ -45,10 +144,22 @@ func (h *Handler) Create(ctx *gin.Context) {
 		return
 	}
 
+	if len(requestBody.LocationIDs) == 0 {
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse("location_ids is required"))
+		return
+	}
+
+	date, err := time.Parse("2006-01-02", requestBody.StartDate)
+	if err != nil {
+		shared.LogError("error parsing date", LogHandler, "Create", err, requestBody.StartDate)
+		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse("invalid date format for start_date "+err.Error()))
+		return
+	}
+
 	response, err := GetOrders(requestBody.StartDate, requestBody.EndDate, requestBody.LocationIDs)
 	if err != nil {
 		shared.LogError("error getting orders", LogHandler, "Create", err, response)
-		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(err.Error()))
 		return
 	}
 
@@ -59,21 +170,36 @@ func (h *Handler) Create(ctx *gin.Context) {
 		return
 	}
 
+	if len(orders) == 0 {
+		ctx.JSON(http.StatusNotFound, shared.SuccessResponse([]PopappOrder{}))
+		return
+	}
+
+	doc, err := h.service.GetDocument(requestBody.LocationIDs, requestBody.StartDate, requestBody.EndDate, len(orders))
+	if err != nil {
+		shared.LogError("error creating document", LogHandler, "Create", err, doc)
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+		return
+	}
+
 	// Call the HandleSIESAIntegration function to get the Excel file as a byte slice
-	excelFile, err := h.service.HandleSIESAIntegration(orders)
+	excelFile, err := h.service.HandleSIESAIntegration(doc, date, orders)
 	if err != nil {
 		shared.LogError("error handling SIESA integration", LogHandler, "Create", err, orders)
 		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
 		return
 	}
 
+	filename := fmt.Sprintf("SIESA-%s-%s", strings.Join(requestBody.LocationIDs, "-"), date.Format("2006-01-02"))
+
 	ctx.Header("Content-Description", "File Transfer")
-	ctx.Header("Content-Disposition", "attachment; filename=output.xlsx")
+	ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s.xlsx", filename))
 	ctx.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	ctx.Header("Content-Transfer-Encoding", "binary")
 	ctx.Header("Expires", "0")
 	ctx.Header("Cache-Control", "must-revalidate")
 	ctx.Header("Pragma", "public")
+	ctx.Header("Access-Control-Expose-Headers", "Content-Disposition")
 
 	// Send the Excel file as the response
 	ctx.Data(http.StatusOK, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFile)

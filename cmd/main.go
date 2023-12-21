@@ -94,6 +94,7 @@ func main() {
 		&scheduler.Schedule{},
 		&connector.Equivalence{},
 		&siesa.Reference{},
+		&siesa.SiesaDocument{},
 		&scheduler.Holiday{},
 		&invoice.Resolution{},
 	)

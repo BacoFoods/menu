@@ -68,20 +68,23 @@ func SetTables(zone *Zone, tableNumber, tableAmount int) {
 }
 
 type Table struct {
-	ID          uint            `json:"id,omitempty"`
-	DisplayID   string          `json:"display_id" binding:"required"`
-	DisplayName string          `json:"display_name" binding:"required"`
-	Number      int             `json:"number" binding:"required"`
-	XLocation   float64         `json:"xlocation,omitempty"`
-	YLocation   float64         `json:"ylocation,omitempty"`
-	IsActive    bool            `json:"is_active"`
-	ZoneID      *uint           `json:"zone_id"`
-	Zone        *Zone           `json:"zone"`
-	OrderID     *uint           `json:"order_id"`
-	QR          *QR             `json:"qr,omitempty" gorm:"foreignKey:TableID"`
-	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID          uint    `json:"id,omitempty"`
+	DisplayID   string  `json:"display_id" binding:"required"`
+	DisplayName string  `json:"display_name" binding:"required"`
+	Number      int     `json:"number" binding:"required"`
+	XLocation   float64 `json:"xlocation,omitempty"`
+	YLocation   float64 `json:"ylocation,omitempty"`
+	IsActive    bool    `json:"is_active"`
+	ZoneID      *uint   `json:"zone_id"`
+	Zone        *Zone   `json:"zone"`
+
+	// An order can only be assigned to one table and be active
+	OrderID *uint `json:"order_id" gorm:"uniqueIndex"`
+
+	QR        *QR             `json:"qr,omitempty" gorm:"foreignKey:TableID"`
+	CreatedAt *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type QR struct {

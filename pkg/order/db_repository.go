@@ -93,7 +93,7 @@ func (r *DBRepository) Update(order *Order) (*Order, error) {
 }
 
 func (r *DBRepository) UpdateTable(order *Order, newTableID uint) (*Order, error) {
-	return order, r.db.Model(order).Where("id = ?", order.ID).Update("table_id", newTableID).Error
+	return order, r.db.Model(order).Select("table_id").Where("id = ?", order.ID).Update("table_id", newTableID).Error
 }
 
 // Find method for find orders in database
@@ -101,7 +101,8 @@ func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 	tx := r.db.
 		Preload(clause.Associations).
 		Preload("Items.Modifiers").
-		Preload("Table.Zone")
+		Preload("Table.Zone").
+		Preload("Invoices.Payments")
 
 	if days, ok := filter["days"]; ok {
 		tx.Preload(clause.Associations).

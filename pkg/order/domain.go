@@ -139,12 +139,12 @@ type Order struct {
 	ID            uint              `json:"id" gorm:"primaryKey"`
 	Statuses      []OrderStatus     `json:"status" gorm:"foreignKey:OrderID" swaggerignore:"true"`
 	Code          string            `json:"code" swaggerignore:"true"`
-	CurrentStatus string            `json:"current_status"`
+	CurrentStatus string            `json:"current_status" gorm:"index:idx_orders_current_status,default:'created'"`
 	OrderType     string            `json:"order_type"`
 	ClientName    string            `json:"client_name"`
 	BrandID       *uint             `json:"brand_id" binding:"required"`
 	Brand         *brand.Brand      `json:"brand,omitempty" swaggerignore:"true"`
-	StoreID       *uint             `json:"store_id" binding:"required"`
+	StoreID       *uint             `json:"store_id" binding:"required" gorm:"index:idx_orders_store_id"`
 	Store         *store.Store      `json:"store,omitempty" swaggerignore:"true"`
 	ChannelID     *uint             `json:"channel_id" binding:"required"`
 	TableID       *uint             `json:"table_id"`

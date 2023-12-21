@@ -1670,6 +1670,7 @@ definitions:
       number:
         type: integer
       order_id:
+        description: An order can only be assigned to one table and be active
         type: integer
       qr:
         $ref: '#/definitions/tables.QR'
@@ -8619,6 +8620,69 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Generate an Excel file with orders
+      tags:
+      - SIESA
+  /siesa/JSON:
+    post:
+      consumes:
+      - application/json
+      description: Handles a request to create an JSON containing orders based on
+        the specified parameters.
+      parameters:
+      - description: Request body for creating JSON file
+        in: body
+        name: siesa
+        required: true
+        schema:
+          $ref: '#/definitions/siesa.RequestExcelCreate'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request response
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity response
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "500":
+          description: Internal Server Error response
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Generate an JSON with orders
+      tags:
+      - SIESA
+  /siesa/locales:
+    get:
+      consumes:
+      - application/json
+      description: Get the locales for SIESA
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                status:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get the locales for SIESA
       tags:
       - SIESA
   /siesa/reference:
