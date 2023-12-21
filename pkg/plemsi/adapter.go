@@ -59,6 +59,7 @@ func (a *adapter) TestConnection() error {
 }
 
 func (a *adapter) EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) (*string, *string, error) {
+	shared.LogInfo("emitting final consumer invoice", LogAdapter, "EmitFinalConsumerInvoice", nil, *finalConsumerInvoice)
 	if finalConsumerInvoice == nil {
 		shared.LogWarn("warning invoice nil", LogAdapter, "EmitFinalConsumerInvoice", nil, nil)
 		return nil, nil, fmt.Errorf(ErrorPlemsiEmptyInvoice)
@@ -75,13 +76,14 @@ func (a *adapter) EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) (*stri
 		Response: &res,
 		Body:     finalConsumerInvoice,
 	}
-
+	shared.LogInfo("emitting final consumer invoice to request", LogAdapter, "EmitFinalConsumerInvoice", nil, req)
 	resp, err := a.httpclient.Post(req)
 	if err != nil {
 		shared.LogError("plemsi error, sending final consumer invoice", LogAdapter, "EmitFinalConsumerInvoice", err, req)
 		return nil, nil, fmt.Errorf(ErrorPlemsiEndConsumerInvoice)
 	}
 
+	shared.LogInfo("emitting final consumer invoice before request", LogAdapter, "EmitFinalConsumerInvoice", nil, respst)
 	if resp.StatusCode() != http.StatusCreated {
 		shared.LogError("plemsi error, bad status code consumer invoice", LogAdapter, "EmitFinalConsumerInvoice", err, req, resp)
 		return nil, nil, fmt.Errorf(ErrorPlemsiEndConsumerInvoice)

@@ -757,7 +757,7 @@ func (s *ServiceImpl) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice
 
 	cude, qr, err := s.plemsi.EmitFinalConsumerInvoice(plemsiInvoice)
 	if err != nil {
-		shared.LogError("error emitting invoice", LogService, "CreateInvoice", err, invoice)
+		shared.LogError("error emitting invoice", LogService, "CreateInvoice", err, plemsiInvoice)
 		return nil, fmt.Errorf(ErrorOrderInvoiceEmission)
 	}
 	shared.LogInfo("invoice emission", LogService, "CreateInvoice", nil, cude, qr)
