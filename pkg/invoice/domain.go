@@ -101,7 +101,7 @@ type Invoice struct {
 	Resolution          *Resolution       `json:"resolution,omitempty" gorm:"foreignKey:ResolutionID"`
 	ResolutionNumber    string            `json:"resolution_number"`
 	Cude                string            `json:"cude"`
-	QRCode              string            `json:"qr_code"`
+	QRCode              internal.JSONMap  `json:"qr_code" gorm:"type:jsonb"`
 	CreatedAt           *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt           *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt           *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`

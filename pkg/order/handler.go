@@ -37,7 +37,7 @@ func (h *Handler) ctxAttendee(ctx context.Context) *Attendee {
 	}
 	accountID := ""
 	if ctx.Value("account_id") != nil {
-		accountID = ctx.Value("account_uuid").(string)
+		accountID = ctx.Value("account_id").(string)
 	}
 
 	id, err := strconv.Atoi(accountID)
