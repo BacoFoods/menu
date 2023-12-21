@@ -438,9 +438,6 @@ func (ib *BuilderItem) SetTaxTotals(taxTotals []ItemTax) *BuilderItem {
 }
 
 func (ib *BuilderItem) SetDescription(description string) *BuilderItem {
-	if description == "" {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemDescriptionEmpty))
-	}
 	ib.Description = description
 	return ib
 }
@@ -451,7 +448,7 @@ func (ib *BuilderItem) SetNotes(notes string) *BuilderItem {
 }
 
 func (ib *BuilderItem) SetCode(code string) *BuilderItem {
-	// TODO: Check if this is correct because this send SKU to plemsigit st
+	// TODO: Check if this is correct because this send SKU to plemsi
 	/*
 		if code == "" {
 			ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemCodeEmpty))
