@@ -83,7 +83,7 @@ func (a *adapter) EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) (*stri
 		return nil, nil, fmt.Errorf(ErrorPlemsiEndConsumerInvoice)
 	}
 
-	shared.LogInfo("emitting final consumer invoice before request", LogAdapter, "EmitFinalConsumerInvoice", nil, respst)
+	shared.LogInfo("emitting final consumer invoice before request", LogAdapter, "EmitFinalConsumerInvoice", nil, resp)
 	if resp.StatusCode() != http.StatusCreated {
 		shared.LogError("plemsi error, bad status code consumer invoice", LogAdapter, "EmitFinalConsumerInvoice", err, req, resp)
 		return nil, nil, fmt.Errorf(ErrorPlemsiEndConsumerInvoice)
