@@ -114,6 +114,7 @@ type Repository interface {
 	GetLastDayOrders(storeID string) ([]Order, error)
 	GetLastDayOrdersByStatus(storeID string, status string) ([]Order, error)
 	Delete(orderID string) error
+	FindByIdempotencyKey(idempotencyKey string, storeID *uint) (*Order, error)
 
 	// OrderItem
 	UpdateOrderItem(orderItem *OrderItem) (*OrderItem, error)
@@ -132,33 +133,34 @@ type Repository interface {
 }
 
 type Order struct {
-	ID            uint              `json:"id" gorm:"primaryKey"`
-	Statuses      []OrderStatus     `json:"status" gorm:"foreignKey:OrderID" swaggerignore:"true"`
-	Code          string            `json:"code" swaggerignore:"true"`
-	CurrentStatus string            `json:"current_status" gorm:"index:idx_orders_current_status,default:'created'"`
-	OrderType     string            `json:"order_type"`
-	ClientName    string            `json:"client_name"`
-	BrandID       *uint             `json:"brand_id" binding:"required"`
-	Brand         *brand.Brand      `json:"brand,omitempty" swaggerignore:"true"`
-	StoreID       *uint             `json:"store_id" binding:"required" gorm:"index:idx_orders_store_id"`
-	Store         *store.Store      `json:"store,omitempty" swaggerignore:"true"`
-	ChannelID     *uint             `json:"channel_id" binding:"required"`
-	TableID       *uint             `json:"table_id"`
-	Table         *tables.Table     `json:"table" swaggerignore:"true" gorm:"foreignKey:TableID"`
-	TypeID        *uint             `json:"type_id"`
-	Type          *OrderType        `json:"type"`
-	Comments      string            `json:"comments"`
-	Items         []OrderItem       `json:"items"  gorm:"foreignKey:OrderID"`
-	CookingTime   int               `json:"cooking_time"`
-	Seats         int               `json:"seats"`
-	ExternalCode  string            `json:"external_code"`
-	Invoices      []invoice.Invoice `json:"invoices"  gorm:"foreignKey:OrderID" swaggerignore:"true"`
-	Attendees     []Attendee        `json:"attendees" gorm:"foreignKey:OrderID"`
-	ShiftID       *uint             `json:"shift_id"`
-	ClosedAt      *time.Time        `json:"closed_at" swaggerignore:"true"`
-	CreatedAt     *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt     *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt     *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID             uint              `json:"id" gorm:"primaryKey"`
+	Statuses       []OrderStatus     `json:"status" gorm:"foreignKey:OrderID" swaggerignore:"true"`
+	Code           string            `json:"code" swaggerignore:"true"`
+	CurrentStatus  string            `json:"current_status" gorm:"index:idx_orders_current_status,default:'created'"`
+	OrderType      string            `json:"order_type"`
+	ClientName     string            `json:"client_name"`
+	BrandID        *uint             `json:"brand_id" binding:"required"`
+	Brand          *brand.Brand      `json:"brand,omitempty" swaggerignore:"true"`
+	StoreID        *uint             `json:"store_id" binding:"required" gorm:"index:idx_orders_store_id"`
+	Store          *store.Store      `json:"store,omitempty" swaggerignore:"true"`
+	ChannelID      *uint             `json:"channel_id" binding:"required"`
+	TableID        *uint             `json:"table_id"`
+	Table          *tables.Table     `json:"table" swaggerignore:"true" gorm:"foreignKey:TableID"`
+	TypeID         *uint             `json:"type_id"`
+	Type           *OrderType        `json:"type"`
+	Comments       string            `json:"comments"`
+	Items          []OrderItem       `json:"items"  gorm:"foreignKey:OrderID"`
+	CookingTime    int               `json:"cooking_time"`
+	Seats          int               `json:"seats"`
+	ExternalCode   string            `json:"external_code"`
+	Invoices       []invoice.Invoice `json:"invoices"  gorm:"foreignKey:OrderID" swaggerignore:"true"`
+	Attendees      []Attendee        `json:"attendees" gorm:"foreignKey:OrderID"`
+	ShiftID        *uint             `json:"shift_id"`
+	IdempotencyKey *string           `json:"idempotency_key"`
+	ClosedAt       *time.Time        `json:"closed_at" swaggerignore:"true"`
+	CreatedAt      *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt      *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt      *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 func (o *Order) GetProductIDs() []string {
