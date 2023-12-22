@@ -74,7 +74,7 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	idempotencyKey := c.GetHeader("X-Idempotency-Key")
+	idempotencyKey := c.GetHeader("X-Idempotence-Key")
 
 	order := body.ToOrder()
 	orderDB, err := h.service.Create(idempotencyKey, &order, c)
@@ -343,7 +343,7 @@ func (h *Handler) AddProducts(c *gin.Context) {
 		return
 	}
 
-	idempoKey := c.GetHeader("X-Idempotency-Key")
+	idempoKey := c.GetHeader("X-Idempotence-Key")
 
 	items := make([]OrderItem, 0)
 	for _, item := range body.Items {
