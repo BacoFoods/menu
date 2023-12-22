@@ -37,7 +37,7 @@ func (h *Handler) ctxAttendee(ctx context.Context) *Attendee {
 	}
 	accountID := ""
 	if ctx.Value("account_id") != nil {
-		accountID = ctx.Value("account_uuid").(string)
+		accountID = ctx.Value("account_id").(string)
 	}
 
 	id, err := strconv.Atoi(accountID)
@@ -74,8 +74,15 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
+	idempotencyKey := c.GetHeader("X-Idempotence-Key")
+
 	order := body.ToOrder()
-	orderDB, err := h.service.Create(&order, c)
+	orderDB, err := h.service.Create(idempotencyKey, &order, c)
+	if err == errDuplicatedOrder {
+		c.JSON(http.StatusLocked, shared.ErrorResponse(err.Error()))
+		return
+	}
+
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
@@ -135,7 +142,7 @@ func (h *Handler) CreatePublic(c *gin.Context) {
 	}
 
 	order := body.ToOrder()
-	orderDB, err := h.service.Create(&order, c)
+	orderDB, err := h.service.Create("", &order, c)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
@@ -336,6 +343,8 @@ func (h *Handler) AddProducts(c *gin.Context) {
 		return
 	}
 
+	idempoKey := c.GetHeader("X-Idempotence-Key")
+
 	items := make([]OrderItem, 0)
 	for _, item := range body.Items {
 		for j := 0; j < item.Quantity; j++ {
@@ -343,7 +352,7 @@ func (h *Handler) AddProducts(c *gin.Context) {
 		}
 	}
 
-	order, err := h.service.AddProducts(orderID, items)
+	order, err := h.service.AddProducts(idempoKey, orderID, items)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return

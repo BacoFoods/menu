@@ -101,7 +101,8 @@ func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 	tx := r.db.
 		Preload(clause.Associations).
 		Preload("Items.Modifiers").
-		Preload("Table.Zone")
+		Preload("Table.Zone").
+		Preload("Invoices.Payments")
 
 	if days, ok := filter["days"]; ok {
 		tx.Preload(clause.Associations).
@@ -208,6 +209,20 @@ func (r *DBRepository) Delete(orderID string) error {
 	return nil
 }
 
+func (r *DBRepository) FindByIdempotencyKey(idempotencyKey string, storeID *uint) (*Order, error) {
+	var order Order
+
+	if err := r.db.Preload(clause.Associations).
+		Where("idempotency_key = ?", idempotencyKey).
+		Where("store_id = ?", storeID).
+		First(&order).Error; err != nil {
+		shared.LogError("error getting order", LogDBRepository, "FindByIdempotencyKey", err, idempotencyKey)
+		return nil, err
+	}
+
+	return &order, nil
+}
+
 // OrderType methods
 
 // CreateOrderType method for create a new order type in database
@@ -278,3 +293,5 @@ func (r *DBRepository) CreateAttendee(attendee *Attendee) (*Attendee, error) {
 
 	return attendee, nil
 }
+
+var _ Repository = (*DBRepository)(nil)
