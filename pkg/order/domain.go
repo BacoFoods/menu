@@ -297,18 +297,20 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 			tax = item.Tax
 		}
 
-		taxPerc := 0.08
+		taxPerc := 0.08 // TODO Improve tax calculation
 		if item.TaxPercentage != 0 {
 			taxPerc = item.TaxPercentage
 		}
 
 		productPriceWithDiscount, appliedDiscount := applyDiscount(item.Price, newInvoice.Discounts)
-		productBaseTax := math.Floor(productPriceWithDiscount / (1 + taxPerc))
+		// productBaseTax := math.Floor(productPriceWithDiscount / (1 + taxPerc))
+		productBaseTax := productPriceWithDiscount
 		newInvoice.BaseTax += productBaseTax
-		newInvoice.Taxes += productPriceWithDiscount - productBaseTax
+		// newInvoice.Taxes += productPriceWithDiscount - productBaseTax
+		newInvoice.Taxes += productBaseTax * taxPerc
+		// itemTaxAmount := productPriceWithDiscount - productBaseTax
+		itemTaxAmount := productBaseTax * taxPerc
 		newInvoice.TotalDiscounts += appliedDiscount
-
-		itemTaxAmount := productPriceWithDiscount - productBaseTax
 
 		newInvoice.Items = append(newInvoice.Items, invoice.Item{
 			ProductID:       item.ProductID,
@@ -338,7 +340,7 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 				modifierTax = modifier.Tax
 			}
 
-			modifierTaxPerc := 0.08
+			modifierTaxPerc := 0.08 // TODO Improve tax calculation
 			if modifier.TaxPercentage != 0 {
 				modifierTaxPerc = modifier.TaxPercentage
 			}

@@ -886,19 +886,19 @@ func (h *Handler) CalculateInvoice(c *gin.Context) {
 		return
 	}
 
-	invoice, err := h.service.CalculateInvoice(orderID, req)
+	newInvoice, err := h.service.CalculateInvoice(orderID, req)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCalculation))
 		return
 	}
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+	c.JSON(http.StatusOK, shared.SuccessResponse(newInvoice))
 }
 
 // PublicCalculateInvoice to handle a request to calculate an invoice
 // @Tags Order
 // @Summary Public endpoint to calculate an invoice
-// @Description Public entpodint to calculate an invoice
+// @Description Public endpoint to calculate an invoice
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
@@ -928,8 +928,8 @@ type CheckoutRequest struct {
 
 // PublicCheckout to handle the checkout process of an order. Public for OIT.
 // @Tags Order
-// @Summary To checkout an order.
-// @Description To checkout an order.
+// @Summary To check out an order.
+// @Description To check out an order.
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
@@ -947,13 +947,13 @@ func (h *Handler) PublicCheckout(c *gin.Context) {
 		return
 	}
 
-	invoice, err := h.service.Checkout(orderID, checkout)
+	newInvoice, err := h.service.Checkout(orderID, checkout)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCalculation))
 		return
 	}
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+	c.JSON(http.StatusOK, shared.SuccessResponse(newInvoice))
 }
 
 // CloseInvoice to handle a request to close an invoice
@@ -982,12 +982,12 @@ func (h *Handler) CloseInvoice(c *gin.Context) {
 	att := h.ctxAttendee(c)
 	req.attendee = att
 
-	invoice, err := h.service.CloseInvoice(req)
+	newInvoice, err := h.service.CloseInvoice(req)
 	if err != nil {
-		shared.LogError("error closing invoice", LogHandler, "CloseInvoice", err, invoice)
+		shared.LogError("error closing invoice", LogHandler, "CloseInvoice", err, newInvoice)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+	c.JSON(http.StatusOK, shared.SuccessResponse(newInvoice))
 }

@@ -633,7 +633,7 @@ func (s *ServiceImpl) DeleteOrderType(orderTypeID string) error {
 	return s.repository.DeleteOrderType(orderTypeID)
 }
 
-// Invoice
+// CreateInvoice creates an invoice.
 func (s *ServiceImpl) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, error) {
 	order, err := s.repository.Get(req.orderId)
 	if err != nil {
@@ -751,7 +751,7 @@ func (s *ServiceImpl) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice
 	plemsiInvoice, err := invoiceDB.ToPlemsiInvoice()
 	if err != nil {
 		shared.LogError("error building plemsi invoice", LogService, "CreateInvoice", err, invoice)
-		return nil, fmt.Errorf(ErrorOrderInvoicePlemsiBuilding)
+		return nil, fmt.Errorf("%s:%s", ErrorOrderInvoicePlemsiBuilding, err.Error())
 	}
 	shared.LogInfo("plemsi invoice", LogService, "CreateInvoice", nil, plemsiInvoice)
 

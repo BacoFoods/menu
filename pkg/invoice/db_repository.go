@@ -35,7 +35,7 @@ func (r DBRepository) CreateUpdate(invoice *Invoice) (*Invoice, error) {
 		return nil, err
 	}
 
-	if err := r.db.Model(&invoiceDB).Where("id = ?", invoice.ID).Updates(invoice).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).Model(&invoiceDB).Where("id = ?", invoice.ID).Updates(invoice).Error; err != nil {
 		shared.LogError("error updating invoice", LogRepository, "CreateUpdate", err, invoice.ID, invoice)
 		return nil, err
 	}

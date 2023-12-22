@@ -64,21 +64,26 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 	plemsiInvoiceDiscounts := make([]plemsi.Discounts, 0)
 
 	if len(i.Discounts) != 0 {
+		description := ""
+		percentage := 0.0
 		for _, discount := range i.Discounts {
-			plemsiDiscount, err := plemsi.NewBuilderDiscounts().
-				SetAmount(discount.Amount).
-				SetBaseAmount(discount.Percentage).
-				SetAllowancePercent(discount.Percentage).
-				SetAllowanceChargeReason(discount.Description).
-				Build()
-
-			if err != nil {
-				shared.LogError("error building plemsi invoice discount", LogPlemsiInvoice, "ToPlemsiInvoice", err, discount)
-				return nil, err
-			}
-
-			plemsiInvoiceDiscounts = append(plemsiInvoiceDiscounts, *plemsiDiscount)
+			description += discount.Description + " "
+			percentage += discount.Percentage
 		}
+
+		plemsiDiscount, err := plemsi.NewBuilderDiscounts().
+			SetAmount(i.TotalDiscounts).
+			SetBaseAmount(i.SubTotal + i.TotalDiscounts).
+			SetAllowancePercent(percentage).
+			SetAllowanceChargeReason(description).
+			Build()
+
+		if err != nil {
+			shared.LogError("error building plemsi invoice discount", LogPlemsiInvoice, "ToPlemsiInvoice", err, i.Discounts)
+			return nil, err
+		}
+
+		plemsiInvoiceDiscounts = append(plemsiInvoiceDiscounts, *plemsiDiscount)
 	}
 
 	plemsiInvoice.SetGeneralAllowances(plemsiInvoiceDiscounts)
@@ -96,6 +101,10 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 			SetTaxAmount(item.TaxAmount).
 			SetTaxableAmount(item.TaxBase).
 			Build()
+		if err != nil {
+			shared.LogError("error building plemsi invoice item tax", LogPlemsiInvoice, "ToPlemsiInvoice", err, item)
+			return nil, err
+		}
 
 		plemsiItemTaxes = append(plemsiItemTaxes, *plemsiItemTax)
 
