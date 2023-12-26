@@ -2,6 +2,7 @@ package plemsi
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -438,6 +439,10 @@ func (ib *BuilderItem) SetTaxTotals(taxTotals []ItemTax) *BuilderItem {
 }
 
 func (ib *BuilderItem) SetDescription(description string) *BuilderItem {
+	if strings.Trim(description, " ") == "" {
+		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemDescriptionEmpty))
+		return ib
+	}
 	ib.Description = description
 	return ib
 }
