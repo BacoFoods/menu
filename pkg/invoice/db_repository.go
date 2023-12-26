@@ -30,14 +30,24 @@ func (r DBRepository) CreateUpdate(invoice *Invoice) (*Invoice, error) {
 	}
 
 	var invoiceDB Invoice
-	if err := r.db.First(&invoiceDB, invoice.ID).Error; err != nil {
+	if err := r.db.Preload(clause.Associations).First(&invoiceDB, invoice.ID).Error; err != nil {
 		shared.LogError("error getting invoice", LogRepository, "CreateUpdate", err, invoice.ID, *invoice)
 		return nil, err
 	}
 
-	if err := r.db.Preload(clause.Associations).Model(&invoiceDB).Where("id = ?", invoice.ID).Updates(invoice).Error; err != nil {
+	if err := r.db.Model(&invoiceDB).Where("id = ?", invoice.ID).Updates(invoice).Error; err != nil {
 		shared.LogError("error updating invoice", LogRepository, "CreateUpdate", err, invoice.ID, invoice)
 		return nil, err
+	}
+
+	for _, item := range invoice.Items {
+		if item.ID == 0 {
+			item.InvoiceID = &invoice.ID
+			if err := r.db.Save(&item).Error; err != nil {
+				shared.LogError("error creating invoice item", LogRepository, "CreateUpdate", err, item)
+				return nil, err
+			}
+		}
 	}
 
 	if err := r.db.Preload(clause.Associations).First(&invoiceDB, invoiceDB.ID).Error; err != nil {

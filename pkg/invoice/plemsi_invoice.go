@@ -36,7 +36,7 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 	plemsiInvoice.SetOrderReference(orderReference)
 
 	// Setting account email false, because final customer invoice
-	plemsiInvoice.SetSendEmail(false)
+	plemsiInvoice.SetSendEmail(true)
 
 	// Setting final customer
 	plemsiInvoice.SetIsFinalCustomer(true)
@@ -73,7 +73,7 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 
 		plemsiDiscount, err := plemsi.NewBuilderDiscounts().
 			SetAmount(i.TotalDiscounts).
-			SetBaseAmount(i.SubTotal + i.TotalDiscounts).
+			SetBaseAmount(i.SubTotal).
 			SetAllowancePercent(percentage).
 			SetAllowanceChargeReason(description).
 			Build()
@@ -109,12 +109,12 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 		plemsiItemTaxes = append(plemsiItemTaxes, *plemsiItemTax)
 
 		plemsiItem, err := plemsi.NewBuilderItem().
-			SetLineExtensionAmount(item.TaxBase).
+			SetLineExtensionAmount(item.Price).
 			SetTaxTotals(plemsiItemTaxes).
 			SetDescription(item.Description).
 			SetNotes(item.Comments).
 			SetCode(item.SKU).
-			SetPriceAmount(item.TaxBase).
+			SetPriceAmount(item.Price).
 			SetBaseQuantity(1).
 			SetInvoicedQuantity(1).
 			SetAllowanceCharges(nil).
@@ -151,16 +151,16 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 	plemsiInvoice.SetAllowanceTotal(i.TotalDiscounts)
 
 	// Setting invoice base total
-	plemsiInvoice.SetInvoiceBaseTotal(i.BaseTax)
+	plemsiInvoice.SetInvoiceBaseTotal(i.SubTotal)
 
 	// Setting invoice tax exclusive total
 	plemsiInvoice.SetInvoiceTaxExclusiveTotal(i.BaseTax)
 
 	// Setting invoice tax inclusive total
-	plemsiInvoice.SetInvoiceTaxInclusiveTotal(i.BaseTax + i.Taxes)
+	plemsiInvoice.SetInvoiceTaxInclusiveTotal(i.SubTotal + i.Taxes)
 
 	// Setting total to pay
-	plemsiInvoice.SetTotalToPay(i.SubTotal)
+	plemsiInvoice.SetTotalToPay(i.SubTotal + i.Taxes - i.TotalDiscounts)
 
 	// Setting all tax totals
 	plemsiInvoice.SetAllTaxTotals(plemsiTaxes)

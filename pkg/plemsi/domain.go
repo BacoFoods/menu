@@ -7,7 +7,7 @@ type Invoice struct {
 	Number                   int            `json:"number"`
 	OrderReference           OrderReference `json:"orderReference"`
 	SendEmail                bool           `json:"send_email"`
-	Customer                 Customer       `json:"customer"`
+	Customer                 *Customer      `json:"customer,omitempty"`
 	IsFinalCustomer          bool           `json:"isFinalCustomer"`
 	Payment                  Payment        `json:"payment"`
 	GeneralAllowances        []Discounts    `json:"generalAllowances"`

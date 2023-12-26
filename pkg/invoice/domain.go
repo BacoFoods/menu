@@ -175,23 +175,25 @@ func (i *Invoice) CalculateTaxDetails() {
 }
 
 type Item struct {
-	ID              uint            `json:"id"`
-	InvoiceID       *uint           `json:"invoice_id"`
-	ProductID       *uint           `json:"product_id"`
-	Name            string          `json:"name"`
-	Description     string          `json:"description"`
-	SKU             string          `json:"sku"`
-	Price           float64         `json:"price" gorm:"precision:18;scale:2"`
-	DiscountedPrice float64         `json:"discounted_price" gorm:"precision:18;scale:2"`
-	Comments        string          `json:"comments"`
-	Hash            string          `json:"hash"`
-	Tax             string          `json:"tax"`
-	TaxPercentage   float64         `json:"tax_percentage"`
-	TaxAmount       float64         `json:"tax_amount"`
-	TaxBase         float64         `json:"tax_base"`
-	CreatedAt       *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt       *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt       *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID                 uint            `json:"id"`
+	InvoiceID          *uint           `json:"invoice_id"`
+	ProductID          *uint           `json:"product_id"`
+	Name               string          `json:"name"`
+	Description        string          `json:"description"`
+	SKU                string          `json:"sku"`
+	Price              float64         `json:"price" gorm:"precision:18;scale:2"`
+	DiscountedPrice    float64         `json:"discounted_price" gorm:"precision:18;scale:2"`
+	DiscountReason     string          `json:"discount_reason"`
+	DiscountPercentage float64         `json:"discount_percentage"`
+	Comments           string          `json:"comments"`
+	Hash               string          `json:"hash"`
+	Tax                string          `json:"tax"`
+	TaxPercentage      float64         `json:"tax_percentage"`
+	TaxAmount          float64         `json:"tax_amount"`
+	TaxBase            float64         `json:"tax_base"`
+	CreatedAt          *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt          *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt          *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type DiscountApplied struct {

@@ -66,7 +66,7 @@ func (ib *Builder) SetCustomer(customer *Customer) *Builder {
 	if customer == nil {
 		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiCustomerEmpty))
 	}
-	ib.Customer = *customer
+	ib.Customer = customer
 	return ib
 }
 
@@ -543,6 +543,14 @@ func (ib *BuilderItemDiscount) SetBaseAmount(baseAmount float64) *BuilderItemDis
 	}
 	ib.BaseAmount = baseAmount
 	return ib
+}
+
+func (ib *BuilderItemDiscount) Build() (*ItemDiscount, error) {
+	if len(ib.Errors) != 0 {
+		return nil, ib.Errors[0]
+	}
+
+	return &ib.ItemDiscount, nil
 }
 
 // ItemTax

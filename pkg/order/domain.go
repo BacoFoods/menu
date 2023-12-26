@@ -328,7 +328,7 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 		})
 
 		// Adding item price to subtotal
-		subtotal += productPriceWithDiscount
+		subtotal += item.Price
 
 		for _, modifier := range item.Modifiers {
 			// Adding modifier price to subtotal
@@ -381,7 +381,7 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 		}
 	}
 
-	newInvoice.Total = newInvoice.SubTotal + newInvoice.TipAmount
+	newInvoice.Total = newInvoice.SubTotal + newInvoice.Taxes + newInvoice.TipAmount - newInvoice.TotalDiscounts
 
 	// Setting invoice
 	o.Invoices = []invoice.Invoice{newInvoice}
