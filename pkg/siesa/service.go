@@ -220,7 +220,9 @@ func (s Service) buildDocument(date time.Time, docNum string, orders []PopappOrd
 			for _, itemGroup := range item.ItemGroups {
 				// Recorrer los modifiers del itemGroup actual
 				for _, modifier := range itemGroup.Modifiers {
-
+					if !isValidProduct(modifier.Producto.Nombre) {
+						continue
+					}
 					descuentoRegistro := shareDescuento * (float64(modifier.Producto.PrecioUnitario) / 1.08)
 					descuentoTotalRegistro := shareDescuento * (float64(item.Cantidad) * (float64(modifier.Producto.PrecioUnitario) / 1.08))
 					if descuentoRegistro != 0 || descuentoTotalRegistro != 0 {
