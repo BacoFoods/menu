@@ -29,14 +29,18 @@ const (
 	LogService string = "pkg/order/service"
 )
 
+var (
+	errDuplicatedOrder = errors.New("duplicated order")
+)
+
 type Service interface {
-	Create(order *Order, ctx context.Context) (*Order, error)
+	Create(idempotencyKey string, order *Order, ctx context.Context) (*Order, error)
 	Update(order *Order) (*Order, error)
 	UpdateTable(orderID, tableID uint64) (*Order, error)
 	Get(string) (*Order, error)
 	Find(filter map[string]any) ([]Order, error)
 	UpdateSeats(orderID string, seats int) (*Order, error)
-	AddProducts(orderID string, orderItem []OrderItem) (*Order, error)
+	AddProducts(idempotencyKey, orderID string, orderItem []OrderItem) (*Order, error)
 	RemoveProduct(orderID, productID string) (*Order, error)
 	UpdateProduct(product *OrderItem) (*Order, error)
 	UpdateStatusNext(orderID string) (*Order, error)
@@ -128,7 +132,7 @@ func NewService(repository Repository,
 
 // Orders
 // TODO: improve order creation
-func (s *ServiceImpl) Create(order *Order, ctx context.Context) (*Order, error) {
+func (s *ServiceImpl) Create(idempoKey string, order *Order, ctx context.Context) (*Order, error) {
 	// Setting product items
 	productIDs := order.GetProductIDs()
 	prods, err := s.product.GetByIDs(productIDs)
@@ -207,6 +211,16 @@ func (s *ServiceImpl) Create(order *Order, ctx context.Context) (*Order, error) 
 	}
 	if shift != nil {
 		order.ShiftID = &shift.ID
+	}
+
+	// Check idempotency
+	if idempoKey != "" {
+		orderDB, err := s.repository.FindByIdempotencyKey(idempoKey, order.StoreID)
+		if err == nil && orderDB != nil {
+			return nil, errDuplicatedOrder
+		}
+
+		order.IdempotencyKey = &idempoKey
 	}
 
 	newOrder, err := s.repository.Create(order, channel)
@@ -344,7 +358,7 @@ func (s *ServiceImpl) UpdateSeats(orderID string, seats int) (*Order, error) {
 	return orderDB, nil
 }
 
-func (s *ServiceImpl) AddProducts(orderID string, orderItems []OrderItem) (*Order, error) {
+func (s *ServiceImpl) AddProducts(idempoKey, orderID string, orderItems []OrderItem) (*Order, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "AddProduct", err, orderID)
