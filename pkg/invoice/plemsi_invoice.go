@@ -10,7 +10,7 @@ const (
 	LogPlemsiInvoice = "pkg/invoice/plemsi_invoice"
 )
 
-func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
+func (i *Invoice) ToPlemsiInvoice(finalCustomer bool) (*plemsi.Invoice, error) {
 
 	plemsiInvoice := plemsi.NewBuilderEndConsumerInvoice()
 
@@ -39,7 +39,22 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 	plemsiInvoice.SetSendEmail(true)
 
 	// Setting final customer
-	plemsiInvoice.SetIsFinalCustomer(true)
+	plemsiInvoice.SetIsFinalCustomer(finalCustomer)
+
+	if !finalCustomer {
+		// Setting customer
+		customer, err := plemsi.NewBuilderCustomer().
+			SetName(i.Client.Name).
+			SetIdentificationNumber(i.Client.Document).
+			SetTypeDocumentIdentificationId(3). // 3 for Cédula TODO: improve to get id from document type
+			Build()
+		if err != nil {
+			shared.LogError("error building plemsi invoice customer", LogPlemsiInvoice, "ToPlemsiInvoice", err, *i)
+			return nil, err
+		}
+
+		plemsiInvoice.SetCustomer(customer)
+	}
 
 	// Setting payment
 	if len(i.Payments) == 0 {
@@ -96,7 +111,7 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 		plemsiItemTaxes := make([]plemsi.ItemTax, 0)
 
 		plemsiItemTax, err := plemsi.NewBuilderItemTax().
-			SetTaxId(item.Tax).                   // TODO: get id tax
+			SetTaxId(item.Tax). // TODO: get id tax
 			SetPercent(item.TaxPercentage * 100). // Plemsi tax percent is 8, not 0.08 for ico
 			SetTaxAmount(item.TaxAmount).
 			SetTaxableAmount(item.TaxBase).
@@ -118,7 +133,7 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 			SetBaseQuantity(1).
 			SetInvoicedQuantity(1).
 			SetAllowanceCharges(nil).
-			SetUnitMeasureId(70).           // 70 is ID for unidad, see plemsi docs
+			SetUnitMeasureId(70). // 70 is ID for unidad, see plemsi docs
 			SetTypeItemIdentificationId(1). // 1 is ID for UNSPC, see plemsi docs
 			Build()
 		if err != nil {
@@ -127,7 +142,7 @@ func (i *Invoice) ToPlemsiInvoice() (*plemsi.Invoice, error) {
 		}
 
 		plemsiTax, err := plemsi.NewBuilderTax().
-			SetTaxId(item.Tax).                   // TODO: get id tax
+			SetTaxId(item.Tax). // TODO: get id tax
 			SetPercent(item.TaxPercentage * 100). // Plemsi tax percent is 8, not 0.08 for ico
 			SetTaxAmount(item.TaxAmount).
 			SetTaxableAmount(item.TaxBase).

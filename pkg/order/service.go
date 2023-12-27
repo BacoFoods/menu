@@ -70,6 +70,7 @@ type channelSrv interface {
 
 type facturacionSrv interface {
 	Generate(invoice *invoices.Invoice, docType string, data any) (*invoices.Document, error)
+	IsFinalCustomer(documentType string) bool
 }
 
 type ServiceImpl struct {
@@ -87,6 +88,7 @@ type ServiceImpl struct {
 	facturacionRepo facturacion.FacturacionConfigRepository
 	redis           *redis.Client
 	plemsi          plemsi.Adapter
+	client          client.Repository
 }
 
 func NewService(repository Repository,
@@ -103,6 +105,7 @@ func NewService(repository Repository,
 	facturacionRepo facturacion.FacturacionConfigRepository,
 	redis *redis.Client,
 	plemsi plemsi.Adapter,
+	client client.Repository,
 ) ServiceImpl {
 	return ServiceImpl{repository,
 		table,
@@ -118,6 +121,7 @@ func NewService(repository Repository,
 		facturacionRepo,
 		redis,
 		plemsi,
+		client,
 	}
 }
 
@@ -687,6 +691,18 @@ func (s *ServiceImpl) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice
 		}
 	}
 
+	// Setting Client
+	cli, err := s.client.GetByDocument(req.DocumentData.Document)
+	if err != nil {
+		shared.LogError("error getting client", LogService, "CreateInvoice", err, req)
+		return nil, fmt.Errorf(ErrorOrderInvoiceGettingClient)
+	}
+
+	if cli != nil {
+		invoice.Client = cli
+		invoice.ClientID = &cli.ID
+	}
+
 	// TODO: anular documentos viejos si se regenera el invoice
 	// ATTENTION!!
 	// This is a critical zone. The following is protected by a distributed mutex using redis
@@ -734,36 +750,15 @@ func (s *ServiceImpl) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice
 		mu.Unlock()
 	}
 
-	// Electronic Invoice
-	// TODO: working with only one payment
-	invoiceConfig, err := s.facturacionRepo.FindByStoreAndType(*order.StoreID, facturacion.DocumentTypePOS) // TODO: get from config
-	if err != nil {
-		shared.LogError("error getting facturacion config", LogService, "CreateInvoice", err, order)
-		return nil, fmt.Errorf(ErrorOrderInvoiceFacturacionConfig)
+	// ################ Electronic Invoice ################ //
+	if facturacion.DocumentTypeFEUnidentified == req.DocumentType ||
+		facturacion.DocumentTypeFEIdentified == req.DocumentType {
+		if invoiceDB.Cude, invoiceDB.QRCode, err = s.EmitElectronicInvoice(order.StoreID, req.DocumentType, invoiceDB); err != nil {
+			shared.LogError("error emitting FE", LogService, "CreateInvoice", err, order.StoreID, req.DocumentType, invoiceDB)
+			return nil, err
+		}
 	}
-	shared.LogInfo("facturacion config", LogService, "CreateInvoice", nil, invoiceConfig)
-	if resolutionNumber, ok := invoiceConfig.Resolution["number"]; !ok {
-		shared.LogError("error getting facturacion config resolution number", LogService, "CreateInvoice", err, invoiceConfig)
-	} else {
-		invoiceDB.ResolutionNumber = resolutionNumber.(string)
-	}
-
-	plemsiInvoice, err := invoiceDB.ToPlemsiInvoice()
-	if err != nil {
-		shared.LogError("error building plemsi invoice", LogService, "CreateInvoice", err, invoice)
-		return nil, fmt.Errorf("%s:%s", ErrorOrderInvoicePlemsiBuilding, err.Error())
-	}
-	shared.LogInfo("plemsi invoice", LogService, "CreateInvoice", nil, plemsiInvoice)
-
-	cude, qr, err := s.plemsi.EmitFinalConsumerInvoice(plemsiInvoice)
-	if err != nil {
-		shared.LogError("error emitting invoice", LogService, "CreateInvoice", err, plemsiInvoice)
-		return nil, fmt.Errorf(ErrorOrderInvoiceEmission)
-	}
-	shared.LogInfo("invoice emission", LogService, "CreateInvoice", nil, cude, qr)
-
-	invoiceDB.Cude = *cude
-	invoiceDB.QRCode = *qr
+	// ################ Electronic Invoice ################ //
 
 	// Updating invoiceDB
 	if _, err := s.invoice.CreateUpdate(invoiceDB); err != nil {
@@ -986,6 +981,37 @@ func (s *ServiceImpl) CloseInvoice(req CloseInvoiceRequest) (*invoices.Invoice, 
 	}
 
 	return invDB, nil
+}
+
+func (s *ServiceImpl) EmitElectronicInvoice(storeID *uint, documentType string, invoiceDB *invoices.Invoice) (string, string, error) {
+	// TODO: working with only one payment
+	invoiceConfig, err := s.facturacionRepo.FindByStoreAndType(*storeID, facturacion.DocumentTypeFEIdentified) // TODO: get from config
+	if err != nil {
+		shared.LogError("error getting facturacion config", LogService, "CreateInvoice", err, *storeID)
+		return "", "", fmt.Errorf(ErrorOrderInvoiceFacturacionConfig)
+	}
+
+	if resolutionNumber, ok := invoiceConfig.Resolution["number"]; !ok {
+		shared.LogError("error getting facturacion config resolution number", LogService, "CreateInvoice", err, invoiceConfig)
+	} else {
+		invoiceDB.ResolutionNumber = resolutionNumber.(string)
+	}
+
+	plemsiInvoice, err := invoiceDB.ToPlemsiInvoice(s.facturacion.IsFinalCustomer(documentType))
+	if err != nil {
+		shared.LogError("error building plemsi invoice", LogService, "CreateInvoice", err, invoiceDB)
+		return "", "", fmt.Errorf("%s:%s", ErrorOrderInvoicePlemsiBuilding, err.Error())
+	}
+	shared.LogInfo("plemsi invoice", LogService, "CreateInvoice", nil, plemsiInvoice)
+
+	cude, qr, err := s.plemsi.EmitInvoice(plemsiInvoice)
+	if err != nil {
+		shared.LogError("error emitting invoice", LogService, "CreateInvoice", err, plemsiInvoice)
+		return "", "", fmt.Errorf(ErrorOrderInvoiceEmission)
+	}
+	shared.LogInfo("invoice emission", LogService, "CreateInvoice", nil, cude, qr)
+
+	return *cude, *qr, nil
 }
 
 var _ Service = &ServiceImpl{}

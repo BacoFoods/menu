@@ -77,3 +77,27 @@ func (r *DBRepository) Get(id string) (*Client, error) {
 
 	return &client, nil
 }
+
+func (r *DBRepository) GetByDocument(document string) (*Client, error) {
+	var client Client
+	if document == "" {
+		if err := r.db.Where("document = ?", DefaultClient().Document).First(&client).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return nil, nil
+			}
+			shared.LogError("error getting client", LogRepository, "GetByDocument", err, document)
+			return nil, fmt.Errorf(ErrorClientGettingByDocument)
+		}
+		return &client, nil
+	}
+
+	if err := r.db.Where("document = ?", document).First(&client).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		shared.LogError("error getting client", LogRepository, "GetByDocument", err, document)
+		return nil, fmt.Errorf(ErrorClientGettingByDocument)
+	}
+
+	return &client, nil
+}

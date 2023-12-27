@@ -246,6 +246,7 @@ func main() {
 		facturacionRepository,
 		redisConn,
 		plemsiAdapter,
+		clientRepository,
 	)
 	orderHandler := order.NewHandler(&orderService)
 	orderRoutes := order.NewRoutes(orderHandler)

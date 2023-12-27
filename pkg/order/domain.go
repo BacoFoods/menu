@@ -47,6 +47,7 @@ const (
 	ErrorOrderInvoiceCreation              = "error creating order invoice"
 	ErrorOrderInvoiceUpdate                = "error updating order invoice"
 	ErrorOrderInvoiceCreationDiscounts     = "error creating order invoice getting discounts"
+	ErrorOrderInvoiceGettingClient         = "error getting order invoice client"
 	ErrorOrderInvoiceCalculation           = "error calculating invoice"
 	ErrorOrderClosed                       = "error order is closed"
 	ErrorOrderIDEmpty                      = "order id is empty"

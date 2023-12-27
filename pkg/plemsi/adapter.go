@@ -20,8 +20,7 @@ type InvoiceEmissionResponse struct {
 }
 type Adapter interface {
 	TestConnection() error
-	EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) (*string, *string, error)
-	EmitConsumerInvoice(consumerInvoice *Invoice) error
+	EmitInvoice(finalConsumerInvoice *Invoice) (*string, *string, error)
 }
 
 type adapter struct {
@@ -58,7 +57,7 @@ func (a *adapter) TestConnection() error {
 	return nil
 }
 
-func (a *adapter) EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) (*string, *string, error) {
+func (a *adapter) EmitInvoice(finalConsumerInvoice *Invoice) (*string, *string, error) {
 	if finalConsumerInvoice == nil {
 		shared.LogWarn("warning invoice nil", LogAdapter, "EmitFinalConsumerInvoice", nil, nil)
 		return nil, nil, fmt.Errorf(ErrorPlemsiEmptyInvoice)
@@ -93,9 +92,4 @@ func (a *adapter) EmitFinalConsumerInvoice(finalConsumerInvoice *Invoice) (*stri
 	}
 
 	return &res.Data.Cude, &res.Data.QR, nil
-}
-
-func (a *adapter) EmitConsumerInvoice(consumerInvoice *Invoice) error {
-	// TODO: Implements
-	return fmt.Errorf("not implemented")
 }

@@ -89,7 +89,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 
 	client, err := h.service.Create(&body)
 	if err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorClientCreating))
+		ctx.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
 

@@ -3,14 +3,17 @@ package facturacion
 import (
 	"errors"
 	"fmt"
-
+	"github.com/BacoFoods/menu/internal"
+	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/invoice"
+	"github.com/BacoFoods/menu/pkg/shared"
 )
 
 const (
 	DocumentTypePOS            = "POS"
 	DocumentTypeFEIdentified   = "FEIdentified"
 	DocumentTypeFEUnidentified = "FEUnidentified"
+	LogService                 = "pkg/facturacion"
 )
 
 var (
@@ -95,10 +98,52 @@ func (s *FacturacionService) generatePOS(inv *invoice.Invoice, data any) (*invoi
 	}, nil
 }
 
-func (s *FacturacionService) generateFEIdentified(invoice *invoice.Invoice, data any) (*invoice.Document, error) {
-	return nil, errors.New("TODO: unimplemented")
+func (s *FacturacionService) generateFEIdentified(inv *invoice.Invoice, data any) (*invoice.Document, error) {
+	if inv.StoreID == nil {
+		return nil, errors.New("invoice store id is required")
+	}
+
+	config, err := s.repository.FindByStoreAndTypeAndIncrement(*inv.StoreID, DocumentTypePOS)
+	if err != nil {
+		return nil, err
+	}
+
+	if config == nil {
+		return nil, ErrStoreWithoutConfig
+	}
+
+	// TODO: validate data
+	curNumber := config.LastNumber
+	resolution := config.Resolution
+	resolution["prefix"] = config.Prefix
+
+	var clientJSON internal.JSONMap
+	cli, ok := data.(*client.Client)
+	if ok {
+		clientJSON = internal.JSONMap{
+			"name":          cli.Name,
+			"email":         cli.Email,
+			"document_type": cli.DocumentType,
+			"document":      cli.Document,
+		}
+	} else {
+		shared.LogInfo("facturacion", LogService, "generateFEIdentified", nil, data)
+		clientJSON = defaultClient
+	}
+
+	return &invoice.Document{
+		DocumentType: DocumentTypePOS,
+		Code:         fmt.Sprintf("%s-%d", config.Prefix, curNumber),
+		Client:       clientJSON,
+		Resolution:   resolution,
+		Seller:       config.Seller,
+	}, nil
 }
 
 func (s *FacturacionService) generateFEUnidentified(invoice *invoice.Invoice) (*invoice.Document, error) {
 	return s.generateFEIdentified(invoice, defaultClient)
+}
+
+func (s *FacturacionService) IsFinalCustomer(documentType string) bool {
+	return documentType == DocumentTypeFEUnidentified || documentType == DocumentTypeFEIdentified
 }

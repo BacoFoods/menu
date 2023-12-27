@@ -273,6 +273,14 @@ func (ib *BuilderCustomer) SetTypeDocumentIdentificationId(typeDocumentIdentific
 	return ib
 }
 
+func (ib *BuilderCustomer) Build() (*Customer, error) {
+	if len(ib.Errors) != 0 {
+		return nil, ib.Errors[0]
+	}
+
+	return &ib.Customer, nil
+}
+
 // Payment
 
 // BuilderPayment for build a Payment
