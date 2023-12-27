@@ -71,6 +71,7 @@ type channelSrv interface {
 type facturacionSrv interface {
 	Generate(invoice *invoices.Invoice, docType string, data any) (*invoices.Document, error)
 	IsFinalCustomer(documentType string) bool
+	IsValidDocumentType(documentType string) bool
 }
 
 type ServiceImpl struct {
@@ -984,11 +985,16 @@ func (s *ServiceImpl) CloseInvoice(req CloseInvoiceRequest) (*invoices.Invoice, 
 }
 
 func (s *ServiceImpl) EmitElectronicInvoice(storeID *uint, documentType string, invoiceDB *invoices.Invoice) (string, string, error) {
+	if !s.facturacion.IsValidDocumentType(documentType) {
+		shared.LogError("invalid document type", LogService, "CreateInvoice", nil, documentType)
+		return "", "", fmt.Errorf(ErrorOrderInvoiceInvalidDocumentType)
+	}
+
 	// TODO: working with only one payment
-	invoiceConfig, err := s.facturacionRepo.FindByStoreAndType(*storeID, facturacion.DocumentTypeFEIdentified) // TODO: get from config
+	invoiceConfig, err := s.facturacionRepo.FindByStoreAndType(*storeID, documentType) // TODO: get from config
 	if err != nil {
 		shared.LogError("error getting facturacion config", LogService, "CreateInvoice", err, *storeID)
-		return "", "", fmt.Errorf(ErrorOrderInvoiceFacturacionConfig)
+		return "", "", err
 	}
 
 	if resolutionNumber, ok := invoiceConfig.Resolution["number"]; !ok {

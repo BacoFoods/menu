@@ -4,6 +4,11 @@ import (
 	"github.com/BacoFoods/menu/internal"
 )
 
+const (
+	ErrorFacturacionConfigNotFound = "facturacion config not found"
+	ErrorFacturacionConfigGetting  = "error getting facturacion config"
+)
+
 type FacturacionConfig struct {
 	ID           uint   `json:"id" gorm:"primaryKey"`
 	StoreID      uint   `json:"store_id" gorm:"uniqueIndex:idx_store_document_type"`

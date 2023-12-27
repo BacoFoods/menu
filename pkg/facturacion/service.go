@@ -147,3 +147,7 @@ func (s *FacturacionService) generateFEUnidentified(invoice *invoice.Invoice) (*
 func (s *FacturacionService) IsFinalCustomer(documentType string) bool {
 	return documentType == DocumentTypeFEUnidentified
 }
+
+func (s *FacturacionService) IsValidDocumentType(documentType string) bool {
+	return documentType == DocumentTypePOS || documentType == DocumentTypeFEIdentified || documentType == DocumentTypeFEUnidentified
+}
