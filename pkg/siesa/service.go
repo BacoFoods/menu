@@ -201,6 +201,9 @@ func (s Service) buildDocument(date time.Time, docNum string, orders []PopappOrd
 		shareDescuento := descuento / math.Max(totalItems, 1)
 
 		for _, item := range order.Items {
+			if !isValidProduct(item.Producto.Nombre) {
+				continue
+			}
 			descuentoRegistro := shareDescuento * float64(item.Producto.PrecioUnitario)
 			descuentoTotalRegistro := descuentoRegistro * float64(item.Cantidad)
 			if descuentoRegistro != 0 || descuentoTotalRegistro != 0 {
