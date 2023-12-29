@@ -405,6 +405,11 @@ func isValidProduct(productoNombre string) bool {
 		"Crema Felicidad + Puré de Papa",
 		"Huevos Habibi + Limonada Natural",
 		"Sin Cuchara",
+		"2 Capuccinos 12 Onz + 2 Galletas Chips",
+		"4 Americanos 12onz + 4 Porciones Torta Mora",
+		"1 Americano 12 Onz + 1 Porción Torta de Chocolate",
+		"1 Americano 12 Onz + Waffle Pan de Yuca",
+		"2 Limonadas Naturales + 2 Croissant Mantequilla",
 	}
 
 	for _, invalidProduct := range invalidProducts {
