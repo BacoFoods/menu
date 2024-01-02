@@ -412,6 +412,7 @@ func isValidProduct(productoNombre string) bool {
 		"2 Limonadas Naturales + 2 Croissant Mantequilla",
 		"SALE FUERTE",
 		"TIENE ENTRADA",
+		"Café Molido",
 	}
 
 	for _, invalidProduct := range invalidProducts {
