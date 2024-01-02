@@ -410,6 +410,8 @@ func isValidProduct(productoNombre string) bool {
 		"1 Americano 12 Onz + 1 Porción Torta de Chocolate",
 		"1 Americano 12 Onz + Waffle Pan de Yuca",
 		"2 Limonadas Naturales + 2 Croissant Mantequilla",
+		"SALE FUERTE",
+		"TIENE ENTRADA",
 	}
 
 	for _, invalidProduct := range invalidProducts {
