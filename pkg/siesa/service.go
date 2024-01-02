@@ -83,7 +83,7 @@ func getF350IDCO(idStore string) string {
 		return "401"
 	case "bacuzonag", "bacuzonagc14":
 		return "300"
-	case "bacuflormorado", "bacuflormoradopc2":
+	case "bacuflormorado", "bacuflormoradopc2","flormorado10885":
 		return "400"
 	case "feriadelmillon2", "bacucalle90delivery":
 		return "301"
@@ -113,7 +113,7 @@ func getF461IDBodegaComponProceso(idStore string) string {
 		return "401"
 	case "bacuzonag", "bacuzonagc14":
 		return "300"
-	case "bacuflormorado", "bacuflormoradopc2":
+	case "bacuflormorado", "bacuflormoradopc2","flormorado10885":
 		return "400"
 	case "feriadelmillon2", "bacucalle90delivery":
 		return "301"

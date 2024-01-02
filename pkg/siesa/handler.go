@@ -15,7 +15,7 @@ const LogHandler = "pkg/siesa/handler"
 
 var mapLocalesNombres = map[string][]string{
 	"ZonaG":      {"bacuzonagc14", "bacuzonag"},
-	"Flormorado": {"bacuflormoradopc2", "bacuflormorado"},
+	"Flormorado": {"bacuflormoradopc2", "bacuflormorado", "flormorado10885"},
 	"CL109":      {"bacucalle109", "bacu109"},
 	"CL90":       {"feriadelmillon2", "bacucalle90delivery"},
 	"Connecta":   {"connectasalon110665", "bacuconnecta", "connectasalon210666"},
