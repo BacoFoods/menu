@@ -114,15 +114,19 @@ func (h *Handler) Run(ctx *gin.Context) {
 		return
 	}
 
-	err = h.service.RunIntegration(resp)
-	if err != nil {
-		shared.LogError("error running integration", LogHandler, "Run", err, resp)
-		defer h.service.UpdateDocumentStatus(doc, "error", err.Error())
-		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
-		return
-	}
+	// since the integration can take a while, we run it in a goroutine and update
+	// the document status when it finishes
+	go func() {
+		err := h.service.RunIntegration(resp)
+		if err != nil {
+			shared.LogError("error running integration", LogHandler, "Run", err, resp)
+			h.service.UpdateDocumentStatus(doc, "error", err.Error())
 
-	defer h.service.UpdateDocumentStatus(doc, "success", "")
+			return
+		}
+
+		h.service.UpdateDocumentStatus(doc, "success", "")
+	}()
 
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(doc))
 }
