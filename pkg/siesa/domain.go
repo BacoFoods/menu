@@ -21,6 +21,9 @@ type SiesaDocument struct {
 	StartDate   string     `json:"start_date"`
 	EndDate     string     `json:"end_date"`
 	TotalOrders int        `json:"total_orders"`
+	Status      string     `json:"status" gorm:"default:'pending'"`
+	Response    string     `json:"response"`
+	Type        string     `json:"type"`
 	CreatedAt   *time.Time `json:"created_at,omitempty" swaggerignore:"true"`
 }
 
@@ -42,6 +45,8 @@ type Reference struct {
 
 type Repository interface {
 	CreateDocument(*SiesaDocument) error
+	GetDocuments(limit int) ([]SiesaDocument, error)
+	UpdateDocument(*SiesaDocument) error
 	Create(*Reference) error
 	TruncateRecords() error
 	Find(map[string]string) (*Reference, error)

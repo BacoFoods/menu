@@ -19,6 +19,7 @@ type config struct {
 	RabbitConfig
 	PaylotsConfig
 	RedisConfig
+	SiesaConfig
 }
 
 // Config is the global variable that holds the configuration for parse the environment variables
@@ -86,4 +87,10 @@ type RabbitConfig struct {
 
 type PaylotsConfig struct {
 	Host string `env:"PAYLOTS_HOST"`
+}
+
+type SiesaConfig struct {
+	Host       string `env:"SIESA_HOST"`
+	ConniKey   string `env:"SIESA_CONNI_KEY"`
+	ConniToken string `env:"SIESA_CONNI_TOKEN"`
 }
