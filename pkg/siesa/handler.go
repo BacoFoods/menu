@@ -362,7 +362,10 @@ func (h *Handler) initSIESA(ctx *gin.Context, docType string) (*RequestExcelCrea
 	}
 
 	if len(orders) == 0 {
-		return &requestBody, nil, time.Time{}, nil, &shared.GinError{Code: http.StatusNotFound, Message: "No orders found"}
+		return &requestBody, nil, time.Time{}, nil, &shared.GinError{
+			Code:    http.StatusNotFound,
+			Message: fmt.Sprintf("No orders found at %s to %s in stores %+v", requestBody.StartDate, requestBody.EndDate, requestBody.LocationIDs),
+		}
 	}
 
 	doc, err := h.service.GetDocument(requestBody.LocationIDs, requestBody.StartDate, requestBody.EndDate, len(orders), docType)
