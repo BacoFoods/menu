@@ -98,7 +98,6 @@ func (r *DBRepository) Find(filter map[string]interface{}) ([]Invoice, error) {
 
 	if days, ok := filter["days"]; ok {
 		tx.Where(fmt.Sprintf("created_at >= NOW() - INTERVAL '%s' DAY", days))
-		shared.LogWarn("filtering by days", LogRepository, "Find", nil, filter)
 		delete(filter, "days")
 	}
 

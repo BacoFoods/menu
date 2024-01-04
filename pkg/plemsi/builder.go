@@ -273,6 +273,11 @@ func (ib *BuilderCustomer) SetTypeDocumentIdentificationId(typeDocumentIdentific
 	return ib
 }
 
+func (ib *BuilderCustomer) SetEmail(email string) *BuilderCustomer {
+	ib.Email = email
+	return ib
+}
+
 func (ib *BuilderCustomer) Build() (*Customer, error) {
 	if len(ib.Errors) != 0 {
 		return nil, ib.Errors[0]

@@ -31,6 +31,7 @@ type Customer struct {
 	IdentificationNumber         string `json:"identification_number"`
 	Name                         string `json:"name"`
 	TypeDocumentIdentificationId int    `json:"type_document_identification_id"`
+	Email                        string `json:"email"`
 }
 
 type OrderReference struct {

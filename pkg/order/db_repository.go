@@ -109,8 +109,6 @@ func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 		tx.Preload(clause.Associations).
 			Preload("Items.Modifiers").
 			Where(fmt.Sprintf("created_at >= NOW() - INTERVAL '%s' DAY", days))
-
-		shared.LogWarn("filtering by days", LogDBRepository, "Find", nil, filter)
 		delete(filter, "days")
 	}
 
