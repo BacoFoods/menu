@@ -248,8 +248,14 @@ func main() {
 	courseRoutes := course.NewRoutes(courseHandler)
 
 	// Siesa
+
+	// siesaHttpClient is a special client configure to not have a timeout
+	siesaHttpClient := &http.Client{
+		Timeout: 0,
+	}
+
 	siesaRepository := siesa.NewDBRepository(gormDB)
-	siesaService := siesa.NewService(siesaRepository)
+	siesaService := siesa.NewService(siesaRepository, siesaHttpClient, siesa.SiesaConfig(internal.Config.SiesaConfig))
 	siesaHandler := siesa.NewHandler(siesaService)
 	siesaRoutes := siesa.NewRoutes(siesaHandler)
 

@@ -16,11 +16,30 @@ func NewDBRepository(db *gorm.DB) *DBRepository {
 	return &DBRepository{db}
 }
 
+func (r *DBRepository) GetDocuments(limit int) ([]SiesaDocument, error) {
+	var documents []SiesaDocument
+	if err := r.db.Limit(limit).Order("created_at DESC").Find(&documents).Error; err != nil {
+		shared.LogError("error getting documents", LogDBRepository, "GetDocuments", err, limit)
+		return nil, err
+	}
+
+	return documents, nil
+}
+
 func (r *DBRepository) Create(reference *Reference) error {
 	if err := r.db.Save(reference).Error; err != nil {
 		shared.LogError("error creating reference", LogDBRepository, "Create", err, reference)
 		return err
 	}
+	return nil
+}
+
+func (r *DBRepository) UpdateDocument(doc *SiesaDocument) error {
+	if err := r.db.Save(doc).Error; err != nil {
+		shared.LogError("error updating reference", LogDBRepository, "UpdateDocument", err, doc)
+		return err
+	}
+
 	return nil
 }
 

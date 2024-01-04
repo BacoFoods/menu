@@ -20,3 +20,12 @@ func ErrorResponse(err string) Response {
 		Message: err,
 	}
 }
+
+type GinError struct {
+	Code    int
+	Message string
+}
+
+func (e GinError) Error() string {
+	return e.Message
+}
