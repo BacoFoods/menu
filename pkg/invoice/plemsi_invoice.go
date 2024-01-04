@@ -146,7 +146,7 @@ func (i *Invoice) ToPlemsiInvoice(finalCustomer bool) (*plemsi.Invoice, error) {
 		plemsiItem, err := plemsi.NewBuilderItem().
 			SetLineExtensionAmount(item.Price).
 			SetTaxTotals(plemsiItemTaxes).
-			SetDescription(fmt.Sprintf("%s - %s", item.Name,t com item.Description)).
+			SetDescription(fmt.Sprintf("%s - %s", item.Name, item.Description)).
 			SetNotes(item.Comments).
 			SetCode(item.SKU).
 			SetPriceAmount(item.Price).
