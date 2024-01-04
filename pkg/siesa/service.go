@@ -79,8 +79,17 @@ func (s Service) HandleSIESAIntegrationJSON(sdoc *SiesaDocument, date time.Time,
 }
 
 func (s Service) RunIntegration(jsonPayload map[string]any) error {
+	filteredJson := map[string]any{}
+	validKeys := []string{"Docto. ventas comercial", "Descuentos", "Cuotas CxC", "Movimientos"}
+
+	for _, key := range validKeys {
+		if _, ok := jsonPayload[key]; ok {
+			filteredJson[key] = jsonPayload[key]
+		}
+	}
+
 	url := fmt.Sprintf("%s%s", s.config.Host, integrationPath)
-	buff, err := json.Marshal(jsonPayload)
+	buff, err := json.Marshal(filteredJson)
 	if err != nil {
 		return fmt.Errorf("error al codificar el payload en formato JSON: %v", err)
 	}
