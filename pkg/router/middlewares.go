@@ -60,7 +60,6 @@ func AuthMiddleware(validator *idtoken.Validator) gin.HandlerFunc {
 func GoogleAuth(credential string, ctx *gin.Context, validator *idtoken.Validator) bool {
 	_, err := validator.Validate(ctx, credential, "")
 	if err != nil {
-		shared.LogWarn("failed to validate google token", LogMiddleware, "GoogleAuth", err, credential)
 		return false
 	}
 

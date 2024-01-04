@@ -312,6 +312,10 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discountPKG.Discount) {
 			orderItem.TaxBase = math.Ceil(orderItem.Price / (1 + orderItem.TaxPercentage)) // Default tax base
 		}
 
+		if orderItem.TaxAmount == 0 {
+			orderItem.TaxAmount = orderItem.Price - orderItem.TaxBase // Default tax amount
+		}
+
 		// Discounts
 		orderItem.DiscountedPrice = orderItem.Price
 		orderItem.Discount = 0
