@@ -17,22 +17,54 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
+const (
+	integrationPath = "/api/v3/conectoresimportar?idCompania=7826&idInterface=1152&idDocumento=145794&nombreDocumento=VENTA_COMERCIAL"
+)
+
+type httpClient interface {
+	Do(*http.Request) (*http.Response, error)
+}
+
+type SiesaConfig struct {
+	Host       string
+	ConniKey   string
+	ConniToken string
+}
+
 type Service struct {
 	repository Repository
+	httpClient httpClient
+	config     SiesaConfig
 }
 
-func NewService(repository Repository) Service {
-	return Service{repository}
+// NewService creates a new service
+// httpClient must have no timeout configure or a timeout greater than 10 minutes
+func NewService(repository Repository, httpClient httpClient, config SiesaConfig) Service {
+	return Service{repository, httpClient, config}
 }
 
-func (s Service) GetDocument(stores []string, startDate, endDate string, orderCount int) (*SiesaDocument, error) {
+func (s Service) GetRunHistory(limit int) ([]SiesaDocument, error) {
+	return s.repository.GetDocuments(limit)
+}
+
+func (s Service) GetDocument(stores []string, startDate, endDate string, orderCount int, docType string) (*SiesaDocument, error) {
 	doc := &SiesaDocument{
 		Stores:      strings.Join(stores, ","),
 		StartDate:   startDate,
 		EndDate:     endDate,
 		TotalOrders: orderCount,
+		Type:        docType,
+		Status:      "pending",
 	}
+
 	return doc, s.repository.CreateDocument(doc)
+}
+
+func (s Service) UpdateDocumentStatus(doc *SiesaDocument, status, payload string) error {
+	doc.Status = status
+	doc.Response = payload
+
+	return s.repository.UpdateDocument(doc)
 }
 
 func (s Service) HandleSIESAIntegrationJSON(sdoc *SiesaDocument, date time.Time, orders []PopappOrder) (map[string]any, error) {
@@ -44,6 +76,52 @@ func (s Service) HandleSIESAIntegrationJSON(sdoc *SiesaDocument, date time.Time,
 	doc := s.buildDocument(date, docNum, orders)
 
 	return doc, nil
+}
+
+func (s Service) RunIntegration(jsonPayload map[string]any) error {
+	filteredJson := map[string]any{}
+	validKeys := []string{"Docto. ventas comercial", "Descuentos", "Cuotas CxC", "Movimientos"}
+
+	for _, key := range validKeys {
+		if _, ok := jsonPayload[key]; ok {
+			filteredJson[key] = jsonPayload[key]
+		}
+	}
+
+	url := fmt.Sprintf("%s%s", s.config.Host, integrationPath)
+	buff, err := json.Marshal(filteredJson)
+	if err != nil {
+		return fmt.Errorf("error al codificar el payload en formato JSON: %v", err)
+	}
+
+	payload := bytes.NewBuffer(buff)
+	req, err := http.NewRequest("POST", url, payload)
+	if err != nil {
+		return fmt.Errorf("error al crear la solicitud: %v", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("conniKey", s.config.ConniKey)
+	req.Header.Set("conniToken", s.config.ConniToken)
+
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("error al realizar la solicitud: %v", err)
+	}
+
+	defer resp.Body.Close()
+
+	// Leer el cuerpo de la respuesta
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("error al leer el cuerpo de la respuesta: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("{\"error\": %s}", string(body))
+	}
+
+	return nil
 }
 
 func (s Service) HandleSIESAIntegration(sdoc *SiesaDocument, date time.Time, orders []PopappOrder) ([]byte, error) {
@@ -83,7 +161,7 @@ func getF350IDCO(idStore string) string {
 		return "401"
 	case "bacuzonag", "bacuzonagc14":
 		return "300"
-	case "bacuflormorado", "bacuflormoradopc2":
+	case "bacuflormorado", "bacuflormoradopc2", "flormorado10885":
 		return "400"
 	case "feriadelmillon2", "bacucalle90delivery":
 		return "301"
@@ -113,7 +191,7 @@ func getF461IDBodegaComponProceso(idStore string) string {
 		return "401"
 	case "bacuzonag", "bacuzonagc14":
 		return "300"
-	case "bacuflormorado", "bacuflormoradopc2":
+	case "bacuflormorado", "bacuflormoradopc2", "flormorado10885":
 		return "400"
 	case "feriadelmillon2", "bacucalle90delivery":
 		return "301"
@@ -201,6 +279,9 @@ func (s Service) buildDocument(date time.Time, docNum string, orders []PopappOrd
 		shareDescuento := descuento / math.Max(totalItems, 1)
 
 		for _, item := range order.Items {
+			if !isValidProduct(item.Producto.Nombre) {
+				continue
+			}
 			descuentoRegistro := shareDescuento * float64(item.Producto.PrecioUnitario)
 			descuentoTotalRegistro := descuentoRegistro * float64(item.Cantidad)
 			if descuentoRegistro != 0 || descuentoTotalRegistro != 0 {
@@ -220,7 +301,9 @@ func (s Service) buildDocument(date time.Time, docNum string, orders []PopappOrd
 			for _, itemGroup := range item.ItemGroups {
 				// Recorrer los modifiers del itemGroup actual
 				for _, modifier := range itemGroup.Modifiers {
-
+					if !isValidProduct(modifier.Producto.Nombre) {
+						continue
+					}
 					descuentoRegistro := shareDescuento * (float64(modifier.Producto.PrecioUnitario) / 1.08)
 					descuentoTotalRegistro := shareDescuento * (float64(item.Cantidad) * (float64(modifier.Producto.PrecioUnitario) / 1.08))
 					if descuentoRegistro != 0 || descuentoTotalRegistro != 0 {
@@ -400,6 +483,14 @@ func isValidProduct(productoNombre string) bool {
 		"Crema Felicidad + Puré de Papa",
 		"Huevos Habibi + Limonada Natural",
 		"Sin Cuchara",
+		"2 Capuccinos 12 Onz + 2 Galletas Chips",
+		"4 Americanos 12onz + 4 Porciones Torta Mora",
+		"1 Americano 12 Onz + 1 Porción Torta de Chocolate",
+		"1 Americano 12 Onz + Waffle Pan de Yuca",
+		"2 Limonadas Naturales + 2 Croissant Mantequilla",
+		"SALE FUERTE",
+		"TIENE ENTRADA",
+		"Café Molido",
 	}
 
 	for _, invalidProduct := range invalidProducts {

@@ -30,6 +30,7 @@ var mapLocalesNombres = map[string]string{
 	"ZonaG - PC2":      "bacuzonag",
 	"Flormorado - PC1": "bacuflormoradopc2",
 	"Flormorado - PC2": "bacuflormorado",
+	"Flormorado - PC3": "flormorado10885",
 	"CL109 - PC1":      "bacucalle109",
 	"CL109 - PC2":      "bacu109",
 	"CL90 - PC1":       "feriadelmillon2",

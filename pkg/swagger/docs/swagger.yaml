@@ -947,6 +947,8 @@ definitions:
         type: string
       id:
         type: integer
+      idempotency_key:
+        type: string
       items:
         items:
           $ref: '#/definitions/order.OrderItem'
@@ -8655,6 +8657,41 @@ paths:
       summary: Generate an JSON with orders
       tags:
       - SIESA
+  /siesa/history:
+    get:
+      consumes:
+      - application/json
+      description: Get the run history
+      parameters:
+      - description: Limit of results
+        in: query
+        name: limit
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                status:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get the run history
+      tags:
+      - SIESA
   /siesa/locales:
     get:
       consumes:
@@ -8833,6 +8870,43 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: To update a reference
+      tags:
+      - SIESA
+  /siesa/run:
+    post:
+      consumes:
+      - application/json
+      description: Run the integration
+      parameters:
+      - description: Request body for running the integration
+        in: body
+        name: siesa
+        required: true
+        schema:
+          $ref: '#/definitions/siesa.RequestExcelCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                status:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Run the integration
       tags:
       - SIESA
   /store:

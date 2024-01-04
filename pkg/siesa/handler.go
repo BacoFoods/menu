@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,7 +16,7 @@ const LogHandler = "pkg/siesa/handler"
 
 var mapLocalesNombres = map[string][]string{
 	"ZonaG":      {"bacuzonagc14", "bacuzonag"},
-	"Flormorado": {"bacuflormoradopc2", "bacuflormorado"},
+	"Flormorado": {"bacuflormoradopc2", "bacuflormorado", "flormorado10885"},
 	"CL109":      {"bacucalle109", "bacu109"},
 	"CL90":       {"feriadelmillon2", "bacucalle90delivery"},
 	"Connecta":   {"connectasalon110665", "bacuconnecta", "connectasalon210666"},
@@ -67,48 +68,9 @@ func (h *Handler) GetLocales(c *gin.Context) {
 // @Failure 500 {object} shared.Response "Internal Server Error response"
 // @Router /siesa/JSON [post]
 func (h *Handler) CreateJSON(ctx *gin.Context) {
-	var requestBody RequestExcelCreate
-	if err := ctx.BindJSON(&requestBody); err != nil {
-		shared.LogWarn("warning binding request fail", LogHandler, "Create", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
-		return
-	}
-
-	if len(requestBody.LocationIDs) == 0 {
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse("location_ids is required"))
-		return
-	}
-
-	date, err := time.Parse("2006-01-02", requestBody.StartDate)
-	if err != nil {
-		shared.LogError("error parsing date", LogHandler, "Create", err, requestBody.StartDate)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse("invalid date format for start_date "+err.Error()))
-		return
-	}
-
-	response, err := GetOrders(requestBody.StartDate, requestBody.EndDate, requestBody.LocationIDs)
-	if err != nil {
-		shared.LogError("error getting orders", LogHandler, "Create", err, response)
-		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(err.Error()))
-		return
-	}
-
-	var orders []PopappOrder
-	if err := json.Unmarshal([]byte(response), &orders); err != nil {
-		shared.LogError("error unmarshalling orders", LogHandler, "Create", err, response)
-		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
-		return
-	}
-
-	if len(orders) == 0 {
-		ctx.JSON(http.StatusNotFound, shared.SuccessResponse([]PopappOrder{}))
-		return
-	}
-
-	doc, err := h.service.GetDocument(requestBody.LocationIDs, requestBody.StartDate, requestBody.EndDate, len(orders))
-	if err != nil {
-		shared.LogError("error creating document", LogHandler, "Create", err, doc)
-		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+	_, doc, date, orders, ierr := h.initSIESA(ctx, "json")
+	if ierr != nil {
+		ctx.JSON(ierr.Code, shared.ErrorResponse(ierr.Message))
 		return
 	}
 
@@ -120,7 +82,82 @@ func (h *Handler) CreateJSON(ctx *gin.Context) {
 		return
 	}
 
+	defer h.service.UpdateDocumentStatus(doc, "success", "")
+
 	ctx.JSON(http.StatusOK, shared.SuccessResponse(resp))
+}
+
+// Run handles a request to run the integration
+// @Summary Run the integration
+// @Description Run the integration
+// @Tags SIESA
+// @Accept json
+// @Produce json
+// @Param siesa body RequestExcelCreate true "Request body for running the integration"
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string}
+// @Failure 401 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /siesa/run [post]
+func (h *Handler) Run(ctx *gin.Context) {
+	_, doc, date, orders, ierr := h.initSIESA(ctx, "integration")
+	if ierr != nil {
+		ctx.JSON(ierr.Code, shared.ErrorResponse(ierr.Message))
+		return
+	}
+
+	resp, err := h.service.HandleSIESAIntegrationJSON(doc, date, orders)
+	if err != nil {
+		shared.LogError("error handling SIESA integration", LogHandler, "Create", err, orders)
+		defer h.service.UpdateDocumentStatus(doc, "error", err.Error())
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+		return
+	}
+
+	// since the integration can take a while, we run it in a goroutine and update
+	// the document status when it finishes
+	go func() {
+		err := h.service.RunIntegration(resp)
+		if err != nil {
+			shared.LogError("error running integration", LogHandler, "Run", err, resp)
+			h.service.UpdateDocumentStatus(doc, "error", err.Error())
+
+			return
+		}
+
+		h.service.UpdateDocumentStatus(doc, "success", "")
+	}()
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(doc))
+}
+
+// GetRunHistory handles a request to get the run history
+// @Summary Get the run history
+// @Description Get the run history
+// @Tags SIESA
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param limit query number false "Limit of results"
+// @Success 200 {object} object{status=string}
+// @Failure 401 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /siesa/history [get]
+func (h *Handler) GetRunHistory(ctx *gin.Context) {
+	sLimit := ctx.Query("limit")
+	limit := 100
+	if v, err := strconv.Atoi(sLimit); sLimit != "" && err == nil {
+		limit = v
+	}
+
+	history, err := h.service.GetRunHistory(limit)
+	if err != nil {
+		shared.LogError("error getting run history", LogHandler, "GetRunHistory", err)
+		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, shared.SuccessResponse(history))
 }
 
 // Create handles a request to generate an Excel file with orders.
@@ -137,48 +174,9 @@ func (h *Handler) CreateJSON(ctx *gin.Context) {
 // @Failure 500 {object} shared.Response "Internal Server Error response"
 // @Router /siesa [post]
 func (h *Handler) Create(ctx *gin.Context) {
-	var requestBody RequestExcelCreate
-	if err := ctx.BindJSON(&requestBody); err != nil {
-		shared.LogWarn("warning binding request fail", LogHandler, "Create", err)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
-		return
-	}
-
-	if len(requestBody.LocationIDs) == 0 {
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse("location_ids is required"))
-		return
-	}
-
-	date, err := time.Parse("2006-01-02", requestBody.StartDate)
-	if err != nil {
-		shared.LogError("error parsing date", LogHandler, "Create", err, requestBody.StartDate)
-		ctx.JSON(http.StatusBadRequest, shared.ErrorResponse("invalid date format for start_date "+err.Error()))
-		return
-	}
-
-	response, err := GetOrders(requestBody.StartDate, requestBody.EndDate, requestBody.LocationIDs)
-	if err != nil {
-		shared.LogError("error getting orders", LogHandler, "Create", err, response)
-		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(err.Error()))
-		return
-	}
-
-	var orders []PopappOrder
-	if err := json.Unmarshal([]byte(response), &orders); err != nil {
-		shared.LogError("error unmarshalling orders", LogHandler, "Create", err, response)
-		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
-		return
-	}
-
-	if len(orders) == 0 {
-		ctx.JSON(http.StatusNotFound, shared.SuccessResponse([]PopappOrder{}))
-		return
-	}
-
-	doc, err := h.service.GetDocument(requestBody.LocationIDs, requestBody.StartDate, requestBody.EndDate, len(orders))
-	if err != nil {
-		shared.LogError("error creating document", LogHandler, "Create", err, doc)
-		ctx.JSON(http.StatusInternalServerError, shared.ErrorResponse(ErrorInternalServer))
+	req, doc, date, orders, ierr := h.initSIESA(ctx, "excel")
+	if ierr != nil {
+		ctx.JSON(ierr.Code, shared.ErrorResponse(ierr.Message))
 		return
 	}
 
@@ -190,7 +188,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 		return
 	}
 
-	filename := fmt.Sprintf("SIESA-%s-%s", strings.Join(requestBody.LocationIDs, "-"), date.Format("2006-01-02"))
+	filename := fmt.Sprintf("SIESA-%s-%s", strings.Join(req.LocationIDs, "-"), date.Format("2006-01-02"))
 
 	ctx.Header("Content-Description", "File Transfer")
 	ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s.xlsx", filename))
@@ -200,6 +198,8 @@ func (h *Handler) Create(ctx *gin.Context) {
 	ctx.Header("Cache-Control", "must-revalidate")
 	ctx.Header("Pragma", "public")
 	ctx.Header("Access-Control-Expose-Headers", "Content-Disposition")
+
+	defer h.service.UpdateDocumentStatus(doc, "success", filename)
 
 	// Send the Excel file as the response
 	ctx.Data(http.StatusOK, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFile)
@@ -327,4 +327,53 @@ func (h *Handler) UpdateReference(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(category))
+}
+
+func (h *Handler) initSIESA(ctx *gin.Context, docType string) (*RequestExcelCreate, *SiesaDocument, time.Time, []PopappOrder, *shared.GinError) {
+	var requestBody RequestExcelCreate
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		shared.LogWarn("warning binding request fail", LogHandler, "Create", err)
+
+		return nil, nil, time.Time{}, nil, &shared.GinError{Code: http.StatusBadRequest, Message: ErrorBadRequest}
+	}
+
+	if len(requestBody.LocationIDs) == 0 {
+		return &requestBody, nil, time.Time{}, nil, &shared.GinError{Code: http.StatusBadRequest, Message: "location_ids is required"}
+	}
+
+	date, err := time.Parse("2006-01-02", requestBody.StartDate)
+	if err != nil {
+		shared.LogError("error parsing date", LogHandler, "Create", err, requestBody.StartDate)
+
+		return &requestBody, nil, time.Time{}, nil, &shared.GinError{Code: http.StatusBadRequest, Message: "invalid date format for start_date " + err.Error()}
+	}
+
+	response, err := GetOrders(requestBody.StartDate, requestBody.EndDate, requestBody.LocationIDs)
+	if err != nil {
+		shared.LogError("error getting orders", LogHandler, "Create", err, response)
+		return &requestBody, nil, time.Time{}, nil, &shared.GinError{Code: http.StatusInternalServerError, Message: err.Error()}
+	}
+
+	var orders []PopappOrder
+	if err := json.Unmarshal([]byte(response), &orders); err != nil {
+		shared.LogError("error unmarshalling orders", LogHandler, "Create", err, response)
+
+		return &requestBody, nil, time.Time{}, nil, &shared.GinError{Code: http.StatusInternalServerError, Message: ErrorInternalServer}
+	}
+
+	if len(orders) == 0 {
+		return &requestBody, nil, time.Time{}, nil, &shared.GinError{
+			Code:    http.StatusNotFound,
+			Message: fmt.Sprintf("No orders found at %s to %s in stores %+v", requestBody.StartDate, requestBody.EndDate, requestBody.LocationIDs),
+		}
+	}
+
+	doc, err := h.service.GetDocument(requestBody.LocationIDs, requestBody.StartDate, requestBody.EndDate, len(orders), docType)
+	if err != nil {
+		shared.LogError("error creating document", LogHandler, "Create", err, doc)
+
+		return &requestBody, nil, date, nil, &shared.GinError{Code: http.StatusInternalServerError, Message: ErrorInternalServer}
+	}
+
+	return &requestBody, doc, date, orders, nil
 }
