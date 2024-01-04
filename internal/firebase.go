@@ -2,10 +2,10 @@ package internal
 
 import (
 	"context"
+	"encoding/base64"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/db"
-	"github.com/BacoFoods/menu/pkg/shared"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
 )
@@ -26,14 +26,18 @@ func MustNewFirebase(auth, dbURL string) *Firebase {
 
 func NewFirebase(auth, dbURL string) (*Firebase, error) {
 	ctx := context.Background()
-	creds, err := shared.Base64Decode(auth)
+
+	// Decode base64 auth
+	decoded := base64.StdEncoding.DecodedLen(len(auth))
+	decodedString := make([]byte, decoded)
+	n, err := base64.StdEncoding.Decode(decodedString, []byte(auth))
 	if err != nil {
 		return nil, err
 	}
 
 	logrus.Info("Connecting to firebase:", dbURL)
 
-	opt := option.WithCredentialsJSON(creds)
+	opt := option.WithCredentialsJSON(decodedString[:n])
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		return nil, err

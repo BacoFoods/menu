@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/BacoFoods/menu/pkg/channel"
-	"github.com/BacoFoods/menu/pkg/discount"
+	discountPKG "github.com/BacoFoods/menu/pkg/discount"
 	"github.com/BacoFoods/menu/pkg/payment"
 	"github.com/BacoFoods/menu/pkg/shared"
 
@@ -45,7 +45,9 @@ const (
 	ErrorOrderUpdatingClientName           = "error updating order client name"
 	ErrorOrderUpdatingStatus               = "error updating order status"
 	ErrorOrderInvoiceCreation              = "error creating order invoice"
+	ErrorOrderInvoiceUpdate                = "error updating order invoice"
 	ErrorOrderInvoiceCreationDiscounts     = "error creating order invoice getting discounts"
+	ErrorOrderInvoiceGettingClient         = "error getting order invoice client"
 	ErrorOrderInvoiceCalculation           = "error calculating invoice"
 	ErrorOrderClosed                       = "error order is closed"
 	ErrorOrderIDEmpty                      = "order id is empty"
@@ -54,11 +56,15 @@ const (
 	ErrorOrderItemGetting      = "error getting order item"
 	ErrorOrderItemUpdateCourse = "error updating order item course"
 
-	ErrorOrderTypeCreation = "error creating order type"
-	ErrorOrderTypeFinding  = "error finding order type"
-	ErrorOrderTypeGetting  = "error getting order type"
-	ErrorOrderTypeUpdating = "error updating order type"
-	ErrorOrderTypeDeleting = "error deleting order type"
+	ErrorOrderTypeCreation               = "error creating order type"
+	ErrorOrderTypeFinding                = "error finding order type"
+	ErrorOrderTypeGetting                = "error getting order type"
+	ErrorOrderTypeUpdating               = "error updating order type"
+	ErrorOrderTypeDeleting               = "error deleting order type"
+	ErrorOrderInvoicePlemsiBuilding      = "error building plemsi invoice"
+	ErrorOrderInvoiceFacturacionConfig   = "error getting facturacion config"
+	ErrorOrderInvoiceInvalidDocumentType = "error invalid document type"
+	ErrorOrderInvoiceEmission            = "error emitting order invoice"
 
 	TaxPercentage = 0.08
 
@@ -81,7 +87,7 @@ func applyDiscount(value float64, discounts []invoice.DiscountApplied) (newValue
 	newValue = value
 
 	for _, discount := range discounts {
-		newValue = discount.Apply(newValue)
+		newValue = discount.ApplyRounded(newValue)
 	}
 
 	newValue = math.Round(newValue)
@@ -201,10 +207,12 @@ func (o *Order) SetItems(products []product.Product, modifiers []product.Product
 			item.SKU = p.SKU
 			item.Price = p.Price
 			item.Unit = p.Unit
-			// TODO: add default tax value if Tax is nil
-			if p.Tax != nil {
+
+			if p.TaxBase == 0 && p.Tax != nil {
 				item.Tax = p.Tax.Name
 				item.TaxPercentage = p.Tax.Percentage
+				item.TaxBase = p.Price / (1 + p.Tax.Percentage)
+				item.TaxAmount = p.Price - item.TaxBase
 			}
 
 			item.SetHash()
@@ -244,15 +252,15 @@ func (o *Order) RemoveProduct(product *product.Product) {
 }
 
 // ToInvoice uses next definitions:
-// Product Price: is the price of the product without any discount
-// Product Discounted Price: is the price of the product after applying discounts
-// Product Base Tax: is the product price applied discount minus the tax amount
+// Product Price: is the price of the product without any discount and taxes included
+// Product Discounted Price: is the price of the product after applying discounts, discount is applied to the product price
+// Product Base Tax: is the tax base of the product, tax base is the price of the product without taxes
 // Product Tax: is the tax amount of the product
 // TotalTips: is the sum of all tips
-// SubTotal: is the sum of all Product Discounted Prices
+// SubTotal: is the sum of all Product Prices
 // BaseTax: is the sum of all Product Base Taxes
-// Total: is the sum of SubTotal + TotalTips
-func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
+// Total: is the sum of SubTotal(taxes are included) + TotalTips - TotalDiscounts
+func (o *Order) ToInvoice(tip *TipData, discounts ...discountPKG.Discount) {
 	// Remove invoices
 	o.Invoices = nil
 	subtotal := 0.0
@@ -271,10 +279,9 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 
 	// Adding discounts to invoice
 	for _, d := range discounts {
-		if d.Type != discount.DiscountTypePercentage {
+		if d.Type != discountPKG.DiscountTypePercentage {
 			// TODO: we only support percentage discounts as applying a value discounts
 			// makes tax calculations more complex
-
 			continue
 		}
 
@@ -289,40 +296,71 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 	}
 
 	// Adding items to invoice
-	for _, item := range o.Items {
-		tax := "ico" // Default tax
-		if item.Tax != "" {
-			tax = item.Tax
+	orderItems := make([]OrderItem, 0)
+	for _, orderItem := range o.Items {
+
+		// Default tax values
+		if orderItem.Tax == "" {
+			orderItem.Tax = "ico" // Default tax type
 		}
 
-		taxPerc := 0.08
-		if item.TaxPercentage != 0 {
-			taxPerc = item.TaxPercentage
+		if orderItem.TaxPercentage == 0 {
+			orderItem.TaxPercentage = 0.08 // Default tax percentage
 		}
 
-		productPriceWithDiscount, appliedDiscount := applyDiscount(item.Price, newInvoice.Discounts)
-		productBaseTax := math.Floor(productPriceWithDiscount / (1 + taxPerc))
-		newInvoice.BaseTax += productBaseTax
-		newInvoice.Taxes += productPriceWithDiscount - productBaseTax
-		newInvoice.TotalDiscounts += appliedDiscount
+		if orderItem.TaxBase == 0 {
+			orderItem.TaxBase = math.Ceil(orderItem.Price / (1 + orderItem.TaxPercentage)) // Default tax base
+		}
+
+		// Discounts
+		orderItem.DiscountedPrice = orderItem.Price
+		orderItem.Discount = 0
+
+		for _, discount := range newInvoice.Discounts {
+			orderItem.DiscountedPrice -= discount.CalculateAmountRounded(orderItem.Price)
+			orderItem.DiscountPercent += discount.Percentage
+			orderItem.Discount += discount.CalculateAmountRounded(orderItem.Price)
+			orderItem.DiscountReason += fmt.Sprintf("%s - %s - %.2f - %.2f - applied to: %.2f;", discount.Name, discount.Description, discount.Percentage, discount.CalculateAmountRounded(orderItem.Price), orderItem.Price)
+		}
+
+		newInvoice.BaseTax += orderItem.TaxBase
+		newInvoice.Taxes += orderItem.TaxAmount
+		newInvoice.TotalDiscounts += orderItem.Discount
 
 		newInvoice.Items = append(newInvoice.Items, invoice.Item{
-			ProductID:       item.ProductID,
-			Name:            item.Name,
-			Description:     item.Description,
-			SKU:             item.SKU,
-			Price:           item.Price,
-			Comments:        item.Comments,
-			Hash:            item.Hash,
-			DiscountedPrice: productPriceWithDiscount,
-			Tax:             tax,
-			TaxPercentage:   taxPerc,
+			ProductID:          orderItem.ProductID,
+			Name:               orderItem.Name,
+			Description:        orderItem.Description,
+			SKU:                orderItem.SKU,
+			Price:              orderItem.Price,
+			Comments:           orderItem.Comments,
+			Hash:               orderItem.Hash,
+			DiscountedPrice:    orderItem.DiscountedPrice,
+			DiscountPercentage: orderItem.DiscountPercent,
+			DiscountReason:     orderItem.DiscountReason,
+			DiscountAmount:     orderItem.Discount,
+			Tax:                orderItem.Tax,
+			TaxPercentage:      orderItem.TaxPercentage,
+			TaxAmount:          orderItem.TaxAmount,
+			TaxBase:            orderItem.TaxBase,
 		})
 
-		// Adding item price to subtotal
-		subtotal += productPriceWithDiscount
+		// Adding orderItem price to subtotal
+		subtotal += orderItem.Price
 
-		for _, modifier := range item.Modifiers {
+		for _, modifier := range orderItem.Modifiers {
+
+			// Discounts
+			modifier.DiscountedPrice = orderItem.Price
+			orderItem.Discount = 0
+
+			for _, discount := range newInvoice.Discounts {
+				modifier.DiscountedPrice -= discount.CalculateAmountRounded(orderItem.Price)
+				orderItem.DiscountPercent += discount.Percentage
+				orderItem.Discount += discount.CalculateAmountRounded(orderItem.Price)
+				orderItem.DiscountReason += fmt.Sprintf("%s - %s - %.2f - %.2f - applied to: %.2f;", discount.Name, discount.Description, discount.Percentage, discount.CalculateAmountRounded(orderItem.Price), orderItem.Price)
+			}
+
 			// Adding modifier price to subtotal
 			modifierPrice, appliedDiscount := applyDiscount(modifier.Price, newInvoice.Discounts)
 			subtotal += modifierPrice
@@ -332,7 +370,7 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 				modifierTax = modifier.Tax
 			}
 
-			modifierTaxPerc := 0.08
+			modifierTaxPerc := 0.08 // TODO Improve tax calculation
 			if modifier.TaxPercentage != 0 {
 				modifierTaxPerc = modifier.TaxPercentage
 			}
@@ -354,14 +392,20 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 				TaxPercentage:   modifierTaxPerc,
 			})
 		}
+
+		orderItems = append(orderItems, orderItem)
 	}
 
-	// Setting subtotals
+	// Setting order items updates
+	o.Items = orderItems
+
+	// Setting subtotals, subtotals includes taxes
 	newInvoice.SubTotal = subtotal
 
 	// Setting taxes
 	newInvoice.CalculateTaxDetails()
 
+	// Setting tips
 	if tip != nil {
 		tipType, tipValue := tip.GetValueAndType()
 		newInvoice.Tip = fmt.Sprintf("%s - %f", tipType, tipValue)
@@ -373,7 +417,7 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discount.Discount) {
 		}
 	}
 
-	newInvoice.Total = newInvoice.SubTotal + newInvoice.TipAmount
+	newInvoice.Total = newInvoice.SubTotal + newInvoice.TipAmount - newInvoice.TotalDiscounts
 
 	// Setting invoice
 	o.Invoices = []invoice.Invoice{newInvoice}
@@ -440,6 +484,8 @@ type OrderItem struct {
 	Price           float64         `json:"price" gorm:"precision:18;scale:2"`
 	Unit            string          `json:"unit"`
 	Discount        float64         `json:"discount" gorm:"precision:18;scale:2"`
+	DiscountedPrice float64         `json:"discounted_price" gorm:"precision:18;scale:2"` // DiscountPrice is the tax base after applying discount
+	DiscountPercent float64         `json:"discount_percent" gorm:"precision:18;scale:2"`
 	DiscountReason  string          `json:"discount_reason,omitempty"`
 	Surcharge       float64         `json:"surcharge" gorm:"precision:18;scale:2"`
 	SurchargeReason string          `json:"surcharge_reason,omitempty"`
@@ -449,6 +495,8 @@ type OrderItem struct {
 	Modifiers       []OrderModifier `json:"modifiers"  gorm:"foreignKey:OrderItemID"`
 	Tax             string          `json:"tax"`
 	TaxPercentage   float64         `json:"tax_percentage"`
+	TaxBase         float64         `json:"tax_base" gorm:"precision:18;scale:2"`
+	TaxAmount       float64         `json:"tax_amount" gorm:"precision:18;scale:2"`
 	CreatedAt       *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt       *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt       *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
@@ -478,23 +526,31 @@ func (oi *OrderItem) RemoveModifiers(modifiers []OrderModifier) {
 }
 
 type OrderModifier struct {
-	ID            uint            `json:"id" gorm:"primaryKey"`
-	OrderItemID   *uint           `json:"order_item_id"`
-	OrderID       uint            `json:"order_id"`
-	Name          string          `json:"name"`
-	Description   string          `json:"description"`
-	Image         string          `json:"image"`
-	Category      string          `json:"category"`
-	ProductID     *uint           `json:"product_id"`
-	SKU           string          `json:"sku"`
-	Price         float64         `json:"price"  gorm:"precision:18;scale:2"`
-	Unit          string          `json:"unit"`
-	Tax           string          `json:"tax"`
-	TaxPercentage float64         `json:"tax_percentage"`
-	Comments      string          `json:"comments"`
-	CreatedAt     *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt     *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt     *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID              uint            `json:"id" gorm:"primaryKey"`
+	OrderItemID     *uint           `json:"order_item_id"`
+	OrderID         uint            `json:"order_id"`
+	Name            string          `json:"name"`
+	Description     string          `json:"description"`
+	Image           string          `json:"image"`
+	Category        string          `json:"category"`
+	ProductID       *uint           `json:"product_id"`
+	SKU             string          `json:"sku"`
+	Price           float64         `json:"price"  gorm:"precision:18;scale:2"`
+	Discount        float64         `json:"discount" gorm:"precision:18;scale:2"`
+	DiscountedPrice float64         `json:"discounted_price" gorm:"precision:18;scale:2"` // DiscountPrice is the tax base after applying discount
+	DiscountPercent float64         `json:"discount_percent" gorm:"precision:18;scale:2"`
+	DiscountReason  string          `json:"discount_reason,omitempty"`
+	Surcharge       float64         `json:"surcharge" gorm:"precision:18;scale:2"`
+	SurchargeReason string          `json:"surcharge_reason,omitempty"`
+	Unit            string          `json:"unit"`
+	Tax             string          `json:"tax"`
+	TaxPercentage   float64         `json:"tax_percentage"`
+	TaxAmount       float64         `json:"tax_amount" gorm:"precision:18;scale:2"`
+	TaxBase         float64         `json:"tax_base" gorm:"precision:18;scale:2"`
+	Comments        string          `json:"comments"`
+	CreatedAt       *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt       *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt       *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type OrderType struct {

@@ -1,8 +1,14 @@
 package facturacion
 
 import (
+	"fmt"
+	"github.com/BacoFoods/menu/pkg/shared"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+)
+
+const (
+	LogRepository string = "pkg/facturacion/repository"
 )
 
 type Repository struct {
@@ -30,11 +36,11 @@ func (r *Repository) Create(config *FacturacionConfig) error {
 func (r *Repository) FindByStoreAndType(storeID uint, docType string) (*FacturacionConfig, error) {
 	var config FacturacionConfig
 	if err := r.db.Where("store_id = ? AND document_type = ?", storeID, docType).First(&config).Error; err != nil {
+		shared.LogError("error getting facturacion config", LogRepository, "FindByStoreAndType", err, storeID, docType)
 		if err == gorm.ErrRecordNotFound {
-			return nil, nil
+			return nil, fmt.Errorf(ErrorFacturacionConfigNotFound)
 		}
-
-		return nil, err
+		return nil, fmt.Errorf(ErrorFacturacionConfigGetting)
 	}
 
 	return &config, nil

@@ -830,9 +830,11 @@ type CreateInvoiceDocumentRequest struct {
 }
 
 type CreateInvoiceRequest struct {
-	CalculateInvoiceRequest
+	RequestCalculateInvoice
 
 	CreateInvoiceDocumentRequest
+
+	RequestInvoicePaymentMethod
 
 	orderId  string
 	attendee *Attendee
@@ -861,14 +863,16 @@ func (h *Handler) CreateInvoice(c *gin.Context) {
 	req.orderId = c.Param("id")
 	req.attendee = h.ctxAttendee(c)
 
-	invoice, err := h.service.CreateInvoice(req)
+	// TODO: improve payment method
+	req.PaymentMethodID = 1
+
+	invoiceDB, err := h.service.CreateInvoice(req)
 	if err != nil {
-		// c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCreation
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+	c.JSON(http.StatusOK, shared.SuccessResponse(invoiceDB))
 }
 
 // CalculateInvoice to handle a request to calculate an invoice
@@ -879,31 +883,31 @@ func (h *Handler) CreateInvoice(c *gin.Context) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Param id path string true "Order ID"
-// @Param body body CalculateInvoiceRequest true "request body"
+// @Param body body RequestCalculateInvoice true "request body"
 // @Success 200 {object} object{status=string,data=invoice.Invoice}
 // @Router /order/{id}/invoice/calculate [post]
 func (h *Handler) CalculateInvoice(c *gin.Context) {
 	orderID := c.Param("id")
-	var req CalculateInvoiceRequest
+	var req RequestCalculateInvoice
 	if err := c.ShouldBindJSON(&req); err != nil {
 		shared.LogError("error binding request body", LogHandler, "CalculateInvoice", err, req)
 		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
 		return
 	}
 
-	invoice, err := h.service.CalculateInvoice(orderID, req)
+	newInvoice, err := h.service.CalculateInvoice(orderID, req)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCalculation))
 		return
 	}
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+	c.JSON(http.StatusOK, shared.SuccessResponse(newInvoice))
 }
 
 // PublicCalculateInvoice to handle a request to calculate an invoice
 // @Tags Order
 // @Summary Public endpoint to calculate an invoice
-// @Description Public entpodint to calculate an invoice
+// @Description Public endpoint to calculate an invoice
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
@@ -933,8 +937,8 @@ type CheckoutRequest struct {
 
 // PublicCheckout to handle the checkout process of an order. Public for OIT.
 // @Tags Order
-// @Summary To checkout an order.
-// @Description To checkout an order.
+// @Summary To check out an order.
+// @Description To check out an order.
 // @Accept json
 // @Produce json
 // @Param id path string true "Order ID"
@@ -952,13 +956,13 @@ func (h *Handler) PublicCheckout(c *gin.Context) {
 		return
 	}
 
-	invoice, err := h.service.Checkout(orderID, checkout)
+	newInvoice, err := h.service.Checkout(orderID, checkout)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(ErrorOrderInvoiceCalculation))
 		return
 	}
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+	c.JSON(http.StatusOK, shared.SuccessResponse(newInvoice))
 }
 
 // CloseInvoice to handle a request to close an invoice
@@ -987,12 +991,12 @@ func (h *Handler) CloseInvoice(c *gin.Context) {
 	att := h.ctxAttendee(c)
 	req.attendee = att
 
-	invoice, err := h.service.CloseInvoice(req)
+	newInvoice, err := h.service.CloseInvoice(req)
 	if err != nil {
-		shared.LogError("error closing invoice", LogHandler, "CloseInvoice", err, invoice)
+		shared.LogError("error closing invoice", LogHandler, "CloseInvoice", err, newInvoice)
 		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, shared.SuccessResponse(invoice))
+	c.JSON(http.StatusOK, shared.SuccessResponse(newInvoice))
 }

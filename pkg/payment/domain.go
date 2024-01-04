@@ -20,6 +20,7 @@ const (
 	ErrorPaymentMethodAlreadyExists = "error payment method already exists"
 	ErrorPaymentMethodCreation      = "error payment method creation"
 
+	PaymentStatusEmmited  = "emitted" // for electronic invoices emission
 	PaymentStatusPaid     = "paid"
 	PaymentStatusPending  = "pending"
 	PaymentStatusCanceled = "canceled"
@@ -52,14 +53,15 @@ type Repository interface {
 
 type Payment struct {
 	ID uint `json:"id"`
-
 	// An invoice can have multiple payments
 	InvoiceID *uint `json:"invoice_id" binding:"required"`
 
 	// Payment method used.
 	// This can come from manual input in the POS such as <code>cash</code>, <code>card</code>, <code>check</code>, etc.
 	// or from order in table with <code>paylot</code> or <code>yuno</code>
-	Method string `json:"method" binding:"required"`
+	Method          string         `json:"method" binding:"required"`
+	PaymentMethodID *uint          `json:"payment_method_id" binding:"required"`
+	PaymentMethod   *PaymentMethod `json:"payment_method,omitempty" gorm:"foreignKey:PaymentMethodID"`
 
 	// Quantity is the amount of money paid
 	Quantity float64 `json:"quantity" gorm:"precision:18;scale:4" binding:"required"`
@@ -71,26 +73,25 @@ type Payment struct {
 	TotalValue float64 `json:"total_value" gorm:"precision:18;scale:4" binding:"required"`
 
 	// Code is the reference number of the payment
-	Code string `json:"code"`
-
-	Status      string  `json:"status" binding:"required"`
-	Reference   string  `json:"reference"`
-	CheckoutURL *string `json:"checkout_url"`
-
-	CreatedAt *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	Code        string          `json:"code"`
+	Status      string          `json:"status" binding:"required"`
+	Reference   string          `json:"reference"`
+	CheckoutURL *string         `json:"checkout_url"`
+	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type PaymentMethod struct {
-	ID          uint            `json:"id" gorm:"primaryKey;autoIncrement:true"`
+	ID          uint            `json:"id" gorm:"primaryKey"`
 	Name        string          `json:"name"`
 	BrandID     *uint           `json:"brand_id"`
 	StoreID     *uint           `json:"store_id"`
 	ChannelID   *uint           `json:"channel_id"`
 	ShortName   string          `json:"short_name"`
-	Code        string          `json:"code" gorm:"primaryKey;autoIncrement:false;index:idx_payment_method_code,uniqueIndex" binding:"required"`
+	Code        string          `json:"code" binding:"required"`
 	Description string          `json:"description"`
+	PlemsiCode  string          `json:"plemsi_code"`
 	CreatedAt   *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt   *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt   *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`

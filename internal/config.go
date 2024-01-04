@@ -51,6 +51,10 @@ type AppConfig struct {
 	PopappHost      string `env:"POPAPP_HOST"`
 	PopappAuthToken string `env:"POPAPP_AUTH_TOKEN"`
 
+	// Plemsi
+	PlemsiHost  string `env:"PLEMSI_HOST"`
+	PlemsiToken string `env:"PLEMSI_TOKEN"`
+
 	// Github
 	GitToken      string `env:"GIT_TOKEN"`
 	GitRepository string `env:"GIT_REPOSITORY"`

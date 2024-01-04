@@ -8,9 +8,11 @@ require (
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.1
+	github.com/go-faker/faker/v4 v4.2.0
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.16.0
+	github.com/go-resty/resty/v2 v2.10.0
 	github.com/google/go-github/v57 v57.0.0
 	github.com/google/uuid v1.4.0
 	github.com/onsi/ginkgo v1.16.5

@@ -49,6 +49,8 @@ type Product struct {
 	Price          float64            `json:"price" gorm:"precision:18;scale:2"`
 	TaxID          *uint              `json:"tax_id"`
 	Tax            *taxes.Tax         `json:"tax" swaggerignore:"true"`
+	TaxBase        float64            `json:"tax_base" gorm:"precision:18;scale:2"`
+	TaxAmount      float64            `json:"tax_amount" gorm:"precision:18;scale:2"`
 	DiscountID     *uint              `json:"discount_id"`
 	Discount       *discount.Discount `json:"discount" gorm:"foreignKey:DiscountID" swaggerignore:"true"`
 	Unit           string             `json:"unit"`

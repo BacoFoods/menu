@@ -7,12 +7,13 @@ import (
 )
 
 const (
-	ErrorClientCreating = "error creating client"
-	ErrorClientUpdating = "error updating client"
-	ErrorClientDeleting = "error deleting client"
-	ErrorClientListing  = "error listing clients"
-	ErrorClientGetting  = "error getting client"
-	ErrorClientIDEmpty  = "error client id empty"
+	ErrorClientCreating          = "error creating client"
+	ErrorClientUpdating          = "error updating client"
+	ErrorClientDeleting          = "error deleting client"
+	ErrorClientListing           = "error listing clients"
+	ErrorClientGetting           = "error getting client"
+	ErrorClientIDEmpty           = "error client id empty"
+	ErrorClientGettingByDocument = "error getting client by document"
 )
 
 type Repository interface {
@@ -21,6 +22,7 @@ type Repository interface {
 	Delete(id string) (*Client, error)
 	List(map[string]any) ([]Client, error)
 	Get(id string) (*Client, error)
+	GetByDocument(document string) (*Client, error)
 }
 
 type Client struct {

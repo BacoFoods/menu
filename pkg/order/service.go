@@ -4,17 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/facturacion"
+	"github.com/BacoFoods/menu/pkg/plemsi"
 	"strconv"
 	"time"
 
 	"github.com/BacoFoods/menu/internal"
 	accounts "github.com/BacoFoods/menu/pkg/account"
-	"github.com/BacoFoods/menu/pkg/channel"
+	channels "github.com/BacoFoods/menu/pkg/channel"
 	"github.com/BacoFoods/menu/pkg/client"
 	"github.com/BacoFoods/menu/pkg/discount"
-	"github.com/BacoFoods/menu/pkg/invoice"
 	invoices "github.com/BacoFoods/menu/pkg/invoice"
-	"github.com/BacoFoods/menu/pkg/payment"
+	payments "github.com/BacoFoods/menu/pkg/payment"
 	products "github.com/BacoFoods/menu/pkg/product"
 	"github.com/BacoFoods/menu/pkg/shared"
 	shifts "github.com/BacoFoods/menu/pkg/shift"
@@ -56,7 +57,7 @@ type Service interface {
 	UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error)
 	DeleteOrderType(orderTypeID string) error
 	CreateInvoice(CreateInvoiceRequest) (*invoices.Invoice, error)
-	CalculateInvoice(orderID string, req CalculateInvoiceRequest) (*invoices.Invoice, error)
+	CalculateInvoice(orderID string, req RequestCalculateInvoice) (*invoices.Invoice, error)
 	CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoices.Invoice, error)
 	Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error)
 
@@ -68,27 +69,31 @@ type discountsSrv interface {
 }
 
 type channelSrv interface {
-	Get(string) (*channel.Channel, error)
+	Get(string) (*channels.Channel, error)
 }
 
 type facturacionSrv interface {
 	Generate(invoice *invoices.Invoice, docType string, data any) (*invoices.Document, error)
+	IsFinalCustomer(documentType string) bool
+	IsValidDocumentType(documentType string) bool
 }
 
-type service struct {
-	repository  Repository
-	table       tables.Repository
-	product     products.Repository
-	invoice     invoices.Repository
-	account     accounts.Repository
-	shift       shifts.Repository
-	rt          *internal.Rabbit
-	payments    payment.Service
-	discounts   discountsSrv
-	channel     channelSrv
-	facturacion facturacionSrv
-
-	redis *redis.Client
+type ServiceImpl struct {
+	repository      Repository
+	tables          tables.Repository
+	product         products.Repository
+	invoice         invoices.Repository
+	account         accounts.Repository
+	shift           shifts.Repository
+	rt              *internal.Rabbit
+	payments        payments.Service
+	discounts       discountsSrv
+	channel         channelSrv
+	facturacion     facturacionSrv
+	facturacionRepo facturacion.FacturacionConfigRepository
+	redis           *redis.Client
+	plemsi          plemsi.Adapter
+	client          client.Repository
 }
 
 func NewService(repository Repository,
@@ -98,13 +103,16 @@ func NewService(repository Repository,
 	account accounts.Repository,
 	shift shifts.Repository,
 	rt *internal.Rabbit,
-	payments payment.Service,
+	payments payments.Service,
 	discounts discountsSrv,
 	channel channelSrv,
 	facturacion facturacionSrv,
+	facturacionRepo facturacion.FacturacionConfigRepository,
 	redis *redis.Client,
-) service {
-	return service{repository,
+	plemsi plemsi.Adapter,
+	client client.Repository,
+) ServiceImpl {
+	return ServiceImpl{repository,
 		table,
 		product,
 		invoice,
@@ -115,13 +123,16 @@ func NewService(repository Repository,
 		discounts,
 		channel,
 		facturacion,
+		facturacionRepo,
 		redis,
+		plemsi,
+		client,
 	}
 }
 
 // Orders
 // TODO: improve order creation
-func (s service) Create(idempoKey string, order *Order, ctx context.Context) (*Order, error) {
+func (s *ServiceImpl) Create(idempoKey string, order *Order, ctx context.Context) (*Order, error) {
 	// Setting product items
 	productIDs := order.GetProductIDs()
 	prods, err := s.product.GetByIDs(productIDs)
@@ -262,7 +273,7 @@ func (s service) Create(idempoKey string, order *Order, ctx context.Context) (*O
 	// Setting table
 	// TODO: Send create order and set table to repository to make a trx and rollback if error to avoid has order without table
 	if newOrder.TableID != nil && *newOrder.TableID != 0 {
-		if _, err := s.table.SetOrder(newOrder.TableID, &newOrder.ID); err != nil {
+		if _, err := s.tables.SetOrder(newOrder.TableID, &newOrder.ID); err != nil {
 			return nil, err
 		}
 	}
@@ -277,11 +288,11 @@ func (s service) Create(idempoKey string, order *Order, ctx context.Context) (*O
 	return orderDB, nil
 }
 
-func (s service) Update(order *Order) (*Order, error) {
+func (s *ServiceImpl) Update(order *Order) (*Order, error) {
 	return s.repository.Update(order)
 }
 
-func (s service) UpdateTable(orderID, tableID uint64) (*Order, error) {
+func (s *ServiceImpl) UpdateTable(orderID, tableID uint64) (*Order, error) {
 	order, err := s.repository.Get(fmt.Sprintf("%d", orderID))
 	if err != nil {
 		shared.LogError("error getting order", LogService, "UpdateTable", err, orderID)
@@ -295,7 +306,7 @@ func (s service) UpdateTable(orderID, tableID uint64) (*Order, error) {
 		return order, nil
 	}
 
-	_, err = s.table.SwapTable(order.ID, newTableID, oldTableID)
+	_, err = s.tables.SwapTable(order.ID, newTableID, oldTableID)
 	if err != nil {
 		shared.LogError("error swapping tables", LogService, "UpdateTable", err, oldTableID, newTableID, order.ID)
 		return nil, err
@@ -313,11 +324,11 @@ func (s service) UpdateTable(orderID, tableID uint64) (*Order, error) {
 	return orderDB, nil
 }
 
-func (s service) Get(id string) (*Order, error) {
+func (s *ServiceImpl) Get(id string) (*Order, error) {
 	return s.repository.Get(id)
 }
 
-func (s service) Find(filter map[string]any) ([]Order, error) {
+func (s *ServiceImpl) Find(filter map[string]any) ([]Order, error) {
 	orders, err := s.repository.Find(filter)
 	if err != nil {
 		return nil, fmt.Errorf(ErrorOrderFind)
@@ -326,7 +337,7 @@ func (s service) Find(filter map[string]any) ([]Order, error) {
 	return orders, nil
 }
 
-func (s service) UpdateSeats(orderID string, seats int) (*Order, error) {
+func (s *ServiceImpl) UpdateSeats(orderID string, seats int) (*Order, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "UpdateSeats", err, orderID)
@@ -347,7 +358,7 @@ func (s service) UpdateSeats(orderID string, seats int) (*Order, error) {
 	return orderDB, nil
 }
 
-func (s service) AddProducts(idempoKey, orderID string, orderItems []OrderItem) (*Order, error) {
+func (s *ServiceImpl) AddProducts(idempoKey, orderID string, orderItems []OrderItem) (*Order, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "AddProduct", err, orderID)
@@ -384,11 +395,11 @@ func (s service) AddProducts(idempoKey, orderID string, orderItems []OrderItem) 
 	}
 
 	newOrderItems := make([]OrderItem, 0)
-	errors := ""
+	errs := ""
 	for _, item := range orderItems {
 		productID := fmt.Sprintf("%d", *item.ProductID)
 		if _, ok := productsMap[productID]; !ok {
-			errors += fmt.Sprintf(ErrorOrderProductNotFound, productID)
+			errs += fmt.Sprintf(ErrorOrderProductNotFound, productID)
 			continue
 		}
 
@@ -398,7 +409,7 @@ func (s service) AddProducts(idempoKey, orderID string, orderItems []OrderItem) 
 		for i, mod := range item.Modifiers {
 			productID := fmt.Sprintf("%d", *mod.ProductID)
 			if _, ok := productModifiersMap[productID]; !ok {
-				errors += fmt.Sprintf(ErrorOrderModifierNotFound, productID)
+				errs += fmt.Sprintf(ErrorOrderModifierNotFound, productID)
 				continue
 			}
 
@@ -432,8 +443,8 @@ func (s service) AddProducts(idempoKey, orderID string, orderItems []OrderItem) 
 		newOrderItems = append(newOrderItems, newItem)
 	}
 
-	if errors != "" {
-		return nil, fmt.Errorf(errors)
+	if errs != "" {
+		return nil, fmt.Errorf(errs)
 	}
 
 	//	this sets the OrderItem.ID and appends the list to the orignal list of items in the order
@@ -459,7 +470,7 @@ func (s service) AddProducts(idempoKey, orderID string, orderItems []OrderItem) 
 	return orderDB, nil
 }
 
-func (s service) RemoveProduct(orderID, productID string) (*Order, error) {
+func (s *ServiceImpl) RemoveProduct(orderID, productID string) (*Order, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "RemoveProduct", err, orderID)
@@ -483,7 +494,7 @@ func (s service) RemoveProduct(orderID, productID string) (*Order, error) {
 	return orderDB, nil
 }
 
-func (s service) UpdateProduct(product *OrderItem) (*Order, error) {
+func (s *ServiceImpl) UpdateProduct(product *OrderItem) (*Order, error) {
 	orderItem, err := s.repository.UpdateOrderItem(product)
 	if err != nil {
 		return nil, fmt.Errorf(ErrorOrderItemUpdate)
@@ -497,7 +508,7 @@ func (s service) UpdateProduct(product *OrderItem) (*Order, error) {
 	return order, nil
 }
 
-func (s service) UpdateStatusNext(orderID string) (*Order, error) {
+func (s *ServiceImpl) UpdateStatusNext(orderID string) (*Order, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "UpdateStatusNext", err, orderID)
@@ -514,7 +525,7 @@ func (s service) UpdateStatusNext(orderID string) (*Order, error) {
 	return order, nil
 }
 
-func (s service) UpdateStatusPrev(orderID string) (*Order, error) {
+func (s *ServiceImpl) UpdateStatusPrev(orderID string) (*Order, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "UpdateStatusPrev", err, orderID)
@@ -531,7 +542,7 @@ func (s service) UpdateStatusPrev(orderID string) (*Order, error) {
 	return order, nil
 }
 
-func (s service) AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error) {
+func (s *ServiceImpl) AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error) {
 	orderItem, err := s.repository.GetOrderItem(fmt.Sprintf("%d", itemID))
 	if err != nil {
 		return nil, fmt.Errorf(ErrorOrderItemGetting)
@@ -548,7 +559,7 @@ func (s service) AddModifiers(itemID uint, modifiers []OrderModifier) (*OrderIte
 	return orderItemUpdated, nil
 }
 
-func (s service) RemoveModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error) {
+func (s *ServiceImpl) RemoveModifiers(itemID uint, modifiers []OrderModifier) (*OrderItem, error) {
 	orderItem, err := s.repository.GetOrderItem(fmt.Sprintf("%d", itemID))
 	if err != nil {
 		return nil, fmt.Errorf(ErrorOrderItemGetting)
@@ -565,7 +576,7 @@ func (s service) RemoveModifiers(itemID uint, modifiers []OrderModifier) (*Order
 	return orderItemUpdated, nil
 }
 
-func (s service) OrderItemUpdateCourse(orderItem *OrderItem) (*OrderItem, error) {
+func (s *ServiceImpl) OrderItemUpdateCourse(orderItem *OrderItem) (*OrderItem, error) {
 	orderItem.SetHash()
 	orderItemUpdated, err := s.repository.UpdateOrderItem(orderItem)
 	if err != nil {
@@ -575,7 +586,7 @@ func (s service) OrderItemUpdateCourse(orderItem *OrderItem) (*OrderItem, error)
 	return orderItemUpdated, nil
 }
 
-func (s service) UpdateComments(orderID, comments string) (*Order, error) {
+func (s *ServiceImpl) UpdateComments(orderID, comments string) (*Order, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "UpdateComments", err, orderID)
@@ -586,7 +597,7 @@ func (s service) UpdateComments(orderID, comments string) (*Order, error) {
 	return s.repository.Update(order)
 }
 
-func (s service) UpdateClientName(orderID, clientName string) (*Order, error) {
+func (s *ServiceImpl) UpdateClientName(orderID, clientName string) (*Order, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "UpdateClientName", err, orderID)
@@ -598,7 +609,7 @@ func (s service) UpdateClientName(orderID, clientName string) (*Order, error) {
 	return s.repository.Update(order)
 }
 
-func (s service) UpdateStatus(orderID, status string) (*Order, error) {
+func (s *ServiceImpl) UpdateStatus(orderID, status string) (*Order, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "UpdateStatus", err, orderID)
@@ -621,37 +632,37 @@ func (s service) UpdateStatus(orderID, status string) (*Order, error) {
 
 // Order Types
 
-func (s service) CreateOrderType(orderType *OrderType) (*OrderType, error) {
+func (s *ServiceImpl) CreateOrderType(orderType *OrderType) (*OrderType, error) {
 	return s.repository.CreateOrderType(orderType)
 }
 
-func (s service) FindOrderType(filter map[string]any) ([]OrderType, error) {
+func (s *ServiceImpl) FindOrderType(filter map[string]any) ([]OrderType, error) {
 	return s.repository.FindOrderType(filter)
 }
 
-func (s service) GetOrderType(orderTypeID string) (*OrderType, error) {
+func (s *ServiceImpl) GetOrderType(orderTypeID string) (*OrderType, error) {
 	return s.repository.GetOrderType(orderTypeID)
 }
 
-func (s service) UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error) {
+func (s *ServiceImpl) UpdateOrderType(orderTypeID string, orderType *OrderType) (*OrderType, error) {
 	return s.repository.UpdateOrderType(orderTypeID, orderType)
 }
 
-func (s service) DeleteOrderType(orderTypeID string) error {
+func (s *ServiceImpl) DeleteOrderType(orderTypeID string) error {
 	return s.repository.DeleteOrderType(orderTypeID)
 }
 
-// Invoice
-func (s service) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, error) {
+// CreateInvoice creates an invoice.
+func (s *ServiceImpl) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, error) {
 	order, err := s.repository.Get(req.orderId)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "CreateInvoice", err, req.orderId)
 		return nil, fmt.Errorf(ErrorOrderGetting)
 	}
 
-	discounts, err := s.discounts.GetMany(req.CalculateInvoiceRequest.Discounts)
+	discounts, err := s.discounts.GetMany(req.RequestCalculateInvoice.Discounts)
 	if err != nil {
-		shared.LogError("error getting discounts", LogService, "CreateInvoice", err, req.CalculateInvoiceRequest.Discounts)
+		shared.LogError("error getting discounts", LogService, "CreateInvoice", err, req.RequestCalculateInvoice.Discounts)
 		return nil, err
 	}
 
@@ -662,8 +673,8 @@ func (s service) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, err
 	}
 
 	tip := TipData{
-		Percentage: req.CalculateInvoiceRequest.TipPercentage,
-		Amount:     req.CalculateInvoiceRequest.TipAmount,
+		Percentage: req.RequestCalculateInvoice.TipPercentage,
+		Amount:     req.RequestCalculateInvoice.TipAmount,
 	}
 
 	// TODO: we asume only one invoice per order
@@ -675,6 +686,15 @@ func (s service) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, err
 	order.ToInvoice(&tip, discounts...)
 
 	invoice := order.Invoices[0]
+
+	// Setting payment
+	invoice.Payments = []payments.Payment{
+		{
+			PaymentMethodID: &req.PaymentMethodID,
+			Status:          payments.PaymentStatusEmmited,
+		},
+	}
+
 	if req.attendee != nil {
 		invoice.Cashier = req.attendee.Name
 	}
@@ -686,8 +706,19 @@ func (s service) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, err
 		}
 	}
 
-	// TODO: anular documentos viejos si se regenera el invoice
+	// Setting Client
+	cli, err := s.client.GetByDocument(req.DocumentData.Document)
+	if err != nil {
+		shared.LogError("error getting client", LogService, "CreateInvoice", err, req)
+		return nil, fmt.Errorf(ErrorOrderInvoiceGettingClient)
+	}
 
+	if cli != nil {
+		invoice.Client = cli
+		invoice.ClientID = &cli.ID
+	}
+
+	// TODO: anular documentos viejos si se regenera el invoice
 	// ATTENTION!!
 	// This is a critical zone. The following is protected by a distributed mutex using redis
 	// so each call is executed in order and has to wait for the previous one to finish.
@@ -734,9 +765,25 @@ func (s service) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, err
 		mu.Unlock()
 	}
 
+	// ################ Electronic Invoice ################ //
+	if facturacion.DocumentTypeFEUnidentified == req.DocumentType ||
+		facturacion.DocumentTypeFEIdentified == req.DocumentType {
+		if invoiceDB.Cude, invoiceDB.QRCode, err = s.EmitElectronicInvoice(order.StoreID, req.DocumentType, invoiceDB); err != nil {
+			shared.LogError("error emitting FE", LogService, "CreateInvoice", err, order.StoreID, req.DocumentType, invoiceDB)
+			return nil, err
+		}
+	}
+	// ################ Electronic Invoice ################ //
+
+	// Updating invoiceDB
+	if _, err := s.invoice.CreateUpdate(invoiceDB); err != nil {
+		shared.LogError("error updating invoice", LogService, "CreateInvoice", err, invoice)
+		return nil, fmt.Errorf(ErrorOrderInvoiceUpdate)
+	}
+
 	// release table
 	if order.TableID != nil && *order.TableID != 0 {
-		if _, err := s.table.RemoveOrder(order.TableID); err != nil {
+		if _, err := s.tables.RemoveOrder(order.TableID); err != nil {
 			return nil, err
 		}
 	}
@@ -752,7 +799,7 @@ func (s service) CreateInvoice(req CreateInvoiceRequest) (*invoices.Invoice, err
 	return invoiceDB, nil
 }
 
-func (s service) CalculateInvoice(orderID string, req CalculateInvoiceRequest) (*invoices.Invoice, error) {
+func (s *ServiceImpl) CalculateInvoice(orderID string, req RequestCalculateInvoice) (*invoices.Invoice, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "CalculateInvoice", err, orderID)
@@ -773,7 +820,7 @@ func (s service) CalculateInvoice(orderID string, req CalculateInvoiceRequest) (
 	return &invoice, nil
 }
 
-func (s service) CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoices.Invoice, error) {
+func (s *ServiceImpl) CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoices.Invoice, error) {
 	order, err := s.repository.Get(orderID)
 	if err != nil {
 		shared.LogError("error getting order", LogService, "CreateInvoice", err, orderID)
@@ -788,13 +835,13 @@ func (s service) CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoic
 	var oldInvoice *invoices.Invoice
 	if len(dbInvoices) > 0 {
 		oldInvoice = &dbInvoices[0]
-		payments := []payment.Payment{}
+		paymentList := []payments.Payment{}
 		for _, payment := range oldInvoice.Payments {
 			if payment.Status != "canceled" {
-				payments = append(payments, payment)
+				paymentList = append(paymentList, payment)
 			}
 		}
-		oldInvoice.Payments = payments
+		oldInvoice.Payments = paymentList
 	}
 
 	order.ToInvoice(nil)
@@ -804,8 +851,8 @@ func (s service) CalculateInvoiceOIT(orderID string) (*invoices.Invoice, *invoic
 	return &newInvoice, oldInvoice, nil
 }
 
-func (s service) Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error) {
-	invoice, err := s.CalculateInvoice(orderID, CalculateInvoiceRequest{
+func (s *ServiceImpl) Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckout, error) {
+	invoice, err := s.CalculateInvoice(orderID, RequestCalculateInvoice{
 		TipAmount: &data.Tip,
 	})
 	if err != nil {
@@ -853,7 +900,7 @@ func (s service) Checkout(orderID string, data CheckoutRequest) (*InvoiceCheckou
 	}, nil
 }
 
-func (s *service) queueComanda(orderId uint, tableId *uint, storeId *uint, items []OrderItem) error {
+func (s *ServiceImpl) queueComanda(orderId uint, tableId *uint, storeId *uint, items []OrderItem) error {
 	if len(items) == 0 {
 		logrus.Info("comanda for order ", orderId, " is empty")
 		return nil
@@ -879,7 +926,7 @@ func (s *service) queueComanda(orderId uint, tableId *uint, storeId *uint, items
 }
 
 // CloseInvoice closes an invoice.
-func (s service) CloseInvoice(req CloseInvoiceRequest) (*invoice.Invoice, error) {
+func (s *ServiceImpl) CloseInvoice(req CloseInvoiceRequest) (*invoices.Invoice, error) {
 	invoice, err := s.invoice.Get(req.InvoiceID)
 	if err != nil {
 		return nil, err
@@ -900,15 +947,15 @@ func (s service) CloseInvoice(req CloseInvoiceRequest) (*invoice.Invoice, error)
 	}
 
 	// Setting payment
-	nPayments := make([]payment.Payment, 0)
+	nPayments := make([]payments.Payment, 0)
 	for _, p := range req.Payments {
-		nPayments = append(nPayments, payment.Payment{
+		nPayments = append(nPayments, payments.Payment{
 			InvoiceID:  &invoice.ID,
 			Method:     p.Method,
 			Quantity:   p.Quantity,
 			Tip:        p.Tip,
 			TotalValue: p.Quantity + p.Tip,
-			Status:     payment.PaymentStatusPaid,
+			Status:     payments.PaymentStatusPaid,
 			Code:       p.Code,
 		})
 	}
@@ -951,4 +998,40 @@ func (s service) CloseInvoice(req CloseInvoiceRequest) (*invoice.Invoice, error)
 	return invDB, nil
 }
 
-var _ Service = &service{}
+func (s *ServiceImpl) EmitElectronicInvoice(storeID *uint, documentType string, invoiceDB *invoices.Invoice) (string, string, error) {
+	if !s.facturacion.IsValidDocumentType(documentType) {
+		shared.LogError("invalid document type", LogService, "CreateInvoice", nil, documentType)
+		return "", "", fmt.Errorf(ErrorOrderInvoiceInvalidDocumentType)
+	}
+
+	// TODO: working with only one payment
+	invoiceConfig, err := s.facturacionRepo.FindByStoreAndType(*storeID, documentType) // TODO: get from config
+	if err != nil {
+		shared.LogError("error getting facturacion config", LogService, "CreateInvoice", err, *storeID)
+		return "", "", err
+	}
+
+	if resolutionNumber, ok := invoiceConfig.Resolution["number"]; !ok {
+		shared.LogError("error getting facturacion config resolution number", LogService, "CreateInvoice", err, invoiceConfig)
+	} else {
+		invoiceDB.ResolutionNumber = resolutionNumber.(string)
+	}
+
+	plemsiInvoice, err := invoiceDB.ToPlemsiInvoice(s.facturacion.IsFinalCustomer(documentType))
+	if err != nil {
+		shared.LogError("error building plemsi invoice", LogService, "CreateInvoice", err, invoiceDB)
+		return "", "", fmt.Errorf("%s:%s", ErrorOrderInvoicePlemsiBuilding, err.Error())
+	}
+	shared.LogInfo("plemsi invoice", LogService, "CreateInvoice", nil, plemsiInvoice)
+
+	cude, qr, err := s.plemsi.EmitInvoice(plemsiInvoice)
+	if err != nil {
+		shared.LogError("error emitting invoice", LogService, "CreateInvoice", err, plemsiInvoice)
+		return "", "", fmt.Errorf(ErrorOrderInvoiceEmission)
+	}
+	shared.LogInfo("invoice emission", LogService, "CreateInvoice", nil, cude, qr)
+
+	return *cude, *qr, nil
+}
+
+var _ Service = &ServiceImpl{}

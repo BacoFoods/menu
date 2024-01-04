@@ -291,3 +291,127 @@ func (h *Handler) RemoveDiscountApplied(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, shared.SuccessResponse(invoiceAppliedRemoved))
 }
+
+// DIAN Resolution
+
+// FindResolution to handle a request to find resolutions
+// @Tags Resolution
+// @Summary To find resolutions
+// @Description To find resolutions
+// @Param storeID query string false "store id"
+// @Param resolution query string false "resolution"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} object{status=string,data=object{resolutions=[]Resolution}}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /resolution [get]
+func (h *Handler) FindResolution(c *gin.Context) {
+	filter := make(map[string]any)
+
+	if storeID := c.Query("store_id"); storeID != "" {
+		filter["store_id"] = storeID
+	}
+
+	if resolution := c.Query("resolution"); resolution != "" {
+		filter["resolution"] = resolution
+	}
+
+	resolutions, err := h.service.FindResolution(filter)
+	if err != nil {
+		shared.LogError("error finding resolutions", LogHandler, "FindResolution", err, resolutions)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(resolutions))
+}
+
+// CreateResolution to handle a request to create a resolution
+// @Tags Resolution
+// @Summary To create a resolution
+// @Description To create a resolution
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param resolution body DTOResolution true "resolution"
+// @Success 200 {object} object{status=string,data=Resolution}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /resolution [post]
+func (h *Handler) CreateResolution(c *gin.Context) {
+	var resolutionDTO DTOResolution
+	if err := c.ShouldBindJSON(&resolutionDTO); err != nil {
+		shared.LogError("error binding request body", LogHandler, "CreateResolution", err, resolutionDTO)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	resolution, err := resolutionDTO.ToResolution()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	createdResolution, err := h.service.CreateResolution(resolution)
+	if err != nil {
+		shared.LogError("error creating resolution", LogHandler, "CreateResolution", err, createdResolution)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, shared.SuccessResponse(createdResolution))
+}
+
+// UpdateResolution to handle a request to update a resolution
+// @Tags Resolution
+// @Summary To update a resolution
+// @Description To update a resolution
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param resolution body Resolution true "resolution"
+// @Success 200 {object} object{status=string,data=Resolution}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /resolution/{id} [patch]
+func (h *Handler) UpdateResolution(c *gin.Context) {
+	var resolution Resolution
+	if err := c.ShouldBindJSON(&resolution); err != nil {
+		shared.LogError("error binding request body", LogHandler, "UpdateResolution", err, resolution)
+		c.JSON(http.StatusBadRequest, shared.ErrorResponse(ErrorBadRequest))
+		return
+	}
+
+	updatedResolution, err := h.service.UpdateResolution(&resolution)
+	if err != nil {
+		shared.LogError("error updating resolution", LogHandler, "UpdateResolution", err, updatedResolution)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, shared.SuccessResponse(updatedResolution))
+
+}
+
+// DeleteResolution to handle a request to delete a resolution
+// @Tags Resolution
+// @Summary To delete a resolution
+// @Description To delete a resolution
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param id path string true "resolution id"
+// @Success 200 {object} object{status=string,data=Resolution}
+// @Failure 400 {object} shared.Response
+// @Failure 422 {object} shared.Response
+// @Router /resolution/{id} [delete]
+func (h *Handler) DeleteResolution(c *gin.Context) {
+	resolutionID := c.Param("id")
+
+	if err := h.service.DeleteResolution(resolutionID); err != nil {
+		shared.LogError("error deleting resolution", LogHandler, "DeleteResolution", err, resolutionID)
+		c.JSON(http.StatusUnprocessableEntity, shared.ErrorResponse(err.Error()))
+		return
+	}
+	c.JSON(http.StatusNoContent, shared.SuccessResponse(nil))
+}
