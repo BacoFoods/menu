@@ -147,30 +147,31 @@ func (i *Invoice) CalculateTaxDetails() {
 	taxTypes := make(map[string]*TaxDetail)
 
 	for _, item := range i.Items {
-		amount := item.DiscountedPrice * item.TaxPercentage
 
 		if _, ok := taxTypes[item.Tax]; !ok {
 			taxTypes[item.Tax] = &TaxDetail{
 				Name:       item.Tax,
-				Amount:     amount,
-				Base:       item.DiscountedPrice,
+				Amount:     item.TaxAmount,
+				Base:       item.TaxBase,
 				Percentage: item.TaxPercentage,
 			}
 		} else {
 			taxDetails := taxTypes[item.Tax]
-			taxDetails.Amount += amount
-			taxDetails.Base += item.DiscountedPrice
+			taxDetails.Amount += item.TaxAmount
+			taxDetails.Base += item.TaxBase
 		}
 	}
 
+	taxDetails := make([]TaxDetail, 0)
 	for taxType, taxDetail := range taxTypes {
-		i.TaxDetails = append(i.TaxDetails, TaxDetail{
+		taxDetails = append(taxDetails, TaxDetail{
 			Name:       taxType,
 			Amount:     taxDetail.Amount,
 			Base:       taxDetail.Base,
 			Percentage: taxDetail.Percentage,
 		})
 	}
+	i.TaxDetails = taxDetails
 }
 
 type Item struct {
@@ -184,12 +185,13 @@ type Item struct {
 	DiscountedPrice    float64         `json:"discounted_price" gorm:"precision:18;scale:2"`
 	DiscountReason     string          `json:"discount_reason"`
 	DiscountPercentage float64         `json:"discount_percentage"`
+	DiscountAmount     float64         `json:"discount_amount"`
 	Comments           string          `json:"comments"`
 	Hash               string          `json:"hash"`
 	Tax                string          `json:"tax"`
 	TaxPercentage      float64         `json:"tax_percentage"`
-	TaxAmount          float64         `json:"tax_amount"`
-	TaxBase            float64         `json:"tax_base"`
+	TaxAmount          float64         `json:"tax_amount" gorm:"precision:18;scale:2"`
+	TaxBase            float64         `json:"tax_base" gorm:"precision:18;scale:2"`
 	CreatedAt          *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt          *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt          *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
@@ -209,8 +211,13 @@ type DiscountApplied struct {
 	DeletedAt   gorm.DeletedAt `json:"-" swaggerignore:"true"`
 }
 
-func (d *DiscountApplied) Apply(value float64) float64 {
-	return math.Max(value-(value*d.Percentage/100), 0)
+func (d *DiscountApplied) ApplyRounded(value float64) float64 {
+	discountAmount := math.Floor(value * d.Percentage / 100)
+	return math.Round(math.Max(value-discountAmount, 0)) // Max to avoid negative values
+}
+
+func (d *DiscountApplied) CalculateAmountRounded(value float64) float64 {
+	return math.Floor(value * d.Percentage / 100)
 }
 
 type Surcharge struct {

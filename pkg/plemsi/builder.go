@@ -419,14 +419,9 @@ func (ib *BuilderItem) SetFreeOfChargeIndicator(freeOfChargeIndicator bool) *Bui
 }
 
 func (ib *BuilderItem) SetAllowanceCharges(allowanceCharges []ItemDiscount) *BuilderItem {
-	if allowanceCharges == nil {
-		// TODO: Check if this is correct
-		// ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemAllowanceChargesEmpty))
+	if allowanceCharges == nil || len(allowanceCharges) == 0 {
 		ib.AllowanceCharges = []ItemDiscount{}
 		return ib
-	}
-	if len(allowanceCharges) == 0 {
-		ib.Errors = append(ib.Errors, fmt.Errorf(ErrorPlemsiItemAllowanceChargesEmpty))
 	}
 	ib.AllowanceCharges = allowanceCharges
 	return ib
