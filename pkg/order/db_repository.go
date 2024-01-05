@@ -84,7 +84,7 @@ func (c *DBRepository) AddProducts(order *Order, newItems []OrderItem) (*Order, 
 
 // Update method for update an order in database
 func (r *DBRepository) Update(order *Order) (*Order, error) {
-	if err := r.db.Save(order).Error; err != nil {
+	if err := r.db.Session(&gorm.Session{FullSaveAssociations: true}).Save(order).Error; err != nil {
 		shared.LogError("error updating order", LogDBRepository, "Update", err, *order)
 		return nil, err
 	}
@@ -92,6 +92,7 @@ func (r *DBRepository) Update(order *Order) (*Order, error) {
 	return order, nil
 }
 
+// UpdateTable method for update an order table in database
 func (r *DBRepository) UpdateTable(order *Order, newTableID uint) (*Order, error) {
 	return order, r.db.Model(order).Select("table_id").Where("id = ?", order.ID).Update("table_id", newTableID).Error
 }
@@ -108,8 +109,6 @@ func (r *DBRepository) Find(filter map[string]any) ([]Order, error) {
 		tx.Preload(clause.Associations).
 			Preload("Items.Modifiers").
 			Where(fmt.Sprintf("created_at >= NOW() - INTERVAL '%s' DAY", days))
-
-		shared.LogWarn("filtering by days", LogDBRepository, "Find", nil, filter)
 		delete(filter, "days")
 	}
 

@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/BacoFoods/menu/pkg/plemsi"
+	"github.com/BacoFoods/menu/pkg/shared"
+	"github.com/go-resty/resty/v2"
 	"net/http"
 
 	"github.com/BacoFoods/menu/pkg/connector"
@@ -78,8 +81,8 @@ func main() {
 		&account.Account{},
 		&course.Course{},
 		&client.Client{},
-		&payment.Payment{},
 		&payment.PaymentMethod{},
+		&payment.Payment{},
 		&order.Attendee{},
 		&shift.Shift{},
 		&tables.QR{},
@@ -93,10 +96,13 @@ func main() {
 		&siesa.Reference{},
 		&siesa.SiesaDocument{},
 		&scheduler.Holiday{},
+		&invoice.Resolution{},
 	)
 
 	rabbitCh := internal.MustNewRabbitMQ(internal.Config.RabbitConfig.ComandasQueue, internal.Config.RabbitConfig.Host, internal.Config.RabbitConfig.Port)
 	redisConn := internal.MustNewRedis(internal.Config.RedisConfig.Host, internal.Config.RedisConfig.Port)
+
+	httpClient := shared.NewRestClient(resty.New())
 
 	// Healthcheck
 	healthcheckHandler := healthcheck.NewHandler()
@@ -206,8 +212,9 @@ func main() {
 	facturacionRoutes := facturacion.NewRoutes(facturacionHandler)
 
 	// Invoice
+	plemsiAdapter := plemsi.NewPlemsi(httpClient)
 	invoiceRepository := invoice.NewDBRepository(gormDB)
-	invoiceService := invoice.NewService(invoiceRepository, clientRepository)
+	invoiceService := invoice.NewService(invoiceRepository, clientRepository, plemsiAdapter)
 	invoiceHandler := invoice.NewHandler(invoiceService)
 	invoiceRoutes := invoice.NewRoutes(invoiceHandler)
 
@@ -236,9 +243,12 @@ func main() {
 		discountRepository,
 		channelRepository,
 		facturacionService,
+		facturacionRepository,
 		redisConn,
+		plemsiAdapter,
+		clientRepository,
 	)
-	orderHandler := order.NewHandler(orderService)
+	orderHandler := order.NewHandler(&orderService)
 	orderRoutes := order.NewRoutes(orderHandler)
 
 	// Course
@@ -287,7 +297,7 @@ func main() {
 	equivalenceHandler := connector.NewHandler(equivalenceService)
 	equivalenceRoutes := connector.NewRoutes(equivalenceHandler)
 
-	// Application
+	// Application TDP compilation apk and exe
 	appService := app.NewService(internal.Config.GitToken, internal.Config.GitRepository)
 	appHandler := app.NewHandler(appService)
 	appRoutes := app.NewRoutes(appHandler)

@@ -62,7 +62,7 @@ func (r Routes) RegisterRoutes(private, public *shared.CustomRoutes) {
 	private.DELETE("order-type/:id", r.handler.DeleteOrderType)
 
 	// Invoice
-	private.POST("/order/:id/invoice", r.handler.CreateInvoice)
+	private.POST("/order/:id/invoice", r.handler.CreateInvoice, telemetryMiddleware)
 	private.POST("/order/:id/invoice/calculate", r.handler.CalculateInvoice)
 	public.GET("/order/:id/invoice/calculate", r.handler.PublicCalculateInvoice)
 	public.POST("/order/:id/checkout", r.handler.PublicCheckout)

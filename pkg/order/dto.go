@@ -118,12 +118,14 @@ type RequestUpdateOrderClientName struct {
 	ClientName string `json:"client_name" binding:"required"`
 }
 
+// Invoice
+
 type InvoiceCheckout struct {
 	Payment *payment.Payment `json:"payment"`
 	Invoice *invoice.Invoice `json:"invoice"`
 }
 
-type CalculateInvoiceRequest struct {
+type RequestCalculateInvoice struct {
 	// Optional value between 0 and 100
 	TipPercentage *float64 `json:"tip_percentage"`
 
@@ -134,13 +136,17 @@ type CalculateInvoiceRequest struct {
 	Discounts []uint `json:"discounts"`
 }
 
-func (r CalculateInvoiceRequest) GetTip() *TipData {
+func (r RequestCalculateInvoice) GetTip() *TipData {
 	return &TipData{
 		Percentage: r.TipPercentage,
 		Amount:     r.TipAmount,
 	}
 }
 
-func (r CalculateInvoiceRequest) GetDiscountsIDs() []uint {
+func (r RequestCalculateInvoice) GetDiscountsIDs() []uint {
 	return r.Discounts
+}
+
+type RequestInvoicePaymentMethod struct {
+	PaymentMethodID uint `json:"payment_method_id"`
 }

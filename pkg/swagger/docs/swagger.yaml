@@ -545,6 +545,48 @@ definitions:
   internal.JSONMap:
     additionalProperties: true
     type: object
+  invoice.DTOResolution:
+    properties:
+      brand_id:
+        type: integer
+      current:
+        type: integer
+      date_from:
+        example: "2021-01-01"
+        format: "2006-01-02"
+        type: string
+      date_to:
+        example: "2021-01-01"
+        format: "2006-01-02"
+        type: string
+      from:
+        type: integer
+      prefix:
+        type: string
+      resolution:
+        type: string
+      resolution_date:
+        example: "2021-01-01"
+        format: "2006-01-02"
+        type: string
+      store_id:
+        type: integer
+      to:
+        type: integer
+      type_document:
+        example: factura, nota crédito, nota débito
+        type: string
+      type_resolution:
+        example: electrónica
+        type: string
+    required:
+    - from
+    - resolution
+    - store_id
+    - to
+    - type_document
+    - type_resolution
+    type: object
   invoice.DiscountApplied:
     properties:
       amount:
@@ -591,6 +633,8 @@ definitions:
         $ref: '#/definitions/client.Client'
       client_id:
         type: integer
+      cude:
+        type: string
       discounts:
         items:
           $ref: '#/definitions/invoice.DiscountApplied'
@@ -613,12 +657,19 @@ definitions:
         type: array
       payments_observation:
         type: string
+      qr_code:
+        type: string
+      resolution:
+        $ref: '#/definitions/invoice.Resolution'
+      resolution_id:
+        type: integer
+      resolution_number:
+        type: string
       shift:
         type: string
       shift_id:
         type: integer
       status:
-        description: 'TODO: populate'
         type: string
       store_id:
         type: integer
@@ -660,6 +711,12 @@ definitions:
         type: string
       description:
         type: string
+      discount_amount:
+        type: number
+      discount_percentage:
+        type: number
+      discount_reason:
+        type: string
       discounted_price:
         type: number
       hash:
@@ -678,6 +735,10 @@ definitions:
         type: string
       tax:
         type: string
+      tax_amount:
+        type: number
+      tax_base:
+        type: number
       tax_percentage:
         type: number
     type: object
@@ -698,6 +759,35 @@ definitions:
         type: string
       value:
         type: number
+    type: object
+  invoice.Resolution:
+    properties:
+      brand_id:
+        type: integer
+      current:
+        type: integer
+      date_from:
+        type: string
+      date_to:
+        type: string
+      from:
+        type: integer
+      id:
+        type: integer
+      prefix:
+        type: string
+      resolution:
+        type: string
+      resolution_date:
+        type: string
+      store_id:
+        type: integer
+      to:
+        type: integer
+      type_document:
+        type: string
+      type_resolution:
+        type: string
     type: object
   invoice.Surcharge:
     properties:
@@ -802,20 +892,6 @@ definitions:
       role:
         type: string
     type: object
-  order.CalculateInvoiceRequest:
-    properties:
-      discounts:
-        description: List of discount IDs to apply to the invoice
-        items:
-          type: integer
-        type: array
-      tip_amount:
-        description: Optional value grater than 0
-        type: number
-      tip_percentage:
-        description: Optional value between 0 and 100
-        type: number
-    type: object
   order.CheckoutRequest:
     properties:
       customer_id:
@@ -847,6 +923,8 @@ definitions:
       document_type:
         description: 'Possible options are: POS, FEUnidentified, FEIdentified'
         type: string
+      payment_method_id:
+        type: integer
       tip_amount:
         description: Optional value grater than 0
         type: number
@@ -936,8 +1014,13 @@ definitions:
         type: string
       discount:
         type: number
+      discount_percent:
+        type: number
       discount_reason:
         type: string
+      discounted_price:
+        description: DiscountPrice is the tax base after applying discount
+        type: number
       hash:
         type: string
       id:
@@ -964,6 +1047,10 @@ definitions:
         type: string
       tax:
         type: string
+      tax_amount:
+        type: number
+      tax_base:
+        type: number
       tax_percentage:
         type: number
       unit:
@@ -995,6 +1082,15 @@ definitions:
         type: string
       description:
         type: string
+      discount:
+        type: number
+      discount_percent:
+        type: number
+      discount_reason:
+        type: string
+      discounted_price:
+        description: DiscountPrice is the tax base after applying discount
+        type: number
       id:
         type: integer
       image:
@@ -1011,8 +1107,16 @@ definitions:
         type: integer
       sku:
         type: string
+      surcharge:
+        type: number
+      surcharge_reason:
+        type: string
       tax:
         type: string
+      tax_amount:
+        type: number
+      tax_base:
+        type: number
       tax_percentage:
         type: number
       unit:
@@ -1052,6 +1156,20 @@ definitions:
         type: array
     required:
     - items
+    type: object
+  order.RequestCalculateInvoice:
+    properties:
+      discounts:
+        description: List of discount IDs to apply to the invoice
+        items:
+          type: integer
+        type: array
+      tip_amount:
+        description: Optional value grater than 0
+        type: number
+      tip_percentage:
+        description: Optional value between 0 and 100
+        type: number
     type: object
   order.RequestModifiers:
     properties:
@@ -1131,6 +1249,10 @@ definitions:
           This can come from manual input in the POS such as <code>cash</code>, <code>card</code>, <code>check</code>, etc.
           or from order in table with <code>paylot</code> or <code>yuno</code>
         type: string
+      payment_method:
+        $ref: '#/definitions/payment.PaymentMethod'
+      payment_method_id:
+        type: integer
       quantity:
         description: Quantity is the amount of money paid
         type: number
@@ -1147,6 +1269,7 @@ definitions:
     required:
     - invoice_id
     - method
+    - payment_method_id
     - quantity
     - status
     - tip
@@ -1165,6 +1288,8 @@ definitions:
       id:
         type: integer
       name:
+        type: string
+      plemsi_code:
         type: string
       short_name:
         type: string
@@ -1258,6 +1383,10 @@ definitions:
         type: string
       sku_aggregators:
         type: string
+      tax_amount:
+        type: number
+      tax_base:
+        type: number
       tax_id:
         type: integer
       unit:
@@ -6075,7 +6204,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/order.CalculateInvoiceRequest'
+          $ref: '#/definitions/order.RequestCalculateInvoice'
       produces:
       - application/json
       responses:
@@ -7702,7 +7831,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: To checkout an order.
+      description: To check out an order.
       parameters:
       - description: Order ID
         in: path
@@ -7729,14 +7858,14 @@ paths:
                 status:
                   type: string
               type: object
-      summary: To checkout an order.
+      summary: To check out an order.
       tags:
       - Order
   /public/order/{id}/invoice/calculate:
     get:
       consumes:
       - application/json
-      description: Public entpodint to calculate an invoice
+      description: Public endpoint to calculate an invoice
       parameters:
       - description: Order ID
         in: path
@@ -7800,6 +7929,168 @@ paths:
       summary: Scan QR
       tags:
       - Tables
+  /resolution:
+    get:
+      consumes:
+      - application/json
+      description: To find resolutions
+      parameters:
+      - description: store id
+        in: query
+        name: storeID
+        type: string
+      - description: resolution
+        in: query
+        name: resolution
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  allOf:
+                  - type: object
+                  - properties:
+                      resolutions:
+                        items:
+                          $ref: '#/definitions/invoice.Resolution'
+                        type: array
+                    type: object
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To find resolutions
+      tags:
+      - Resolution
+    post:
+      consumes:
+      - application/json
+      description: To create a resolution
+      parameters:
+      - description: resolution
+        in: body
+        name: resolution
+        required: true
+        schema:
+          $ref: '#/definitions/invoice.DTOResolution'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Resolution'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To create a resolution
+      tags:
+      - Resolution
+  /resolution/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: To delete a resolution
+      parameters:
+      - description: resolution id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Resolution'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To delete a resolution
+      tags:
+      - Resolution
+    patch:
+      consumes:
+      - application/json
+      description: To update a resolution
+      parameters:
+      - description: resolution
+        in: body
+        name: resolution
+        required: true
+        schema:
+          $ref: '#/definitions/invoice.Resolution'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/invoice.Resolution'
+                status:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.Response'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/shared.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: To update a resolution
+      tags:
+      - Resolution
   /schedules:
     delete:
       consumes:

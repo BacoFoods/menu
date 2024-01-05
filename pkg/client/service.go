@@ -25,6 +25,15 @@ func (s service) Get(id string) (*Client, error) {
 }
 
 func (s service) Create(client *Client) (*Client, error) {
+	clientDB, err := s.repository.GetByDocument(client.Document)
+	if err != nil {
+		return nil, err
+	}
+
+	if clientDB != nil {
+		return clientDB, nil
+	}
+
 	return s.repository.Create(client)
 }
 

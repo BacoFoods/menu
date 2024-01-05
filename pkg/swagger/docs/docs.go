@@ -7324,7 +7324,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/order.CalculateInvoiceRequest"
+                            "$ref": "#/definitions/order.RequestCalculateInvoice"
                         }
                     }
                 ],
@@ -9992,7 +9992,7 @@ const docTemplate = `{
         },
         "/public/order/{id}/checkout": {
             "post": {
-                "description": "To checkout an order.",
+                "description": "To check out an order.",
                 "consumes": [
                     "application/json"
                 ],
@@ -10002,7 +10002,7 @@ const docTemplate = `{
                 "tags": [
                     "Order"
                 ],
-                "summary": "To checkout an order.",
+                "summary": "To check out an order.",
                 "parameters": [
                     {
                         "type": "string",
@@ -10048,7 +10048,7 @@ const docTemplate = `{
         },
         "/public/order/{id}/invoice/calculate": {
             "get": {
-                "description": "Public entpodint to calculate an invoice",
+                "description": "Public endpoint to calculate an invoice",
                 "consumes": [
                     "application/json"
                 ],
@@ -10145,6 +10145,282 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/resolution": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To find resolutions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resolution"
+                ],
+                "summary": "To find resolutions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "store id",
+                        "name": "storeID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "resolution",
+                        "name": "resolution",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "type": "object"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "resolutions": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/invoice.Resolution"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To create a resolution",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resolution"
+                ],
+                "summary": "To create a resolution",
+                "parameters": [
+                    {
+                        "description": "resolution",
+                        "name": "resolution",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/invoice.DTOResolution"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Resolution"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/resolution/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To delete a resolution",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resolution"
+                ],
+                "summary": "To delete a resolution",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "resolution id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Resolution"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/shared.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "To update a resolution",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resolution"
+                ],
+                "summary": "To update a resolution",
+                "parameters": [
+                    {
+                        "description": "resolution",
+                        "name": "resolution",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/invoice.Resolution"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/invoice.Resolution"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/shared.Response"
                         }
@@ -15148,6 +15424,63 @@ const docTemplate = `{
             "type": "object",
             "additionalProperties": true
         },
+        "invoice.DTOResolution": {
+            "type": "object",
+            "required": [
+                "from",
+                "resolution",
+                "store_id",
+                "to",
+                "type_document",
+                "type_resolution"
+            ],
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "current": {
+                    "type": "integer"
+                },
+                "date_from": {
+                    "type": "string",
+                    "format": "2006-01-02",
+                    "example": "2021-01-01"
+                },
+                "date_to": {
+                    "type": "string",
+                    "format": "2006-01-02",
+                    "example": "2021-01-01"
+                },
+                "from": {
+                    "type": "integer"
+                },
+                "prefix": {
+                    "type": "string"
+                },
+                "resolution": {
+                    "type": "string"
+                },
+                "resolution_date": {
+                    "type": "string",
+                    "format": "2006-01-02",
+                    "example": "2021-01-01"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "to": {
+                    "type": "integer"
+                },
+                "type_document": {
+                    "type": "string",
+                    "example": "factura, nota crédito, nota débito"
+                },
+                "type_resolution": {
+                    "type": "string",
+                    "example": "electrónica"
+                }
+            }
+        },
         "invoice.DiscountApplied": {
             "type": "object",
             "properties": {
@@ -15223,6 +15556,9 @@ const docTemplate = `{
                 "client_id": {
                     "type": "integer"
                 },
+                "cude": {
+                    "type": "string"
+                },
                 "discounts": {
                     "type": "array",
                     "items": {
@@ -15256,6 +15592,18 @@ const docTemplate = `{
                 "payments_observation": {
                     "type": "string"
                 },
+                "qr_code": {
+                    "type": "string"
+                },
+                "resolution": {
+                    "$ref": "#/definitions/invoice.Resolution"
+                },
+                "resolution_id": {
+                    "type": "integer"
+                },
+                "resolution_number": {
+                    "type": "string"
+                },
                 "shift": {
                     "type": "string"
                 },
@@ -15263,7 +15611,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "status": {
-                    "description": "TODO: populate",
                     "type": "string"
                 },
                 "store_id": {
@@ -15320,6 +15667,15 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "discount_amount": {
+                    "type": "number"
+                },
+                "discount_percentage": {
+                    "type": "number"
+                },
+                "discount_reason": {
+                    "type": "string"
+                },
                 "discounted_price": {
                     "type": "number"
                 },
@@ -15346,6 +15702,12 @@ const docTemplate = `{
                 },
                 "tax": {
                     "type": "string"
+                },
+                "tax_amount": {
+                    "type": "number"
+                },
+                "tax_base": {
+                    "type": "number"
                 },
                 "tax_percentage": {
                     "type": "number"
@@ -15377,6 +15739,50 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "number"
+                }
+            }
+        },
+        "invoice.Resolution": {
+            "type": "object",
+            "properties": {
+                "brand_id": {
+                    "type": "integer"
+                },
+                "current": {
+                    "type": "integer"
+                },
+                "date_from": {
+                    "type": "string"
+                },
+                "date_to": {
+                    "type": "string"
+                },
+                "from": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "prefix": {
+                    "type": "string"
+                },
+                "resolution": {
+                    "type": "string"
+                },
+                "resolution_date": {
+                    "type": "string"
+                },
+                "store_id": {
+                    "type": "integer"
+                },
+                "to": {
+                    "type": "integer"
+                },
+                "type_document": {
+                    "type": "string"
+                },
+                "type_resolution": {
+                    "type": "string"
                 }
             }
         },
@@ -15536,26 +15942,6 @@ const docTemplate = `{
                 }
             }
         },
-        "order.CalculateInvoiceRequest": {
-            "type": "object",
-            "properties": {
-                "discounts": {
-                    "description": "List of discount IDs to apply to the invoice",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "tip_amount": {
-                    "description": "Optional value grater than 0",
-                    "type": "number"
-                },
-                "tip_percentage": {
-                    "description": "Optional value between 0 and 100",
-                    "type": "number"
-                }
-            }
-        },
         "order.CheckoutRequest": {
             "type": "object",
             "properties": {
@@ -15601,6 +15987,9 @@ const docTemplate = `{
                 "document_type": {
                     "description": "Possible options are: POS, FEUnidentified, FEIdentified",
                     "type": "string"
+                },
+                "payment_method_id": {
+                    "type": "integer"
                 },
                 "tip_amount": {
                     "description": "Optional value grater than 0",
@@ -15734,8 +16123,15 @@ const docTemplate = `{
                 "discount": {
                     "type": "number"
                 },
+                "discount_percent": {
+                    "type": "number"
+                },
                 "discount_reason": {
                     "type": "string"
+                },
+                "discounted_price": {
+                    "description": "DiscountPrice is the tax base after applying discount",
+                    "type": "number"
                 },
                 "hash": {
                     "type": "string"
@@ -15775,6 +16171,12 @@ const docTemplate = `{
                 },
                 "tax": {
                     "type": "string"
+                },
+                "tax_amount": {
+                    "type": "number"
+                },
+                "tax_base": {
+                    "type": "number"
                 },
                 "tax_percentage": {
                     "type": "number"
@@ -15823,6 +16225,19 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "discount": {
+                    "type": "number"
+                },
+                "discount_percent": {
+                    "type": "number"
+                },
+                "discount_reason": {
+                    "type": "string"
+                },
+                "discounted_price": {
+                    "description": "DiscountPrice is the tax base after applying discount",
+                    "type": "number"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -15847,8 +16262,20 @@ const docTemplate = `{
                 "sku": {
                     "type": "string"
                 },
+                "surcharge": {
+                    "type": "number"
+                },
+                "surcharge_reason": {
+                    "type": "string"
+                },
                 "tax": {
                     "type": "string"
+                },
+                "tax_amount": {
+                    "type": "number"
+                },
+                "tax_base": {
+                    "type": "number"
                 },
                 "tax_percentage": {
                     "type": "number"
@@ -15909,6 +16336,26 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/order.OrderItemDTO"
                     }
+                }
+            }
+        },
+        "order.RequestCalculateInvoice": {
+            "type": "object",
+            "properties": {
+                "discounts": {
+                    "description": "List of discount IDs to apply to the invoice",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "tip_amount": {
+                    "description": "Optional value grater than 0",
+                    "type": "number"
+                },
+                "tip_percentage": {
+                    "description": "Optional value between 0 and 100",
+                    "type": "number"
                 }
             }
         },
@@ -16010,6 +16457,7 @@ const docTemplate = `{
             "required": [
                 "invoice_id",
                 "method",
+                "payment_method_id",
                 "quantity",
                 "status",
                 "tip",
@@ -16033,6 +16481,12 @@ const docTemplate = `{
                 "method": {
                     "description": "Payment method used.\nThis can come from manual input in the POS such as \u003ccode\u003ecash\u003c/code\u003e, \u003ccode\u003ecard\u003c/code\u003e, \u003ccode\u003echeck\u003c/code\u003e, etc.\nor from order in table with \u003ccode\u003epaylot\u003c/code\u003e or \u003ccode\u003eyuno\u003c/code\u003e",
                     "type": "string"
+                },
+                "payment_method": {
+                    "$ref": "#/definitions/payment.PaymentMethod"
+                },
+                "payment_method_id": {
+                    "type": "integer"
                 },
                 "quantity": {
                     "description": "Quantity is the amount of money paid",
@@ -16076,6 +16530,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "plemsi_code": {
                     "type": "string"
                 },
                 "short_name": {
@@ -16217,6 +16674,12 @@ const docTemplate = `{
                 },
                 "sku_aggregators": {
                     "type": "string"
+                },
+                "tax_amount": {
+                    "type": "number"
+                },
+                "tax_base": {
+                    "type": "number"
                 },
                 "tax_id": {
                     "type": "integer"

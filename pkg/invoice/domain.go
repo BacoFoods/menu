@@ -35,10 +35,18 @@ const (
 	ErrorDiscountAppliedFind   = "error finding discount applied"
 	ErrorDiscountAppliedRemove = "error removing discount applied"
 
+	ErrorResolutionFind     = "error finding resolution"
+	ErrorResolutionCreate   = "error creating resolution"
+	ErrorResolutionUpdate   = "error updating resolution"
+	ErrorResolutionDelete   = "error deleting resolution"
+	ErrorResolutionNotFound = "error resolution not found"
+
 	TaxPercentage     = 0.08
 	TipTypePercentage = "PERCENTAGE"
 	TipTypeAmount     = "AMOUNT"
 	TipPercentageMax  = 0.1
+
+	ErrorPlemsiAdapterInvoiceWithoutPayment = "error plemsi adapter invoice with out payment"
 )
 
 type Repository interface {
@@ -53,20 +61,25 @@ type Repository interface {
 
 	FindDiscountApplied() ([]DiscountApplied, error)
 	RemoveDiscountApplied(discountAppliedID string) (DiscountApplied, error)
+
+	// DIAN Resolutions
+	FindResolution(filter map[string]any) ([]Resolution, error)
+	CreateResolution(resolution *Resolution) (*Resolution, error)
+	UpdateResolution(resolution *Resolution) (*Resolution, error)
+	DeleteResolution(resolutionID string) error
 }
 
 type Invoice struct {
-	ID         uint              `json:"id"`
-	OrderID    *uint             `json:"order_id"`
-	BrandID    *uint             `json:"brand_id" binding:"required"`
-	StoreID    *uint             `json:"store_id" binding:"required"`
-	ChannelID  *uint             `json:"channel_id" binding:"required"`
-	TableID    *uint             `json:"table_id"`
-	Items      []Item            `json:"items"  gorm:"foreignKey:InvoiceID"`
-	Discounts  []DiscountApplied `json:"discounts"  gorm:"foreignKey:InvoiceID"`
-	Surcharges []Surcharge       `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
-	Documents  []Document        `json:"documents" gorm:"foreignKey:InvoiceID"`
-	// TODO: populate
+	ID                  uint              `json:"id"`
+	OrderID             *uint             `json:"order_id"`
+	BrandID             *uint             `json:"brand_id" binding:"required"`
+	StoreID             *uint             `json:"store_id" binding:"required"`
+	ChannelID           *uint             `json:"channel_id" binding:"required"`
+	TableID             *uint             `json:"table_id"`
+	Items               []Item            `json:"items"  gorm:"foreignKey:InvoiceID"`
+	Discounts           []DiscountApplied `json:"discounts"  gorm:"foreignKey:InvoiceID"`
+	Surcharges          []Surcharge       `json:"surcharges"  gorm:"foreignKey:InvoiceID"`
+	Documents           []Document        `json:"documents" gorm:"foreignKey:InvoiceID" faker:"-"`
 	Status              string            `json:"status"`
 	Cashier             string            `json:"shift"`
 	Waiter              string            `json:"waiter"`
@@ -82,8 +95,13 @@ type Invoice struct {
 	PaymentsObservation string            `json:"payments_observation"`
 	Payments            []payment.Payment `json:"payments" gorm:"foreignKey:InvoiceID"`
 	ClientID            *uint             `json:"client_id"`
-	Client              *client.Client    `json:"client,omitempty"`
+	Client              *client.Client    `json:"client,omitempty" faker:"-"`
 	ShiftID             *uint             `json:"shift_id"`
+	ResolutionID        *uint             `json:"resolution_id"`
+	Resolution          *Resolution       `json:"resolution,omitempty" gorm:"foreignKey:ResolutionID"`
+	ResolutionNumber    string            `json:"resolution_number"`
+	Cude                string            `json:"cude"`
+	QRCode              string            `json:"qr_code"`
 	CreatedAt           *time.Time        `json:"created_at,omitempty" swaggerignore:"true"`
 	UpdatedAt           *time.Time        `json:"updated_at,omitempty" swaggerignore:"true"`
 	DeletedAt           *gorm.DeletedAt   `json:"deleted_at,omitempty" swaggerignore:"true"`
@@ -122,55 +140,61 @@ func (i *Invoice) MapItems() map[uint]Item {
 	return items
 }
 
+// CalculateTaxDetails makes total iva and ico taxes
 func (i *Invoice) CalculateTaxDetails() {
 	i.TaxDetails = make([]TaxDetail, 0)
 
 	taxTypes := make(map[string]*TaxDetail)
 
 	for _, item := range i.Items {
-		base := math.Floor(item.DiscountedPrice / (1 + item.TaxPercentage))
-		amount := item.DiscountedPrice - base
 
 		if _, ok := taxTypes[item.Tax]; !ok {
 			taxTypes[item.Tax] = &TaxDetail{
 				Name:       item.Tax,
-				Amount:     amount,
-				Base:       base,
+				Amount:     item.TaxAmount,
+				Base:       item.TaxBase,
 				Percentage: item.TaxPercentage,
 			}
 		} else {
 			taxDetails := taxTypes[item.Tax]
-			taxDetails.Amount += amount
-			taxDetails.Base += base
+			taxDetails.Amount += item.TaxAmount
+			taxDetails.Base += item.TaxBase
 		}
 	}
 
+	taxDetails := make([]TaxDetail, 0)
 	for taxType, taxDetail := range taxTypes {
-		i.TaxDetails = append(i.TaxDetails, TaxDetail{
+		taxDetails = append(taxDetails, TaxDetail{
 			Name:       taxType,
 			Amount:     taxDetail.Amount,
 			Base:       taxDetail.Base,
 			Percentage: taxDetail.Percentage,
 		})
 	}
+	i.TaxDetails = taxDetails
 }
 
 type Item struct {
-	ID              uint            `json:"id"`
-	InvoiceID       *uint           `json:"invoice_id"`
-	ProductID       *uint           `json:"product_id"`
-	Name            string          `json:"name"`
-	Description     string          `json:"description"`
-	SKU             string          `json:"sku"`
-	Price           float64         `json:"price" gorm:"precision:18;scale:2"`
-	DiscountedPrice float64         `json:"discounted_price" gorm:"precision:18;scale:2"`
-	Comments        string          `json:"comments"`
-	Hash            string          `json:"hash"`
-	Tax             string          `json:"tax"`
-	TaxPercentage   float64         `json:"tax_percentage"`
-	CreatedAt       *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
-	UpdatedAt       *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
-	DeletedAt       *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
+	ID                 uint            `json:"id"`
+	InvoiceID          *uint           `json:"invoice_id"`
+	ProductID          *uint           `json:"product_id"`
+	Name               string          `json:"name"`
+	Description        string          `json:"description"`
+	SKU                string          `json:"sku"`
+	Price              float64         `json:"price" gorm:"precision:18;scale:2"`
+	DiscountedPrice    float64         `json:"discounted_price" gorm:"precision:18;scale:2"`
+	DiscountReason     string          `json:"discount_reason"`
+	DiscountPercentage float64         `json:"discount_percentage"`
+	DiscountAmount     float64         `json:"discount_amount"`
+	Comments           string          `json:"comments"`
+	Hash               string          `json:"hash"`
+	Tax                string          `json:"tax"`
+	TaxPercentage      float64         `json:"tax_percentage"`
+	TaxAmount          float64         `json:"tax_amount" gorm:"precision:18;scale:2"`
+	TaxBase            float64         `json:"tax_base" gorm:"precision:18;scale:2"`
+	CreatedAt          *time.Time      `json:"created_at,omitempty" swaggerignore:"true"`
+	UpdatedAt          *time.Time      `json:"updated_at,omitempty" swaggerignore:"true"`
+	DeletedAt          *gorm.DeletedAt `json:"deleted_at,omitempty" swaggerignore:"true"`
 }
 
 type DiscountApplied struct {
@@ -187,8 +211,13 @@ type DiscountApplied struct {
 	DeletedAt   gorm.DeletedAt `json:"-" swaggerignore:"true"`
 }
 
-func (d *DiscountApplied) Apply(value float64) float64 {
-	return math.Max(value-(value*d.Percentage/100), 0)
+func (d *DiscountApplied) ApplyRounded(value float64) float64 {
+	discountAmount := math.Floor(value * d.Percentage / 100)
+	return math.Round(math.Max(value-discountAmount, 0)) // Max to avoid negative values
+}
+
+func (d *DiscountApplied) CalculateAmountRounded(value float64) float64 {
+	return math.Floor(value * d.Percentage / 100)
 }
 
 type Surcharge struct {
@@ -236,4 +265,23 @@ func (b *Document) BeforeCreate(tx *gorm.DB) (err error) {
 		DoNothing: true,
 	})
 	return nil
+}
+
+type Resolution struct {
+	ID             uint            `json:"id"`
+	BrandID        *uint           `json:"brand_id"`
+	StoreID        *uint           `json:"store_id"`
+	DateFrom       *time.Time      `json:"date_from"`
+	DateTo         *time.Time      `json:"date_to"`
+	Prefix         string          `json:"prefix"`
+	From           *int            `json:"from"`
+	To             *int            `json:"to"`
+	Current        *int            `json:"current"`
+	Resolution     string          `json:"resolution"`
+	ResolutionDate *time.Time      `json:"resolution_date"`
+	TypeResolution string          `json:"type_resolution"`
+	TypeDocument   string          `json:"type_document"`
+	CreatedAt      *time.Time      `json:"created_at" swaggerignore:"true"`
+	UpdatedAt      *time.Time      `json:"updated_at" swaggerignore:"true"`
+	DeletedAt      *gorm.DeletedAt `json:"deleted_at" swaggerignore:"true"`
 }
