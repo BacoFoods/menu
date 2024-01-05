@@ -354,47 +354,57 @@ func (o *Order) ToInvoice(tip *TipData, discounts ...discountPKG.Discount) {
 
 		for _, modifier := range orderItem.Modifiers {
 
+			// Default tax values
+			if modifier.Tax == "" {
+				modifier.Tax = "ico" // Default tax type
+			}
+
+			if modifier.TaxPercentage == 0 {
+				modifier.TaxPercentage = 0.08 // Default tax percentage
+			}
+
+			if modifier.TaxBase == 0 {
+				modifier.TaxBase = math.Ceil(modifier.Price / (1 + modifier.TaxPercentage)) // Default tax base
+			}
+
+			if modifier.TaxAmount == 0 {
+				modifier.TaxAmount = modifier.Price - modifier.TaxBase // Default tax amount
+			}
+
 			// Discounts
-			modifier.DiscountedPrice = orderItem.Price
-			orderItem.Discount = 0
+			modifier.DiscountedPrice = modifier.Price
+			modifier.Discount = 0
 
 			for _, discount := range newInvoice.Discounts {
-				modifier.DiscountedPrice -= discount.CalculateAmountRounded(orderItem.Price)
-				orderItem.DiscountPercent += discount.Percentage
-				orderItem.Discount += discount.CalculateAmountRounded(orderItem.Price)
-				orderItem.DiscountReason += fmt.Sprintf("%s - %s - %.2f - %.2f - applied to: %.2f;", discount.Name, discount.Description, discount.Percentage, discount.CalculateAmountRounded(orderItem.Price), orderItem.Price)
+				modifier.DiscountedPrice -= discount.CalculateAmountRounded(modifier.Price)
+				modifier.DiscountPercent += discount.Percentage
+				modifier.Discount += discount.CalculateAmountRounded(modifier.Price)
+				modifier.DiscountReason += fmt.Sprintf("%s - %s - %.2f - %.2f - applied to: %.2f;", discount.Name, discount.Description, discount.Percentage, discount.CalculateAmountRounded(modifier.Price), modifier.Price)
 			}
 
-			// Adding modifier price to subtotal
-			modifierPrice, appliedDiscount := applyDiscount(modifier.Price, newInvoice.Discounts)
-			subtotal += modifierPrice
-
-			modifierTax := "ico" // Default tax
-			if modifier.Tax != "" {
-				modifierTax = modifier.Tax
-			}
-
-			modifierTaxPerc := 0.08 // TODO Improve tax calculation
-			if modifier.TaxPercentage != 0 {
-				modifierTaxPerc = modifier.TaxPercentage
-			}
-
-			modifierBaseTax := math.Floor(modifierPrice / (1 + modifierTaxPerc))
-			newInvoice.BaseTax += modifierBaseTax
-			newInvoice.Taxes += modifierPrice - modifierBaseTax
-			newInvoice.TotalDiscounts += appliedDiscount
+			newInvoice.BaseTax += modifier.TaxBase
+			newInvoice.Taxes += modifier.TaxAmount
+			newInvoice.TotalDiscounts += modifier.Discount
 
 			newInvoice.Items = append(newInvoice.Items, invoice.Item{
-				ProductID:       modifier.ProductID,
-				Name:            modifier.Name,
-				Description:     modifier.Description,
-				SKU:             modifier.SKU,
-				Price:           modifier.Price,
-				Comments:        modifier.Comments,
-				DiscountedPrice: modifierPrice,
-				Tax:             modifierTax,
-				TaxPercentage:   modifierTaxPerc,
+				ProductID:          modifier.ProductID,
+				Name:               modifier.Name,
+				Description:        modifier.Description,
+				SKU:                modifier.SKU,
+				Price:              modifier.Price,
+				Comments:           modifier.Comments,
+				DiscountedPrice:    modifier.DiscountedPrice,
+				DiscountPercentage: modifier.DiscountPercent,
+				DiscountReason:     modifier.DiscountReason,
+				DiscountAmount:     modifier.Discount,
+				Tax:                modifier.Tax,
+				TaxPercentage:      modifier.TaxPercentage,
+				TaxAmount:          modifier.TaxAmount,
+				TaxBase:            modifier.TaxBase,
 			})
+
+			// Adding modifier price to subtotal
+			subtotal += modifier.Price
 		}
 
 		orderItems = append(orderItems, orderItem)
